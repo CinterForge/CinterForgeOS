@@ -374,11 +374,12 @@ Klipper's restored history) is not sent to the Mac; the shared content is offere
 ## Controller
 
 Any controller macOS's GameController framework supports (Xbox, DualSense, DualShock 4, MFi, …)
-drives one gamepad in SteamOS; Settings → Controller picks which one. The pad is not a virtio-input
+drives a gamepad in SteamOS: the first connected one, or the one picked in Settings → Controller,
+is player 1, and further ones are players 2–4 (“Several controllers” below). The pad is not a virtio-input
 device: the launcher sends it over the virtio-console port `fx.pad` to the guest's root service
 `fx-pad.service` (`fx-progress-agent pad`, started by udev when the port appears), which creates it
 with uinput. So it follows the Mac while the VM runs: it appears when a controller connects (Steam
-shows “Controller Connected”), disappears when the last one goes, and changes kind with it.
+shows “Controller Connected”), disappears when its controller goes, and changes kind with it.
 Settings → Controller → **Appears in SteamOS as** (`--pad auto|xbox360|dualsense|dualshock4` for
 one run):
 

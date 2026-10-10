@@ -14,8 +14,8 @@ func krun(_ name: String, _ r: Int32) throws -> Int32 {
     return r
 }
 
-/// Input devices handed to the window (nil in headless mode). The gamepad is not among them: the
-/// guest creates it over fx.pad (PadPort, GamepadBridge).
+/// Input devices handed to the window (nil in headless mode). The gamepads are not among them: the
+/// guest creates them over fx.pad, fx.pad2, … (PadPort, GamepadBridge).
 struct VMInputs {
     let keyboard: InputDevice
     let tablet: InputDevice

@@ -300,10 +300,10 @@ Klipper 恢复的历史）不发往 Mac；共享内容改为在 Mac 侧提供。
 ## 控制器
 
 macOS GameController 框架支持的任何控制器（Xbox、DualSense、DualShock 4、MFi……）
-都在 SteamOS 中驱动一个手柄；设置 → 控制器选择用哪一个。该手柄不是 virtio-input
+都在 SteamOS 中驱动一个手柄：首个已连接的或在设置 → 控制器中选定的是玩家 1，其余是玩家 2–4（见下文“多个控制器”）。该手柄不是 virtio-input
 设备：启动器经 virtio-console 端口 `fx.pad` 发往客户机 root 服务
 `fx-pad.service`（`fx-progress-agent pad`，端口出现时由 udev 启动），由它经 uinput 创建。
-因此虚拟机运行时它跟随 Mac：控制器连接即出现（Steam 显示“Controller Connected”），最后一个断开即消失，种类随之变化。
+因此虚拟机运行时它跟随 Mac：控制器连接即出现（Steam 显示“Controller Connected”），其控制器断开即消失，种类随之变化。
 设置 → 控制器 → **在 SteamOS 中显示为**（单次启动用 `--pad auto|xbox360|dualsense|dualshock4`）：
 
 - **自动**（默认）：与驱动它的控制器同类——DualSense（或 Edge）→
