@@ -324,7 +324,7 @@ DualSense 驱动操作 `/dev/hidraw*`，Steam Input 获得触摸板、陀螺仪�
 （`hid-input`）；输出报告、GET_REPORT 与 SET_REPORT 回控制器（`hid-output`、
 `hid-get` / `hid-get-reply`、`hid-set` / `hid-set-reply`，hex，报告 ID 在首）。客户机跟不上时丢弃旧输入报告而非排队：每份报告都携带完整状态。A/B 互换与摇杆死区对直通控制器无效。GameController 不报告控制器对应哪个 HID 设备：多 DualSense 时直通第一个找到的。无 `caps hid` 的旧客户机层仍获得 uinput 手柄。
 
-**多个控制器。** 开启设置 → 控制器 → **更多控制器**（默认开，立即生效）后，其余已连接的控制器成为玩家 2–4，在 SteamOS 中各有自己的手柄，用于本地合作。每个玩家一个 virtio-console 端口：玩家 1 用上述 `fx.pad`，其余用 `fx.pad2` … `fx.pad4`，各由以端口命名的 `fx-pad@.service` 实例服务（同一个 `fx-progress-agent pad`，以 `FX_PAD_PORT` 指定端口，由 udev 启动），因此各玩家端口上的协议相同，手柄的振动在驱动它的控制器上播放。客户机对应端口的服务发出 `hello` 后该玩家才获得控制器：没有 `fx-pad@.service` 的客户机层仍只有一个手柄。设置中选定的控制器是玩家 1；玩家的控制器在断开前保持不变（其他玩家不递补），重新连接的控制器占用第一个空位。种类、A/B 互换与死区对所有手柄相同。只有玩家 1 的 DualSense 可直通，且另一玩家的控制器也是 DualSense 时不直通（GameController 不报告哪个 HID 设备属于谁）：此时两者都获得 uinput 手柄。关闭：一个控制器驱动一个手柄，与之前相同。
+**多个控制器。** 开启设置 → 控制器 → **更多控制器**（默认开，立即生效）后，其余已连接的控制器成为玩家 2–4，在 SteamOS 中各有自己的手柄，用于本地合作。每个玩家一个 virtio-console 端口：玩家 1 用上述 `fx.pad`，其余用 `fx.pad2` … `fx.pad4`，各由以端口命名的 `fx-pad@.service` 实例服务（同一个 `fx-progress-agent pad`，以 `FX_PAD_PORT` 指定端口，由 udev 启动），因此各玩家端口上的协议相同，手柄的振动在驱动它的控制器上播放。客户机对应端口的服务发出 `hello` 后该玩家才获得控制器：没有 `fx-pad@.service` 的客户机层仍只有一个手柄。设置中选定的控制器是玩家 1；玩家的控制器在断开前保持不变（其他玩家不递补），重新连接的控制器占用第一个空位。**在 SteamOS 中显示为**、A/B 互换与死区对所有手柄生效（“自动”时每个手柄与各自的控制器同类）。只有玩家 1 的 DualSense 可直通，且另一玩家的控制器也是 DualSense 时不直通（GameController 不报告哪个 HID 设备属于谁）：此时两者都获得 uinput 手柄。关闭：一个控制器驱动一个手柄，与之前相同。
 
 `--control-fifo` 测试命令：`pad on`（无控制器的手柄，如 `--input-selftest` 所用）、
 `pad off`、`pad test`（A + 左摇杆）——均可带玩家编号（`pad on 2`；不带则为 1）——以及 `pad state`（客户机手柄、上次振动等级、客户机是否接管 HID 设备、已连接 DualSense 与直通输入报告数）。

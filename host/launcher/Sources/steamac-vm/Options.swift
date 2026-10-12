@@ -194,8 +194,9 @@ struct Options {
                            (xpad); dualsense, dualshock4: Sony pad as the Linux hid-playstation /
                            hid-sony drivers expose it (PlayStation button glyphs in Steam). Any
                            connected controller drives it; its rumble plays on that controller.
-                           Further controllers are players 2-4 with pads of the same kind
-                           (Settings > Controller "Additional controllers").
+                           Further controllers are players 2-4 with a pad each (auto: of
+                           its own controller's kind; Settings > Controller "Additional
+                           controllers").
       --krun-log-level N   libkrun log level 0=off .. 5=trace (default 2=warn)
       --steam-client C     Steam client SteamOS starts (kernel cmdline steamac.steam_client=C, added on
                            every boot; default: Settings > Advanced "Steam client", deck unless changed):

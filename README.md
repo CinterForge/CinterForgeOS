@@ -424,7 +424,8 @@ is the same for every player, and a pad's rumble plays on the controller that dr
 gets a controller once the guest's service of that port said `hello`: a guest layer without
 `fx-pad@.service` keeps the one pad. The controller chosen in Settings is player 1; a player keeps
 their controller until it disconnects (the others do not move up), and a reconnected controller
-takes the first free player. Kind, swap A/B and dead zone are the same for all pads. Only player 1's
+takes the first free player. **Appears in SteamOS as**, swap A/B and dead zone apply to every pad (with
+Automatic each pad is the kind of its own controller). Only player 1's
 DualSense is passed through, and not while another player's controller is a DualSense too
 (GameController does not say which HID device is whose): both get uinput pads then. Off: one
 controller drives the one pad, as before.
