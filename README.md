@@ -427,8 +427,9 @@ their controller until it disconnects (the others do not move up), and a reconne
 takes the first free player. **Appears in SteamOS as**, swap A/B and dead zone apply to every pad (with
 Automatic each pad is the kind of its own controller). Only player 1's
 DualSense is passed through, and not while another player's controller is a DualSense too
-(GameController does not say which HID device is whose): both get uinput pads then. Off: one
-controller drives the one pad, as before.
+(GameController does not say which HID device is whose): both get uinput pads then. While the VM
+runs, the live input test in Settings → Controller badges each controller with its player
+(**Player 2**). Off: one controller drives the one pad, as before.
 
 `--control-fifo` test commands: `pad on` (a pad without a controller, as `--input-selftest` uses),
 `pad off`, `pad test` (A + left stick) — each takes a player number (`pad on 2`; 1 if not given) —

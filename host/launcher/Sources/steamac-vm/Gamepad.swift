@@ -494,6 +494,9 @@ private final class PadSlot {
 final class GamepadBridge {
     /// Players at most: one PadPort each.
     static let maxPads = 4
+    /// The player (1…) each controller drives, for Settings > Controller (main thread; posts
+    /// `.gamepadPlayersChanged` when it changes).
+    nonisolated(unsafe) private(set) static var players: [ObjectIdentifier: Int] = [:]
 
     private let slots: [PadSlot]
     private let settings: LauncherSettings
@@ -636,6 +639,11 @@ final class GamepadBridge {
         for (i, s) in slots.enumerated() { s.setController(next[i]) }
         // Whether player 1's DualSense is passed through depends on the others' controllers.
         slots[0].reconcile()
+        let players = Dictionary(uniqueKeysWithValues: slots.compactMap { s in s.controller.map { (ObjectIdentifier($0), s.index + 1) } })
+        if players != GamepadBridge.players {
+            GamepadBridge.players = players
+            NotificationCenter.default.post(name: .gamepadPlayersChanged, object: nil)
+        }
     }
 
     private static func axis(_ v: Float) -> Int32 {
@@ -714,4 +722,9 @@ final class GamepadBridge {
             log(usage)
         }
     }
+}
+
+extension Notification.Name {
+    /// GamepadBridge.players changed.
+    static let gamepadPlayersChanged = Notification.Name("GamepadBridgePlayersChanged")
 }

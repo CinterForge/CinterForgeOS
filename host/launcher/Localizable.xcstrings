@@ -3676,6 +3676,22 @@
         }
       }
     },
+    "Player %lld" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Игрок %lld"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "玩家 %lld"
+          }
+        }
+      }
+    },
     "Powered off" : {
       "localizations" : {
         "ru" : {
@@ -6687,22 +6703,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "显示已关闭 %lld 秒"
-          }
-        }
-      }
-    },
-    "drives the virtual pad" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "управляет виртуальным контроллером"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "驱动虚拟手柄"
           }
         }
       }
