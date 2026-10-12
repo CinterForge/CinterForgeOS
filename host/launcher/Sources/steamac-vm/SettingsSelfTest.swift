@@ -29,7 +29,8 @@ enum SettingsSelfTest {
         let dir = o.selftestOut ?? "."
         try? FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
         // Crash-report scrubbing: the user, host, computer and Bonjour names never leave the Mac.
-        var failures = CrashReporting.scrubSelfCheck() + CrashReporting.scannerSelfCheck() + VMSizing.selfCheck()
+        var failures = CrashReporting.scrubSelfCheck() + CrashReporting.scannerSelfCheck() + CrashReporting.exitSelfCheck()
+            + VMSizing.selfCheck()
             + UpdateChecker.selfCheck() + MacTime.selfCheck() + ClipboardSync.selfCheck()
         var tabs = SettingsWindowController.Tab.allCases[...]
 

@@ -870,7 +870,7 @@ private struct AdvancedTab: View {
 
     private var diskStatus: (String, Bool) {
         if !settings.diskImage.isEmpty {
-            let ok = FileManager.default.isReadableFile(atPath: settings.diskImage)
+            let ok = AppBundle.isDiskImage(settings.diskImage)
             let path = (settings.diskImage as NSString).abbreviatingWithTildeInPath
             return (ok ? path : String(localized: "\(path) (not found)"), ok)
         }
@@ -1086,10 +1086,7 @@ private struct AdvancedTab: View {
 
     private func chooseDisk() {
         let panel = NSOpenPanel()
-        panel.title = String(localized: "Choose a SteamOS disk image")
-        panel.canChooseFiles = true
-        panel.canChooseDirectories = false
-        panel.allowsMultipleSelection = false
+        AppBundle.configureDiskPanel(panel)
         if !settings.diskImage.isEmpty {
             panel.directoryURL = URL(fileURLWithPath: (settings.diskImage as NSString).deletingLastPathComponent)
         }

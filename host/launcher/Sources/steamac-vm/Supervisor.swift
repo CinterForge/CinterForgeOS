@@ -220,7 +220,7 @@ enum Supervisor {
             return VMExit(status: 1)
         }
         childPid = pid
-        var exit = VMExit(status: 1)
+        var exit = VMExit(status: 1, pid: pid)
         // NOTE_EXIT fires when the process becomes a zombie; its data carries NOTE_EXIT_DETAIL
         // bits (NOTE_EXIT_MEMORY = jetsam, the kernel's jetsam cause in the high bits). Not
         // registered if it already exited (ESRCH).

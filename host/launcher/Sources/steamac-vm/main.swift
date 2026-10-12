@@ -47,6 +47,7 @@ if options.selftestPill { PillSelfTest.run(options) }
 if options.selftestSettings { SettingsSelfTest.run(options, overrides: settingsOverrides) }
 if options.selftestProvision { ProvisionSelfTest.run(options) }
 if options.selftestRemotePlay { RemotePlaySelfTest.run() }
+if options.selftestPointer { PointerSelfTest.run() }
 if options.createDisk != nil { CreateDiskCLI.run(options, settings: settings) }
 if let disk = options.growDisk {
     do {
@@ -104,11 +105,12 @@ final class Lifecycle: NSObject, NSApplicationDelegate {
     /// SteamOS can take ~2 min to stop (systemd stop-job timeouts) before libkrun exits.
     static let gracePeriod: TimeInterval = 180
 
-    /// Force quit: no relaunch even if a restart was pending.
+    /// Force quit: no relaunch even if a restart was pending; the status tells the supervisor the
+    /// user asked for it (CrashReporting.forceQuitStatus).
     private func forceQuit() -> Never {
         log("force quit")
         if let dir = Supervisor.runDir { try? FileManager.default.removeItem(atPath: Supervisor.rebootMarker(dir)) }
-        exit(1)
+        exit(CrashReporting.forceQuitStatus)
     }
 
     func requestShutdown(force: Bool = false) {
