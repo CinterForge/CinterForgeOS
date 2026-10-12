@@ -56,6 +56,7 @@ struct Options {
     var network = true
     var lanRemotePlay = false
     var selftestRemotePlay = false
+    var selftestPointer = false
     var sound = true
     var sshPort = 2222
     /// Steam client of this boot (kernel cmdline `steamac.steam_client=`).
@@ -130,6 +131,7 @@ struct Options {
            steamac-vm --selftest-provision [--reference-disk IMG]
            steamac-vm --selftest-remote-play
            steamac-vm --selftest-metal-cache
+           steamac-vm --selftest-pointer
            steamac-vm --create-disk PATH [--branch stable|rc] [--home-gib N]
                       [--password PW] [--keep-cache] [--accept-eula]
            steamac-vm --ssh-password DISK
@@ -258,6 +260,8 @@ struct Options {
                            (default work/out/steamos.img, opened read-only), squashfs + CMS verification of
                            the cached bundle, cpio payload, SHA-512 crypt, desync progress parsing
       --selftest-metal-cache reproduce an inaccessible Metal module cache and verify startup recovery
+      --selftest-pointer   host pointer -> guest cursor mapping (Retina on/off, window vs scanout size,
+                           full-screen letterbox, MetalFX, the guest's focused surface from focus lines)
       --resize-selftest S  S seconds after Steam is ready, resize the window 1600x1000 -> fullscreen ->
                            windowed -> 1280x800, wait for the guest's new scanout each time and dump
                            frames to <--frame-dump>-resize-N-*.png
@@ -389,6 +393,7 @@ struct Options {
             case "--selftest-remote-play": o.selftestRemotePlay = true
             case "--selftest-provision": o.selftestProvision = true
             case "--selftest-metal-cache": o.selftestMetalCache = true
+            case "--selftest-pointer": o.selftestPointer = true
             case "--reference-disk": o.referenceDisk = try value(a)
             case "--create-disk": o.createDisk = try value(a)
             case "--grow-disk": o.growDisk = try value(a)
@@ -430,7 +435,7 @@ struct Options {
 
     var isSelftest: Bool {
         selftestDisplay || selftestOverlay || selftestStall || selftestPill || selftestSettings || selftestProvision || selftestRemotePlay
-            || selftestMetalCache || createDisk != nil || growDisk != nil
+            || selftestMetalCache || selftestPointer || createDisk != nil || growDisk != nil
             || showSSHPassword != nil
     }
 

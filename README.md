@@ -142,7 +142,11 @@ start over.
 
 Mouse (`--mouse auto`, by default): the SteamOS cursor follows the Mac cursor precisely. gamescope
 (gaming mode) does not accept absolute coordinates, so the launcher moves it with relative deltas
-without acceleration. When a game has focus in the guest (the agent sends `focus game <appid>`), the
+without acceleration, in pixels of the surface gamescope shows: the agent sends its size with each
+focus line (`focus steam 1920x1200` when Steam's Settings > Display > Resolution is not the native
+one, so its UI is smaller than the display and scaled up), and the launcher maps the window onto that
+surface as gamescope scales it into the display (`--selftest-pointer`). When a game has focus in the
+guest (the agent sends `focus game <appid> <w>x<h>`), the
 first click captures the mouse (relative movement for mouse-look); Ctrl+Option releases it. On
 returning to Steam, capture is released automatically. **Mouse** menu:
 - **Capture Mouse in This Game** — auto-capture for the current game (saved by appid);

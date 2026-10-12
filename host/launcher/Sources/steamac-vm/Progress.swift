@@ -18,9 +18,9 @@ struct ProgressState: Equatable {
 enum GuestFocus: Equatable {
     case steam
     case game(Int)
-    /// Desktop Mode (`focus desktop <w>x<h>`): the Plasma desktop, one window of this size that
-    /// gamescope scales into the display.
-    case desktop(width: Int, height: Int)
+    /// Desktop Mode (`focus desktop <w>x<h>`): the Plasma desktop, one window that gamescope
+    /// scales into the display.
+    case desktop
     /// The gamescope session ended without a system shutdown (bare `focus desktop`: Switch to
     /// Desktop, Return to Gaming Mode, relogin); nothing reports until the next session's agent.
     case sessionEnded
@@ -71,6 +71,10 @@ final class BootProgress {
     var onRebootIntent: (() -> Void)?
     /// Which guest app has focus (`focus steam` / `focus game <appid>` / `focus desktop [<w>x<h>]`).
     var onFocus: ((GuestFocus) -> Void)?
+    /// Right after every `onFocus`: the size of the surface gamescope moves the cursor on (the
+    /// trailing `<w>x<h>` of the focus line: Steam's window, the Xwayland mode for a game, the
+    /// Plasma window), nil when the line has none.
+    var onFocusSurface: (((Int, Int)?) -> Void)?
     /// `game <appid> <name>`: the display name of a game the guest focused.
     var onGameName: ((Int, String) -> Void)?
     /// `game-frozen <appid>` / `game-thawed <appid>`: the agent's confirmation of a pause (GamePause).
@@ -183,18 +187,15 @@ final class BootProgress {
             beginShutdown(reboot: parts[1] == "reboot")
         case "focus":
             guard parts.count >= 2 else { return }
+            let size = parts.count >= 3 ? BootProgress.pixelSize(parts[parts.count - 1]) : nil
             switch parts[1] {
             case "steam": onFocus?(.steam)
-            case "desktop":
-                let size = parts.count >= 3 ? parts[2].split(separator: "x").compactMap { Int($0) } : []
-                if size.count == 2, size[0] > 0, size[1] > 0 {
-                    onFocus?(.desktop(width: size[0], height: size[1]))
-                } else {
-                    onFocus?(.sessionEnded)
-                }
+            // Bare `focus desktop`: the session ended.
+            case "desktop": onFocus?(size != nil ? .desktop : .sessionEnded)
             case "game": onFocus?(.game(parts.count >= 3 ? (Int(parts[2]) ?? 0) : 0))
-            default: break
+            default: return
             }
+            onFocusSurface?(size)
         case "game-frozen", "game-thawed":
             guard parts.count >= 2, let id = Int(parts[1]) else { return }
             onGameFrozen?(id, verb == "game-frozen")
@@ -358,6 +359,13 @@ final class BootProgress {
                 + (s.logDetail.isEmpty ? "" : " · \(s.logDetail)"))
         }
         onChange?(s)
+    }
+
+    /// "1920x1200" -> (1920, 1200); nil unless both are positive integers.
+    static func pixelSize(_ s: String) -> (Int, Int)? {
+        let v = s.split(separator: "x", omittingEmptySubsequences: false)
+        guard v.count == 2, let w = Int(v[0]), let h = Int(v[1]), w > 0, h > 0 else { return nil }
+        return (w, h)
     }
 
     /// "[  OK  ] Started Foo." -> "Started Foo"
