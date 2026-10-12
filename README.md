@@ -702,7 +702,12 @@ What is sent:
   not in breadcrumbs; the vkr line “pipeline … creation failed on host” is a breadcrumb only), a
   Rust panic in libkrun (`thread … panicked at`), failure of initial disk provisioning (`provision
   failed`), failure to create a disk, unexpected VM exit (nonzero exit code or signal when shutdown
-  was not requested by the user), and the idle indicator's “SteamOS is not responding”;
+  was not requested by the user), and the idle indicator's “SteamOS is not responding”. For a VM
+  process crash, the supervisor's report adds macOS's own crash report of it
+  (`~/Library/Logs/DiagnosticReports/steamac-vm-*.ips`, matched by pid): the crash site in the title
+  and the `crash_site` tag (reports group by it), and in extra `macos_crash_report` the exception, the
+  Application Specific Information lines (libmalloc's message on a heap corruption trap) and the
+  crashed thread's first 16 frames (library and symbol names);
 - VM exit due to SIGTERM/SIGINT/SIGHUP (logging out, `kill`, ^C before handlers are installed) is not
   a crash: only a log line, with no event and no Report a Problem window. Neither is SIGPIPE (both
   processes ignore it: a closed output pipe — the terminal, or the supervisor's stderr channel after
@@ -713,8 +718,10 @@ What is sent:
   whether the kernel killed it for memory (jetsam, `NOTE_EXIT_DETAIL` from the supervisor's kqueue),
   VM memory and the VM process footprint at exit/peak, host `vm_stat` numbers (free/compressed/wired,
   swap), `kern.memorystatus_level`, and the history of memory pressure levels since launch
-  (transitions are also written to the log: `memory pressure: …`). Force Quit from the app menu is a
-  requested exit, not a report;
+  (transitions are also written to the log: `memory pressure: …`). Force Quit from the app menu (or a
+  second shutdown request) is a requested exit, not a report: the VM process exits with status 3, which
+  the supervisor recognizes without the `user-exit` marker file (with the Mac's disk full the marker
+  could not be written, STEAMAC-15);
 - Every event includes the last ~200 lines of launcher stderr as breadcrumbs (`[steamac-vm]`,
   `[mvk-*]`, libkrun/virglrenderer warnings, startup stages) and tags: version
   (`es.fxgam.steamac@<CFBundleShortVersionString>+<git sha>`), environment, and `build_kind` tag:

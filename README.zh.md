@@ -521,7 +521,11 @@ SDK 根本不启动、不联网（已落盘报告保留在原处、不发送）�
   内核是否因内存杀它（jetsam，监管器 kqueue 的 `NOTE_EXIT_DETAIL`）、
   虚拟机内存与退出/峰值时虚拟机进程 footprint、宿主 `vm_stat` 数（free/compressed/wired、
   swap）、`kern.memorystatus_level` 与启动以来内存压力等级历史
-  （变化亦写入日志：`memory pressure: …`）。应用菜单强制退出是请求退出，不报告；
+  （变化亦写入日志：`memory pressure: …`）。应用菜单强制退出（或再次请求关机）是请求退出，不报告：虚拟机进程以状态 3
+  退出，监管器无需 `user-exit` 标记文件即可识别（Mac 磁盘已满时该标记写不进去，STEAMAC-15）。虚拟机进程崩溃时，
+  监管器的报告附上 macOS 自己的崩溃报告（`~/Library/Logs/DiagnosticReports/steamac-vm-*.ips`，按 pid 匹配）：
+  标题与 `crash_site` 标签中的崩溃位置（报告按其分组），extra `macos_crash_report` 中的异常、Application Specific
+  Information 行（堆损坏陷阱时 libmalloc 的消息）及崩溃线程前 16 帧（库名与符号名）；
 - 每个事件附带启动器 stderr 最近约 200 行做面包屑（`[steamac-vm]`、
   `[mvk-*]`、libkrun/virglrenderer 警告、启动阶段）与标签：版本
   （`es.fxgam.steamac@<CFBundleShortVersionString>+<git sha>`）、环境与 `build_kind` 标签：
