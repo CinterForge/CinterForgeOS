@@ -546,8 +546,10 @@ panic——`panic` 需要 `--kernel`，必要时加 `--initrd`；`kill`/`term`�
 
 符号：`build.sh` 把 `steamac-vm` 与捆绑库的 dSYM 放入 `work/out/dSYMs`（libkrun、
 virglrenderer、MoltenVK 构建无 DWARF——只有符号表）。`dist.sh`
-在设置 `SENTRY_AUTH_TOKEN`、`SENTRY_ORG`、`SENTRY_PROJECT` 时用 `sentry-cli --url https://sentry.fxgam.es debug-files upload`
-上传它们与应用二进制，否则记录跳过上传。
+用 `sentry-cli --url https://sentry.fxgam.es debug-files upload --wait` 上传它们与应用附带的每个 Mach-O（可执行文件、Frameworks、
+Resources 中的辅助程序；每个都须通过 `sentry-cli debug-files check`），并把 dSYM 保存为 `work/out/dist/FX-Steam-Launcher-<版本>-dSYMs`。
+公证构建必须设置 `SENTRY_AUTH_TOKEN`、`SENTRY_ORG`、`SENTRY_PROJECT`（签名前检查；`--no-sentry-upload` 可跳过）：
+1.9 发布时未上传，`steamac-vm` 与 libkrun 中的崩溃因此没有符号。
 
 ## 更新检查
 

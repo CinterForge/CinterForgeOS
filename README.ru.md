@@ -738,8 +738,11 @@ Rust в `krun_start_enter` из-за слишком длинной команд�
 
 Символы: `build.sh` кладёт dSYM `steamac-vm` и библиотек бандла в `work/out/dSYMs` (libkrun,
 virglrenderer и MoltenVK собраны без DWARF — там только таблицы символов). `dist.sh` загружает их и
-бинарники приложения через `sentry-cli --url https://sentry.fxgam.es debug-files upload`, если заданы
-`SENTRY_AUTH_TOKEN`, `SENTRY_ORG` и `SENTRY_PROJECT`; иначе пишет, что загрузка пропущена.
+каждый Mach-O приложения (исполняемый файл, Frameworks, помощники в Resources; каждый должен пройти
+`sentry-cli debug-files check`) через `sentry-cli --url https://sentry.fxgam.es debug-files upload --wait` и
+сохраняет dSYM в `work/out/dist/FX-Steam-Launcher-<версия>-dSYMs`. Нотаризованная сборка требует
+`SENTRY_AUTH_TOKEN`, `SENTRY_ORG` и `SENTRY_PROJECT` (проверка до подписи; `--no-sentry-upload` отключает
+загрузку): 1.9 вышла без загрузки, и падения в `steamac-vm` и libkrun остались без символов.
 
 ## Проверка обновлений
 

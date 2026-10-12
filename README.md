@@ -750,9 +750,11 @@ with `[mvk-msl]` and a vkr line, then exits). These events have `environment=dev
 
 Symbols: `build.sh` puts dSYMs for `steamac-vm` and bundled libraries in `work/out/dSYMs` (libkrun,
 virglrenderer, and MoltenVK are built without DWARF — they contain only symbol tables). `dist.sh`
-uploads them and the app binaries with `sentry-cli --url https://sentry.fxgam.es debug-files upload`
-if `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, and `SENTRY_PROJECT` are set; otherwise it logs that the upload
-was skipped.
+uploads them and every Mach-O the app ships (executable, Frameworks, helpers in Resources; each must pass
+`sentry-cli debug-files check`) with `sentry-cli --url https://sentry.fxgam.es debug-files upload --wait`,
+and keeps the dSYMs as `work/out/dist/FX-Steam-Launcher-<version>-dSYMs`. A notarized build requires
+`SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, and `SENTRY_PROJECT` (checked before signing; `--no-sentry-upload` opts
+out): 1.9 shipped without an upload, and crashes in `steamac-vm` and libkrun stayed unsymbolicated.
 
 ## Update check
 
