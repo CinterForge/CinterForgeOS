@@ -117,6 +117,12 @@
 #    (also host-imported), depth/stencil, format views, layer views, 2D views of 3D images, sparse binding images, images
 #    at offsets of one allocation. Run with MTL_DEBUG_LAYER_WARNING_MODE=nslog (Metal does not report it otherwise; with
 #    warnings logged the error assert mode aborts on it), any "not added to any residency set" line fails it.
+# 23. provoking_last.c (KosmicKrisp only; STEAMAC-G): flat varyings with the last vertex provoking (zink keeps GL's) in
+#    strips, an instanced strip, fans and lists drawn into a 2560x1600 LINEAR B8G8R8A8 host pointer import (zink's window
+#    buffer); both triangles of each cell must take the last vertex's color, and the command buffer's record
+#    (MESA_KK_DEBUG=cbs, child process) must show one render pass and no compute encoder: the unroll kernel ended the
+#    render pass around every such draw (Steam's web helper's first frame: 13 window-sized render passes, where M3+ GPUs
+#    lost the device).
 # All run with Metal API validation in assert mode (MTL_DEBUG_LAYER), so a Metal validation error
 # fails the run instead of aborting a VM later.
 # All applicable tests must pass on MoltenVK. On KosmicKrisp all but 5 and 10 must pass (1 sizes the descriptor pool with
@@ -318,4 +324,7 @@ if [ "$driver" = kosmickrisp ]; then
 		exit 1
 	fi
 	grep -e '^OK' -e '^SKIP' "$residency_log"
+
+	build provoking_last
+	"$work/provoking_last" "$gspv"
 fi

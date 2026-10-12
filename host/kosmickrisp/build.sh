@@ -125,6 +125,18 @@
 #              imports) or the bound view; KosmicKrisp only added heaps and buffers, and Metal API validation reported
 #              every render pass (9033 times in one Steam boot). STEAMAC-G: M3+ timeouts follow Steam's first MSAA
 #              targets/window images and window resizes. Repro: host/moltenvk/repro residency.c.
+#   0041       steamac: direct draws without an index buffer that need an unroll (a flat varying with the last vertex
+#              provoking, fans) get their indices from the CPU at recording; the unroll kernel ended the render pass
+#              around every such draw (attachments stored, compute pass, attachments loaded). STEAMAC-G: zink keeps
+#              GL's last provoking vertex, and Steam's web helper composites its first frame as 12 such rectangles
+#              into its LINEAR 2560x1600 window buffer: 13 render passes, 43 ms of GPU time on an M1 Max, where M3+
+#              GPUs lose the device (the GPU's recovery; 11 draws: 27 ms -> 0.37 ms). Command buffers keep a record
+#              (render passes, compute encoders, draws/dispatches, KK operations and kernels, program MSL hashes and
+#              L/D/S/A/B/W features); a command queue error prints the failed one's and, once per process, every
+#              command buffer of the process on the GPU with it and its outcome (Hang / InnocentVictim from the
+#              error's userInfo), plus MSL excerpts of programs with loops/atomics/barriers of the one that hung.
+#              0039's os_log reading is dropped (<private>, and it delayed the loss by 2-4 s). MESA_KK_DEBUG=cbs
+#              logs every command buffer's record. Repro: host/moltenvk/repro provoking_last.c.
 #   0042       steamac: R32G32B32_UINT/SINT/SFLOAT uniform texel buffers (R32 texture buffers of three texels per
 #              element, flagged in the descriptor's texel offset; fetches read three texels, alpha 1). vkd3d-proton views
 #              12-byte structured buffers as R32G32B32_UINT texel buffers without checking format features, and
@@ -309,6 +321,7 @@ mv -f "$lib.tmp.$$" "$lib"
 	echo "  0038 = steamac: command queue errors name the GPU time and still unsignalled semaphore waits"
 	echo "  0039 = steamac: command queue errors name the device, timing and os_log GPU error; queue teardown waits for handlers"
 	echo "  0040 = steamac: base textures of image planes, subresource and texel buffer view textures in the residency set"
+	echo "  0041 = steamac: CPU unroll of direct non-indexed draws (no render pass split); command buffer records in queue errors"
 	echo "  0042 = steamac: R32G32B32 uniform texel buffers; views of unsupported formats read as null descriptors"
 	echo
 	echo "Known gaps (host/moltenvk/repro/run.sh): transform feedback with strip geometry shaders and"
