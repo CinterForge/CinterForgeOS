@@ -266,6 +266,9 @@ mvk_version=$(sed -n 's/.*"api_version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1
 	echo "         dynamic offsets (graphics pipeline libraries; Counter-Strike 2's null fourth set crashed the VM"
 	echo "         process at submission, STEAMAC-25)"
 	echo "  0035 = steamac: the color attachments' numeric types by location go to SPIRV-Cross (0033)"
+	echo "  0036 = steamac: vertex shader inputs without a vertex attribute read zeros (SPIRV-Cross 0034; Metal failed"
+	echo "         the pipeline: 'Vertex attribute in_var_NORMAL(1) is missing from the vertex descriptor', SCS Truck"
+	echo "         Simulator, STEAMAC-2Y)"
 	echo "SPIRV-Cross patches (host/moltenvk/patches/spirv-cross):"
 	for p in "$here"/patches/spirv-cross/*.patch; do echo "  $(basename "$p")"; done
 	echo "  0001/0002 = KhronosGroup/SPIRV-Cross 35f52882+da223760 and 0706157e (PR #2666), library only"
@@ -337,6 +340,8 @@ mvk_version=$(sed -n 's/.*"api_version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1
 	echo "  0033 = steamac: fragment outputs of another numeric type than their color attachment are declared with"
 	echo "         the attachment's type and bit cast (Metal: 'output of type uint4 is not compatible with a"
 	echo "         MTLPixelFormatR32Sint color attachment', STEAMAC-2C)"
+	echo "  0034 = steamac: location inputs of plain vertex shaders without an msl_shader_input (no vertex attribute)"
+	echo "         become zero-initialized locals instead of stage_in members (option zero_missing_vertex_attributes)"
 	echo
 	echo "Geometry shader emulation limits: no GS instancing (Invocations > 1); B8G8R8A8 and packed"
 	echo "  (2_10_10_10, 11_11_10) vertex formats are not swizzled/unpacked by the object stage; vertex outputs are"

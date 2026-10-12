@@ -18,10 +18,13 @@
  *                          usage): pipeline creation must fail, not abort
  *   undescribed_dynamic    the same with dynamic strides
  *   no_bindings            attributes but no binding descriptions at all: must fail, not crash
+ *   missing_attribute      only 'pos' described (no attribute or binding 1, invalid usage common in games:
+ *                          SCS Truck Simulator, STEAMAC-2Y): Metal rejected the pipeline ("Vertex attribute
+ *                          in_var_NORMAL(1) is missing from the vertex descriptor"); 'col' must read zeros
  *   gs_*                   through a passthrough geometry shader (emulated with Metal mesh shaders: the
  *                          object stage fetches the vertices, no Metal vertex descriptor): zero strides,
- *                          static and dynamic, and an undescribed binding (the object stage read an unbound
- *                          Metal buffer)
+ *                          static and dynamic, an undescribed binding (the object stage read an unbound
+ *                          Metal buffer) and a missing attribute
  *
  *   vertex_input <spv dir> [case]
  */
@@ -105,6 +108,7 @@ struct test {
 	uint32_t stride1;				/* static stride of binding 1 (dynamic: bound stride) */
 	uint32_t offset1;				/* offset of 'col' */
 	int dynamic, divisor0, undescribed, no_bindings;
+	int missing1;					/* no attribute or binding 1: 'col' reads zeros (expect is ignored) */
 	int gs;							/* through vi_points.geom (geometry shader emulation, no Metal vertex descriptor) */
 	int expect_fail;
 	int expect[W];					/* element read by point i */
@@ -120,11 +124,13 @@ static const struct test tests[] = {
 	{ "undescribed_binding",  VK_VERTEX_INPUT_RATE_VERTEX,   16, 0, .undescribed = 1, .expect_fail = 1 },
 	{ "undescribed_dynamic",  VK_VERTEX_INPUT_RATE_VERTEX,   16, 0, .dynamic = 1, .undescribed = 1, .expect_fail = 1 },
 	{ "no_bindings",          VK_VERTEX_INPUT_RATE_VERTEX,   16, 0, .no_bindings = 1, .expect_fail = 1 },
+	{ "missing_attribute",    VK_VERTEX_INPUT_RATE_VERTEX,   16, 0, .missing1 = 1 },
 	{ "gs_zero_stride",       VK_VERTEX_INPUT_RATE_VERTEX,   0,  0, .gs = 1, .expect = { 0, 0, 0, 0 } },
 	{ "gs_zero_stride_instance", VK_VERTEX_INPUT_RATE_INSTANCE, 0, 0, .gs = 1, .expect = { 0, 0, 0, 0 } },
 	{ "gs_dynamic_zero_stride", VK_VERTEX_INPUT_RATE_VERTEX, 0,  0, .gs = 1, .dynamic = 1, .expect = { 0, 0, 0, 0 } },
 	{ "gs_dynamic_stride",    VK_VERTEX_INPUT_RATE_VERTEX,   16, 0, .gs = 1, .dynamic = 1, .expect = { 0, 1, 2, 3 } },
 	{ "gs_undescribed_binding", VK_VERTEX_INPUT_RATE_VERTEX, 16, 0, .gs = 1, .undescribed = 1, .expect_fail = 1 },
+	{ "gs_missing_attribute", VK_VERTEX_INPUT_RATE_VERTEX,   16, 0, .gs = 1, .missing1 = 1 },
 };
 enum { NTESTS = sizeof(tests) / sizeof(tests[0]) };
 
@@ -209,8 +215,8 @@ static int run(const struct test *t)
 		.vertexBindingDivisorCount = 1, .pVertexBindingDivisors = &div };
 	VkPipelineVertexInputStateCreateInfo vi = { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
 		.pNext = t->divisor0 ? &divci : NULL,
-		.vertexBindingDescriptionCount = t->no_bindings ? 0 : t->undescribed ? 1 : 2, .pVertexBindingDescriptions = bindings,
-		.vertexAttributeDescriptionCount = 2, .pVertexAttributeDescriptions = attrs };
+		.vertexBindingDescriptionCount = t->no_bindings ? 0 : t->undescribed || t->missing1 ? 1 : 2, .pVertexBindingDescriptions = bindings,
+		.vertexAttributeDescriptionCount = t->missing1 ? 1 : 2, .pVertexAttributeDescriptions = attrs };
 	VkPipelineInputAssemblyStateCreateInfo ia = { VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
 		.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST };
 	VkViewport vp = { 0, 0, W, 1, 0, 1 };
@@ -287,8 +293,14 @@ static int run(const struct test *t)
 	int bad = 0;
 	char got[128] = "", want[128] = "";
 	for (int i = 0; i < W; i++) {
-		float c[4];
-		color(t->expect[i], c);
+		size_t gl = strlen(got), wl = strlen(want);
+		if (t->missing1) {
+			int zero = !px[4 * i] && !px[4 * i + 1] && !px[4 * i + 2] && !px[4 * i + 3];
+			bad += !zero;
+			snprintf(got + gl, sizeof(got) - gl, " (%u %u %u %u)", px[4 * i], px[4 * i + 1], px[4 * i + 2], px[4 * i + 3]);
+			snprintf(want + wl, sizeof(want) - wl, " (0 0 0 0)");
+			continue;
+		}
 		int match = -1;
 		for (int k = 0; k < 16 && match < 0; k++) {
 			float e[4];
@@ -301,7 +313,6 @@ static int run(const struct test *t)
 			if (ok) match = k;
 		}
 		bad += match != t->expect[i];
-		size_t gl = strlen(got), wl = strlen(want);
 		if (match >= 0)
 			snprintf(got + gl, sizeof(got) - gl, " C%d", match);
 		else

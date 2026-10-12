@@ -43,7 +43,7 @@
 # 10. vertex_input.c: vertex input layouts Metal's always-on vertex descriptor validation aborts on (zero
 #    strides, static/dynamic/per instance/zero divisor, attributes past the stride, attributes of undescribed
 #    bindings, with and without geometry shader emulation), one process per case; points check the
-#    elements read.
+#    elements read; a shader input without a vertex attribute (STEAMAC-2Y: Metal failed the pipeline) reads zeros.
 # 11. device_address.c: atomics on vector components behind buffer device addresses (vkd3d-proton's
 #    scalar-layout uvec3 counter, std430 uvec4 with a dynamic component, ivec2), values read back.
 # 12. queries.c: occlusion query results copied from a later command buffer, one copy per query with
