@@ -30,7 +30,16 @@ queries, statistics, flags)"): Venus creates query pools asynchronously,
 so the guest only saw a CS error at the pool's first use (STEAMAC-2X: Path
 of Exile 2, "vkr: failed to look up object ... of type 12", then
 "vkCmdResetQueryPool resulted in CS error").
+
+Compute encoder timestamps are written with Metal's precise granularity.
+Relaxed granularity (which may sample at encoder boundaries) sampled only
+the first 4 timestamps of a compute encoder; the others resolved whatever
+their counter heap entry held. With entries per pool that was usually an
+earlier sample of the same query, which hid it (vkd3d-proton's
+test_query_timestamp_write_after_read passed); with entries reused across
+command buffers it is 0 or another query's sample.
 ---
+ src/kosmickrisp/bridge/mtl_encoder.m    |   2 +-
  src/kosmickrisp/vulkan/kk_cmd_buffer.c  |   4 +
  src/kosmickrisp/vulkan/kk_cmd_buffer.h  |   5 +
  src/kosmickrisp/vulkan/kk_cmd_draw.c    |   4 +-
@@ -38,8 +47,21 @@ of Exile 2, "vkr: failed to look up object ... of type 12", then
  src/kosmickrisp/vulkan/kk_query_pool.h  |  18 +-
  src/kosmickrisp/vulkan/kk_query_table.c |  67 ++++---
  src/kosmickrisp/vulkan/kk_query_table.h |  20 +-
- 7 files changed, 204 insertions(+), 161 deletions(-)
+ 8 files changed, 205 insertions(+), 162 deletions(-)
 
+diff --git a/src/kosmickrisp/bridge/mtl_encoder.m b/src/kosmickrisp/bridge/mtl_encoder.m
+index b356b52..7ba52e9 100644
+--- a/src/kosmickrisp/bridge/mtl_encoder.m
++++ b/src/kosmickrisp/bridge/mtl_encoder.m
+@@ -514,7 +514,7 @@
+       id<MTL4ComputeCommandEncoder> enc =
+          (id<MTL4ComputeCommandEncoder>)encoder;
+       id<MTL4CounterHeap> h = (id<MTL4CounterHeap>)heap;
+-      [enc writeTimestampWithGranularity:MTL4TimestampGranularityRelaxed
++      [enc writeTimestampWithGranularity:MTL4TimestampGranularityPrecise
+                                 intoHeap:h
+                                  atIndex:index];
+    }
 diff --git a/src/kosmickrisp/vulkan/kk_cmd_buffer.c b/src/kosmickrisp/vulkan/kk_cmd_buffer.c
 index 72f7fdc..c5a4a6e 100644
 --- a/src/kosmickrisp/vulkan/kk_cmd_buffer.c

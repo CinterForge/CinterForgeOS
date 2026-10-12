@@ -55,7 +55,8 @@
 #    300 occlusion pools of 4096 (vkd3d-proton's size; 128 were KosmicKrisp's per-device limit) with 40 timestamp pools
 #    of 8192 created between them (327680 queries, more than the 131072 counter heap entries Metal gives a process),
 #    one render pass counting samples in queries of five occlusion pools with timestamps before, inside and after it,
-#    and 3 rounds of 4096 command buffers writing one timestamp each (counter heap entries return at reset)
+#    and 3 rounds of 4096 command buffers writing one timestamp each (counter heap entries return at reset), 16 timestamps
+#    written back to back (Metal's relaxed granularity sampled only 4 of a compute encoder)
 #    (STEAMAC-2X: Path of Exile 2's GPU context died on "vkCmdResetQueryPool resulted in CS error").
 # 13. texel_buffer.c: texel buffer views at offsets that are not 16-byte aligned (single texel alignment, required by
 #    vkd3d-proton): uniform/storage texel buffers, arrays, variable-count arrays, copies and push descriptors, values

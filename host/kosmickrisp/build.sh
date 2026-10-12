@@ -170,9 +170,11 @@
 #              returned at reset/free), pools take none; a write finding none left makes its queries available with 0
 #              (logged once). vkCreateQueryPool failures log their reason, VkResult, type and count in release builds
 #              (STEAMAC-2X: Path of Exile 2's GPU context died on "vkCmdResetQueryPool resulted in CS error" after a
-#              query pool failed to create). Repro: host/moltenvk/repro queries.c (300 occlusion pools of 4096 with 40
-#              timestamp pools of 8192, one render pass over queries of five occlusion pools; 3 x 4096 command buffers
-#              writing a timestamp each).
+#              query pool failed to create). Compute encoder timestamps use Metal's precise granularity: relaxed sampled
+#              only the first 4 of an encoder, the rest resolved their entry's old contents (hidden while entries were
+#              per pool; vkd3d-proton's test_query_timestamp_write_after_read). Repro: host/moltenvk/repro queries.c
+#              (300 occlusion pools of 4096 with 40 timestamp pools of 8192, one render pass over queries of five
+#              occlusion pools; 3 x 4096 command buffers writing a timestamp each; 16 timestamps back to back).
 #
 # Two meson builds: (1) the host compiler tools mesa_clc + vtn_bindgen2 against Homebrew LLVM
 # (shared) and SPIRV-LLVM-Translator, installed into work/build/host-kosmickrisp/clc; (2) the driver

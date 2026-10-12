@@ -506,6 +506,43 @@ int main(int argc, char **argv)
 		vkDestroyCommandPool(dev, rpool, NULL);
 		vkDestroyQueryPool(dev, tp2, NULL);
 	}
+
+	/* 16 timestamps written back to back outside a render pass (vkd3d-proton's EndQuery(TIMESTAMP) with the resets
+	 * hoisted): KosmicKrisp sampled them with Metal's relaxed granularity, which sampled only the first 4 of a compute
+	 * encoder; the others resolved whatever their counter heap entry held (0 or a stale sample). Every one available,
+	 * non-zero and not decreasing. */
+	{
+		enum { NT = 16 };
+		VkQueryPool tp3;
+		VkQueryPoolCreateInfo t16 = { VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO, .queryType = VK_QUERY_TYPE_TIMESTAMP,
+			.queryCount = NT };
+		CK(vkCreateQueryPool(dev, &t16, NULL, &tp3));
+		VkCommandBuffer c[2];
+		ai.commandBufferCount = 2;
+		CK(vkAllocateCommandBuffers(dev, &ai, c));
+		CK(vkBeginCommandBuffer(c[0], &bi));
+		vkCmdResetQueryPool(c[0], tp3, 0, NT);
+		CK(vkEndCommandBuffer(c[0]));
+		CK(vkBeginCommandBuffer(c[1], &bi));
+		for (uint32_t k = 0; k < NT; k++)
+			vkCmdWriteTimestamp2(c[1], VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, tp3, k);
+		CK(vkEndCommandBuffer(c[1]));
+		VkSubmitInfo s = { VK_STRUCTURE_TYPE_SUBMIT_INFO, .commandBufferCount = 2, .pCommandBuffers = c };
+		CK(vkQueueSubmit(queue, 1, &s, VK_NULL_HANDLE));
+		CK(vkQueueWaitIdle(queue));
+		uint64_t res[NT][2];
+		memset(res, 0, sizeof(res));
+		CK(vkGetQueryPoolResults(dev, tp3, 0, NT, sizeof(res), res, 16,
+		                         VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WITH_AVAILABILITY_BIT | VK_QUERY_RESULT_WAIT_BIT));
+		int good = 0;
+		for (uint32_t k = 0; k < NT; k++)
+			good += res[k][1] == 1 && res[k][0] != 0 && (k == 0 || res[k][0] >= res[k - 1][0]);
+		printf("%-4s %d timestamps written back to back in one command buffer: %d available, non-zero and not decreasing "
+		       "(first %llu, last %llu)\n", good == NT ? "OK" : "FAIL", NT, good, (unsigned long long)res[0][0],
+		       (unsigned long long)res[NT - 1][0]);
+		fails += good != NT;
+		vkDestroyQueryPool(dev, tp3, NULL);
+	}
 	if (fails) { printf("queries: %d failure(s)\n", fails); return 1; }
 	return 0;
 }
