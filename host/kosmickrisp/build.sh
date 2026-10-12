@@ -161,6 +161,18 @@
 #              unrolls a passthrough GS reads still end the render encoder; the geometry heap is reset for the render
 #              encoder that uses it and freed when it ends. Repro: host/moltenvk/repro provoking_last.c (11 indexed
 #              draws: 12 render passes, 2.2 ms -> 1 render pass, 0.33 ms).
+#   0045       steamac: query pools without 0037's per-device occlusion and per-process timestamp ceilings. Occlusion
+#              results had 16 chunks of 32768 per device (524288 queries: exactly 128 of vkd3d-proton's occlusion pools
+#              of 4096); the chunk table now has 4096 entries (2^27 queries, 32 GB: memory runs out first). Timestamp
+#              pools held entries of Metal's 32 counter heaps of 4096 per process for their lifetime (all timestamp pools
+#              of every guest application together: 131072 queries; D3D12 timestamp query heaps are pools of the heap's
+#              size); entries now belong to command buffers (16 per chunk, taken while recording timestamp writes,
+#              returned at reset/free), pools take none; a write finding none left makes its queries available with 0
+#              (logged once). vkCreateQueryPool failures log their reason, VkResult, type and count in release builds
+#              (STEAMAC-2X: Path of Exile 2's GPU context died on "vkCmdResetQueryPool resulted in CS error" after a
+#              query pool failed to create). Repro: host/moltenvk/repro queries.c (300 occlusion pools of 4096 with 40
+#              timestamp pools of 8192, one render pass over queries of five occlusion pools; 3 x 4096 command buffers
+#              writing a timestamp each).
 #
 # Two meson builds: (1) the host compiler tools mesa_clc + vtn_bindgen2 against Homebrew LLVM
 # (shared) and SPIRV-LLVM-Translator, installed into work/build/host-kosmickrisp/clc; (2) the driver
@@ -343,6 +355,7 @@ mv -f "$lib.tmp.$$" "$lib"
 	echo "  0042 = steamac: R32G32B32 uniform texel buffers; views of unsupported formats read as null descriptors"
 	echo "  0043 = steamac: unrolls of direct draws allocate from command buffer memory, not the device geometry heap"
 	echo "  0044 = steamac: unroll kernels and draw predicates in a compute pass before the render pass, not splitting it"
+	echo "  0045 = steamac: no per-device occlusion / per-process timestamp pool ceilings; vkCreateQueryPool failures logged"
 	echo
 	echo "Known gaps (host/moltenvk/repro/run.sh): transform feedback with strip geometry shaders and"
 	echo "the overflow counter (draft !44928)."
