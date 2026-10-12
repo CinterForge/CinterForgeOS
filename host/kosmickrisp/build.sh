@@ -143,6 +143,13 @@
 #              kk_CreateBufferView dereferenced the missing Metal format (STEAMAC-2Z: The Witcher 3 crashed the VM).
 #              Views of other formats no texture buffer backs read as null descriptors (one warning per format).
 #              Repro: host/moltenvk/repro texel_buffer.c 4.
+#   0043       steamac: unrolls of direct draws (indexed, or past 0041's CPU limit) allocate their indices from a heap
+#              of their own in command buffer memory, sized at recording; the device's 128 MB geometry heap, reset to
+#              its start by the first unroll of every command buffer and render pass, stays for indirect draws,
+#              tessellation and geometry shaders. Resetting it is only safe while the queue runs every pass after the
+#              previous one ended (end_encoder's barrier), which it does: two command buffers unrolling different
+#              indices, the first waiting for a semaphore at its submission, keep their own (provoking_last.c 3.).
+#              No 128 MB heap for processes that only unroll direct draws (zink's).
 #
 # Two meson builds: (1) the host compiler tools mesa_clc + vtn_bindgen2 against Homebrew LLVM
 # (shared) and SPIRV-LLVM-Translator, installed into work/build/host-kosmickrisp/clc; (2) the driver
@@ -323,6 +330,7 @@ mv -f "$lib.tmp.$$" "$lib"
 	echo "  0040 = steamac: base textures of image planes, subresource and texel buffer view textures in the residency set"
 	echo "  0041 = steamac: CPU unroll of direct non-indexed draws (no render pass split); command buffer records in queue errors"
 	echo "  0042 = steamac: R32G32B32 uniform texel buffers; views of unsupported formats read as null descriptors"
+	echo "  0043 = steamac: unrolls of direct draws allocate from command buffer memory, not the device geometry heap"
 	echo
 	echo "Known gaps (host/moltenvk/repro/run.sh): transform feedback with strip geometry shaders and"
 	echo "the overflow counter (draft !44928)."
