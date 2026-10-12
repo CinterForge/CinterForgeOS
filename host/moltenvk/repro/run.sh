@@ -54,7 +54,10 @@
 #    Counter-Strike 2 "vkCmdBeginQuery resulted in CS error" after a query pool failed to create on KosmicKrisp).
 # 13. texel_buffer.c: texel buffer views at offsets that are not 16-byte aligned (single texel alignment, required by
 #    vkd3d-proton): uniform/storage texel buffers, arrays, variable-count arrays, copies and push descriptors, values
-#    read back; storage buffer array sizes written one element per update.
+#    read back; storage buffer array sizes written one element per update; R32G32B32 uniform texel buffers (vkd3d-proton's
+#    views of 12-byte structured buffers; KosmicKrisp crashed in vkCreateBufferView, STEAMAC-2Z: skipped where the formats
+#    have no uniform texel buffer feature, MoltenVK) and on KosmicKrisp a view of a format without texel buffer features
+#    reading as a null descriptor.
 # 14. multi_entry.c: modules with vertex, fragment and compute entry points (shaders/multi_entry/ linked with
 #    spirv-link, SPIR-V 1.0 and 1.6) whose compute entry point has workgroup variables (one zero-initialized):
 #    the vertex/fragment pipeline draws, the compute pipeline counts in workgroup memory.

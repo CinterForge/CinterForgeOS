@@ -125,6 +125,12 @@
 #              imports) or the bound view; KosmicKrisp only added heaps and buffers, and Metal API validation reported
 #              every render pass (9033 times in one Steam boot). STEAMAC-G: M3+ timeouts follow Steam's first MSAA
 #              targets/window images and window resizes. Repro: host/moltenvk/repro residency.c.
+#   0042       steamac: R32G32B32_UINT/SINT/SFLOAT uniform texel buffers (R32 texture buffers of three texels per
+#              element, flagged in the descriptor's texel offset; fetches read three texels, alpha 1). vkd3d-proton views
+#              12-byte structured buffers as R32G32B32_UINT texel buffers without checking format features, and
+#              kk_CreateBufferView dereferenced the missing Metal format (STEAMAC-2Z: The Witcher 3 crashed the VM).
+#              Views of other formats no texture buffer backs read as null descriptors (one warning per format).
+#              Repro: host/moltenvk/repro texel_buffer.c 4.
 #
 # Two meson builds: (1) the host compiler tools mesa_clc + vtn_bindgen2 against Homebrew LLVM
 # (shared) and SPIRV-LLVM-Translator, installed into work/build/host-kosmickrisp/clc; (2) the driver
@@ -303,6 +309,7 @@ mv -f "$lib.tmp.$$" "$lib"
 	echo "  0038 = steamac: command queue errors name the GPU time and still unsignalled semaphore waits"
 	echo "  0039 = steamac: command queue errors name the device, timing and os_log GPU error; queue teardown waits for handlers"
 	echo "  0040 = steamac: base textures of image planes, subresource and texel buffer view textures in the residency set"
+	echo "  0042 = steamac: R32G32B32 uniform texel buffers; views of unsupported formats read as null descriptors"
 	echo
 	echo "Known gaps (host/moltenvk/repro/run.sh): transform feedback with strip geometry shaders and"
 	echo "the overflow counter (draft !44928)."
