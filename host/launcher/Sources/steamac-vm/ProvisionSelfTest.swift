@@ -28,6 +28,47 @@ enum ProvisionSelfTest {
         // desync progress lines.
         check(DiskCreator.percent(in: "Attempt 1: Assembling   32.27% 1m2s") == 32.27, "desync progress parse")
         check(DiskCreator.percent(in: "Attempt 1: Validating ") == nil, "desync non-progress line")
+        // desync's pty output as read when a chunk download fails (desync 1.1.4, store
+        // unreachable): "\r\n" ends the progress line before "Error: …" (STEAMAC-2J).
+        let chunk = "aefdae76bcb0938909114209683c1932cd522da1d0bfeb4d7bdde5ef4746a318"
+        let failedOutput = "\rAttempt 1: Validating \rAttempt 1: Validating  0s\r\n\rAttempt 1: Assembling    0.00%"
+            + "\rAttempt 1: Assembling   61.04% 8m57s\r\nError: http://127.0.0.1:1/: http://127.0.0.1:1/aefd/\(chunk).cacnk: "
+            + "Get \"http://127.0.0.1:1/aefd/\(chunk).cacnk\": dial tcp 127.0.0.1:1: connect: connection refused\r\n"
+        // One read (the failing case), and reads split between "\r" and "\n".
+        let bytes = Array(failedOutput.utf8)
+        let crlf = bytes.indices.dropLast().filter { bytes[$0] == 13 && bytes[$0 + 1] == 10 }
+        var lines: [String] = []
+        for cuts in [[], crlf.map { $0 + 1 }] {
+            var pending = "", got: [String] = [], from = 0
+            for cut in cuts + [bytes.count] {
+                pending += String(decoding: bytes[from..<cut], as: UTF8.self)
+                got += DiskCreator.terminalLines(&pending)
+                from = cut
+            }
+            got += DiskCreator.terminalLines(&pending, final: true)
+            let errorLine = got.first { $0.hasPrefix("Error: ") }
+            check(got.contains("Attempt 1: Assembling   61.04% 8m57s") && errorLine != nil && DiskCreator.percent(in: errorLine!) == nil
+                  && got.allSatisfy { !$0.contains("\r") && !$0.contains("\n") },
+                  "desync \"\\r\\n\" ends the progress line: the Error line is its own non-progress line, \(cuts.count + 1) read(s) (STEAMAC-2J)")
+            lines = got
+        }
+        var unterminated = "Attempt 1: Assembling   1.00%\rError: last words"
+        check(DiskCreator.terminalLines(&unterminated) == ["Attempt 1: Assembling   1.00%"] && unterminated == "Error: last words"
+              && DiskCreator.terminalLines(&unterminated, final: true) == ["Error: last words"], "unterminated last desync line kept")
+        let network = DiskCreator.desyncFailure(status: 1, output: lines.filter { DiskCreator.percent(in: $0) == nil && !$0.hasPrefix("Attempt ") })
+        check(network is DiskCreationFilesystem.Rejection && "\(network)".contains("connection refused") && !"\(network)".contains(chunk),
+              "desync download failure: log-only rejection with desync's error, chunk ids left out")
+        let full = DiskCreator.desyncFailure(status: 1, output: ["Error: write /Volumes/Untitled/steamos.img.rootfs-tmp: no space left on device"])
+        check(full is DiskCreationFilesystem.Rejection && CrashReporting.diskCreationReport(full) == nil, "desync out of space is log-only")
+        let other = [DiskCreator.desyncFailure(status: 1, output: ["Error: chunk \(chunk) missing from store"]),
+                     DiskCreator.desyncFailure(status: 1, output: ["Error: chunk 4bbce92bb44181499e4dec8c0872563475175cbce8cf5f50cbd6b33812a61246 missing from store"])]
+        check(other.allSatisfy { $0 is OptionError && "\($0)" == "desync extract failed (exit 1): chunk <chunk> missing from store" }
+              && CrashReporting.diskCreationReport(other[0])?.key == CrashReporting.diskCreationReport(other[1])?.key,
+              "other desync failures are reported with desync's error, grouped across chunks")
+        // SteamOS 20261007's index: 63188 unique chunks, 4402745357 bytes. On exFAT with 128 KiB
+        // clusters (a 2 TB drive) the chunk cache took 28032630784 bytes (STEAMAC-30).
+        check(DiskCreator.chunkCacheBytes(dataBytes: 4_402_745_357, chunks: 63188, blockSize: 128 << 10) >= 28_032_630_784,
+              "exFAT chunk cache estimate covers per-file and per-directory cluster slack (STEAMAC-30)")
 
         check(DiskCreator.branches == ["stable", "rc"], "stable and rc branches offered")
         for branch in DiskCreator.branches {

@@ -375,9 +375,9 @@ work/out/steamac-vm --create-disk ~/steamos.img [--branch stable] [--home-gib 64
 无此标志 `--create-disk` 打印链接并以代码 2 退出。接受记录（日期与协议 URL）存于设置域，代码中协议 URL（`SteamOSLicense.eulaURL`）变化前一直有效。
 
 外接 APFS、Mac OS 扩展与 exFAT 卷可存放磁盘。FAT32/MS-DOS 因 4 GiB 单文件限制在下载前拒绝
-（临时 rootfs 就 10 GiB）。只读卷和没有写入权限的文件夹同样会被拒绝。与 APFS 不同，exFAT 无稀疏文件：即使游戏还没装，也需要所选磁盘全尺寸加临时 rootfs 与下载缓存的空间；启动器先检查空间再重建 rootfs。
-这些预期拒绝（包括目标文件已存在、下载缓存正被使用）只记入日志，不作为错误发送到 Sentry。
-非预期创建失败仍会上报：Foundation 错误按域和错误码分组，原始技术诊断放在事件详情中，
+（临时 rootfs 就 10 GiB）。只读卷和没有写入权限的文件夹同样会被拒绝。与 APFS 不同，exFAT 无稀疏文件：即使游戏还没装，也需要所选磁盘全尺寸加临时 rootfs 的空间。下载缓存在 exFAT 上也远超其约 4.4 GB 的数据：macOS 把每个分块文件的来源（provenance）属性存进额外的 `._` 文件，且每个文件和文件夹都占用整簇（2 TB 盘上为 128 KiB），合计约 28 GB。启动器先检查空间再重建 rootfs；在 exFAT 上，若卷空间不足，会在分配磁盘前删除分块缓存（`--keep-cache` 保留缓存，需要两者的空间）。
+这些预期拒绝（包括目标文件已存在、下载缓存正被使用、创建期间卷被写满，以及 desync 重试后仍失败的下载——下次尝试会从分块缓存继续）只记入日志，不作为错误发送到 Sentry。
+非预期创建失败仍会上报：Foundation 错误按域和错误码分组，desync 失败按其自身的 `Error:` 行分组（不含分块 ID），原始技术诊断放在事件详情中，
 而不是把指针或任务 ID 放进标题。
 
 如果下载无法安全连接到 Valve，窗口会提示 VPN、代理或网络过滤器可能造成干扰：
@@ -394,7 +394,7 @@ work/out/steamac-vm --create-disk ~/steamos.img [--branch stable] [--home-gib 64
    `compatible=steamos-aarch64`、版本与槽大小。
 3. 官方 desync（`fetch-desync.sh`，锁定版本与 sha256）从 Valve 块存储（约 4.4 GB 数据）组装 10 GB `rootfs.img`；家目录卷上的磁盘用
    `~/Library/Caches/es.fxgam.steamac` 中的 `desync/` 做块缓存，否则用磁盘旁 `<disk>.cache`
-   （外接盘则内部不占缓存空间；成功后删除该目录）。`<disk>.rootfs-tmp` 也保留，故停止/创建（或 Ctrl+C 后重跑命令）可断点续传。一个缓存一次只允许一次创建：第二次（另一窗口或 `--create-disk`）以“另一个 SteamOS 磁盘正在使用下载缓存 … 创建：请等待创建完成或取消该操作”停止（缓存目录中 `creation.lock` 的 `flock`），而非共享块缓存与临时文件。
+   （外接盘则内部不占缓存空间；成功后删除该目录）。故停止/创建（或 Ctrl+C 后重跑命令）可断点续传；之前某次在后续步骤失败而留下的完整 `<disk>.rootfs-tmp` 会先被删除（desync 不会复用它，保留只会让它占用两倍空间）。一个缓存一次只允许一次创建：第二次（另一窗口或 `--create-disk`）以“另一个 SteamOS 磁盘正在使用下载缓存 … 创建：请等待创建完成或取消该操作”停止（缓存目录中 `creation.lock` 的 `flock`），而非共享块缓存与临时文件。
 4. 稀疏磁盘文件：保护 MBR + GPT（主备，CRC32），名称、顺序、类型、大小与对齐与 `scripts/steps/40-disk.sh` 完全一致，PARTUUID 随机。一遍写入中，对 `rootfs.img` 哈希（sha256 须与签名 manifest 一致），16
    KiB 非零块写入 rootfs-A 与 rootfs-B；其余分区写零。全部检查通过后磁盘才以最终名称出现。已存在文件从不覆盖；exFAT
    无原子独占改名，启动器持创建锁检查目标后再改名。创建期间勿用非启动器程序向同一目标创建或移动其他文件：该检查与改名对它非原子。

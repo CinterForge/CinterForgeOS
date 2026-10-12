@@ -505,10 +505,15 @@ code (`SteamOSLicense.eulaURL`) changes.
 External APFS, Mac OS Extended, and exFAT volumes can hold the disk. FAT32/MS-DOS is rejected
 before downloading because of its 4 GiB per-file limit (the temporary rootfs alone is 10 GiB).
 Read-only volumes and folders you can't write to are also rejected. Unlike APFS, exFAT has no sparse files: it needs space for the
-full selected disk size plus the temporary rootfs and download cache, even before games are installed;
-the launcher checks this space before reconstructing the rootfs.
-These expected rejections (including an existing destination file or a busy download cache) are logged, not sent as errors
-to Sentry. Unexpected creation failures still report: Foundation errors group by domain and code,
+full selected disk size plus the temporary rootfs, even before games are installed. There the download cache also costs far
+more than its ~4.4 GB of data: macOS keeps each chunk file's provenance attribute in an extra `._` file, and every file and
+folder occupies whole clusters (128 KiB on a 2 TB drive), about 28 GB in all. The launcher checks this space before
+reconstructing the rootfs, and on exFAT deletes the chunk cache before allocating the disk when the volume would otherwise
+be too full (`--keep-cache` keeps it and needs room for both).
+These expected rejections (including an existing destination file, a busy download cache, a volume that fills up during
+creation, and downloads that still fail after desync's retries, which the next attempt resumes from the chunk cache) are
+logged, not sent as errors to Sentry. Unexpected creation failures still report: Foundation errors group by domain and code,
+a failed desync by its own `Error:` line (chunk ids left out),
 with the original technical diagnostic in the event details rather than pointers/task IDs in the title.
 
 If a download cannot reach Valve securely, the window explains that a VPN, proxy, or network filter
@@ -532,8 +537,9 @@ This expected rejection is logged only; all other signature failures still repor
    from Valve's chunk stores (~4.4 GB of data); the chunk cache is `desync/` in
    `~/Library/Caches/es.fxgam.steamac` for a disk on the home volume, otherwise in `<disk>.cache` next
    to the disk (an external drive then needs no internal space for it; the folder is removed after
-   success). The partial `<disk>.rootfs-tmp` remains too, so Stop/Resume (or rerunning the command
-   after Ctrl+C) continues where it left off. One creation per cache at a time: a second one (another
+   success), so Stop/Resume (or rerunning the command after Ctrl+C) continues where it left off; a
+   complete `<disk>.rootfs-tmp` left by an attempt that failed later is deleted first (desync never
+   reuses it, and it would take its space twice). One creation per cache at a time: a second one (another
    window or `--create-disk`) stops with “another SteamOS disk is being created” (`flock` on
    `creation.lock` in the cache folder) instead of sharing the chunk cache and temporary files.
 4. A sparse disk file: protective MBR + GPT (primary and backup, CRC32) with exactly the names,

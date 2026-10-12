@@ -49,6 +49,17 @@ enum DiskCreationFilesystem {
         return dense
     }
 
+    /// The volume of `directory` cannot hold `needed` more bytes (free space as it is now).
+    static func notEnoughSpace(needed: UInt64, directory: String) -> Rejection {
+        var fs = statfs()
+        let free = statfs(directory, &fs) == 0 ? UInt64(fs.f_bavail) * UInt64(fs.f_bsize) : 0
+        let gb = { (n: UInt64) in String(format: "%.1f GB", Double(n) / 1e9) }
+        let neededText = String(format: "%.1f", Double(needed) / 1e9)
+        let available = String(format: "%.1f", Double(free) / 1e9)
+        return Rejection("not enough free space: \(gb(needed)) needed on the volume of \(directory), \(gb(free)) free",
+            localized: String(localized: "not enough free space: \(neededText) GB needed on the volume of \(directory), \(available) GB free"))
+    }
+
     /// Before downloading: the folder must accept new files (the cache folder, the partial disk).
     /// Volumes that honour ownership can hold folders the user may not write to (STEAMAC-2H).
     static func requireWritable(directory: String) throws {

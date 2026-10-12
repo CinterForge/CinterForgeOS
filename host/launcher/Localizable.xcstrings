@@ -6659,6 +6659,22 @@
         }
       }
     },
+    "downloading SteamOS failed (%@): check the internet connection and try again; the download resumes where it stopped" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "не удалось загрузить SteamOS (%@): проверьте подключение к интернету и попробуйте снова; загрузка продолжится с того места, где остановилась"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下载 SteamOS 失败（%@）：请检查互联网连接后重试；下载将从中断处继续"
+          }
+        }
+      }
+    },
     "drives the virtual pad" : {
       "localizations" : {
         "ru" : {
@@ -7202,6 +7218,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "所选 SteamOS 磁盘已更改；请重新选择其容量"
+          }
+        }
+      }
+    },
+    "the volume ran out of space while downloading SteamOS (%@): free some space and try again; the download resumes where it stopped" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "на томе закончилось место во время загрузки SteamOS (%@): освободите место и попробуйте снова; загрузка продолжится с того места, где остановилась"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下载 SteamOS 时宗卷空间不足（%@）：请释放一些空间后重试；下载将从中断处继续"
           }
         }
       }
