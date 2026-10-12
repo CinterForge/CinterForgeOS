@@ -13,13 +13,14 @@
  *   1. direct draws: the record (MESA_KK_DEBUG=cbs, child process) must show one render pass and no compute encoder
  *      (the indices of direct draws without an index buffer are known when recording);
  *   2. the same as indexed draws, 16-bit indices written by vkCmdUpdateBuffer earlier in the command buffer: the unroll
- *      kernel needs them, and its compute pass must run after the update;
+ *      kernel needs them, and its compute pass must run before the render pass (one render pass in the record) and
+ *      after the update;
  *   3. two command buffers of one device unrolling indexed draws with different indices: A waits for a timeline
  *      semaphore at its submission, B is submitted after it without a wait, then the host signals; both images must
  *      hold their own command buffer's colors (the unroll kernels allocated their indices from one device-wide heap
  *      that every command buffer reset to its start);
- *   4. indexed indirect draws (their unrolls allocate from that heap) with a geometry shader draw among them (its
- *      compute pass allocates from the heap too): all colors right.
+ *   4. indexed indirect draws (their unrolls allocate from that heap) with a geometry shader draw among them: 2 render
+ *      passes (the GS's compute pass ends the first and allocates from the heap too), all colors right.
  * The GPU times come from the records.
  */
 #include <stdio.h>
@@ -420,10 +421,13 @@ int main(int argc, char **argv)
 	int fails = status != 0;
 	if (status)
 		printf("FAIL child exit status %d\n", status);
-	/* 1. direct draws: one render pass, no compute pass */
-	static const char *const wants[5] = { ": 1 render passes, 0 compute encoders, 11 draws", NULL, NULL, NULL, NULL };
-	static const char *const names[5] = { "direct draws in one render pass, no compute pass", "indexed draws", "A",
-					      "B", "indexed indirect draws and a geometry shader draw" };
+	/* 1. direct draws: one render pass, no compute pass; 2. indexed draws: the unroll kernels in a compute pass before
+	 * the one render pass; 4. the geometry shader's compute pass ends the render pass once */
+	static const char *const wants[5] = { ": 1 render passes, 0 compute encoders, 11 draws", ": 1 render passes, ",
+					      NULL, NULL, ": 2 render passes, " };
+	static const char *const names[5] = { "direct draws in one render pass, no compute pass",
+					      "indexed draws in one render pass", "A", "B",
+					      "indexed indirect draws and a geometry shader draw in 2 render passes" };
 	for (unsigned i = 0; i < 5; i++) {
 		const char *shown = strstr(records[i], "provoking_last: ");
 		int ok = !wants[i] || (strstr(records[i], wants[i]) && strstr(records[i], " 11 draws"));

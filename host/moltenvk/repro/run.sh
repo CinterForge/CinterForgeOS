@@ -119,10 +119,14 @@
 #    warnings logged the error assert mode aborts on it), any "not added to any residency set" line fails it.
 # 23. provoking_last.c (KosmicKrisp only; STEAMAC-G): flat varyings with the last vertex provoking (zink keeps GL's) in
 #    strips, an instanced strip, fans and lists drawn into a 2560x1600 LINEAR B8G8R8A8 host pointer import (zink's window
-#    buffer); both triangles of each cell must take the last vertex's color, and the command buffer's record
-#    (MESA_KK_DEBUG=cbs, child process) must show one render pass and no compute encoder: the unroll kernel ended the
-#    render pass around every such draw (Steam's web helper's first frame: 13 window-sized render passes, where M3+ GPUs
-#    lost the device).
+#    buffer); both triangles of each cell must take the last vertex's color, and the command buffers' records
+#    (MESA_KK_DEBUG=cbs, child process) must show one render pass: the unroll kernel ended the render pass around every
+#    such draw (Steam's web helper's first frame: 13 window-sized render passes, where M3+ GPUs lost the device). Direct
+#    draws (no compute encoder either: the CPU writes their indices); indexed draws whose indices a vkCmdUpdateBuffer
+#    earlier in the command buffer writes (the unroll kernels run before the render pass, after the update); two command
+#    buffers unrolling different indices, the first waiting for a timeline semaphore at its submission, the second
+#    submitted after it (each keeps its own colors); indexed indirect draws with a geometry shader draw among them (2
+#    render passes: the GS's compute pass ends the first, the unrolls' heap allocations must survive it).
 # All run with Metal API validation in assert mode (MTL_DEBUG_LAYER), so a Metal validation error
 # fails the run instead of aborting a VM later.
 # All applicable tests must pass on MoltenVK. On KosmicKrisp all but 5 and 10 must pass (1 sizes the descriptor pool with

@@ -150,6 +150,17 @@
 #              previous one ended (end_encoder's barrier), which it does: two command buffers unrolling different
 #              indices, the first waiting for a semaphore at its submission, keep their own (provoking_last.c 3.).
 #              No 128 MB heap for processes that only unroll direct draws (zink's).
+#   0044       steamac: unroll kernels (and draw predicates) run before the render pass instead of ending it
+#              (attachments stored, compute pass, attachments loaded around every such draw). STEAMAC-G: with 0041
+#              Steam's web helper still had 194 command buffers unrolling indexed draws (zink's last provoking vertex
+#              with flat varyings), the longest 13.8 ms on an M1 Max with 37 render passes. Index, indirect and
+#              predicate data cannot be written inside a render pass, so dispatches recorded with pre_gfx while a render
+#              encoder is open go into a compute pass in a Metal command buffer of its own, committed right before the
+#              render encoder's (a render encoder starts a Metal command buffer when the current one has an encoder; a
+#              command buffer commits all of its Metal command buffers in order). Tessellation, geometry shaders and the
+#              unrolls a passthrough GS reads still end the render encoder; the geometry heap is reset for the render
+#              encoder that uses it and freed when it ends. Repro: host/moltenvk/repro provoking_last.c (11 indexed
+#              draws: 12 render passes, 2.2 ms -> 1 render pass, 0.33 ms).
 #
 # Two meson builds: (1) the host compiler tools mesa_clc + vtn_bindgen2 against Homebrew LLVM
 # (shared) and SPIRV-LLVM-Translator, installed into work/build/host-kosmickrisp/clc; (2) the driver
@@ -331,6 +342,7 @@ mv -f "$lib.tmp.$$" "$lib"
 	echo "  0041 = steamac: CPU unroll of direct non-indexed draws (no render pass split); command buffer records in queue errors"
 	echo "  0042 = steamac: R32G32B32 uniform texel buffers; views of unsupported formats read as null descriptors"
 	echo "  0043 = steamac: unrolls of direct draws allocate from command buffer memory, not the device geometry heap"
+	echo "  0044 = steamac: unroll kernels and draw predicates in a compute pass before the render pass, not splitting it"
 	echo
 	echo "Known gaps (host/moltenvk/repro/run.sh): transform feedback with strip geometry shaders and"
 	echo "the overflow counter (draft !44928)."
