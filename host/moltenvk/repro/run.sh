@@ -136,6 +136,12 @@
 #    Metal command buffers: one for direct draws, 2 for the indexed ones (the render pass in one of its own after the
 #    update and unrolls), and one for a clear, 8 blits and 8 render passes without unrolls in one command buffer (a Metal
 #    command buffer per render pass doubled the GPU time of Steam's web helper's blits).
+# 24. compilers.c (KosmicKrisp only; STEAMAC-31/39): 8 threads create an instance and a device each at the same moment
+#    (virglrenderer: one per Venus context, a ring thread each, all created as a guest session starts) and then compile
+#    16 compute pipelines each at the same time: the devices must share one MTL4Compiler (KK_WORKAROUND_11; concurrent
+#    compiles on several MTL4Compilers corrupted the heap on macOS 27 betas 1-4, where KosmicKrisp had turned it off) and
+#    compiles must still overlap on it (MESA_KK_DEBUG=compiles, child process); a compiling thread must be named after
+#    its compile (crash reports show every thread's name).
 # All run with Metal API validation in assert mode (MTL_DEBUG_LAYER), so a Metal validation error
 # fails the run instead of aborting a VM later.
 # All applicable tests must pass on MoltenVK. On KosmicKrisp all but 5 and 10 must pass (1 sizes the descriptor pool with
@@ -340,4 +346,7 @@ if [ "$driver" = kosmickrisp ]; then
 
 	build provoking_last
 	"$work/provoking_last" "$gspv"
+
+	build compilers
+	"$work/compilers" "$gspv"
 fi

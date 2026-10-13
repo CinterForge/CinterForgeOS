@@ -183,6 +183,14 @@
 #              draw's unrolls run ahead of it in the same Metal command buffer. Records count Metal command buffers.
 #              Repro: host/moltenvk/repro provoking_last.c 5 (a clear, 8 blits, 8 render passes: one Metal command
 #              buffer, 1.7 ms as with 0042; 0001-0045: 2.2-4.3 ms).
+#   0047       steamac: KK_WORKAROUND_11 (one MTL4Compiler per MTLDevice, shared by all Vulkan devices) stays on macOS 27.
+#              Upstream turns it off from 27.0.0 (FB22683138 fixed in beta 5), which betas 1-4 report too: there
+#              virglrenderer (a device per Venus context) crashed in libmalloc's heap corruption trap with two contexts'
+#              vkCreateDevice compiling libkk pipelines on their own compilers at once as a guest session started
+#              (STEAMAC-31/13: beta 1 on an M4 Pro, beta 4 on an M3 Max; STEAMAC-39: a render pipeline, protection
+#              fault in AGX). A shared compiler compiles as concurrently. A thread compiling for Metal is named after
+#              its compile ("kk <kind> <MSL hashes> compiler <n>: <k> in flight on <m>", shown in crash reports);
+#              MESA_KK_DEBUG=compiles logs every compile. Repro: host/moltenvk/repro compilers.c.
 #
 # Two meson builds: (1) the host compiler tools mesa_clc + vtn_bindgen2 against Homebrew LLVM
 # (shared) and SPIRV-LLVM-Translator, installed into work/build/host-kosmickrisp/clc; (2) the driver
@@ -367,6 +375,7 @@ mv -f "$lib.tmp.$$" "$lib"
 	echo "  0044 = steamac: unroll kernels and draw predicates in a compute pass before the render pass, not splitting it"
 	echo "  0045 = steamac: no per-device occlusion / per-process timestamp pool ceilings; vkCreateQueryPool failures logged"
 	echo "  0046 = steamac: Metal command buffers of their own only for render passes with pre_gfx work (blits, clears: none)"
+	echo "  0047 = steamac: KK_WORKAROUND_11 (one shared MTL4Compiler) kept on macOS 27; compiling threads named after their compile"
 	echo
 	echo "Known gaps (host/moltenvk/repro/run.sh): transform feedback with strip geometry shaders and"
 	echo "the overflow counter (draft !44928)."
