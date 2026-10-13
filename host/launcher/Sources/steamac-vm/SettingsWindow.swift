@@ -545,14 +545,16 @@ private struct MouseTab: View {
 
 // MARK: - Controller
 
-/// Connected GameController gamepads, updated on connect/disconnect.
+/// Connected GameController gamepads, updated on connect/disconnect, and the player each one is
+/// (GamepadBridge.players).
 final class ControllerMonitor: ObservableObject {
     @Published private(set) var controllers: [GCController] = []
+    @Published private(set) var players: [ObjectIdentifier: Int] = [:]
     private var observers: [NSObjectProtocol] = []
 
     init() {
         let nc = NotificationCenter.default
-        for name in [Notification.Name.GCControllerDidConnect, .GCControllerDidDisconnect] {
+        for name in [Notification.Name.GCControllerDidConnect, .GCControllerDidDisconnect, .gamepadPlayersChanged] {
             observers.append(nc.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in self?.reload() })
         }
         GCController.shouldMonitorBackgroundEvents = true
@@ -560,17 +562,16 @@ final class ControllerMonitor: ObservableObject {
         reload()
     }
 
-    private func reload() { controllers = GamepadBridge.connected }
+    private func reload() {
+        controllers = GamepadBridge.connected
+        players = GamepadBridge.players
+    }
 }
 
 private struct ControllerTab: View {
     @EnvironmentObject var settings: LauncherSettings
     @EnvironmentObject var context: SettingsContext
     @StateObject private var monitor = ControllerMonitor()
-
-    private var feeding: GCController? {
-        monitor.controllers.first { GamepadBridge.identifier(of: $0) == settings.controllerID } ?? monitor.controllers.first
-    }
 
     var body: some View {
         Form {
@@ -610,6 +611,12 @@ private struct ControllerTab: View {
                 } label: {
                     Label2(title: "Controller that drives it", now: true)
                 }
+                Toggle(isOn: $settings.additionalPads) {
+                    Label2(title: "Additional controllers",
+                           detail: String(localized: "Further connected controllers are players 2 to 4 in SteamOS, each with a gamepad of its own, for local co-op. A player keeps their controller until it disconnects. Off: only one controller is used."),
+                           now: true)
+                }
+                .disabled(!settings.virtualPad)
                 Toggle(isOn: $settings.swapABXY) {
                     Label2(title: "Swap A/B and X/Y", detail: String(localized: "For Nintendo-style button layouts."), now: true)
                 }
@@ -632,8 +639,8 @@ private struct ControllerTab: View {
                     VStack(alignment: .leading, spacing: 6) {
                         HStack {
                             Text(verbatim: GamepadBridge.displayName(of: c)).font(.headline)
-                            if c === feeding && context.vmHasPad {
-                                Text("drives the virtual pad").font(.caption)
+                            if context.vmHasPad, let player = monitor.players[ObjectIdentifier(c)] {
+                                Text("Player \(player)").font(.caption)
                                     .padding(.horizontal, 6).padding(.vertical, 1)
                                     .background(Capsule().fill(Color.accentColor.opacity(0.2)))
                             }
