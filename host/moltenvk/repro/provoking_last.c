@@ -20,7 +20,11 @@
  *      hold their own command buffer's colors (the unroll kernels allocated their indices from one device-wide heap
  *      that every command buffer reset to its start);
  *   4. indexed indirect draws (their unrolls allocate from that heap) with a geometry shader draw among them: 2 render
- *      passes (the GS's compute pass ends the first and allocates from the heap too), all colors right.
+ *      passes (the GS's compute pass ends the first and allocates from the heap too), all colors right;
+ *   5. a clear, 8 blits and 8 render passes of direct draws in one command buffer (no unrolls): one Metal command
+ *      buffer in the record (with one per render pass, Steam's web helper's command buffer of 77 blits took twice the
+ *      GPU time). The indexed draws of 2. and 3. take 2 Metal command buffers: the update and the unrolls, the render
+ *      pass.
  * The GPU times come from the records.
  */
 #include <stdio.h>
@@ -129,26 +133,13 @@ static void make_target(struct target *t, VkPhysicalDevice pd)
 	CK(vkCreateImageView(dev, &vci, NULL, &t->view));
 }
 
-/* Records the 12 cells into t in one render pass: direct draws (index_set < 0), or indexed draws of index_set, whose
- * indices vkCmdUpdateBuffer writes into index_buf first (its memory holds zeros: degenerate triangles). With
- * indirect_buf, the indexed draws are indirect (one command per cell there), and cell 2 is drawn through the
- * geometry shader. */
-static void record_cells(VkCommandBuffer cmd, const struct target *t, int index_set, VkBuffer index_buf,
-			 VkBuffer indirect_buf)
+/* Draws the 12 cells into t in one render pass: direct draws (index_set < 0), or indexed draws of index_set from
+ * index_buf. With indirect_buf, the indexed draws are indirect (one command per cell there), and cell 2 is drawn
+ * through the geometry shader. */
+static void draw_cells(VkCommandBuffer cmd, const struct target *t, int index_set, VkBuffer index_buf,
+		       VkBuffer indirect_buf)
 {
-	VkCommandBufferBeginInfo bi = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-		.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT };
-	CK(vkBeginCommandBuffer(cmd, &bi));
 	VkDeviceSize index_offset = index_set > 0 ? sizeof(index_sets[0]) * 2 : 0;
-	if (index_set >= 0) {
-		vkCmdUpdateBuffer(cmd, index_buf, index_offset, sizeof(index_sets[0]), index_sets[index_set]);
-		VkBufferMemoryBarrier ib = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER, .srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
-			.dstAccessMask = VK_ACCESS_INDEX_READ_BIT, .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED, .buffer = index_buf, .offset = index_offset,
-			.size = sizeof(index_sets[0]) };
-		vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 0, NULL, 1,
-				     &ib, 0, NULL);
-	}
 	VkImageMemoryBarrier b = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER, .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
 		.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED, .newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
 		.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED, .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED, .image = t->image,
@@ -181,6 +172,70 @@ static void record_cells(VkCommandBuffer cmd, const struct target *t, int index_
 		cell += instances - 1;
 	}
 	vkCmdEndRendering(cmd);
+}
+
+/* Records the 12 cells into t (draw_cells), the indices of index_set written into index_buf by vkCmdUpdateBuffer first
+ * (its memory holds zeros: degenerate triangles) */
+static void record_cells(VkCommandBuffer cmd, const struct target *t, int index_set, VkBuffer index_buf,
+			 VkBuffer indirect_buf)
+{
+	VkCommandBufferBeginInfo bi = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT };
+	CK(vkBeginCommandBuffer(cmd, &bi));
+	VkDeviceSize index_offset = index_set > 0 ? sizeof(index_sets[0]) * 2 : 0;
+	if (index_set >= 0) {
+		vkCmdUpdateBuffer(cmd, index_buf, index_offset, sizeof(index_sets[0]), index_sets[index_set]);
+		VkBufferMemoryBarrier ib = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER, .srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+			.dstAccessMask = VK_ACCESS_INDEX_READ_BIT, .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED, .buffer = index_buf, .offset = index_offset,
+			.size = sizeof(index_sets[0]) };
+		vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 0, NULL, 1,
+				     &ib, 0, NULL);
+	}
+	draw_cells(cmd, t, index_set, index_buf, indirect_buf);
+	CK(vkEndCommandBuffer(cmd));
+}
+
+/* 5. BLITS blits and render passes of direct draws taking turns in one command buffer, no unrolls (the shape of Steam's
+ * web helper's command buffers of 77 blits): a clear of src, then each blit src -> dst (vk_meta: a render pass each)
+ * followed by the cells drawn into t */
+#define BLITS 8
+static void record_blits(VkCommandBuffer cmd, const struct target *t, VkImage src, VkImage dst)
+{
+	VkCommandBufferBeginInfo bi = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT };
+	CK(vkBeginCommandBuffer(cmd, &bi));
+	VkImageSubresourceRange range = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+	VkImageMemoryBarrier b[2] = {
+		{ VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER, .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+		  .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED, .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		  .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED, .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED, .image = src,
+		  .subresourceRange = range },
+		{ VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER, .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+		  .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED, .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		  .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED, .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED, .image = dst,
+		  .subresourceRange = range },
+	};
+	vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, NULL, 0, NULL, 2, b);
+	VkClearColorValue color = { .float32 = { 0.25f, 0.5f, 0.75f, 1.0f } };
+	vkCmdClearColorImage(cmd, src, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &color, 1, &range);
+	b[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	b[0].dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+	b[0].oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+	b[0].newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+	vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, NULL, 0, NULL, 1, b);
+	for (uint32_t i = 0; i < BLITS; i++) {
+		VkImageBlit region = { .srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 },
+			.srcOffsets = { { 0, 0, 0 }, { 512, 512, 1 } }, .dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 },
+			.dstOffsets = { { 0, 0, 0 }, { 256 + 32 * (int32_t)i, 256, 1 } } };
+		vkCmdBlitImage(cmd, src, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dst, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1,
+			       &region, VK_FILTER_LINEAR);
+		VkMemoryBarrier mb = { VK_STRUCTURE_TYPE_MEMORY_BARRIER, .srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+			.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT };
+		vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 1, &mb, 0, NULL,
+				     0, NULL);
+		draw_cells(cmd, t, -1, VK_NULL_HANDLE, VK_NULL_HANDLE);
+	}
 	CK(vkEndCommandBuffer(cmd));
 }
 
@@ -336,8 +391,8 @@ static int child(const char *spv_dir)
 	VkCommandPool pool;
 	CK(vkCreateCommandPool(dev, &cpci, NULL, &pool));
 	VkCommandBufferAllocateInfo cbai = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, .commandPool = pool,
-		.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY, .commandBufferCount = 5 };
-	VkCommandBuffer cmds[5];
+		.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY, .commandBufferCount = 6 };
+	VkCommandBuffer cmds[6];
 	CK(vkAllocateCommandBuffers(dev, &cbai, cmds));
 	int fails = 0;
 
@@ -384,6 +439,33 @@ static int child(const char *spv_dir)
 	CK(vkQueueSubmit(queue, 1, &si, VK_NULL_HANDLE));
 	CK(vkQueueWaitIdle(queue));
 	fails += check_cells(&targets[0], 0, "indexed indirect draws, a geometry shader draw among them");
+
+	/* 5. blits between two 512x512 device-local images and render passes of direct draws taking turns */
+	VkImage blit_images[2];
+	for (uint32_t i = 0; i < 2; i++) {
+		VkImageCreateInfo bici = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO, .imageType = VK_IMAGE_TYPE_2D,
+			.format = VK_FORMAT_B8G8R8A8_UNORM, .extent = { 512, 512, 1 }, .mipLevels = 1, .arrayLayers = 1,
+			.samples = VK_SAMPLE_COUNT_1_BIT, .tiling = VK_IMAGE_TILING_OPTIMAL,
+			.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT };
+		CK(vkCreateImage(dev, &bici, NULL, &blit_images[i]));
+		VkMemoryRequirements ireq;
+		vkGetImageMemoryRequirements(dev, blit_images[i], &ireq);
+		uint32_t itype = 0;
+		while (!(ireq.memoryTypeBits & (1u << itype)) ||
+		       !(mp.memoryTypes[itype].propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT))
+			itype++;
+		VkMemoryAllocateInfo iai = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, .allocationSize = ireq.size,
+			.memoryTypeIndex = itype };
+		VkDeviceMemory blit_mem;
+		CK(vkAllocateMemory(dev, &iai, NULL, &blit_mem));
+		CK(vkBindImageMemory(dev, blit_images[i], blit_mem, 0));
+	}
+	memset(targets[0].host, 0, targets[0].layout.offset + targets[0].layout.size);
+	record_blits(cmds[5], &targets[0], blit_images[0], blit_images[1]);
+	si.pCommandBuffers = &cmds[5];
+	CK(vkQueueSubmit(queue, 1, &si, VK_NULL_HANDLE));
+	CK(vkQueueWaitIdle(queue));
+	fails += check_cells(&targets[0], -1, "direct draws after blits");
 	fflush(stdout);
 	/* KosmicKrisp logs the records when the command buffers' feedback comes, the device's destruction waits for it */
 	vkDestroyDevice(dev, NULL);
@@ -406,11 +488,11 @@ int main(int argc, char **argv)
 	fflush(stdout);
 	int status = system(cmd);
 	FILE *f = fopen(err_path, "r");
-	char line[4096], records[5][4096] = { "", "", "", "", "" };
+	char line[4096], records[6][4096] = { "", "", "", "", "", "" };
 	unsigned count = 0;
 	while (f && fgets(line, sizeof(line), f)) {
 		if (strstr(line, "kk: command buffer") && strstr(line, "of provoking_last") && strstr(line, "draws") &&
-		    count < 5) {
+		    count < 6) {
 			line[strcspn(line, "\n")] = '\0';
 			snprintf(records[count++], sizeof(records[0]), "%s", line);
 		}
@@ -421,17 +503,28 @@ int main(int argc, char **argv)
 	int fails = status != 0;
 	if (status)
 		printf("FAIL child exit status %d\n", status);
-	/* 1. direct draws: one render pass, no compute pass; 2. indexed draws: the unroll kernels in a compute pass before
-	 * the one render pass; 4. the geometry shader's compute pass ends the render pass once */
-	static const char *const wants[5] = { ": 1 render passes, 0 compute encoders, 11 draws", ": 1 render passes, ",
-					      NULL, NULL, ": 2 render passes, " };
-	static const char *const names[5] = { "direct draws in one render pass, no compute pass",
-					      "indexed draws in one render pass", "A", "B",
-					      "indexed indirect draws and a geometry shader draw in 2 render passes" };
-	for (unsigned i = 0; i < 5; i++) {
+	/* 1. direct draws: one render pass, no compute pass; 2. and 3. indexed draws: the unroll kernels in a compute pass
+	 * at the end of the Metal command buffer of the update, the one render pass in a Metal command buffer of its own;
+	 * 4. the geometry shader's compute pass ends the render pass once; 5. no unrolls: one Metal command buffer for the
+	 * clear, the blits and the render passes (a Metal command buffer costs GPU time of its own, ~55 us on an M1 Max) */
+	static const struct {
+		const char *name, *want, *draws, *metal;
+	} cases[6] = {
+		{ "direct draws in one render pass, no compute pass", ": 1 render passes, 0 compute encoders, 11 draws",
+		  " 11 draws", ", 1 Metal command buffers" },
+		{ "indexed draws in one render pass", ": 1 render passes, ", " 11 draws", ", 2 Metal command buffers" },
+		{ "A in one render pass", ": 1 render passes, ", " 11 draws", ", 2 Metal command buffers" },
+		{ "B in one render pass", ": 1 render passes, ", " 11 draws", ", 2 Metal command buffers" },
+		{ "indexed indirect draws and a geometry shader draw in 2 render passes", ": 2 render passes, ", " 11 draws",
+		  ", 3 Metal command buffers" },
+		{ "a clear, 8 blits and 8 render passes of direct draws in one Metal command buffer",
+		  ": 17 render passes, ", " 96 draws", ", 1 Metal command buffers" },
+	};
+	for (unsigned i = 0; i < 6; i++) {
 		const char *shown = strstr(records[i], "provoking_last: ");
-		int ok = !wants[i] || (strstr(records[i], wants[i]) && strstr(records[i], " 11 draws"));
-		printf("%-4s %s (MESA_KK_DEBUG=cbs: %s)\n", ok ? "OK" : "FAIL", names[i],
+		int ok = strstr(records[i], cases[i].want) && strstr(records[i], cases[i].draws) &&
+			 strstr(records[i], cases[i].metal);
+		printf("%-4s %s (MESA_KK_DEBUG=cbs: %s)\n", ok ? "OK" : "FAIL", cases[i].name,
 		       shown ? shown + strlen("provoking_last: ") : "no record");
 		fails += !ok;
 	}

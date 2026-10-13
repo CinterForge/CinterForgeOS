@@ -175,6 +175,14 @@
 #              per pool; vkd3d-proton's test_query_timestamp_write_after_read). Repro: host/moltenvk/repro queries.c
 #              (300 occlusion pools of 4096 with 40 timestamp pools of 8192, one render pass over queries of five
 #              occlusion pools; 3 x 4096 command buffers writing a timestamp each; 16 timestamps back to back).
+#   0046       steamac: render encoders start a Metal command buffer of their own (0044) only in renderings whose draws
+#              recorded pre_gfx work, and the pre_gfx pass goes at the end of the Metal command buffer they started
+#              after. A Metal command buffer costs ~55 us of GPU time on an M1 Max: with one per render pass Steam's
+#              web helper's command buffer of 77 blits took 12.6 ms instead of 0042's 6.5 (STEAMAC-G). A rendering's
+#              first render encoder starts at its first use when it would follow other encoders, so that the first
+#              draw's unrolls run ahead of it in the same Metal command buffer. Records count Metal command buffers.
+#              Repro: host/moltenvk/repro provoking_last.c 5 (a clear, 8 blits, 8 render passes: one Metal command
+#              buffer, 1.7 ms as with 0042; 0001-0045: 2.2-4.3 ms).
 #
 # Two meson builds: (1) the host compiler tools mesa_clc + vtn_bindgen2 against Homebrew LLVM
 # (shared) and SPIRV-LLVM-Translator, installed into work/build/host-kosmickrisp/clc; (2) the driver
@@ -358,6 +366,7 @@ mv -f "$lib.tmp.$$" "$lib"
 	echo "  0043 = steamac: unrolls of direct draws allocate from command buffer memory, not the device geometry heap"
 	echo "  0044 = steamac: unroll kernels and draw predicates in a compute pass before the render pass, not splitting it"
 	echo "  0045 = steamac: no per-device occlusion / per-process timestamp pool ceilings; vkCreateQueryPool failures logged"
+	echo "  0046 = steamac: Metal command buffers of their own only for render passes with pre_gfx work (blits, clears: none)"
 	echo
 	echo "Known gaps (host/moltenvk/repro/run.sh): transform feedback with strip geometry shaders and"
 	echo "the overflow counter (draft !44928)."

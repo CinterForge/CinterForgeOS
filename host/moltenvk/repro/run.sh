@@ -132,7 +132,10 @@
 #    earlier in the command buffer writes (the unroll kernels run before the render pass, after the update); two command
 #    buffers unrolling different indices, the first waiting for a timeline semaphore at its submission, the second
 #    submitted after it (each keeps its own colors); indexed indirect draws with a geometry shader draw among them (2
-#    render passes: the GS's compute pass ends the first, the unrolls' heap allocations must survive it).
+#    render passes: the GS's compute pass ends the first, the unrolls' heap allocations must survive it). The records'
+#    Metal command buffers: one for direct draws, 2 for the indexed ones (the render pass in one of its own after the
+#    update and unrolls), and one for a clear, 8 blits and 8 render passes without unrolls in one command buffer (a Metal
+#    command buffer per render pass doubled the GPU time of Steam's web helper's blits).
 # All run with Metal API validation in assert mode (MTL_DEBUG_LAYER), so a Metal validation error
 # fails the run instead of aborting a VM later.
 # All applicable tests must pass on MoltenVK. On KosmicKrisp all but 5 and 10 must pass (1 sizes the descriptor pool with
