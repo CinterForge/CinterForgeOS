@@ -585,7 +585,8 @@ download|skip|later|ok|releases`、`update dump PNG`（窗口与 `-with-vm.png`�
   （`journalctl -b`，最近 5000 行，加用户 journal）、`coredumpctl list`/`info`、
   `dmesg`、`systemctl --failed`、`os-release`、`layer-release`、`/proc/cmdline`、`df`/`free`、Steam
   客户端日志尾（`console_log`、`stderr`、`bootstrap_log`、`compat_log`、`connection_log`、
-  `webhelper`、`cef_log`、`shader_log`、`steamui_*`）与 Proton 日志（`PROTON_LOG=1` 的 `~/steam-*.log`、
+  `webhelper`、`cef_log`、`shader_log`、`steamui_*`、Steam Input 的 `controller`、`controller_ui` 与
+  `cloud_log`）与 Proton 日志（`PROTON_LOG=1` 的 `~/steam-*.log`、
   `compatdata` 中 prefix 的 `version` 与 `config_info`），FEX 工具构建 ID / Steam 清单 /
   配置、可选 FEX 日志、内存限制与 American Truck
   Simulator `game.log.txt` 最近 512 KiB。ATS 模拟器崩溃请将其 Steam 启动选项设为
@@ -600,7 +601,7 @@ download|skip|later|ok|releases`、`update dump PNG`（窗口与 `-with-vm.png`�
   完整崩溃元数据由 root 钩子仅导出给 `steamos`（root 所有，0640 模式）；
   原始 core 保持私密从不附加。`coredump-pending.txt` 标识仍在生成的转储：
   报告不等它们；完成后另发一份报告。命名空间感知堆栈提取在有符号处解析 pressure-vessel 库（FEX JIT 代码可能仍无符号）。Core 处理限制不降低：超大 core 会丢回溯，`Storage=none` 仍写完整临时 core。Steam ID（`[U:1:…]`、
-  7656119…）、Steam 账号/昵称与邮箱打包前替换为占位符；`collect-notes.txt` 列出可读内容。经 SSH，同份脱敏归档可用
+  7656119…、`userdata/<n>` 中的账号 ID）、Steam 账号/昵称与邮箱打包前替换为占位符；`collect-notes.txt` 列出可读内容。经 SSH，同份脱敏归档可用
   `/usr/lib/steamac/fx-progress-agent collect > /tmp/steamos-logs.tar.gz` 获取；
 - **包含虚拟机窗口截图**（默认不勾：画面可能显示 Steam 账号名与好友）。
 

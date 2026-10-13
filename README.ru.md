@@ -796,7 +796,8 @@ download|skip|later|ok|releases`, `update dump PNG` (окно и `-with-vm.png` 
   (`journalctl -b`, последние 5000 строк, плюс пользовательский журнал), `coredumpctl list`/`info`,
   `dmesg`, `systemctl --failed`, `os-release`, `layer-release`, `/proc/cmdline`, `df`/`free`, хвосты
   логов клиента Steam (`console_log`, `stderr`, `bootstrap_log`, `compat_log`, `connection_log`,
-  `webhelper`, `cef_log`, `shader_log`, `steamui_*`) и Proton (`~/steam-*.log` от `PROTON_LOG=1`, `version` и
+  `webhelper`, `cef_log`, `shader_log`, `steamui_*`, логи Steam Input `controller`, `controller_ui` и
+  `cloud_log`) и Proton (`~/steam-*.log` от `PROTON_LOG=1`, `version` и
   `config_info` префиксов в `compatdata`), build ID / манифест Steam / конфигурация FEX,
   параметры памяти, необязательный лог FEX и последние 512 КиБ `game.log.txt` American Truck
   Simulator. Для сбоя эмулятора ATS задайте параметры запуска в Steam
@@ -815,8 +816,8 @@ download|skip|later|ok|releases`, `update dump PNG` (окно и `-with-vm.png` 
   перечисляет ещё обрабатываемые дампы: отчёт их не ждёт; после завершения отправьте новый.
   Разбор стека учитывает пространство имён pressure-vessel, если у библиотек есть символы
   (JIT-код FEX может остаться без символов). Лимиты обработки core не снижены: иначе большие
-  дампы лишатся стека, а `Storage=none` всё равно пишет полный временный core. Steam ID,
-  имена аккаунтов/персон и email заменяются заглушками; `collect-notes.txt` перечисляет,
+  дампы лишатся стека, а `Storage=none` всё равно пишет полный временный core. Steam ID
+  (в том числе ID аккаунтов, как в `userdata/<n>`), имена аккаунтов/персон и email заменяются заглушками; `collect-notes.txt` перечисляет,
   что удалось прочитать. По SSH тот же очищенный архив доступен командой
   `/usr/lib/steamac/fx-progress-agent collect > /tmp/steamos-logs.tar.gz`;
 - **Включить снимок экрана окна ВМ** (выключено по умолчанию: на картинке может быть имя

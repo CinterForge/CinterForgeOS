@@ -811,7 +811,8 @@ what you expected, what happened), and checkboxes for attachments:
   for the current boot (`journalctl -b`, the last 5000 lines, plus the user journal), `coredumpctl list`/`info`,
   `dmesg`, `systemctl --failed`, `os-release`, `layer-release`, `/proc/cmdline`, `df`/`free`, tails of
   Steam client logs (`console_log`, `stderr`, `bootstrap_log`, `compat_log`, `connection_log`,
-  `webhelper`, `cef_log`, `shader_log`, `steamui_*`) and Proton logs (`~/steam-*.log` from `PROTON_LOG=1`,
+  `webhelper`, `cef_log`, `shader_log`, `steamui_*`, Steam Input's `controller`, `controller_ui` and
+  `cloud_log`) and Proton logs (`~/steam-*.log` from `PROTON_LOG=1`,
   `version` and `config_info` of prefixes in `compatdata`), FEX tool build ID / Steam manifest /
   configuration, an opt-in FEX log, memory limits, and the last 512 KiB of American Truck
   Simulator's `game.log.txt`. For an ATS emulator crash, set its Steam launch options to
@@ -831,7 +832,7 @@ what you expected, what happened), and checkboxes for attachments:
   stack extraction resolves pressure-vessel libraries where symbols are available (FEX JIT code
   may still be unsymbolized). Core processing limits are not lowered: oversized cores would lose
   their backtraces, and `Storage=none` still writes a full temporary core. Steam IDs (`[U:1:…]`,
-  7656119…), Steam account/persona names and email addresses are replaced with placeholders before
+  7656119…, account IDs as in `userdata/<n>`), Steam account/persona names and email addresses are replaced with placeholders before
   packaging; `collect-notes.txt` lists what could be read. Over SSH, the same scrubbed archive is
   available with `/usr/lib/steamac/fx-progress-agent collect > /tmp/steamos-logs.tar.gz`;
 - **Include a screenshot of the VM window** (disabled by default: the image may show your Steam

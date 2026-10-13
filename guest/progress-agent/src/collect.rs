@@ -38,6 +38,12 @@ const STEAM_LOGS: &[&str] = &[
     "webhelper.txt",
     "cef_log.txt",
     "shader_log.txt",
+    // Steam Input: controllers, the configuration each app gets, its cache and
+    // workshop downloads (STEAMAC-37: console_log only says "CPrepareConfigWorker
+    // failed" for a game whose configurator page stayed blank).
+    "controller.txt",
+    "controller_ui.txt",
+    "cloud_log.txt",
 ];
 const STEAM_LOG_TAIL: usize = 512 * 1024;
 const PROTON_LOG_TAIL: usize = 1024 * 1024;
@@ -172,7 +178,7 @@ fn gather(dir: &Path, steam: &Path, home: &Path) -> Result<(), String> {
     let boot_id = std::fs::read_to_string("/proc/sys/kernel/random/boot_id")
         .map_err(|e| format!("read boot ID: {e}"))?;
     let boot_match = format!("_BOOT_ID={}", boot_id.trim().replace('-', ""));
-    let mut notes = vec![format!("account/persona names recognised for scrubbing: {}", s.names.len())];
+    let mut notes = vec![format!("account names/IDs and persona names recognised for scrubbing: {}", s.names.len())];
     let mut out = |name: &str, args: &[&str], max: usize| {
         let note = run(dir, name, args, max, &s);
         notes.push(format!("{name}: {note}"));
@@ -420,9 +426,10 @@ fn pack(base: &Path) -> Result<Vec<u8>, String> {
 
 // MARK: scrubbing
 
-/// Replaces Steam IDs (`[U:1:<n>]`, 64-bit 7656119… IDs), email addresses and
-/// the Steam account / persona names this machine knows (loginusers.vdf,
-/// registry.vdf AutoLoginUser).
+/// Replaces Steam IDs (`[U:1:<n>]`, 64-bit 7656119… IDs, the account IDs of
+/// this machine's users as in `userdata/<n>` and `Steam Controller Configs/<n>`),
+/// email addresses and the Steam account / persona names this machine knows
+/// (loginusers.vdf, registry.vdf AutoLoginUser).
 pub struct Scrubber {
     /// (ASCII-lowercased name, replacement)
     names: Vec<(String, &'static str)>,
@@ -444,6 +451,9 @@ impl Scrubber {
                     "PersonaName" => add(v, "<persona>"),
                     _ => {}
                 }
+            }
+            for a in account_ids(&t) {
+                add(a, "<accountid>");
             }
         }
         if let Ok(t) = std::fs::read_to_string(home.join(".steam/registry.vdf")) {
@@ -481,6 +491,18 @@ fn vdf_pairs(text: &str) -> Vec<(String, String)> {
             let q: Vec<&str> = l.split('"').collect();
             // ["\t\t", key, "\t\t", value, ""]
             (q.len() >= 5 && q[2].trim().is_empty()).then(|| (q[1].to_string(), q[3].to_string()))
+        })
+        .collect()
+}
+
+/// Account IDs (SteamID64 - 76561197960265728) of the users loginusers.vdf
+/// lists, whose SteamID64s are its section names (`"7656119…"` alone on a line).
+fn account_ids(text: &str) -> Vec<String> {
+    text.lines()
+        .filter_map(|l| {
+            let id: u64 = l.trim().strip_prefix('"')?.strip_suffix('"')?.parse().ok()?;
+            let account = id.checked_sub(76561197960265728)?;
+            (id.to_string().starts_with("7656119") && account > 0).then(|| account.to_string())
         })
         .collect()
 }
@@ -628,6 +650,17 @@ mod tests {
         let p = vdf_pairs(t);
         assert!(p.contains(&("AccountName".into(), "bob".into())));
         assert!(p.contains(&("PersonaName".into(), "Bobby B".into())));
+    }
+
+    #[test]
+    fn account_id() {
+        let t = "\"users\"\n{\n\t\"76561198000000001\"\n\t{\n\t\t\"AccountName\"\t\t\"bob\"\n\t\t\"Timestamp\"\t\t\"1791700400\"\n\t}\n}\n";
+        assert_eq!(account_ids(t), vec!["39734273".to_string()]);
+        let s = Scrubber::with_names(&[("39734273", "<accountid>")]);
+        assert_eq!(
+            s.scrub("userdata/39734273/config, Steam Controller Configs/39734273/config, 139734273 stays"),
+            "userdata/<accountid>/config, Steam Controller Configs/<accountid>/config, 139734273 stays"
+        );
     }
 
     #[test]
