@@ -314,7 +314,7 @@ final class SuspendController: NSObject, NSMenuDelegate {
         if let shown = quitPrompt { return shown.window.makeKeyAndOrderFront(nil) }
         let alert = NSAlert()
         alert.messageText = String(localized: "SteamOS is suspended", comment: "The whole VM is frozen in memory, not a paused game")
-        alert.informativeText = String(localized: "Quitting FX Steam Launcher shuts SteamOS down: it resumes and shuts down cleanly. The suspended state (and a running game's unsaved progress) is not kept.")
+        alert.informativeText = String(localized: "Quitting CinterForgeOS shuts SteamOS down: it resumes and shuts down cleanly. The suspended state (and a running game's unsaved progress) is not kept.")
         let shutdown = alert.addButton(withTitle: String(localized: "Shut Down SteamOS"))
         shutdown.target = self
         shutdown.action = #selector(quitPromptShutdown)
@@ -373,7 +373,7 @@ final class SuspendController: NSObject, NSMenuDelegate {
             let image = NSImage(systemSymbolName: "pause.circle", accessibilityDescription: String(localized: "SteamOS suspended", comment: "The whole VM is frozen in memory, not a paused game"))
             image?.isTemplate = true
             button.image = image
-            button.toolTip = String(localized: "SteamOS suspended — FX Steam Launcher")
+            button.toolTip = String(localized: "SteamOS suspended — CinterForgeOS")
         }
         let menu = NSMenu()
         menu.delegate = self
@@ -398,9 +398,9 @@ final class SuspendController: NSObject, NSMenuDelegate {
         menu.addItem(shutdown)
         menu.addItem(.separator())
         let note = NSMenuItem(title: "", action: nil, keyEquivalent: "")
-        note.identifier = NSUserInterfaceItemIdentifier("Suspended state is kept while FX Steam Launcher is running.")
+        note.identifier = NSUserInterfaceItemIdentifier("Suspended state is kept while CinterForgeOS is running.")
         note.attributedTitle = NSAttributedString(
-            string: String(localized: "Suspended state is kept while FX Steam Launcher is running."),
+            string: String(localized: "Suspended state is kept while CinterForgeOS is running."),
             attributes: [.font: NSFont.menuFont(ofSize: NSFont.smallSystemFontSize), .foregroundColor: NSColor.secondaryLabelColor])
         note.isEnabled = false
         menu.addItem(note)
@@ -437,7 +437,7 @@ final class SuspendController: NSObject, NSMenuDelegate {
                 : i.identifier?.rawValue ?? ""
             return title + (i.isEnabled ? "" : " (disabled)")
         } ?? []
-        log("control: menu-bar item: SteamOS suspended — FX Steam Launcher — menu: " + titles.joined(separator: " | "))
+        log("control: menu-bar item: SteamOS suspended — CinterForgeOS — menu: " + titles.joined(separator: " | "))
         guard let button = item.button, let rep = button.bitmapImageRepForCachingDisplay(in: button.bounds) else { return }
         button.cacheDisplay(in: button.bounds, to: rep)
         if let png = rep.representation(using: .png, properties: [:]), (try? png.write(to: URL(fileURLWithPath: path))) != nil {

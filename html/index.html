@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CinterForge OS — KDE Desktop Visual Reference</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="stage" aria-label="CinterForge KDE desktop visual reference">
+    <div class="screen" id="screen">
+      <!-- Original background artwork: unchanged; all buttons are HTML overlays. -->
+      <img class="reference" src="assets/desktop-reference.png" alt="CinterForge scenic desktop wallpaper with an empty dark gradient dock and native-style KDE top bar">
+      <button class="hit" id="linux" style="--x:66;--y:0;--w:150;--h:38" aria-label="Linux Mode" title="Linux Mode"></button>
+      <button class="hit" id="windows" style="--x:217;--y:0;--w:185;--h:38" aria-label="Windows Mode" title="Windows Mode"></button>
+      <button class="hit" id="system" style="--x:0;--y:0;--w:48;--h:38" aria-label="KDE application menu" title="KDE application menu"></button>
+      <button class="hit" id="tray" style="--x:1142;--y:0;--w:530;--h:38" aria-label="KDE system tray and clock" title="KDE system tray and clock"></button>
+      <!-- Native Plasma will provide real launchers; these match the intended layout. -->
+      <nav class="dock" aria-label="CinterForge desktop applications">
+        <div class="dock-items">
+          <button class="app" type="button" data-app="Files" title="Files" aria-label="Files"><img src="assets/icons/files.png" alt="" draggable="false"><span>Files</span></button>
+          <button class="app" type="button" data-app="Terminal" title="Terminal" aria-label="Terminal"><img src="assets/icons/terminal.png" alt="" draggable="false"><span>Terminal</span></button>
+          <button class="app" type="button" data-app="3D" title="CinterForge 3D" aria-label="CinterForge 3D"><img src="assets/icons/cinterforge-3d.png" alt="" draggable="false"><span>3D</span></button>
+          <button class="app" type="button" data-app="Image" title="CinterForge Image" aria-label="CinterForge Image"><img src="assets/icons/cinterforge-image.png" alt="" draggable="false"><span>Image</span></button>
+          <button class="app" type="button" data-app="Paint" title="CinterForge Paint" aria-label="CinterForge Paint"><img src="assets/icons/cinterforge-paint.png" alt="" draggable="false"><span>Paint</span></button>
+          <button class="app" type="button" data-app="Vector" title="CinterForge Vector" aria-label="CinterForge Vector"><img src="assets/icons/cinterforge-vector.png" alt="" draggable="false"><span>Vector</span></button>
+          <button class="app" type="button" data-app="Audio" title="CinterForge Audio" aria-label="CinterForge Audio"><img src="assets/icons/cinterforge-audio.png" alt="" draggable="false"><span>Audio</span></button>
+          <button class="app" type="button" data-app="Video" title="CinterForge Video" aria-label="CinterForge Video"><img src="assets/icons/cinterforge-video.png" alt="" draggable="false"><span>Video</span></button>
+          <button class="app" type="button" data-app="Document" title="CinterForge Document" aria-label="CinterForge Document"><img src="assets/icons/cinterforge-document.png" alt="" draggable="false"><span>Document</span></button>
+          <button class="app" type="button" data-app="Code" title="CinterForge Code" aria-label="CinterForge Code"><img src="assets/icons/cinterforge-code.png" alt="" draggable="false"><span>Code</span></button>
+          <button class="app" type="button" data-app="Voxel" title="CinterForge Voxel" aria-label="CinterForge Voxel"><img src="assets/icons/cinterforge-voxel.png" alt="" draggable="false"><span>Voxel</span></button>
+          <button class="app" type="button" data-app="Converter" title="CinterForge Converter" aria-label="CinterForge Converter"><img src="assets/icons/cinterforge-converter.png" alt="" draggable="false"><span>Converter</span></button>
+          <button class="app" type="button" data-app="Photo" title="CinterForge Photo" aria-label="CinterForge Photo"><img src="assets/icons/cinterforge-photo.png" alt="" draggable="false"><span>Photo</span></button>
+          <button class="app" type="button" data-app="Desktop" title="CinterForge Desktop" aria-label="CinterForge Desktop"><img src="assets/icons/cinterforge-desktop.png" alt="" draggable="false"><span>Desktop</span></button>
+          <button class="app" type="button" data-app="Steam" title="Steam" aria-label="Steam"><img src="assets/icons/steam.png" alt="" draggable="false"><span>Steam</span></button>
+          <button class="app" type="button" data-app="Trash" title="Trash" aria-label="Trash"><img src="assets/icons/trash.png" alt="" draggable="false"><span>Trash</span></button>
+        </div>
+      </nav>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

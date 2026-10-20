@@ -149,7 +149,7 @@ struct ReportView: View {
     private var form: some View {
         VStack(alignment: .leading, spacing: 14) {
             header("exclamationmark.bubble.fill", .accentColor, "Report a Problem",
-                   String(localized: "Describe what went wrong. Your description, your email and the items checked below go to the FX Steam Launcher developers (sentry.fxgam.es)."))
+                   String(localized: "Describe what went wrong. Your description, your email and the items checked below go to the CinterForgeOS developers (sentry.fxgam.es)."))
             VStack(alignment: .leading, spacing: 4) {
                 Text("Email").font(.callout.weight(.medium))
                 TextField("you@example.com", text: $model.email).textFieldStyle(.roundedBorder)
@@ -339,7 +339,7 @@ enum CrashOffer {
         let context = ReportContext(origin: "crash", options: options, runDir: runDir, exitSummary: summary)
         let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 460, height: 150), styleMask: [.titled, .closable],
                          backing: .buffered, defer: false)
-        w.title = "FX Steam Launcher"
+        w.title = "CinterForgeOS"
         w.isReleasedWhenClosed = false
         w.delegate = delegate
         let view = OfferView(summary: CrashReporting.localizedExitSummary(status: status), report: {
@@ -403,7 +403,7 @@ enum CrashOffer {
             HStack(alignment: .top, spacing: 14) {
                 Image(nsImage: NSApp.applicationIconImage).resizable().frame(width: 56, height: 56)
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("FX Steam Launcher stopped unexpectedly").font(.headline)
+                    Text("CinterForgeOS stopped unexpectedly").font(.headline)
                     Text("The virtual machine ended without being asked to (\(summary)).")
                         .font(.callout).fixedSize(horizontal: false, vertical: true)
                     Text("Report it with the logs of this session so the developers can look into it.")

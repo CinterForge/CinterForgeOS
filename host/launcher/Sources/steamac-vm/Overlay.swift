@@ -1,11 +1,16 @@
 import AppKit
 import Metal
 import QuartzCore
+import WebKit
 
-/// "FX STEAM LAUNCHER" boot / shutdown overlay: Core Animation layers over the Metal view.
+/// "CINTERFORGEOS" boot / shutdown overlay: Core Animation layers over the Metal view.
 /// Never takes mouse events (hitTest → nil); when hidden it is `isHidden` with every animation
 /// removed, so it costs nothing per frame.
 final class OverlayView: NSView {
+    // CINTERFORGE_HTML_SPLASH_BRIDGE: reusable web presentation, native progress source.
+    private var splashWeb: WKWebView?
+    private var splashLoaded = false
+    private var splashPending: String?
     private let background = CAGradientLayer()
     private let glow = CAGradientLayer()
     private let sheen = CAGradientLayer()
@@ -77,6 +82,17 @@ final class OverlayView: NSView {
         for l in [background, glow, sheen, wordmark, titleLayer, track, percentLayer, detailLayer, footer] as [CALayer] {
             layer!.addSublayer(l)
         }
+        if let directory = Bundle.main.resourceURL?.appendingPathComponent("cinterforge-os-splash"),
+           FileManager.default.fileExists(atPath: directory.appendingPathComponent("index.html").path) {
+            let config = WKWebViewConfiguration()
+            let web = WKWebView(frame: bounds, configuration: config)
+            web.autoresizingMask = [.width, .height]
+            web.underPageBackgroundColor = .clear
+            web.navigationDelegate = self
+            addSubview(web)
+            splashWeb = web
+            web.loadFileURL(directory.appendingPathComponent("index.html"), allowingReadAccessTo: directory)
+        }
         alphaValue = 0
         isHidden = true
     }
@@ -97,6 +113,7 @@ final class OverlayView: NSView {
         isHidden = false
         startAnimations()
         apply(state, animated: false)
+        updateSplash(state)
         if animated {
             NSAnimationContext.runAnimationGroup { ctx in
                 ctx.duration = 0.4
@@ -169,7 +186,18 @@ final class OverlayView: NSView {
         state = s
         guard shown else { return }
         apply(s, animated: true)
+        updateSplash(s)
         if wasIndeterminate != s.indeterminate { updateIndeterminate() }
+    }
+
+    private func updateSplash(_ s: ProgressState) {
+        let payload: [String: Any] = ["title": s.title, "detail": s.detail,
+            "fraction": s.fraction, "indeterminate": s.indeterminate]
+        guard let data = try? JSONSerialization.data(withJSONObject: payload),
+              let json = String(data: data, encoding: .utf8) else { return }
+        let script = "window.CinterForgeSplash && window.CinterForgeSplash.update(\(json));"
+        splashPending = script
+        if splashLoaded { splashWeb?.evaluateJavaScript(script, completionHandler: nil) }
     }
 
     private var scaleFactor: CGFloat { max(0.55, min(bounds.width / 1280, bounds.height / 800)) }
@@ -239,7 +267,7 @@ final class OverlayView: NSView {
         sheen.position = CGPoint(x: -b.width, y: b.midY)
 
         let wmHeight = 64 * k
-        wordmark.string = attributed("FX STEAM LAUNCHER", size: 46 * k, weight: .heavy, color: OverlayView.color(0xffffff), kern: 9 * k)
+        wordmark.string = attributed("CINTERFORGEOS", size: 46 * k, weight: .heavy, color: OverlayView.color(0xffffff), kern: 9 * k)
         wordmark.frame = CGRect(x: 0, y: b.midY + 46 * k, width: b.width, height: wmHeight)
         wordmark.shadowRadius = 16 * k
         titleLayer.frame = CGRect(x: 40 * k, y: b.midY + 4 * k, width: b.width - 80 * k, height: 28 * k)
@@ -275,5 +303,13 @@ final class OverlayView: NSView {
             ctx.restoreGState()
         }
         return ctx.makeImage()
+    }
+}
+
+
+extension OverlayView: WKNavigationDelegate {
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        splashLoaded = true
+        if let script = splashPending { webView.evaluateJavaScript(script, completionHandler: nil) }
     }
 }

@@ -40,6 +40,6 @@ build_venus() {
     shift 3
     rm -rf "$builddir" "$destdir"
     meson setup "$builddir" /src/mesa "${MESA_OPTS[@]}" --libdir="$libdir" "$@"
-    ninja -C "$builddir"
+    ninja -j 1 -C "$builddir"
     DESTDIR="$destdir" meson install -C "$builddir" --strip --no-rebuild --tags runtime
 }

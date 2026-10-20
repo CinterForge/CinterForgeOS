@@ -186,6 +186,7 @@ codesign --verify --deep --strict "$TMP"
 
 rm -rf "$APP"
 mv "$TMP" "$APP"
-rmdir "$STAGE"
+# actool can leave harmless files in STAGE after the .app has moved.
+rm -rf "$STAGE"
 trap - EXIT
 echo "built $APP"

@@ -3,7 +3,7 @@ import Darwin
 import Foundation
 import UniformTypeIdentifiers
 
-/// Running inside "FX Steam Launcher.app" (build.sh / bundle.sh): the kernel, initramfs, layer
+/// Running inside "CinterForgeOS.app" (build.sh / bundle.sh): the kernel, initramfs, layer
 /// disk, gvproxy, desync and Valve's RAUC CA are bundled in Contents/Resources; the SteamOS disk
 /// comes from Settings > Advanced "Disk image", else the default locations below. Never copied
 /// anywhere: the user picks an existing image or creates a new one (DiskCreator).
@@ -119,7 +119,7 @@ enum AppBundle {
         dup2(fd, STDERR_FILENO)
         close(fd)
         let stamp = ISO8601DateFormatter().string(from: Date())
-        log("---- \(stamp) FX Steam Launcher started (pid \(getpid()), \(Bundle.main.bundlePath))")
+        log("---- \(stamp) CinterForgeOS started (pid \(getpid()), \(Bundle.main.bundlePath))")
     }
 
     /// A launch error the user must see: an alert when launched from Finder / `open` (the log is not
@@ -179,7 +179,7 @@ enum FirstRun {
         let alert = NSAlert()
         alert.messageText = String(localized: "No SteamOS disk image")
         let looked = AppBundle.defaultDiskCandidates().map { "• " + ($0 as NSString).abbreviatingWithTildeInPath }
-        var info = String(localized: "FX Steam Launcher needs a SteamOS disk image (steamos.img, ~87 GB sparse).\n\n")
+        var info = String(localized: "CinterForgeOS needs a SteamOS disk image (steamos.img, ~87 GB sparse).\n\n")
         if !settings.diskImage.isEmpty {
             let path = (settings.diskImage as NSString).abbreviatingWithTildeInPath
             info += String(localized: "The image chosen in Settings is not readable:\n\(path)\n\n")

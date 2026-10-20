@@ -8,6 +8,7 @@
 set -euo pipefail
 shopt -s inherit_errexit
 source /scripts/common.sh
+export CC=clang CXX=clang++
 
 # fetch_pinned <VAR prefix>: download ${VAR}_PKG from the SteamOS mirror, check ${VAR}_SHA256, print path.
 fetch_pinned() {
@@ -43,7 +44,7 @@ pacman -U --noconfirm "$keyring"
 pacman-key --populate holo >/dev/null 2>&1
 pacman -Syuu --noconfirm
 pacman -S --noconfirm --needed \
-    base-devel meson ninja python-mako python-yaml python-packaging \
+    base-devel clang meson ninja python-mako python-yaml python-packaging \
     libdrm wayland wayland-protocols libx11 libxcb libxshmfence libxrandr systemd-libs zstd expat zlib \
     xcb-proto xorgproto vulkan-headers \
     lib32-gcc-libs lib32-glibc lib32-libdrm lib32-wayland lib32-libx11 lib32-libxcb lib32-libxshmfence \
@@ -56,8 +57,8 @@ pacman -U --noconfirm "$di64" "$di32"
 
 # Paths inside the provider root; pressure-vessel/FEX resolve them relative to it,
 # matching the provider's freedreno_icd.{x86_64,x86}.json.
-build_venus /tmp/build-x86_64 lib /tmp/dest-x86_64
-build_venus /tmp/build-i386 lib32 /tmp/dest-i386 --cross-file /scripts/i386-linux-gnu.ini
+build_venus /tmp/build-x86_64 lib /tmp/dest-x86_64 --buildtype=custom -Doptimization=2
+build_venus /tmp/build-i386 lib32 /tmp/dest-i386 --cross-file /scripts/i386-linux-gnu.ini --buildtype=custom -Doptimization=2
 
 p=/out${FEX_PROVIDER}
 install -D -m 0755 /tmp/dest-x86_64/usr/lib/libvulkan_virtio.so "$p/usr/lib/libvulkan_virtio.so"

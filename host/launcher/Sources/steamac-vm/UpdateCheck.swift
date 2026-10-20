@@ -556,7 +556,7 @@ struct UpdateView: View {
                         Button("Cancel") { actions.dismiss() }.keyboardShortcut(.cancelAction)
                     }
                 case .available(let r, let current):
-                    Text("FX Steam Launcher \(r.versionString) is available — you have \(current)")
+                    Text("CinterForgeOS \(r.versionString) is available — you have \(current)")
                         .font(.headline)
                         .fixedSize(horizontal: false, vertical: true)
                     if let subtitle = subtitle(r) {
@@ -581,7 +581,7 @@ struct UpdateView: View {
                     }
                 case .upToDate(let current):
                     Text("You're up to date").font(.headline)
-                    Text("FX Steam Launcher \(current) is the newest version available.")
+                    Text("CinterForgeOS \(current) is the newest version available.")
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                     HStack {

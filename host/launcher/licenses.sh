@@ -172,6 +172,24 @@ rust_graph(root / 'guest/progress-agent/Cargo.toml', '', 'aarch64-unknown-linux-
 # go version -m describes the exact binary (including versions other than the current
 # module graph). Download each module to an isolated, persistent cache, never a guess.
 goenv = dict(os.environ, GOMODCACHE=str(cache), GOWORK='off')
+def go_download_module(module, version):
+    import time
+    spec = module + '@' + version
+    for attempt in range(1, 4):
+        result = subprocess.run(['go', 'mod', 'download', '-json', spec],
+                                text=True, capture_output=True, env=goenv, cwd=root)
+        try:
+            info = json.loads(result.stdout)
+        except json.JSONDecodeError:
+            info = {}
+        if result.returncode == 0 and not info.get('Error'):
+            return info
+        detail = info.get('Error') or result.stderr.strip() or result.stdout.strip() or 'unknown Go module error'
+        print(f'licenses: Go download {spec} attempt {attempt}/3 failed: {detail}',
+              file=sys.stderr, flush=True)
+        if attempt < 3:
+            time.sleep(attempt * 3)
+    raise RuntimeError(f'Unable to download required Go module {spec}: {detail}')
 for binary in ('gvproxy', 'desync'):
     location = res + '/' + binary
     lines = run('go', 'version', '-m', str(root / 'work/out/host/bin' / binary)).splitlines()
@@ -184,7 +202,7 @@ for binary in ('gvproxy', 'desync'):
           'https://raw.githubusercontent.com/golang/go/' + go_version + '/LICENSE'))])
     modules = [line.strip().split() for line in lines if line.strip().startswith(('mod\t', 'dep\t'))]
     for kind, module, version, *remainder in modules:
-        info = json.loads(run('go', 'mod', 'download', '-json', module + '@' + version, env=goenv, cwd=root))
+        info = go_download_module(module, version)
         if info.get('Error'):
             raise RuntimeError(f'{module}@{version}: {info["Error"]}')
         path = Path(info['Dir'])

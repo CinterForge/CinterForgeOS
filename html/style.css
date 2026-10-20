@@ -1,0 +1,22 @@
+/* Pixel-matched overlay on Kevin's UNMODIFIED 1672×941 background.
+   All 16 icons are separate PNGs, sized and centered in CSS only. */
+* { box-sizing: border-box; }
+html, body { margin:0; width:100%; height:100%; background:#050811; font-family:system-ui,-apple-system,Segoe UI,sans-serif; }
+.stage { width:100vw; height:100dvh; display:grid; place-items:center; overflow:hidden; }
+.screen { position:relative; width:min(100vw, calc(100dvh * 1672 / 941)); aspect-ratio:1672/941; isolation:isolate; }
+.reference { display:block; width:100%; height:100%; user-select:none; pointer-events:none; }
+.hit { position:absolute; z-index:3; left:calc(var(--x)*100%/1672); top:calc(var(--y)*100%/941); width:calc(var(--w)*100%/1672); height:calc(var(--h)*100%/941); border:0; background:transparent; cursor:pointer; }
+.hit:focus-visible, .app:focus-visible { outline:2px solid #8fd4ff; outline-offset:2px; border-radius:7px; }
+/* The empty gradient bar in the unchanged reference is approximately
+   x=167..1499, y=816..918. Keep all application icons inside that region. */
+.dock { position:absolute; z-index:2; left:10.3%; right:10.3%; top:86.75%; height:10.65%; display:flex; align-items:center; justify-content:center; }
+.dock-items { width:100%; display:flex; align-items:center; justify-content:center; gap:clamp(1px, .38vw, 7px); padding:0 1.2%; }
+.app { min-width:0; flex:0 1 68px; height:100%; min-height:0; border:0; border-radius:8px; padding:4px 1px 2px; background:transparent; color:#f7f7fa; cursor:pointer; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:3px; font-family:inherit; font-weight:500; line-height:1.1; text-shadow:0 1px 3px #000,0 2px 6px #000; }
+.app img { display:block; width:min(100%, 51px); height:auto; max-height:56%; aspect-ratio:1; object-fit:contain; filter:drop-shadow(0 2px 4px rgba(0,0,0,.6)); pointer-events:none; }
+.app span { display:block; font-size:clamp(7px, .87vw, 13px); white-space:nowrap; text-align:center; }
+.app:hover { background:rgba(180,207,235,.12); }
+.app:hover img { filter:brightness(1.1) drop-shadow(0 2px 7px rgba(61,155,249,.45)); }
+.app[data-app="Desktop"] { margin-inline:clamp(0px,.36vw,6px); }
+.app[data-app="Steam"] { margin-left:clamp(0px,.55vw,10px); }
+.toast { position:absolute; z-index:5; display:none; left:50%; bottom:15%; transform:translateX(-50%); max-width:80%; padding:.65em 1em; border-radius:8px; font-size:clamp(10px,1.1vw,15px); color:white; background:rgba(8,17,30,.96); border:1px solid rgba(120,180,220,.5); box-shadow:0 8px 28px rgba(0,0,0,.5); pointer-events:none; text-align:center; }
+@media (max-width:720px) { .dock-items { gap:0; padding:0 .5%; } .app { padding:1px 0; gap:1px; } .app span { font-size:clamp(5px, .86vw, 9px); } }

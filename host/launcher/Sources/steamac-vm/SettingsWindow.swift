@@ -32,7 +32,7 @@ final class SettingsContext: ObservableObject {
     }
 }
 
-/// App menu "FX Steam Launcher → Settings…" (Cmd+,): toolbar-style tabs, one SwiftUI form each.
+/// App menu "CinterForgeOS → Settings…" (Cmd+,): toolbar-style tabs, one SwiftUI form each.
 final class SettingsWindowController: NSObject, NSWindowDelegate {
     enum Tab: Int, CaseIterable {
         case general, display, mouse, controller, sound, advanced
@@ -287,7 +287,7 @@ private struct GeneralTab: View {
                     Text("Suspend (keep running in the background)").tag(LauncherSettings.CloseAction.suspend)
                 } label: {
                     Label2(title: "When closing the window",
-                           detail: String(localized: "Suspend freezes SteamOS and the running game at once and keeps them in memory; click the Dock icon or Resume in the menu bar to continue where you left off. Suspended state is kept while FX Steam Launcher is running: quitting the app or restarting the Mac shuts SteamOS down."),
+                           detail: String(localized: "Suspend freezes SteamOS and the running game at once and keeps them in memory; click the Dock icon or Resume in the menu bar to continue where you left off. Suspended state is kept while CinterForgeOS is running: quitting the app or restarting the Mac shuts SteamOS down."),
                            now: true)
                 }
             }
@@ -321,7 +321,7 @@ private struct GeneralTab: View {
                            now: true)
                 }
             } header: {
-                Text("When FX Steam Launcher is in the background")
+                Text("When CinterForgeOS is in the background")
             }
             Section {
                 CrashReportsToggle(settings: settings, showsApplies: true)
@@ -329,8 +329,8 @@ private struct GeneralTab: View {
                     Label2(title: "Check for updates at startup",
                            detail: String(localized: "Asks GitHub (api.github.com) for the newest release, at most every 6 hours; only the app version is sent.")
                                + " " + (CrashReporting.buildKind == .development
-                                   ? String(localized: "This development build never checks at startup; FX Steam Launcher > Check for Updates… does.")
-                                   : String(localized: "FX Steam Launcher > Check for Updates… checks at any time.")),
+                                   ? String(localized: "This development build never checks at startup; CinterForgeOS > Check for Updates… does.")
+                                   : String(localized: "CinterForgeOS > Check for Updates… checks at any time.")),
                            now: true)
                 }
                 Toggle(isOn: $settings.perfStats) {
@@ -1043,7 +1043,7 @@ private struct AdvancedTab: View {
         }
         .onAppear { password.load(disk: nextDisk) }
         .onChange(of: settings.diskImage) { password.load(disk: nextDisk) }
-        .confirmationDialog("Reset all FX Steam Launcher settings to their defaults?", isPresented: $confirmReset) {
+        .confirmationDialog("Reset all CinterForgeOS settings to their defaults?", isPresented: $confirmReset) {
             Button("Reset", role: .destructive) { settings.resetAll() }
         } message: {
             Text("Per-game mouse settings and the chosen disk image are forgotten too.")

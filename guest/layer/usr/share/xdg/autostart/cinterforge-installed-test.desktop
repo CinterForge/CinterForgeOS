@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=CinterForge installed-app GUI tests
+Exec=/usr/lib/cinterforge/installed-app-gui-test
+OnlyShowIn=KDE;
+X-KDE-autostart-phase=2
+Terminal=false

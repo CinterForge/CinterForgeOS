@@ -19,7 +19,7 @@ do {
     (options, settingsOverrides) = try Options.resolve(CommandLine.arguments, settings: settings)
 } catch {
     FileHandle.standardError.write("steamac-vm: \(error)\n\n\(Options.usage)\n".data(using: .utf8)!)
-    MainActor.assumeIsolated { AppBundle.alertIfLaunchedFromFinder("FX Steam Launcher cannot start", error.localizedDescription) }
+    MainActor.assumeIsolated { AppBundle.alertIfLaunchedFromFinder("CinterForgeOS cannot start", error.localizedDescription) }
     exit(2)
 }
 
@@ -86,7 +86,7 @@ if let f = Supervisor.windowFrame, !f.isEmpty, !options.headless {
 
 // MARK: VM process (one boot)
 
-let windowTitle = "FX Steam Launcher"
+let windowTitle = "CinterForgeOS"
 
 /// Graceful shutdown policy shared by window close, menu, signals and the console escape; window
 /// close / menu Suspend / Dock click / Quit while suspended (SuspendController).

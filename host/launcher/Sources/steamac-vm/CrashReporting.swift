@@ -29,7 +29,7 @@ enum CrashReporting {
     static let noFlag = "--no-crash-reports"
 
     /// Settings / first-run explanation (one line) and the "What is sent" list.
-    static let summary = String(localized: "Crash reports and rare errors go to the FX Steam Launcher developers (Sentry). No personal data.")
+    static let summary = String(localized: "Crash reports and rare errors go to the CinterForgeOS developers (Sentry). No personal data.")
     static let whatIsSent = [
         String(localized: "Crash reports of the launcher and the VM process: crash reason, stack traces, loaded libraries."),
         String(localized: "A few errors: guest GPU context lost, shader pipeline compile failures (with an excerpt of the failing Metal shader source), libkrun panics, failed disk creation or first-start setup, VM stopped unexpectedly or killed (with the Mac's memory use), SteamOS not responding."),
@@ -784,7 +784,7 @@ enum CrashReporting {
              "faultingThread": 1,
              "usedImages": [{"name": "libsystem_malloc.dylib", "path": "/usr/lib/system/libsystem_malloc.dylib"},
                             {"name": "libobjc.A.dylib", "path": "/usr/lib/libobjc.A.dylib"},
-                            {"name": "libvulkan_kosmickrisp.dylib", "path": "/Applications/FX Steam Launcher.app/Contents/Frameworks/libvulkan_kosmickrisp.dylib"}],
+                            {"name": "libvulkan_kosmickrisp.dylib", "path": "/Applications/CinterForgeOS.app/Contents/Frameworks/libvulkan_kosmickrisp.dylib"}],
              "threads": [{"frames": [{"imageOffset": 16, "imageIndex": 0}]},
                          {"frames": [{"imageOffset": 290148, "symbol": "_xzm_xzone_malloc_freelist_outlined", "symbolLocation": 868, "imageIndex": 0},
                                      {"imageOffset": 58660, "symbol": "AutoreleasePoolPage::releaseUntil(objc_object**)", "symbolLocation": 196, "imageIndex": 1},

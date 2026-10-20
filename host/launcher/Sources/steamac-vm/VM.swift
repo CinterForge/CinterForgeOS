@@ -86,6 +86,30 @@ final class VM {
             log("disk \(id): \(d.path)\(d.readOnly ? " (ro)" : "")")
         }
 
+        // CINTERFORGE_DEV_APPLICATIONS_SHARE_V3: developer opt-in only.
+        if let installed = ProcessInfo.processInfo.environment["CINTER_DEV_APPLICATIONS_DIR"], !installed.isEmpty {
+            let path = URL(fileURLWithPath: installed, isDirectory: true).standardizedFileURL.path
+            var directory: ObjCBool = false
+            guard FileManager.default.fileExists(atPath: path, isDirectory: &directory),
+                  directory.boolValue,
+                  FileManager.default.fileExists(atPath: path + "/Linux") else {
+                throw NSError(domain: "CinterForgeOS", code: 1,
+                    userInfo: [NSLocalizedDescriptionKey: "Invalid installed CinterForge share: " + path])
+            }
+            try krun("krun_add_virtiofs3(Applications)",
+                     krun_add_virtiofs3(ctx, "Applications", path, 0, true))
+            log("development Applications shared read-only: " + path)
+        }
+        if let control = ProcessInfo.processInfo.environment["CINTER_DEV_GUEST_TEST_CONTROL"], !control.isEmpty {
+            let path = URL(fileURLWithPath: control, isDirectory: true).standardizedFileURL.path
+            var directory: ObjCBool = false
+            guard FileManager.default.fileExists(atPath: path, isDirectory: &directory), directory.boolValue else {
+                throw NSError(domain: "CinterForgeOS", code: 2, userInfo: [NSLocalizedDescriptionKey: "Invalid developer test control folder: " + path])
+            }
+            try krun("krun_add_virtiofs3(DeveloperTests)",
+                     krun_add_virtiofs3(ctx, "DeveloperTests", path, 0, false))
+            log("development test control shared: " + path)
+        }
         // virtio-snd → CoreAudio default output (and default input while the guest records).
         if o.sound {
             if krun_has_feature(UInt64(KRUN_FEATURE_SND)) == 1 {

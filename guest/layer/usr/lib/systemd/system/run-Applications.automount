@@ -1,0 +1,6 @@
+[Unit]
+Description=CinterForge developer Applications automount
+[Automount]
+Where=/run/Applications
+[Install]
+WantedBy=multi-user.target

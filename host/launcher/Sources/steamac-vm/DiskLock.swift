@@ -10,11 +10,11 @@ enum DiskLock {
     struct InUse: LocalizedError, CustomStringConvertible {
         let path: String
         var description: String {
-            "the SteamOS disk \(path) is in use by another FX Steam Launcher (or steamac-vm). "
+            "the SteamOS disk \(path) is in use by another CinterForgeOS (or steamac-vm). "
                 + "Quit it first: two VMs writing one disk corrupt its file systems."
         }
         var errorDescription: String? {
-            String(localized: "the SteamOS disk \(path) is in use by another FX Steam Launcher (or steamac-vm). Quit it first: two VMs writing one disk corrupt its file systems.")
+            String(localized: "the SteamOS disk \(path) is in use by another CinterForgeOS (or steamac-vm). Quit it first: two VMs writing one disk corrupt its file systems.")
         }
     }
 

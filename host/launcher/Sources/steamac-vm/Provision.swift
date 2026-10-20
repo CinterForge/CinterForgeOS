@@ -162,7 +162,7 @@ enum GuestPassword {
         var q = query(disk)
         q[kSecValueData as String] = Data(pw.utf8)
         q[kSecAttrGeneric as String] = Data(State.pending.rawValue.utf8)
-        q[kSecAttrLabel as String] = String(localized: "FX Steam Launcher: SteamOS user steamos (disk \(disk))")
+        q[kSecAttrLabel as String] = String(localized: "CinterForgeOS: SteamOS user steamos (disk \(disk))")
         let status = SecItemAdd(q as CFDictionary, nil)
         guard status == errSecSuccess else {
             let detail = SecCopyErrorMessageString(status, nil) as String? ?? "error \(status)"

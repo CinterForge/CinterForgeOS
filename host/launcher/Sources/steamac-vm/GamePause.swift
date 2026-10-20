@@ -2,7 +2,7 @@ import AppKit
 import Combine
 import Foundation
 
-/// Settings > General "Pause the game" while FX Steam Launcher is in the background: when the
+/// Settings > General "Pause the game" while CinterForgeOS is in the background: when the
 /// app resigns active and a game has the guest's focus, the guest agent freezes that game's
 /// cgroup (`freeze-game <appid>` on fx.progress; Steam itself keeps running). While frozen the
 /// launcher sends `still-background` every 2 s — the agent thaws on its own after 6 s without

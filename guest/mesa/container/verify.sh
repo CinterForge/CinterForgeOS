@@ -115,7 +115,16 @@ check_runtime() {
         pass "ldd -r $f (root ${r#/merged})"
     fi
     cp "/work/bin/$probe" "$r/tmp/$probe"
-    out=$(in_chroot "$r" VK_LOADER_DEBUG=driver "/tmp/$probe" "$f" 2>&1) && rc=0 || rc=$?
+    # Use only the Virtio ICD matching the tested executable architecture.
+    # Other drivers present in the stock provider are not part of this test.
+    case "$probe" in
+        vkprobe-aarch64) icd=/usr/share/vulkan/icd.d/virtio_icd.aarch64.json ;;
+        vkprobe-x86_64) icd=/usr/share/vulkan/icd.d/virtio_icd.x86_64.json ;;
+        vkprobe-i386) icd=/usr/share/vulkan/icd.d/virtio_icd.x86.json ;;
+        *) fail "unknown Vulkan probe $probe"; return ;;
+    esac
+    echo "    Testing only $icd using $probe"
+    out=$(in_chroot "$r" VK_DRIVER_FILES="$icd" VK_LOADER_DEBUG=driver "/tmp/$probe" "$f" 2>&1) && rc=0 || rc=$?
     echo "$out" | grep -iE 'virtio|^OK|^FAIL|^loader:' | sed 's/^/    /'
     if [ $rc -eq 0 ] && echo "$out" | grep -q '^OK dlopen'; then
         pass "vkprobe $f (root ${r#/merged})"

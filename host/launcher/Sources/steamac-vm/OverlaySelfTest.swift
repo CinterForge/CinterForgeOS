@@ -153,7 +153,7 @@ enum OverlaySelfTest {
         exit(0)
     }
 
-    static let windowTitleForTest = "FX Steam Launcher"
+    static let windowTitleForTest = "CinterForgeOS"
 
     /// Overlay visible → background is the dark gradient where the guest frame is red;
     /// hidden → the guest frame shows. Determinate bar: blue fill left of the fraction, track right of it.

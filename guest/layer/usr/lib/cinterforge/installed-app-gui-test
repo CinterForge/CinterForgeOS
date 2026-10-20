@@ -1,0 +1,55 @@
+#!/bin/bash
+set -u
+control=/run/DeveloperTests
+installed=/run/Applications
+# KDE can start before systemd has mounted the opt-in virtiofs share.
+# Keep the agent alive during guest boot instead of silently exiting once.
+for attempt in $(seq 1 90); do
+    [ -e "$control/enabled" ] && break
+    sleep 1
+done
+[ -e "$control/enabled" ] || exit 0
+printf '[guest] installed GUI test agent ready\n' >> "$control/guest-agent.log"
+while [ -e "$control/enabled" ]; do
+    if [ -f "$control/request" ]; then
+        IFS=$'\t' read -r token platform app version relative window_class < "$control/request" || true
+        rm -f "$control/request"
+        printf '[guest] accepted request token=%s app=%s\n' "$token" "$app" >> "$control/guest-agent.log"
+        case "${token:-}" in *[!a-zA-Z0-9_-]*|'') continue ;; esac
+        status="$control/result-$token"
+        case "${platform:-}" in Linux) ;; *) printf 'ERROR\tUnsupported guest platform\n' > "$status"; continue ;; esac
+        case "${app:-}/${version:-}/${relative:-}" in
+            *..*|*//*|/*|*'\'*|*'~'*) printf 'ERROR\tInvalid application path\n' > "$status"; continue ;;
+        esac
+        executable="$installed/$platform/$app/$version/$relative"
+        if [ ! -x "$executable" ]; then
+            printf 'ERROR\tInstalled executable unavailable: %s\n' "$executable" > "$status"
+            continue
+        fi
+        if [ ! -x /usr/lib/cinterforge/run-linux-amd64 ]; then
+            printf 'ERROR\tShared FEX runner missing\n' > "$status"
+            continue
+        fi
+        /usr/lib/cinterforge/run-linux-amd64 "$executable" > "$control/output-$token.log" 2>&1 &
+        pid=$!
+        verified=0
+        for attempt in $(seq 1 40); do
+            if command -v kdotool >/dev/null 2>&1; then
+                if kdotool search --class "$window_class" 2>/dev/null | grep -q .; then verified=1; break; fi
+            elif command -v xdotool >/dev/null 2>&1; then
+                if xdotool search --class "$window_class" 2>/dev/null | grep -q .; then verified=1; break; fi
+            else
+                printf 'ERROR\tNo semantic KDE window query available\n' > "$status"
+                verified=2; break
+            fi
+            kill -0 "$pid" 2>/dev/null || break
+            sleep 2
+        done
+        if [ "$verified" = 1 ]; then
+            printf 'PASS\tWindow found for %s\n' "$executable" > "$status"
+        elif [ "$verified" = 0 ]; then
+            printf 'ERROR\tNo GUI window for %s (pid %s)\n' "$executable" "$pid" > "$status"
+        fi
+    fi
+    sleep 1
+done

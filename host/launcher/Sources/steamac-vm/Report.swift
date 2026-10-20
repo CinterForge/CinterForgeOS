@@ -390,7 +390,7 @@ final class ReportBundle: @unchecked Sendable {
         add("crash reporting", CrashReporting.statusSummary)
         add("last error event", CrashReporting.lastEventId(runDir: context.runDir))
         add("exit", context.exitSummary)
-        var text = "# FX Steam Launcher problem report\n" + lines.joined(separator: "\n") + "\n"
+        var text = "# CinterForgeOS problem report\n" + lines.joined(separator: "\n") + "\n"
         if !notes.isEmpty { text += "\n# Collection notes\n" + notes.map { "- " + $0 }.joined(separator: "\n") + "\n" }
         let other = tags.filter { !["steamos_build", "layer", "boot", "run"].contains($0.key) }
         if !other.isEmpty {
