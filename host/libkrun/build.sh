@@ -33,6 +33,9 @@
 set -eu
 
 REPO=https://github.com/libkrun/libkrun.git
+STEAMAC_ROOT="$REPO"
+export STEAMAC_ROOT
+. "$STEAMAC_ROOT/scripts/paths.sh"
 TAG=v1.19.6
 COMMIT=227b2de6ed323fe180e02f871c5f325a90c13cc2
 RUST_TOOLCHAIN=${RUST_TOOLCHAIN:-1.90.0}
@@ -42,9 +45,9 @@ MAKE_FLAGS="GPU=1 BLK=1 NET=1 INPUT=1 SND=1"
 
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../.." && pwd)
-work=$root/work/build/host-libkrun
+work=${STEAMAC_WORK_DIR}/build/host-libkrun
 src=$work/src
-out=$root/work/out/host
+out=${STEAMAC_WORK_DIR}/out/host
 
 if [ "${1:-}" = clean ]; then
 	rm -rf "$work"

@@ -20,8 +20,8 @@ import tarfile
 import tempfile
 
 root = Path(os.environ['STEAMAC_ROOT'])
-out = root / 'work/out/licenses'
-cache = root / 'work/cache/licenses/go-modcache'
+out = Path(os.environ['STEAMAC_WORK_DIR']) / 'out/licenses'
+cache = Path(os.environ['STEAMAC_WORK_DIR']) / 'cache/licenses/go-modcache'
 cache.mkdir(parents=True, exist_ok=True)
 stage = Path(tempfile.mkdtemp(prefix='.licenses.', dir=out.parent))
 atexit.register(lambda: shutil.rmtree(stage) if stage.exists() else None)
@@ -36,7 +36,7 @@ def require(path):
         raise RuntimeError(f'missing license input: {path}')
     return path
 def pinned_text(filename, url):
-    path = root / 'work/cache/licenses' / filename
+    path = Path(os.environ['STEAMAC_WORK_DIR']) / 'cache/licenses' / filename
     if not path.is_file():
         path.write_bytes(subprocess.check_output(['curl', '-fsSL', '--retry', '3', url]))
     return require(path).read_bytes()
@@ -98,21 +98,21 @@ def archive(name, version, license_id, location, url, filename, prefixes):
 host = 'Contents/Frameworks'
 res = 'Contents/Resources'
 launcher = 'Contents/MacOS/steamac-vm'
-krun = root / 'work/build/host-libkrun/src'
+krun = Path(os.environ['STEAMAC_WORK_DIR']) / 'build/host-libkrun/src'
 source('libkrun', '1.19.6', 'Apache-2.0', host + '/libkrun.1.dylib',
        'https://github.com/libkrun/libkrun/tree/v1.19.6', krun)
 source('libkrun-rutabaga-gfx', '1.19.6', 'BSD-3-Clause', host + '/libkrun.1.dylib',
        'https://github.com/google/crosvm/tree/main/rutabaga_gfx',
        krun / 'src/rutabaga_gfx', ('ffi/LICENSE',))
 source('virglrenderer', '5d26f605+aafa9bd2', 'MIT', host + '/libvirglrenderer.1.dylib',
-       'https://github.com/utmapp/virglrenderer', root / 'work/build/host-virglrenderer/src')
-mvk = root / 'work/build/host-moltenvk/src'
+       'https://github.com/utmapp/virglrenderer', Path(os.environ['STEAMAC_WORK_DIR']) / 'build/host-virglrenderer/src')
+mvk = Path(os.environ['STEAMAC_WORK_DIR']) / 'build/host-moltenvk/src'
 source('MoltenVK', '05604465', 'Apache-2.0', host + '/libMoltenVK.dylib',
        'https://github.com/utmapp/MoltenVK', mvk)
 revisions = mvk / 'ExternalRevisions'
 external = mvk / 'External'
 for name in ('SPIRV-Cross', 'Vulkan-Headers', 'SPIRV-Tools', 'cereal', 'Volk'):
-    path = root / 'work/build/host-moltenvk/SPIRV-Cross' if name == 'SPIRV-Cross' else external / name
+    path = Path(os.environ['STEAMAC_WORK_DIR']) / 'build/host-moltenvk/SPIRV-Cross' if name == 'SPIRV-Cross' else external / name
     version = require(revisions / (name + '_repo_revision')).read_text().strip()
     extras = [str(p.relative_to(path)) for p in (path / 'LICENSES').rglob('*') if p.is_file()]
     source('MoltenVK-' + name, version, 'Apache-2.0 OR MIT' if name == 'Vulkan-Headers' else None,
@@ -126,8 +126,8 @@ source('MoltenVK-SPIRV-Headers', require(revisions / 'SPIRV-Headers_repo_revisio
        [str(p.relative_to(spv_headers)) for p in (spv_headers / 'LICENSES').rglob('*') if p.is_file()])
 # Vulkan-Tools is fetched by MoltenVK for SDK tooling, not linked into the dylib.
 # KosmicKrisp (Mesa), bundled when host/kosmickrisp built it (macOS 26+ build hosts).
-if (root / 'work/out/host/lib/libvulkan_kosmickrisp.dylib').is_file():
-    mesa = root / 'work/build/host-kosmickrisp/src'
+if (Path(os.environ['STEAMAC_WORK_DIR']) / 'out/host/lib/libvulkan_kosmickrisp.dylib').is_file():
+    mesa = Path(os.environ['STEAMAC_WORK_DIR']) / 'build/host-kosmickrisp/src'
     mesa_commit = re.search(r'^MESA_COMMIT=([0-9a-f]{40})$', (root / 'host/kosmickrisp/build.sh').read_text(), re.M)
     if not mesa_commit:
         raise RuntimeError('missing pinned KosmicKrisp Mesa commit')
@@ -140,8 +140,8 @@ epoxy_url = re.search(r'^URL=(https://\S+)$', epoxy_script, re.M)
 if not epoxy_version or not epoxy_url:
     raise RuntimeError('missing pinned libepoxy version or source URL')
 source('libepoxy', epoxy_version.group(1), 'MIT', host + '/libepoxy.0.dylib',
-       epoxy_url.group(1), root / 'work/build/host-libepoxy/src')
-sentry = root / 'host/launcher/.build/checkouts/sentry-cocoa'
+       epoxy_url.group(1), Path(os.environ['STEAMAC_WORK_DIR']) / 'build/host-libepoxy/src')
+sentry = Path(os.environ['STEAMAC_SWIFT_BUILD_DIR']) / 'checkouts/sentry-cocoa'
 source('sentry-cocoa', '9.30.0', None, launcher,
        'https://github.com/getsentry/sentry-cocoa/tree/9.30.0', sentry)
 zstd = root / 'host/launcher/Sources/CZstd/zstd'
@@ -152,7 +152,7 @@ source('zstd', zstd_version, 'BSD-3-Clause', launcher,
 # Only resolved target-specific packages count; build dependencies and proc macros are
 # included since their license conditions may apply to generated/embedded code.
 def rust_graph(manifest, features, target, prefix, location):
-    env = dict(os.environ, CARGO_HOME=str(root / 'work/cache/cargo-home')) if prefix == 'progress-agent-crate-' else None
+    env = dict(os.environ, CARGO_HOME=str(Path(os.environ['STEAMAC_WORK_DIR']) / 'cache/cargo-home')) if prefix == 'progress-agent-crate-' else None
     metadata = json.loads(run('cargo', 'metadata', '--locked', '--offline', '--format-version', '1',
                               '--manifest-path', str(manifest), '--filter-platform', target,
                               *(['--features', features] if features else []), env=env))
@@ -192,7 +192,7 @@ def go_download_module(module, version):
     raise RuntimeError(f'Unable to download required Go module {spec}: {detail}')
 for binary in ('gvproxy', 'desync'):
     location = res + '/' + binary
-    lines = run('go', 'version', '-m', str(root / 'work/out/host/bin' / binary)).splitlines()
+    lines = run('go', 'version', '-m', str(Path(os.environ['STEAMAC_WORK_DIR']) / 'out/host/bin' / binary)).splitlines()
     go_version = lines[0].split()[-1]
     if not re.fullmatch(r'go[0-9]+\.[0-9]+(?:\.[0-9]+)?', go_version):
         raise RuntimeError(f'{binary}: unknown embedded Go toolchain version: {go_version}')
@@ -246,14 +246,14 @@ layer = res + '/steamac-layer.img'
 kernel_version = '7.2.9'
 archive('linux-kernel', kernel_version, 'GPL-2.0-only WITH Linux-syscall-note', image,
         'https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-' + kernel_version + '.tar.xz',
-        root / f'work/cache/kernel/linux-{kernel_version}.tar.xz', ('COPYING', 'LICENSES/exceptions/Linux-syscall-note', 'LICENSES/preferred/GPL-2.0'))
+        Path(os.environ['STEAMAC_WORK_DIR']) / f'cache/kernel/linux-{kernel_version}.tar.xz', ('COPYING', 'LICENSES/exceptions/Linux-syscall-note', 'LICENSES/preferred/GPL-2.0'))
 # busybox is the Debian snapshot's busybox-static; retrieve the matching installed
 # package copyright instead of pretending a GPL text from another release is sufficient.
 builder = config['BUILDER_IMAGE']
 builder_hash = run('docker', 'image', 'inspect', '-f', '{{.Id}}', builder).split(':')[-1][:16]
 busybox_version = run('docker', 'run', '--rm', '--platform', 'linux/arm64', builder,
                       'dpkg-query', '-W', '-f=${Version}', 'busybox-static')
-busybox_copyright = root / 'work/cache/licenses' / ('busybox-' + builder_hash + '-copyright')
+busybox_copyright = Path(os.environ['STEAMAC_WORK_DIR']) / 'cache/licenses' / ('busybox-' + builder_hash + '-copyright')
 if not busybox_copyright.is_file():
     data = subprocess.check_output(['docker', 'run', '--rm', '--platform', 'linux/arm64',
                                     builder, 'cat', '/usr/share/doc/busybox-static/copyright'])
@@ -264,14 +264,14 @@ add('busybox-static', busybox_version, 'GPL-2.0-only', init + ':/bin/busybox',
     [('copyright', require(busybox_copyright).read_bytes()),
      ('GPL-2.0', require(stage / 'linux-kernel/LICENSES/preferred/GPL-2.0').read_bytes())])
 archive('dosfstools', config['DOSFSTOOLS_VERSION'], 'GPL-3.0-or-later', init + ':/bin/{fsck.fat,mkfs.fat}',
-        config['DOSFSTOOLS_URL'], root / f"work/cache/dosfstools/{config['DOSFSTOOLS_VERSION']}/dosfstools-{config['DOSFSTOOLS_VERSION']}.tar.gz",
+        config['DOSFSTOOLS_URL'], Path(os.environ["STEAMAC_WORK_DIR"]) / f"cache/dosfstools/{config['DOSFSTOOLS_VERSION']}/dosfstools-{config['DOSFSTOOLS_VERSION']}.tar.gz",
         ('COPYING', 'LICENSE'))
 archive('e2fsprogs', config['E2FSPROGS_VERSION'], 'GPL-2.0-only AND LGPL-2.0-only AND BSD-3-Clause AND LicenseRef-MIT-SIPB',
         init + ':/bin/mke2fs (static libext2fs/libuuid/libblkid/libcom_err)', config['E2FSPROGS_URL'],
-        root / f"work/cache/e2fsprogs/{config['E2FSPROGS_VERSION']}/e2fsprogs-{config['E2FSPROGS_VERSION']}.tar.xz",
+        Path(os.environ["STEAMAC_WORK_DIR"]) / f"cache/e2fsprogs/{config['E2FSPROGS_VERSION']}/e2fsprogs-{config['E2FSPROGS_VERSION']}.tar.xz",
         ('NOTICE', 'debian/copyright', 'lib/uuid/COPYING'))
 archive('btrfs-progs', config['BTRFSPROGS_VERSION'], 'GPL-2.0-only', init + ':/bin/btrfstune',
-        config['BTRFSPROGS_URL'], root / f"work/cache/btrfs-progs/{config['BTRFSPROGS_VERSION']}/btrfs-progs-v{config['BTRFSPROGS_VERSION']}.tar.xz",
+        config['BTRFSPROGS_URL'], Path(os.environ["STEAMAC_WORK_DIR"]) / f"cache/btrfs-progs/{config['BTRFSPROGS_VERSION']}/btrfs-progs-v{config['BTRFSPROGS_VERSION']}.tar.xz",
         ('COPYING', 'LICENSE'))
 versions = {}
 for line in (root / 'guest/mesa/versions.env').read_text().splitlines():

@@ -12,8 +12,11 @@ URL="https://github.com/folbricht/desync/releases/download/v${VERSION}/desync_${
 
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../.." && pwd)
-DEST="${DESYNC_DEST:-$ROOT/work/out/host/bin/desync}"
-LICENSE="$ROOT/work/out/host/share/desync/LICENSE"
+STEAMAC_ROOT="$ROOT"
+export STEAMAC_ROOT
+. "$STEAMAC_ROOT/scripts/paths.sh"
+DEST="${DESYNC_DEST:-${STEAMAC_WORK_DIR}/out/host/bin/desync}"
+LICENSE="${STEAMAC_WORK_DIR}/out/host/share/desync/LICENSE"
 STAMP="$DEST.source"
 
 if [[ -x "$DEST" && -f "$LICENSE" && "$(cat "$STAMP" 2>/dev/null)" == "$VERSION $SHA256" ]]; then

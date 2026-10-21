@@ -19,7 +19,10 @@
 set -euo pipefail
 
 REPO=$(cd "$(dirname "$0")/.." && pwd)
-WORK=$REPO/work
+STEAMAC_ROOT="$REPO"
+export STEAMAC_ROOT
+. "$STEAMAC_ROOT/scripts/paths.sh"
+WORK=${STEAMAC_WORK_DIR}
 . "$REPO/scripts/config.env"
 
 # Receipts are taken on the host: containers do not need Git/Python installed.

@@ -31,7 +31,10 @@ set -euo pipefail
 
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../.." && pwd)
-OUT="$ROOT/work/out"
+STEAMAC_ROOT="$ROOT"
+export STEAMAC_ROOT
+. "$STEAMAC_ROOT/scripts/paths.sh"
+OUT="${STEAMAC_WORK_DIR}/out"
 NAME="FX Steam Launcher"
 SRC="$OUT/$NAME.app"
 DIST="$OUT/dist"

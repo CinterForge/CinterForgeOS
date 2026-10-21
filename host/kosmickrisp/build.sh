@@ -219,10 +219,13 @@ BREW_DEPS="meson ninja pkgconf llvm spirv-llvm-translator spirv-tools vulkan-loa
 
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../.." && pwd)
-work=$root/work/build/host-kosmickrisp
+STEAMAC_ROOT="$root"
+export STEAMAC_ROOT
+. "$STEAMAC_ROOT/scripts/paths.sh"
+work=${STEAMAC_WORK_DIR}/build/host-kosmickrisp
 src=$work/src
 clc=$work/clc
-out=$root/work/out/host
+out=${STEAMAC_WORK_DIR}/out/host
 
 if [ "${1:-}" = clean ]; then
 	rm -rf "$work"
@@ -314,7 +317,7 @@ printf '{"file_format_version": "1.0.1", "ICD": {"library_path": "%s", "api_vers
 	"$staged" > "$icd"
 loader=$(brew --prefix vulkan-loader)/lib
 probe=$work/probe
-xcrun clang -std=c11 -Wall -Werror -O1 -I"$root/work/build/host-moltenvk/src/Package/Release/MoltenVK/include" \
+xcrun clang -std=c11 -Wall -Werror -O1 -I"${STEAMAC_WORK_DIR}/build/host-moltenvk/src/Package/Release/MoltenVK/include" \
 	"$root/host/moltenvk/probe/probe.c" -L"$loader" -lvulkan -Wl,-rpath,"$loader" -o "$probe"
 echo ">> probe: $staged"
 VK_DRIVER_FILES=$icd "$probe"

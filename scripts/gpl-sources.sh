@@ -5,10 +5,13 @@
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
+STEAMAC_ROOT="$ROOT"
+export STEAMAC_ROOT
+. "$STEAMAC_ROOT/scripts/paths.sh"
 REF=${1:-HEAD}
 [[ $# -le 1 ]] || { echo 'usage: scripts/gpl-sources.sh [GIT_REF]' >&2; exit 2; }
-mkdir -p "$ROOT/work/scratch" "$ROOT/work/out/dist"
-ST=$(mktemp -d "$ROOT/work/scratch/gpl-sources.XXXXXXXX")
+mkdir -p "${STEAMAC_WORK_DIR}/scratch" "${STEAMAC_WORK_DIR}/out/dist"
+ST=$(mktemp -d "${STEAMAC_WORK_DIR}/scratch/gpl-sources.XXXXXXXX")
 trap 'rm -rf "$ST"' EXIT
 mkdir -p "$ST/repo" "$ST/sources"
 
@@ -57,21 +60,21 @@ copy_source() { # Cached build tarball, URL, SHA256, archive filename
         fetch "$url" "$sha" "$ST/sources/$name"
     fi
 }
-copy_source "$ROOT/work/cache/kernel/linux-$KVER.tar.xz" \
+copy_source "${STEAMAC_WORK_DIR}/cache/kernel/linux-$KVER.tar.xz" \
     "https://cdn.kernel.org/pub/linux/kernel/v${KVER%%.*}.x/linux-$KVER.tar.xz" \
     "$KSHA256" "linux-$KVER.tar.xz"
-copy_source "$ROOT/work/cache/dosfstools/$DOSFSTOOLS_VERSION/dosfstools-$DOSFSTOOLS_VERSION.tar.gz" \
+copy_source "${STEAMAC_WORK_DIR}/cache/dosfstools/$DOSFSTOOLS_VERSION/dosfstools-$DOSFSTOOLS_VERSION.tar.gz" \
     "$DOSFSTOOLS_URL" "$DOSFSTOOLS_SHA256" "dosfstools-$DOSFSTOOLS_VERSION.tar.gz"
-copy_source "$ROOT/work/cache/e2fsprogs/$E2FSPROGS_VERSION/e2fsprogs-$E2FSPROGS_VERSION.tar.xz" \
+copy_source "${STEAMAC_WORK_DIR}/cache/e2fsprogs/$E2FSPROGS_VERSION/e2fsprogs-$E2FSPROGS_VERSION.tar.xz" \
     "$E2FSPROGS_URL" "$E2FSPROGS_SHA256" "e2fsprogs-$E2FSPROGS_VERSION.tar.xz"
-copy_source "$ROOT/work/cache/btrfs-progs/$BTRFSPROGS_VERSION/btrfs-progs-v$BTRFSPROGS_VERSION.tar.xz" \
+copy_source "${STEAMAC_WORK_DIR}/cache/btrfs-progs/$BTRFSPROGS_VERSION/btrfs-progs-v$BTRFSPROGS_VERSION.tar.xz" \
     "$BTRFSPROGS_URL" "$BTRFSPROGS_SHA256" "btrfs-progs-v$BTRFSPROGS_VERSION.tar.xz"
 
 # Resolve busybox-static's *source* version from the same snapshot/architecture
 # apt used in Dockerfile. The binary can have a different +bN rebuild suffix.
 snapshot=https://snapshot.debian.org/archive/debian/$DEBIAN_SNAPSHOT
 # Cache immutable snapshot indexes and tarballs shared by all tags at this snapshot.
-snapshot_cache="$ROOT/work/cache/gpl-sources/$DEBIAN_SNAPSHOT"
+snapshot_cache="${STEAMAC_WORK_DIR}/cache/gpl-sources/$DEBIAN_SNAPSHOT"
 mkdir -p "$snapshot_cache"
 fetch "$snapshot/dists/trixie/main/binary-arm64/Packages.xz" '' "$snapshot_cache/Packages.xz"
 source_version=$(xz -dc "$snapshot_cache/Packages.xz" | awk '
@@ -156,7 +159,7 @@ repo/guest/initramfs/init. Its static binaries are:
 Debian snapshot archive: $snapshot
 EOF
 
-output="$ROOT/work/out/dist/FX-Steam-Launcher-$version-gpl-sources.tar"
+output="${STEAMAC_WORK_DIR}/out/dist/FX-Steam-Launcher-$version-gpl-sources.tar"
 # Write to a temporary file so an interrupted run cannot leave a partial release asset.
 tar -cf "$ST/archive.tar" -C "$ST" README.txt repo sources
 mv "$ST/archive.tar" "$output"

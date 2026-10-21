@@ -16,7 +16,10 @@ set -euo pipefail
 
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../.." && pwd)
-OUT="$ROOT/work/out"
+STEAMAC_ROOT="$ROOT"
+export STEAMAC_ROOT
+. "$STEAMAC_ROOT/scripts/paths.sh"
+OUT="${STEAMAC_WORK_DIR}/out"
 KRUN_PREFIX="${KRUN_PREFIX:-$OUT/host}"
 BIN="${1:?usage: bundle.sh <steamac-vm binary>}"
 NAME="FX Steam Launcher"
@@ -37,7 +40,7 @@ trap 'rm -rf "$STAGE"' EXIT
 mkdir -p "$TMP/Contents/MacOS" "$TMP/Contents/Frameworks" "$TMP/Contents/Resources"
 
 # build.sh's Info.plist carries the build identity crash reports use (SteamacGitCommit, ...).
-PLIST="$HERE/.build/Info.plist"
+PLIST="${STEAMAC_SWIFT_BUILD_DIR}/Info.plist"
 [[ -f $PLIST ]] || PLIST="$HERE/Info.plist"
 cp "$PLIST" "$TMP/Contents/Info.plist"
 # Lets the app find the repo's work/out/steamos.img as its default disk when moved elsewhere.
@@ -114,8 +117,8 @@ chmod 755 "$TMP/Contents/Resources/gvproxy" "$TMP/Contents/Resources/desync"
 cp "$ROOT/scripts/keys/steamdeck-images.pem" "$TMP/Contents/Resources/steamdeck-images.pem"
 mkdir -p "$TMP/Contents/Resources/licenses"
 cp -R "$OUT/licenses/." "$TMP/Contents/Resources/licenses/"
-for lproj in "$HERE/.build/l10n"/*.lproj; do
-    [[ -d $lproj ]] || { echo "bundle.sh: no compiled localizations in $HERE/.build/l10n (run build.sh)" >&2; exit 1; }
+for lproj in "${STEAMAC_SWIFT_BUILD_DIR}/l10n"/*.lproj; do
+    [[ -d $lproj ]] || { echo "bundle.sh: no compiled localizations in ${STEAMAC_SWIFT_BUILD_DIR}/l10n (run build.sh)" >&2; exit 1; }
     cp -R "$lproj" "$TMP/Contents/Resources/"
 done
 

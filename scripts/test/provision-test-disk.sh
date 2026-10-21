@@ -40,7 +40,10 @@
 set -euo pipefail
 
 REPO=$(cd "$(dirname "$0")/../.." && pwd)
-WORK=$REPO/work
+STEAMAC_ROOT="$REPO"
+export STEAMAC_ROOT
+. "$STEAMAC_ROOT/scripts/paths.sh"
+WORK=${STEAMAC_WORK_DIR}
 S=${TEST_WORK:-$WORK/scratch/provision}
 export HOME_SIZE_GIB=${HOME_SIZE_GIB:-8}
 . "$REPO/scripts/config.env"

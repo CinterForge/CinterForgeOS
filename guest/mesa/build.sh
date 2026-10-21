@@ -15,15 +15,18 @@ set -euo pipefail
 
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 REPO=$(cd "$HERE/../.." && pwd)
+STEAMAC_ROOT="$REPO"
+export STEAMAC_ROOT
+. "$STEAMAC_ROOT/scripts/paths.sh"
 set -a
 # shellcheck source=versions.env
 source "$HERE/versions.env"
 set +a
 
-OUT=$REPO/work/out/mesa-venus
-WORK=$REPO/work/build/mesa-venus
+OUT=${STEAMAC_WORK_DIR}/out/mesa-venus
+WORK=${STEAMAC_WORK_DIR}/build/mesa-venus
 STEAMOS_BUILDID=$(. "$REPO/scripts/config.env" && echo "$STEAMOS_BUILDID")
-ROOTFS_IMG=${ROOTFS_IMG:-$REPO/work/cache/rootfs/$STEAMOS_BUILDID/rootfs.img}
+ROOTFS_IMG=${ROOTFS_IMG:-${STEAMAC_WORK_DIR}/cache/rootfs/$STEAMOS_BUILDID/rootfs.img}
 SRC_VOLUME=steamac-mesa-src
 
 clean=0

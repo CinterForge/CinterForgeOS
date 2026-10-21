@@ -18,7 +18,10 @@ set -euo pipefail
 
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../.." && pwd)
-OUT="$ROOT/work/out"
+STEAMAC_ROOT="$ROOT"
+export STEAMAC_ROOT
+. "$STEAMAC_ROOT/scripts/paths.sh"
+OUT="${STEAMAC_WORK_DIR}/out"
 KRUN_PREFIX="${KRUN_PREFIX:-$OUT/host}"
 
 for h in libkrun.h libkrun_display.h libkrun_input.h; do
@@ -31,8 +34,8 @@ ls "$KRUN_PREFIX"/lib/libkrun*.dylib >/dev/null 2>&1 || { echo "missing $KRUN_PR
 # es.fxgam.steamac@<CFBundleShortVersionString>+<commit>), SteamacMVKPatchRevision (MoltenVK
 # MVK_PATCH_REVISION, from $KRUN_PREFIX/MOLTENVK.txt) and SteamacKosmicKrispRevision (patch revision
 # from $KRUN_PREFIX/KOSMICKRISP.txt, when KosmicKrisp is built).
-PLIST="$HERE/.build/Info.plist"
-mkdir -p "$HERE/.build"
+PLIST="${STEAMAC_SWIFT_BUILD_DIR}/Info.plist"
+mkdir -p "${STEAMAC_SWIFT_BUILD_DIR}"
 commit=$(git -C "$ROOT" rev-parse --short=10 HEAD 2>/dev/null || echo unknown)
 mvk_rev=$(sed -n 's/.*MVK_PATCH_REVISION (\([0-9a-f]\{8\}\).*/\1/p' "$KRUN_PREFIX/MOLTENVK.txt" 2>/dev/null | head -1)
 kk_rev=
@@ -47,13 +50,13 @@ cp "$HERE/Info.plist" "$PLIST.new"
 SWIFT_FLAGS=(
     -c release
     --package-path "$HERE"
-    --scratch-path "$HERE/.build"
+    --scratch-path "${STEAMAC_SWIFT_BUILD_DIR}"
     -Xcc "-I$KRUN_PREFIX/include"
     -Xlinker "-L$KRUN_PREFIX/lib"
     -Xlinker -rpath -Xlinker @executable_path/host/lib
     -Xlinker -rpath -Xlinker "$KRUN_PREFIX/lib"
     -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __info_plist -Xlinker "$PLIST"
-    -Xswiftc -emit-localized-strings -Xswiftc -emit-localized-strings-path -Xswiftc "$HERE/.build/stringsdata"
+    -Xswiftc -emit-localized-strings -Xswiftc -emit-localized-strings-path -Xswiftc "${STEAMAC_SWIFT_BUILD_DIR}/stringsdata"
 )
 
 "$HERE/fetch-zstd.sh"
@@ -67,9 +70,9 @@ else
 fi
 swift build "${SWIFT_FLAGS[@]}"
 
-python3 "$HERE/l10n.py" sync "$HERE/.build/stringsdata"
+python3 "$HERE/l10n.py" sync "${STEAMAC_SWIFT_BUILD_DIR}/stringsdata"
 python3 "$HERE/l10n.py" check
-python3 "$HERE/l10n.py" compile "$HERE/.build/l10n"
+python3 "$HERE/l10n.py" compile "${STEAMAC_SWIFT_BUILD_DIR}/l10n"
 
 # Debug files for crash reports (dist.sh uploads them with sentry-cli): the launcher's dSYM and
 # dSYMs of the libraries the .app bundles (their builds carry no DWARF, so these hold the symbol
@@ -99,7 +102,7 @@ fi
 codesign --force --sign - --entitlements "$HERE/steamac-vm.entitlements" "$tmp"
 mv -f "$tmp" "$OUT/steamac-vm"
 # Bundle.main of the bare dev binary resolves its .lproj directories next to it.
-for lproj in "$HERE/.build/l10n"/*.lproj; do
+for lproj in "${STEAMAC_SWIFT_BUILD_DIR}/l10n"/*.lproj; do
     rm -rf "$OUT/$(basename "$lproj")"
     cp -R "$lproj" "$OUT/"
 done

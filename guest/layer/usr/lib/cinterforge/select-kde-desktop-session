@@ -1,5 +1,24 @@
 #!/bin/sh
 set -eu
+# A previous CinterForgeOS release installed a desktop override into the
+# persistent SteamOS root. Removing it from EROFS alone cannot remove the
+# systemd enablement from the retained disk. Retire it on the real guest root.
+# Retire both earlier CinterForge boot mechanisms from persistent SteamOS.
+# The sole entry point is now SDDM ExecStartPre -> KDE per-user Autostart.
+for retired in cinterforge-desktop-default.service cinterforge-kde-prepare.service; do
+    rm -f "/etc/systemd/system/$retired"           "/etc/systemd/system/multi-user.target.wants/$retired"           "/etc/systemd/system/graphical.target.wants/$retired"
+done
+legacy=cinterforge-desktop-default.service
+if [ -e "/etc/systemd/system/$legacy" ] || [ -L "/etc/systemd/system/$legacy" ]; then
+    rm -f "/etc/systemd/system/$legacy"
+fi
+if [ -e "/etc/systemd/system/graphical.target.wants/$legacy" ] || [ -L "/etc/systemd/system/graphical.target.wants/$legacy" ]; then
+    rm -f "/etc/systemd/system/graphical.target.wants/$legacy"
+fi
+# Prevent an older /usr unit in the persistent A/B root from being started
+# again. Only the retired CinterForge unit is masked; SDDM remains enabled.
+ln -s /dev/null "/etc/systemd/system/$legacy"
+systemctl daemon-reload
 # SteamOS may select Gaming Mode from /etc/sddm.conf after reading conf.d.
 # Set the effective SDDM autologin settings in the highest-precedence file.
 session=/usr/share/wayland-sessions/plasma.desktop
@@ -35,4 +54,21 @@ User=steamos
 Session=plasma.desktop
 ' > "$config"
 fi
+# Install a true per-user KDE Autostart entry in the persistent SteamOS
+# home directory. System-wide /usr/share/xdg/autostart may be filtered or
+# overridden by existing Plasma settings; this is the path used by KDE's
+# Settings > Autostart > Add Application workflow. No second desktop is run.
+autostart=/home/steamos/.config/autostart
+install -d -m 0755 -o steamos -g steamos "$autostart"
+cat > "$autostart/cinterforge-installed-test.desktop" <<'CFOS_AUTOSTART'
+[Desktop Entry]
+Type=Application
+Name=CinterForgeOS KDE guest smoke bridge
+Exec=/usr/lib/cinterforge/installed-app-gui-test
+Terminal=false
+X-KDE-autostart-phase=2
+CFOS_AUTOSTART
+chmod 0644 "$autostart/cinterforge-installed-test.desktop"
+chown steamos:steamos "$autostart/cinterforge-installed-test.desktop"
+echo "[CinterForgeOS] Installed native per-user KDE Autostart for steamos"
 echo "[CinterForgeOS] SDDM autologin selected native KDE Plasma desktop"

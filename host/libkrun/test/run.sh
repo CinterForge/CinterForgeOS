@@ -5,8 +5,11 @@ set -eu
 
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../../.." && pwd)
-out=$root/work/out/host
-bin=$root/work/build/host-libkrun/smoke
+STEAMAC_ROOT="$root"
+export STEAMAC_ROOT
+. "$STEAMAC_ROOT/scripts/paths.sh"
+out=${STEAMAC_WORK_DIR}/out/host
+bin=${STEAMAC_WORK_DIR}/build/host-libkrun/smoke
 
 mkdir -p "$(dirname "$bin")"
 clang -std=c11 -Wall -Wextra -Werror -o "$bin" "$here/smoke.c" \
