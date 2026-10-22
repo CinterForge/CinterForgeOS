@@ -111,6 +111,26 @@ if [ "$(cat "$deps_stamp" 2> /dev/null)" != "$deps_key" ]; then
 	echo "$deps_key" > "$deps_stamp"
 fi
 
+# fetchDependencies creates External/SPIRV-Cross as a symlink to the pinned checkout.
+# A relocated external work directory can leave the symlink pointing at the old
+# checkout even when .steamac-deps is valid. Xcode then fails with
+# MoltenVKShaderConverter/SPIRVSupport.cpp: 'spirv.hpp' file not found.
+# Rebind it deterministically on every build; do not re-fetch or rebuild all
+# dependencies merely to repair a source-directory link.
+if [ ! -f "$spvc/spirv.hpp" ]; then
+    echo "FAIL: pinned SPIRV-Cross checkout has no spirv.hpp: $spvc" >&2
+    exit 1
+fi
+if [ "$(readlink "$src/External/SPIRV-Cross" 2>/dev/null || true)" != "$spvc" ]; then
+    echo ">> MoltenVK: repairing stale External/SPIRV-Cross dependency link"
+    rm -rf "$src/External/SPIRV-Cross"
+    ln -s "$spvc" "$src/External/SPIRV-Cross"
+fi
+if [ ! -f "$src/External/SPIRV-Cross/spirv.hpp" ]; then
+    echo "FAIL: SPIRV-Cross dependency is not visible to the MoltenVK Xcode project" >&2
+    exit 1
+fi
+
 # --- MoltenVK (Release, universal)
 (cd "$src" && env -i PATH="$PATH" HOME="$HOME" LANG="${LANG:-en_US.UTF-8}" make macos)
 

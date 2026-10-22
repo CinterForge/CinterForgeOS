@@ -30,14 +30,8 @@ enum AppBundle {
     /// Where a disk is looked for when Settings has none: Application Support, then the repo's
     /// work/out (next to the bundle, or the build tree recorded in Info.plist at bundle time).
     static func defaultDiskCandidates() -> [String] {
-        var c = [appSupportDir + "/steamos.img"]
-        let sibling = (Bundle.main.bundlePath as NSString).deletingLastPathComponent + "/steamos.img"
-        if resources != nil { c.append(sibling) }
-        if let out = Bundle.main.object(forInfoDictionaryKey: "SteamacBuildOut") as? String {
-            let p = out + "/steamos.img"
-            if !c.contains(p) { c.append(p) }
-        }
-        return c
+        // The sole persistent writable SteamOS disk shared with `Hope setup`.
+        return [DiskCreator.defaultPath]
     }
 
     static func defaultDisk() -> String? {
@@ -66,10 +60,9 @@ enum AppBundle {
 
     /// The disk the next start uses (Settings value or default), nil if none is usable.
     static func configuredDisk(_ settings: LauncherSettings) -> String? {
-        if !settings.diskImage.isEmpty {
-            return isDiskImage(settings.diskImage) ? settings.diskImage : nil
-        }
-        return defaultDisk()
+        // Release CinterForgeOS always uses the managed disk, never a prior
+        // Steamac preference that points to a developer workspace.
+        return resources != nil ? defaultDisk() : (settings.diskImage.isEmpty ? defaultDisk() : (isDiskImage(settings.diskImage) ? settings.diskImage : nil))
     }
 
     /// Bundle defaults for what the command line did not give.
@@ -164,7 +157,7 @@ enum FirstRun {
                 exit(0)
             }
             guard let path = chosen else { continue }
-            settings.diskImage = path
+            if AppBundle.resources == nil { settings.diskImage = path }
             log("first run: disk image \(path)")
             // Tell the supervisor to start the VM now (same marker as a guest reboot).
             if let dir = Supervisor.runDir {

@@ -105,7 +105,9 @@ done
 if [ ! -x "$work/venv/bin/python3" ]; then
 	python3 -m venv "$work/venv"
 fi
-"$work/venv/bin/pip" -q install "pyyaml==$PYYAML_VERSION" "mako==$MAKO_VERSION"
+# Run pip as a module: pip entry-point scripts retain absolute interpreter shebangs
+# after a workspace is relocated, even when venv/bin/python3 itself is valid.
+"$work/venv/bin/python3" -m pip -q install "pyyaml==$PYYAML_VERSION" "mako==$MAKO_VERSION"
 
 rm -rf "$build" "$stage"
 PATH="$work/venv/bin:$PATH" meson setup "$build" "$src" \
