@@ -1,0 +1,2778 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 70;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		01039E232796DAF045BAA669 /* PillSelfTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD63B8806A8842432656335E /* PillSelfTest.swift */; };
+		12C67B6E7BD1365D9DD94613 /* Stall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B1B48C41DF6BD9F9958E136 /* Stall.swift */; };
+		132F1990A7B1D0A09E101010 /* libCZstd.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B27E4B3E42065DCA5F78D738 /* libCZstd.a */; };
+		164FC21C716F3E53287E645F /* PauseOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A767903C4A2AFB13B70DA1 /* PauseOverlay.swift */; };
+		1E0703520F443B4DCD5FA8F9 /* RemotePlayPacket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C43E04E908D5C2256AF4421 /* RemotePlayPacket.swift */; };
+		21771F9DAABAA932EC6D4D08 /* ReportWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19E6A1B2C1D64E594D456E97 /* ReportWindow.swift */; };
+		24CC5057623AF6474BC4B3D6 /* Supervisor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42CECFFC3944AF97687E662F /* Supervisor.swift */; };
+		303F030181DAE894DD83D58F /* Gamepad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E3DAA555E1668557D4F39C8 /* Gamepad.swift */; };
+		3114F4BE76F451416ECE06D7 /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8060393F90F270180471F0AC /* Clipboard.swift */; };
+		313A29D1DFDFD8FA919CAFDF /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26A72711E214128F954423A9 /* Network.swift */; };
+		31A83282B5074ABCA9563C89 /* ProvisionPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBB5DC2367C010154A1EDC81 /* ProvisionPayload.swift */; };
+		395775F231C78BDE42A6F32C /* UpdateCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E626000F93712076EE3AC83 /* UpdateCheck.swift */; };
+		39B0B4CD1E1C7D7D56260FBE /* DiskCreationFilesystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C610919135DD5CA117D997 /* DiskCreationFilesystem.swift */; };
+		47F385710730822B7903CF4E /* CrashReporting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DF3A5910D54710A60AF5B40 /* CrashReporting.swift */; };
+		4CBB621210B65066941B7D80 /* OverlaySelfTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D1E9CCF5A5A324048B249ED /* OverlaySelfTest.swift */; };
+		4D04A956308AAE39004B97C7 /* libswiftMetal.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D04A94E308AAE38004B97C7 /* libswiftMetal.tbd */; };
+		4D04A957308AAE39004B97C7 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D04A94F308AAE38004B97C7 /* Metal.framework */; };
+		4D04A958308AAE39004B97C7 /* MetalPerformancePrimitives.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D04A950308AAE38004B97C7 /* MetalPerformancePrimitives.framework */; };
+		4D04A959308AAE39004B97C7 /* MetalFX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D04A951308AAE38004B97C7 /* MetalFX.framework */; };
+		4D04A95A308AAE39004B97C7 /* MetalPerformanceShaders.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D04A952308AAE38004B97C7 /* MetalPerformanceShaders.framework */; };
+		4D04A95B308AAE39004B97C7 /* MetalPerformanceShadersGraph.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D04A953308AAE39004B97C7 /* MetalPerformanceShadersGraph.framework */; };
+		4D04A95C308AAE39004B97C7 /* libswiftMetalKit.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D04A954308AAE39004B97C7 /* libswiftMetalKit.tbd */; };
+		4D04A95D308AAE39004B97C7 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D04A955308AAE39004B97C7 /* MetalKit.framework */; };
+		4D5C16FD266970AEB9C63C4E /* VMSizing.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0FE2BD1BAB48DEAE652467 /* VMSizing.swift */; };
+		53B4A6ED9C261F8481995369 /* ResizeSelfTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213915CF7AE8C87FBA583335 /* ResizeSelfTest.swift */; };
+		545479A22E56DF987603285F /* Squashfs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A445F4B6B3E66DF686FC3FB0 /* Squashfs.swift */; };
+		548248EB559601C85C32D55C /* CreateDiskCLI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD329F6C48F3715097B779FB /* CreateDiskCLI.swift */; };
+		5EE2C7203B8C7C8D07E8196F /* Overlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF877692400FCD90718FD479 /* Overlay.swift */; };
+		61C5F8C11AA515F16351327C /* SteamOSLicense.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67CD0C5EC9E32FD33E066F97 /* SteamOSLicense.swift */; };
+		620797CCB352F569C34001A6 /* DebugControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DB72F3216A2E5152FA0EFBC /* DebugControl.swift */; };
+		658CCE19223C3E4003FD072A /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E04E12E35BD8DB38858D107 /* main.swift */; };
+		670A74EAAA35A34BED317BC9 /* GPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F9B96C629EC98583F78CED7 /* GPT.swift */; };
+		6CAAD00DA32B81B140EC614D /* SettingsSelfTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12D3BE9E3C108957E2C620A7 /* SettingsSelfTest.swift */; };
+		6CB5F9866C83DB32D20DB994 /* MetalCompilerCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51C18B680078B952315358D /* MetalCompilerCache.swift */; };
+		7404883A63AD8019CF22738F /* CreateDiskWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D35D175DA533012B50E34B6 /* CreateDiskWindow.swift */; };
+		76382D72AEB6F120E8ADB1C7 /* PerfStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = B41083525A9EDFC3A4173E4D /* PerfStats.swift */; };
+		774F344A615692604DE04091 /* czstd.h in Headers */ = {isa = PBXBuildFile; fileRef = ADAB7B701F23BB82014C8506 /* czstd.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7B3265BA0C6E24943FFDE0AF /* Suspend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575BC3366175823CEF5DDA5D /* Suspend.swift */; };
+		8406A6A4DAB19ACA9CAE918F /* InputDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBF9C787871D32BCF1FFB3D3 /* InputDevice.swift */; };
+		8BA440462B3CBD5D0B3921CF /* DiskCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 609C8EBF93A7B80890479A01 /* DiskCreator.swift */; };
+		936B55C9FE2487B3C119B5D0 /* Rumble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F253846C4DD0875B307EDB3 /* Rumble.swift */; };
+		988D22EF365A1F0CB95DD17F /* VM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62951C6E5D73DF2F83B1D38C /* VM.swift */; };
+		99AEED953806C2E3F6F5C214 /* SettingsWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD73498D7A1521B36C5A4FD /* SettingsWindow.swift */; };
+		A135A8FD9EA156BF7FF88F6B /* SelfTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42CF6C5219301B765D972FDD /* SelfTest.swift */; };
+		A20000000000000000000001 /* AppIcon.icon (Icon Composer) in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000001 /* AppIcon.icon (Icon Composer) */; };
+		A20000000000000000000004 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000003 /* Localizable.xcstrings */; };
+		A20000000000000000000005 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000004 /* InfoPlist.xcstrings */; };
+		A4D041ECFE6A642DF10ED3EB /* SoundControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09935684BFDC413995E475F /* SoundControl.swift */; };
+		AA63332BA028CFC841977D6D /* PointerSelfTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9535532180A6AB0525A70C9F /* PointerSelfTest.swift */; };
+		ACB9206FFAB2C95D184B66E7 /* Provision.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4188BA7FBA2C8119FD56B79 /* Provision.swift */; };
+		AE7FE19F5557E84B980AFAF3 /* ProvisionSelfTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB62D83F5916078DE8603D99 /* ProvisionSelfTest.swift */; };
+		AFAED497F723FCDCF324EA41 /* Keymap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12698E5672FAEC019F587633 /* Keymap.swift */; };
+		B2ACDB868E88A7FC5CB16527 /* Options.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E504D562811027DD369D7D5 /* Options.swift */; };
+		BFFE39FEE871612F3C57B80D /* DisplayBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F94F08AFBBB32CAF0B49970E /* DisplayBackend.swift */; };
+		C49E279609D2288369AA2A7F /* StallSelfTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3ED2AA5F6F52D451B9CB8CB /* StallSelfTest.swift */; };
+		C4E9810D54823FC044D1E579 /* GamePause.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D3F6F3D1E1B9BF367C1FA3 /* GamePause.swift */; };
+		CC8015C6987EBCBCFE537D42 /* DiskLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC196E7A6FAA346F74C7CF7 /* DiskLock.swift */; };
+		CCDAAA2A3BA0B65ED314D17E /* Progress.swift in Sources */ = {isa = PBXBuildFile; fileRef = E817AA7710796FA3D5BFB48C /* Progress.swift */; };
+		CD85C211012AAF65139054E5 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3016E4783782578EE2FA8CC /* Util.swift */; };
+		D0D7FDB6977B26929FB68C60 /* czstd.c in Sources */ = {isa = PBXBuildFile; fileRef = 324D8A1D3F81E730D5099A48 /* czstd.c */; };
+		D130CB0E7E75D52301651440 /* Edid.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E38EBE765AFC3BF3F0E966 /* Edid.swift */; };
+		D20000000000000000000001 /* Image in Resources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000001 /* Image */; };
+		D20000000000000000000002 /* initramfs.cpio.gz in Resources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000002 /* initramfs.cpio.gz */; };
+		D20000000000000000000003 /* steamac-layer.img in Resources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000003 /* steamac-layer.img */; };
+		D20000000000000000000004 /* gvproxy in Resources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000004 /* gvproxy */; };
+		D20000000000000000000005 /* desync in Resources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000005 /* desync */; };
+		D20000000000000000000006 /* steamdeck-images.pem in Resources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000006 /* steamdeck-images.pem */; };
+		D20000000000000000000007 /* desktop-ready.sh in Support files */ = {isa = PBXBuildFile; fileRef = D10000000000000000000007 /* desktop-ready.sh */; };
+		D2000000000000000000000A /* index.html in Splash assets */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000A /* index.html */; };
+		D2000000000000000000000B /* splash.css in Splash assets */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000B /* splash.css */; };
+		D2000000000000000000000C /* splash.js in Splash assets */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000C /* splash.js */; };
+		D2000000000000000000000D /* cinterforge-logo.png in Splash assets */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000D /* cinterforge-logo.png */; };
+		D5722D33C0BABDA494E6F25F /* CrashReportingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6ADA088FF5D686F602FCD91 /* CrashReportingView.swift */; };
+		D72DF2F25462AE369E107869 /* Console.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E06DC17498E4C8F0542B3A0 /* Console.swift */; };
+		D827EB41C587678E8F4647FF /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = 2BAFBE90D711F96380E9193E /* Sentry */; };
+		DA3D534F5B3CB0DDB153A205 /* HIDPassthrough.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CD0F6A2BEADA797370AF86 /* HIDPassthrough.swift */; };
+		DAAA12955A56357B69707396 /* RemotePlayRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B4AD3881A76EA6388560FE /* RemotePlayRelay.swift */; };
+		DCCE1602FDF91BB7FEDFC39A /* Window.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15033E5544A41C7727B73598 /* Window.swift */; };
+		E1DE4F926AEA6A5E0650A047 /* InputSelfTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C8E946EEE705B89D39883D0 /* InputSelfTest.swift */; };
+		E3D0E63882FF65BE0F8D7E42 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAADDABC38D301DF36BAD95E /* Settings.swift */; };
+		E47A9D0C16B79BF3F81B63FF /* LinuxInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FBBD34135B3B150561AF12 /* LinuxInput.swift */; };
+		E80000000000000000000001 /* cinterforge-linux-1920x1080.png (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000001 /* cinterforge-linux-1920x1080.png (guest) */; };
+		E80000000000000000000002 /* cinterforge-windows-1920x1080.png (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000002 /* cinterforge-windows-1920x1080.png (guest) */; };
+		E80000000000000000000003 /* cinterforge-logo.png (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000003 /* cinterforge-logo.png (guest) */; };
+		E80000000000000000000004 /* cinterforge-installed-test.desktop (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000004 /* cinterforge-installed-test.desktop (guest) */; };
+		E80000000000000000000005 /* cinterforge-kde-prepare.service (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000005 /* cinterforge-kde-prepare.service (guest) */; };
+		E80000000000000000000006 /* cinterforge-virtiofs-verify.service (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000006 /* cinterforge-virtiofs-verify.service (guest) */; };
+		E80000000000000000000007 /* install-kde-places (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000007 /* install-kde-places (guest) */; };
+		E80000000000000000000008 /* sddm-desktop.conf (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000008 /* sddm-desktop.conf (guest) */; };
+		E80000000000000000000009 /* select-kde-desktop-session (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000009 /* select-kde-desktop-session (guest) */; };
+		E8000000000000000000000A /* select-kde-wallpaper (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E7000000000000000000000A /* select-kde-wallpaper (guest) */; };
+		E8000000000000000000000B /* user-places.xbel (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E7000000000000000000000B /* user-places.xbel (guest) */; };
+		E8000000000000000000000C /* verify-virtiofs-mounts (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E7000000000000000000000C /* verify-virtiofs-mounts (guest) */; };
+		E8000000000000000000000D /* 3d.png (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E7000000000000000000000D /* 3d.png (guest) */; };
+		E8000000000000000000000E /* audio.png (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E7000000000000000000000E /* audio.png (guest) */; };
+		E8000000000000000000000F /* code.png (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E7000000000000000000000F /* code.png (guest) */; };
+		E80000000000000000000010 /* converter.png (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000010 /* converter.png (guest) */; };
+		E80000000000000000000011 /* desktop.png (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000011 /* desktop.png (guest) */; };
+		E80000000000000000000012 /* document.png (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000012 /* document.png (guest) */; };
+		E80000000000000000000013 /* image.png (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000013 /* image.png (guest) */; };
+		E80000000000000000000014 /* paint.png (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000014 /* paint.png (guest) */; };
+		E80000000000000000000015 /* photo.png (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000015 /* photo.png (guest) */; };
+		E80000000000000000000016 /* steam.png (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000016 /* steam.png (guest) */; };
+		E80000000000000000000017 /* vector.png (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000017 /* vector.png (guest) */; };
+		E80000000000000000000018 /* video.png (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000018 /* video.png (guest) */; };
+		E80000000000000000000019 /* voxel.png (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000019 /* voxel.png (guest) */; };
+		EB3E7451AB57B62470D87EFC /* SteamClientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9772959214F3B831BA81231 /* SteamClientView.swift */; };
+		EE5D9D0304210B67687F0E79 /* NetworkFailure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05FB00F45118487ADE1759DE /* NetworkFailure.swift */; };
+		F0D49196DD7C077440E69676 /* AppBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 135E62B016C9E318D2F7122A /* AppBundle.swift */; };
+		F45A63E387A3235DD54991E8 /* Report.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E791C18ADC4857C321FEFE /* Report.swift */; };
+		F4B0E4A6665F02B32B99BBE4 /* RaucBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96AED715C2F8139C18C0670 /* RaucBundle.swift */; };
+		F6A2C5BD9A690AE71D9CD5AE /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB49439F1BBD084DA12D42C /* Renderer.swift */; };
+		F8C5881D3615EC831B294F72 /* Presenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2049CD22A3AF63D8F5AF5C /* Presenter.swift */; };
+		FDBF41DBECCA53E6D99F8366 /* DiskGrower.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BAF3A4FA172CF120D778013 /* DiskGrower.swift */; };
+		FE24BC8D3CAF9EF2A9191F0F /* ProgressPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78078F097664D8E621FE19D9 /* ProgressPill.swift */; };
+		FE5B7A7805F1F108D870587A /* PointerMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 234EB69A40626CE6EBD3ED0E /* PointerMap.swift */; };
+		FEF21AE2C5888AABD6CD9595 /* RemotePlaySelfTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B00B58994F91CA783BD95D1 /* RemotePlaySelfTest.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		431387EB7262E1CFC79B125E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 46F86FAA6BBF9AC94A7E4595 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9C049173FAD5F4F89C682312;
+			remoteInfo = CZstd;
+		};
+		4DEEBC5D308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE316D308A6CC40059F151 /* Cube.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A9B53B431C3AC15200ABC6F6;
+			remoteInfo = "Cube-iOS";
+		};
+		4DEEBC5F308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE316D308A6CC40059F151 /* Cube.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A93DBF4B24A2A4D500079F64;
+			remoteInfo = "Cube-tvOS";
+		};
+		4DEEBC61308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE316D308A6CC40059F151 /* Cube.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A9B53B271C3AC0BE00ABC6F6;
+			remoteInfo = "Cube-macOS";
+		};
+		4DEEBC63308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE316D308A6CC40059F151 /* Cube.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = F1F8A32C2E74199300E1280A;
+			remoteInfo = "Cube-VisionOS";
+		};
+		4DEEBC72308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E9C308A6CC40059F151 /* ExternalDependencies.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A90FD89F21CC4EAB00B92BB2;
+			remoteInfo = "SPIRV-Cross-iOS";
+		};
+		4DEEBC74308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E9C308A6CC40059F151 /* ExternalDependencies.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2FEA0CEF2490322B00EEF3AD;
+			remoteInfo = "SPIRV-Cross-tvOS";
+		};
+		4DEEBC76308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E9C308A6CC40059F151 /* ExternalDependencies.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = DCFD7CA32A45BA7D007BBBF7;
+			remoteInfo = "SPIRV-Cross-xrOS";
+		};
+		4DEEBC78308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E9C308A6CC40059F151 /* ExternalDependencies.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A90FD9E421CC4EB900B92BB2;
+			remoteInfo = "SPIRV-Cross-macOS";
+		};
+		4DEEBC7A308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E9C308A6CC40059F151 /* ExternalDependencies.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A972A80F21CECBBF0013AB25;
+			remoteInfo = "SPIRV-Tools-iOS";
+		};
+		4DEEBC7C308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E9C308A6CC40059F151 /* ExternalDependencies.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2FEA0CD82490322100EEF3AD;
+			remoteInfo = "SPIRV-Tools-tvOS";
+		};
+		4DEEBC7E308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E9C308A6CC40059F151 /* ExternalDependencies.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = DCFD7EC02A45BA9C007BBBF7;
+			remoteInfo = "SPIRV-Tools-xrOS";
+		};
+		4DEEBC80308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E9C308A6CC40059F151 /* ExternalDependencies.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A972A82321CECBE90013AB25;
+			remoteInfo = "SPIRV-Tools-macOS";
+		};
+		4DEEBC8B308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E5E308A6CC40059F151 /* MoltenVK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A9CBEE011B6299D800E45FDC;
+			remoteInfo = "MoltenVK-macOS-static";
+		};
+		4DEEBC8D308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E5E308A6CC40059F151 /* MoltenVK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A979A94F2B9A215200F69E67;
+			remoteInfo = "MoltenVK-macOS-dylib";
+		};
+		4DEEBC8F308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E5E308A6CC40059F151 /* MoltenVK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A9F4D9ED2B8EC112004AD576;
+			remoteInfo = "MoltenVK-macOS-dynamic";
+		};
+		4DEEBC91308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E5E308A6CC40059F151 /* MoltenVK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A9B8EE0A1A98D796009C5A02;
+			remoteInfo = "MoltenVK-iOS-static";
+		};
+		4DEEBC93308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E5E308A6CC40059F151 /* MoltenVK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A9F4D96B2B8E7366004AD576;
+			remoteInfo = "MoltenVK-iOS-dynamic";
+		};
+		4DEEBC95308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E5E308A6CC40059F151 /* MoltenVK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2FEA0ABA24902F9F00EEF3AD;
+			remoteInfo = "MoltenVK-tvOS-static";
+		};
+		4DEEBC97308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E5E308A6CC40059F151 /* MoltenVK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A9F4D9B22B8EB2FC004AD576;
+			remoteInfo = "MoltenVK-tvOS-dynamic";
+		};
+		4DEEBC99308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E5E308A6CC40059F151 /* MoltenVK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = DCFD7F622A45BC6E007BBBF7;
+			remoteInfo = "MoltenVK-xrOS-static";
+		};
+		4DEEBC9B308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E5E308A6CC40059F151 /* MoltenVK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A9F4D9CE2B8EB6DC004AD576;
+			remoteInfo = "MoltenVK-xrOS-dynamic";
+		};
+		4DEEBCA9308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E76308A6CC40059F151 /* MoltenVKShaderConverter.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A964BD5F1C57EFBD00D930D8;
+			remoteInfo = MoltenVKShaderConverter;
+		};
+		4DEEBCAB308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E76308A6CC40059F151 /* MoltenVKShaderConverter.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A93903BF1C57E9D700FE90DC;
+			remoteInfo = "MoltenVKShaderConverter-iOS";
+		};
+		4DEEBCAD308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E76308A6CC40059F151 /* MoltenVKShaderConverter.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2FEA0D142490381A00EEF3AD;
+			remoteInfo = "MoltenVKShaderConverter-tvOS";
+		};
+		4DEEBCAF308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E76308A6CC40059F151 /* MoltenVKShaderConverter.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A93903C71C57E9ED00FE90DC;
+			remoteInfo = "MoltenVKShaderConverter-macOS";
+		};
+		4DEEBCB1308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3E76308A6CC40059F151 /* MoltenVKShaderConverter.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A979A9412B9A200400F69E67;
+			remoteInfo = "MoltenVKShaderConverter-xrOS";
+		};
+		4DEEBCB4308A6D600059F151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DEE3DB3308A6CC40059F151 /* vulkaninfo.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A07BD42C255B45E000B79448;
+			remoteInfo = vulkaninfo;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B40000000000000000000001 /* Splash assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "cinterforge-os-splash";
+			dstSubfolderSpec = 7;
+			files = (
+				D2000000000000000000000A /* index.html in Splash assets */,
+				D2000000000000000000000B /* splash.css in Splash assets */,
+				D2000000000000000000000C /* splash.js in Splash assets */,
+				D2000000000000000000000D /* cinterforge-logo.png in Splash assets */,
+			);
+			name = "Splash assets";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E90000000000000000000002 /* Support files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Support;
+			dstSubfolderSpec = 7;
+			files = (
+				D20000000000000000000007 /* desktop-ready.sh in Support files */,
+			);
+			name = "Support files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		05FB00F45118487ADE1759DE /* NetworkFailure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkFailure.swift; sourceTree = "<group>"; };
+		0D1E9CCF5A5A324048B249ED /* OverlaySelfTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlaySelfTest.swift; sourceTree = "<group>"; };
+		0E504D562811027DD369D7D5 /* Options.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Options.swift; sourceTree = "<group>"; };
+		12698E5672FAEC019F587633 /* Keymap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keymap.swift; sourceTree = "<group>"; };
+		12D3BE9E3C108957E2C620A7 /* SettingsSelfTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSelfTest.swift; sourceTree = "<group>"; };
+		135E62B016C9E318D2F7122A /* AppBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBundle.swift; sourceTree = "<group>"; };
+		15033E5544A41C7727B73598 /* Window.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Window.swift; sourceTree = "<group>"; };
+		19E6A1B2C1D64E594D456E97 /* ReportWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportWindow.swift; sourceTree = "<group>"; };
+		1D35D175DA533012B50E34B6 /* CreateDiskWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateDiskWindow.swift; sourceTree = "<group>"; };
+		1E626000F93712076EE3AC83 /* UpdateCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateCheck.swift; sourceTree = "<group>"; };
+		213915CF7AE8C87FBA583335 /* ResizeSelfTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResizeSelfTest.swift; sourceTree = "<group>"; };
+		234EB69A40626CE6EBD3ED0E /* PointerMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PointerMap.swift; sourceTree = "<group>"; };
+		26A72711E214128F954423A9 /* Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
+		324D8A1D3F81E730D5099A48 /* czstd.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = czstd.c; path = source/CZstd/czstd.c; sourceTree = SOURCE_ROOT; };
+		39336BD3A0262B77EFBBEFA1 /* CinterForge OS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = "CinterForge OS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3CD73498D7A1521B36C5A4FD /* SettingsWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindow.swift; sourceTree = "<group>"; };
+		42CECFFC3944AF97687E662F /* Supervisor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Supervisor.swift; sourceTree = "<group>"; };
+		42CF6C5219301B765D972FDD /* SelfTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfTest.swift; sourceTree = "<group>"; };
+		4B00B58994F91CA783BD95D1 /* RemotePlaySelfTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotePlaySelfTest.swift; sourceTree = "<group>"; };
+		4D0429DC308A9836004B97C7 /* cinterforge-libkrun.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-libkrun.xcodeproj"; sourceTree = "<group>"; };
+		4D042C2C308A9836004B97C7 /* cinterforge-virglrenderer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-virglrenderer.xcodeproj"; sourceTree = "<group>"; };
+		4D043FF2308A9836004B97C7 /* cinterforge-spirv-cross.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-spirv-cross.xcodeproj"; sourceTree = "<group>"; };
+		4D0475BA308A9837004B97C7 /* cinterforge-kosmickrisp-mesa.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-kosmickrisp-mesa.xcodeproj"; sourceTree = "<group>"; };
+		4D04A94E308AAE38004B97C7 /* libswiftMetal.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftMetal.tbd; path = usr/lib/swift/libswiftMetal.tbd; sourceTree = SDKROOT; };
+		4D04A94F308AAE38004B97C7 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		4D04A950308AAE38004B97C7 /* MetalPerformancePrimitives.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalPerformancePrimitives.framework; path = System/Library/Frameworks/MetalPerformancePrimitives.framework; sourceTree = SDKROOT; };
+		4D04A951308AAE38004B97C7 /* MetalFX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalFX.framework; path = System/Library/Frameworks/MetalFX.framework; sourceTree = SDKROOT; };
+		4D04A952308AAE38004B97C7 /* MetalPerformanceShaders.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalPerformanceShaders.framework; path = System/Library/Frameworks/MetalPerformanceShaders.framework; sourceTree = SDKROOT; };
+		4D04A953308AAE39004B97C7 /* MetalPerformanceShadersGraph.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalPerformanceShadersGraph.framework; path = System/Library/Frameworks/MetalPerformanceShadersGraph.framework; sourceTree = SDKROOT; };
+		4D04A954308AAE39004B97C7 /* libswiftMetalKit.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftMetalKit.tbd; path = usr/lib/swift/libswiftMetalKit.tbd; sourceTree = SDKROOT; };
+		4D04A955308AAE39004B97C7 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+		4D050AE1308A8C7300C9965C /* cinterforge-libkrun.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-libkrun.xcodeproj"; sourceTree = "<group>"; };
+		4D050D31308A8C7300C9965C /* cinterforge-virglrenderer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-virglrenderer.xcodeproj"; sourceTree = "<group>"; };
+		4D0520F7308A8C7400C9965C /* cinterforge-spirv-cross.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-spirv-cross.xcodeproj"; sourceTree = "<group>"; };
+		4D0556BF308A8C7400C9965C /* cinterforge-kosmickrisp-mesa.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-kosmickrisp-mesa.xcodeproj"; sourceTree = "<group>"; };
+		4D058A4F308A8F3600C9965C /* init */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = init; sourceTree = "<group>"; };
+		4D058A51308A8F3600C9965C /* 00-base-libkrunfw-aarch64.config */ = {isa = PBXFileReference; lastKnownFileType = text; path = "00-base-libkrunfw-aarch64.config"; sourceTree = "<group>"; };
+		4D058A52308A8F3600C9965C /* 10-frame-userspace.config */ = {isa = PBXFileReference; lastKnownFileType = text; path = "10-frame-userspace.config"; sourceTree = "<group>"; };
+		4D058A53308A8F3600C9965C /* 20-steamac.config */ = {isa = PBXFileReference; lastKnownFileType = text; path = "20-steamac.config"; sourceTree = "<group>"; };
+		4D058A55308A8F3600C9965C /* 0001-drm-virtio-align-host-visible-blob-placement.patch */ = {isa = PBXFileReference; lastKnownFileType = text; path = "0001-drm-virtio-align-host-visible-blob-placement.patch"; sourceTree = "<group>"; };
+		4D058A56308A8F3600C9965C /* 0002-prctl-Introduce-PR_-SET-GET-_MEM_MODEL.patch */ = {isa = PBXFileReference; lastKnownFileType = text; path = "0002-prctl-Introduce-PR_-SET-GET-_MEM_MODEL.patch"; sourceTree = "<group>"; };
+		4D058A57308A8F3600C9965C /* 0003-arm64-Implement-PR_-GET-SET-_MEM_MODEL-for-always-TS.patch */ = {isa = PBXFileReference; lastKnownFileType = text; path = "0003-arm64-Implement-PR_-GET-SET-_MEM_MODEL-for-always-TS.patch"; sourceTree = "<group>"; };
+		4D058A58308A8F3600C9965C /* 0004-arm64-Introduce-scaffolding-to-add-ACTLR_EL1-to-thre.patch */ = {isa = PBXFileReference; lastKnownFileType = text; path = "0004-arm64-Introduce-scaffolding-to-add-ACTLR_EL1-to-thre.patch"; sourceTree = "<group>"; };
+		4D058A59308A8F3600C9965C /* 0005-arm64-Implement-Apple-IMPDEF-TSO-memory-model-contro.patch */ = {isa = PBXFileReference; lastKnownFileType = text; path = "0005-arm64-Implement-Apple-IMPDEF-TSO-memory-model-contro.patch"; sourceTree = "<group>"; };
+		4D058A5A308A8F3600C9965C /* 0006-ALSA-virtio-reset-partly-filled-periods-on-prepare.patch */ = {isa = PBXFileReference; lastKnownFileType = text; path = "0006-ALSA-virtio-reset-partly-filled-periods-on-prepare.patch"; sourceTree = "<group>"; };
+		4D058A5B308A8F3600C9965C /* 0007-ALSA-virtio-report-an-xrun-when-a-whole-buffer-passed-unseen.patch */ = {isa = PBXFileReference; lastKnownFileType = text; path = "0007-ALSA-virtio-report-an-xrun-when-a-whole-buffer-passed-unseen.patch"; sourceTree = "<group>"; };
+		4D058A5D308A8F3600C9965C /* Dockerfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Dockerfile; sourceTree = "<group>"; };
+		4D058A5E308A8F3600C9965C /* init */ = {isa = PBXFileReference; lastKnownFileType = text; path = init; sourceTree = "<group>"; };
+		4D058A60308A8F3600C9965C /* gen-frame-fragment.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "gen-frame-fragment.py"; sourceTree = "<group>"; };
+		4D058A62308A8F3600C9965C /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build.sh; sourceTree = "<group>"; };
+		4D058A63308A8F3600C9965C /* check-config.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "check-config.sh"; sourceTree = "<group>"; };
+		4D058A64308A8F3600C9965C /* config-steamac */ = {isa = PBXFileReference; lastKnownFileType = text; path = "config-steamac"; sourceTree = "<group>"; };
+		4D058A65308A8F3600C9965C /* container-build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "container-build.sh"; sourceTree = "<group>"; };
+		4D058A66308A8F3600C9965C /* Dockerfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Dockerfile; sourceTree = "<group>"; };
+		4D058A67308A8F3600C9965C /* smoke-test.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "smoke-test.sh"; sourceTree = "<group>"; };
+		4D058A69308A8F3600C9965C /* splctl */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = splctl; sourceTree = "<group>"; };
+		4D058A6B308A8F3600C9965C /* installed-app-gui-test */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "installed-app-gui-test"; sourceTree = "<group>"; };
+		4D058A6C308A8F3600C9965C /* launch-ardour-linux */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "launch-ardour-linux"; sourceTree = "<group>"; };
+		4D058A6D308A8F3600C9965C /* launch-ardour-windows */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "launch-ardour-windows"; sourceTree = "<group>"; };
+		4D058A6E308A8F3600C9965C /* run-desktop-ready */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "run-desktop-ready"; sourceTree = "<group>"; };
+		4D058A6F308A8F3600C9965C /* run-linux-amd64 */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "run-linux-amd64"; sourceTree = "<group>"; };
+		4D058A70308A8F3600C9965C /* select-kde-desktop-session */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "select-kde-desktop-session"; sourceTree = "<group>"; };
+		4D058A71308A8F3600C9965C /* select-kde-wallpaper */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "select-kde-wallpaper"; sourceTree = "<group>"; };
+		4D058A72308A8F3600C9965C /* verify-virtiofs-mounts */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "verify-virtiofs-mounts"; sourceTree = "<group>"; };
+		4D058A74308A8F3600C9965C /* 60-steamac-mesa.conf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "60-steamac-mesa.conf"; sourceTree = "<group>"; };
+		4D058A76308A8F3600C9965C /* post-install.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "post-install.sh"; sourceTree = "<group>"; };
+		4D058A78308A8F3600C9965C /* kwin_wayland_wrapper */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = kwin_wayland_wrapper; sourceTree = "<group>"; };
+		4D058A79308A8F3600C9965C /* steamosctl */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = steamosctl; sourceTree = "<group>"; };
+		4D058A7B308A8F3600C9965C /* steam.desktop */ = {isa = PBXFileReference; lastKnownFileType = text; path = steam.desktop; sourceTree = "<group>"; };
+		4D058A7E308A8F3600C9965C /* frame-hardware.list */ = {isa = PBXFileReference; lastKnownFileType = text; path = "frame-hardware.list"; sourceTree = "<group>"; };
+		4D058A80308A8F3600C9965C /* steamos-chroot */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "steamos-chroot"; sourceTree = "<group>"; };
+		4D058A82308A8F3600C9965C /* audio-layout */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "audio-layout"; sourceTree = "<group>"; };
+		4D058A83308A8F3600C9965C /* coredump-report */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "coredump-report"; sourceTree = "<group>"; };
+		4D058A84308A8F3600C9965C /* kernelsetup.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = kernelsetup.sh; sourceTree = "<group>"; };
+		4D058A85308A8F3600C9965C /* mac-clock-format */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "mac-clock-format"; sourceTree = "<group>"; };
+		4D058A86308A8F3600C9965C /* nested-desktop */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "nested-desktop"; sourceTree = "<group>"; };
+		4D058A87308A8F3600C9965C /* steam-client */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "steam-client"; sourceTree = "<group>"; };
+		4D058A88308A8F3600C9965C /* steam-gfx-env */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "steam-gfx-env"; sourceTree = "<group>"; };
+		4D058A89308A8F3600C9965C /* steam-shader-defaults */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "steam-shader-defaults"; sourceTree = "<group>"; };
+		4D058A8B308A8F3600C9965C /* gamescope-session */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "gamescope-session"; sourceTree = "<group>"; };
+		4D058A8D308A8F3600C9965C /* 30-steamac-namespace.conf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "30-steamac-namespace.conf"; sourceTree = "<group>"; };
+		4D058A8F308A8F3600C9965C /* 50-steamac-power-key.conf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "50-steamac-power-key.conf"; sourceTree = "<group>"; };
+		4D058A91308A8F3600C9965C /* 50-steamac.conf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "50-steamac.conf"; sourceTree = "<group>"; };
+		4D058A93308A8F3600C9965C /* 50-steamac-grow.conf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "50-steamac-grow.conf"; sourceTree = "<group>"; };
+		4D058A95308A8F3600C9965C /* cinterforge-kde-prepare.service */ = {isa = PBXFileReference; lastKnownFileType = file; path = "cinterforge-kde-prepare.service"; sourceTree = "<group>"; };
+		4D058A96308A8F3600C9965C /* cinterforge-virtiofs-verify.service */ = {isa = PBXFileReference; lastKnownFileType = file; path = "cinterforge-virtiofs-verify.service"; sourceTree = "<group>"; };
+		4D058A97308A8F3600C9965C /* run-Applications.automount */ = {isa = PBXFileReference; lastKnownFileType = file; path = "run-Applications.automount"; sourceTree = "<group>"; };
+		4D058A98308A8F3600C9965C /* run-DeveloperTests.automount */ = {isa = PBXFileReference; lastKnownFileType = file; path = "run-DeveloperTests.automount"; sourceTree = "<group>"; };
+		4D058A99308A8F3600C9965C /* run-Support.automount */ = {isa = PBXFileReference; lastKnownFileType = file; path = "run-Support.automount"; sourceTree = "<group>"; };
+		4D058A9B308A8F3600C9965C /* 90-cinterforgeos-desktop.conf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "90-cinterforgeos-desktop.conf"; sourceTree = "<group>"; };
+		4D058A9D308A8F3600C9965C /* 30-steamac-report.conf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "30-steamac-report.conf"; sourceTree = "<group>"; };
+		4D058A9F308A8F3600C9965C /* 50-steamac-sleep.conf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "50-steamac-sleep.conf"; sourceTree = "<group>"; };
+		4D058AA1308A8F3600C9965C /* 50-steamac-sleep.conf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "50-steamac-sleep.conf"; sourceTree = "<group>"; };
+		4D058AA3308A8F3600C9965C /* 50-steamac-sleep.conf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "50-steamac-sleep.conf"; sourceTree = "<group>"; };
+		4D058AA5308A8F3600C9965C /* cinterforge-kde-prepare.service */ = {isa = PBXFileReference; lastKnownFileType = text; path = "cinterforge-kde-prepare.service"; sourceTree = "<group>"; };
+		4D058AA6308A8F3600C9965C /* cinterforge-virtiofs-verify.service */ = {isa = PBXFileReference; lastKnownFileType = text; path = "cinterforge-virtiofs-verify.service"; sourceTree = "<group>"; };
+		4D058AA7308A8F3600C9965C /* fx-clock-sync.service */ = {isa = PBXFileReference; lastKnownFileType = text; path = "fx-clock-sync.service"; sourceTree = "<group>"; };
+		4D058AA8308A8F3600C9965C /* fx-pad.service */ = {isa = PBXFileReference; lastKnownFileType = text; path = "fx-pad.service"; sourceTree = "<group>"; };
+		4D058AA9308A8F3600C9965C /* fx-pad@.service */ = {isa = PBXFileReference; lastKnownFileType = text; path = "fx-pad@.service"; sourceTree = "<group>"; };
+		4D058AAA308A8F3600C9965C /* run-Applications.automount */ = {isa = PBXFileReference; lastKnownFileType = text; path = "run-Applications.automount"; sourceTree = "<group>"; };
+		4D058AAB308A8F3600C9965C /* run-Applications.mount */ = {isa = PBXFileReference; lastKnownFileType = text; path = "run-Applications.mount"; sourceTree = "<group>"; };
+		4D058AAC308A8F3600C9965C /* run-DeveloperTests.automount */ = {isa = PBXFileReference; lastKnownFileType = text; path = "run-DeveloperTests.automount"; sourceTree = "<group>"; };
+		4D058AAD308A8F3600C9965C /* run-DeveloperTests.mount */ = {isa = PBXFileReference; lastKnownFileType = text; path = "run-DeveloperTests.mount"; sourceTree = "<group>"; };
+		4D058AAE308A8F3600C9965C /* run-Support.automount */ = {isa = PBXFileReference; lastKnownFileType = text; path = "run-Support.automount"; sourceTree = "<group>"; };
+		4D058AAF308A8F3600C9965C /* run-Support.mount */ = {isa = PBXFileReference; lastKnownFileType = text; path = "run-Support.mount"; sourceTree = "<group>"; };
+		4D058AB1308A8F3600C9965C /* 50-steamac-stop.conf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "50-steamac-stop.conf"; sourceTree = "<group>"; };
+		4D058AB3308A8F3600C9965C /* fx-clipboard-agent.service */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fx-clipboard-agent.service"; sourceTree = "<group>"; };
+		4D058AB4308A8F3600C9965C /* fx-progress-agent.service */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fx-progress-agent.service"; sourceTree = "<group>"; };
+		4D058AB6308A8F3600C9965C /* fx-clipboard-agent.service */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fx-clipboard-agent.service"; sourceTree = "<group>"; };
+		4D058AB7308A8F3600C9965C /* fx-progress-agent.service */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fx-progress-agent.service"; sourceTree = "<group>"; };
+		4D058AB9308A8F3600C9965C /* 50-steamac.conf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "50-steamac.conf"; sourceTree = "<group>"; };
+		4D058ABB308A8F3600C9965C /* 50-steamac.conf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "50-steamac.conf"; sourceTree = "<group>"; };
+		4D058ABD308A8F3600C9965C /* fx-clipboard-agent.service */ = {isa = PBXFileReference; lastKnownFileType = text; path = "fx-clipboard-agent.service"; sourceTree = "<group>"; };
+		4D058ABE308A8F3600C9965C /* fx-progress-agent.service */ = {isa = PBXFileReference; lastKnownFileType = text; path = "fx-progress-agent.service"; sourceTree = "<group>"; };
+		4D058ABF308A8F3600C9965C /* gamescope-session.service */ = {isa = PBXFileReference; lastKnownFileType = text; path = "gamescope-session.service"; sourceTree = "<group>"; };
+		4D058AC0308A8F3600C9965C /* gamescope-session.target */ = {isa = PBXFileReference; lastKnownFileType = text; path = "gamescope-session.target"; sourceTree = "<group>"; };
+		4D058AC1308A8F3600C9965C /* plasma-session.target */ = {isa = PBXFileReference; lastKnownFileType = text; path = "plasma-session.target"; sourceTree = "<group>"; };
+		4D058AC2308A8F3600C9965C /* steamac-nested-desktop.service */ = {isa = PBXFileReference; lastKnownFileType = text; path = "steamac-nested-desktop.service"; sourceTree = "<group>"; };
+		4D058AC5308A8F3600C9965C /* 70-fx-clipboard.rules */ = {isa = PBXFileReference; lastKnownFileType = text; path = "70-fx-clipboard.rules"; sourceTree = "<group>"; };
+		4D058AC6308A8F3600C9965C /* 70-fx-progress.rules */ = {isa = PBXFileReference; lastKnownFileType = text; path = "70-fx-progress.rules"; sourceTree = "<group>"; };
+		4D058ACA308A8F3600C9965C /* cinterforge-linux-1920x1080.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cinterforge-linux-1920x1080.png"; sourceTree = "<group>"; };
+		4D058ACB308A8F3600C9965C /* cinterforge-windows-1920x1080.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cinterforge-windows-1920x1080.png"; sourceTree = "<group>"; };
+		4D058ACD308A8F3600C9965C /* cinterforge-installed-test.desktop */ = {isa = PBXFileReference; lastKnownFileType = text; path = "cinterforge-installed-test.desktop"; sourceTree = "<group>"; };
+		4D058ACE308A8F3600C9965C /* cinterforge-kde-prepare.service */ = {isa = PBXFileReference; lastKnownFileType = text; path = "cinterforge-kde-prepare.service"; sourceTree = "<group>"; };
+		4D058ACF308A8F3600C9965C /* cinterforge-virtiofs-verify.service */ = {isa = PBXFileReference; lastKnownFileType = text; path = "cinterforge-virtiofs-verify.service"; sourceTree = "<group>"; };
+		4D058AD0308A8F3600C9965C /* install-kde-places */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "install-kde-places"; sourceTree = "<group>"; };
+		4D058AD1308A8F3600C9965C /* sddm-desktop.conf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "sddm-desktop.conf"; sourceTree = "<group>"; };
+		4D058AD2308A8F3600C9965C /* select-kde-desktop-session */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "select-kde-desktop-session"; sourceTree = "<group>"; };
+		4D058AD3308A8F3600C9965C /* select-kde-wallpaper */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "select-kde-wallpaper"; sourceTree = "<group>"; };
+		4D058AD4308A8F3600C9965C /* user-places.xbel */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "user-places.xbel"; sourceTree = "<group>"; };
+		4D058AD5308A8F3600C9965C /* verify-virtiofs-mounts */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "verify-virtiofs-mounts"; sourceTree = "<group>"; };
+		4D058AD7308A8F3600C9965C /* 3d.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 3d.png; sourceTree = "<group>"; };
+		4D058AD8308A8F3600C9965C /* audio.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = audio.png; sourceTree = "<group>"; };
+		4D058AD9308A8F3600C9965C /* code.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = code.png; sourceTree = "<group>"; };
+		4D058ADA308A8F3600C9965C /* converter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = converter.png; sourceTree = "<group>"; };
+		4D058ADB308A8F3600C9965C /* desktop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = desktop.png; sourceTree = "<group>"; };
+		4D058ADC308A8F3600C9965C /* document.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = document.png; sourceTree = "<group>"; };
+		4D058ADD308A8F3600C9965C /* image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = image.png; sourceTree = "<group>"; };
+		4D058ADE308A8F3600C9965C /* paint.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = paint.png; sourceTree = "<group>"; };
+		4D058ADF308A8F3600C9965C /* photo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = photo.png; sourceTree = "<group>"; };
+		4D058AE0308A8F3600C9965C /* steam.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = steam.png; sourceTree = "<group>"; };
+		4D058AE1308A8F3600C9965C /* vector.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = vector.png; sourceTree = "<group>"; };
+		4D058AE2308A8F3600C9965C /* video.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = video.png; sourceTree = "<group>"; };
+		4D058AE3308A8F3600C9965C /* voxel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = voxel.png; sourceTree = "<group>"; };
+		4D058AE5308A8F3600C9965C /* cinterforge-logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cinterforge-logo.png"; sourceTree = "<group>"; };
+		4D058AE7308A8F3600C9965C /* mesavars.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = mesavars.sh; sourceTree = "<group>"; };
+		4D058AE9308A8F3600C9965C /* Steam Deck Logo Default.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "Steam Deck Logo Default.jpg"; sourceTree = "<group>"; };
+		4D058AEB308A8F3600C9965C /* cinterforge-installed-test.desktop */ = {isa = PBXFileReference; lastKnownFileType = text; path = "cinterforge-installed-test.desktop"; sourceTree = "<group>"; };
+		4D058AEC308A8F3600C9965C /* cinterforge-support-desktop-ready.desktop */ = {isa = PBXFileReference; lastKnownFileType = text; path = "cinterforge-support-desktop-ready.desktop"; sourceTree = "<group>"; };
+		4D058AF2308A8F3600C9965C /* build-aarch64.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-aarch64.sh"; sourceTree = "<group>"; };
+		4D058AF3308A8F3600C9965C /* build-x86.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-x86.sh"; sourceTree = "<group>"; };
+		4D058AF4308A8F3600C9965C /* common.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = common.sh; sourceTree = "<group>"; };
+		4D058AF5308A8F3600C9965C /* fault-report.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "fault-report.c"; sourceTree = "<group>"; };
+		4D058AF6308A8F3600C9965C /* fault-report-test.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "fault-report-test.c"; sourceTree = "<group>"; };
+		4D058AF7308A8F3600C9965C /* fetch-mesa.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "fetch-mesa.sh"; sourceTree = "<group>"; };
+		4D058AF8308A8F3600C9965C /* i386-linux-gnu.ini */ = {isa = PBXFileReference; lastKnownFileType = text; path = "i386-linux-gnu.ini"; sourceTree = "<group>"; };
+		4D058AF9308A8F3600C9965C /* manifest.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = manifest.sh; sourceTree = "<group>"; };
+		4D058AFA308A8F3600C9965C /* verify.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = verify.sh; sourceTree = "<group>"; };
+		4D058AFB308A8F3600C9965C /* vkprobe.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = vkprobe.c; sourceTree = "<group>"; };
+		4D058AFD308A8F3600C9965C /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build.sh; sourceTree = "<group>"; };
+		4D058AFE308A8F3600C9965C /* versions.env */ = {isa = PBXFileReference; lastKnownFileType = text; path = versions.env; sourceTree = "<group>"; };
+		4D058B00308A8F3600C9965C /* alive.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = alive.rs; sourceTree = "<group>"; };
+		4D058B01308A8F3600C9965C /* appname.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = appname.rs; sourceTree = "<group>"; };
+		4D058B02308A8F3600C9965C /* clipboard.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = clipboard.rs; sourceTree = "<group>"; };
+		4D058B03308A8F3600C9965C /* clipwl.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = clipwl.rs; sourceTree = "<group>"; };
+		4D058B04308A8F3600C9965C /* clipx11.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = clipx11.rs; sourceTree = "<group>"; };
+		4D058B05308A8F3600C9965C /* clock.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = clock.rs; sourceTree = "<group>"; };
+		4D058B06308A8F3600C9965C /* codec.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = codec.rs; sourceTree = "<group>"; };
+		4D058B07308A8F3600C9965C /* collect.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = collect.rs; sourceTree = "<group>"; };
+		4D058B08308A8F3600C9965C /* focus.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = focus.rs; sourceTree = "<group>"; };
+		4D058B09308A8F3600C9965C /* freeze.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = freeze.rs; sourceTree = "<group>"; };
+		4D058B0A308A8F3600C9965C /* main.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = main.rs; sourceTree = "<group>"; };
+		4D058B0B308A8F3600C9965C /* pad.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = pad.rs; sourceTree = "<group>"; };
+		4D058B0C308A8F3600C9965C /* port.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = port.rs; sourceTree = "<group>"; };
+		4D058B0D308A8F3600C9965C /* shutdown.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = shutdown.rs; sourceTree = "<group>"; };
+		4D058B0E308A8F3600C9965C /* sleep.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = sleep.rs; sourceTree = "<group>"; };
+		4D058B0F308A8F3600C9965C /* steamlog.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = steamlog.rs; sourceTree = "<group>"; };
+		4D058B10308A8F3600C9965C /* steamstrings.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = steamstrings.rs; sourceTree = "<group>"; };
+		4D058B11308A8F3600C9965C /* uhid.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = uhid.rs; sourceTree = "<group>"; };
+		4D058B12308A8F3600C9965C /* ui.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = ui.rs; sourceTree = "<group>"; };
+		4D058B14308A8F3600C9965C /* steambootstrapper_english.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = steambootstrapper_english.txt; sourceTree = "<group>"; };
+		4D058B15308A8F3600C9965C /* steambootstrapper_german.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = steambootstrapper_german.txt; sourceTree = "<group>"; };
+		4D058B16308A8F3600C9965C /* steambootstrapper_japanese.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = steambootstrapper_japanese.txt; sourceTree = "<group>"; };
+		4D058B17308A8F3600C9965C /* steambootstrapper_russian.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = steambootstrapper_russian.txt; sourceTree = "<group>"; };
+		4D058B18308A8F3600C9965C /* steambootstrapper_schinese.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = steambootstrapper_schinese.txt; sourceTree = "<group>"; };
+		4D058B1A308A8F3600C9965C /* Cargo.lock */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cargo.lock; sourceTree = "<group>"; };
+		4D058B1B308A8F3600C9965C /* Cargo.toml */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cargo.toml; sourceTree = "<group>"; };
+		4D4532BB308A6EF800725112 /* cinterforge-kosmickrisp-mesa.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-kosmickrisp-mesa.xcodeproj"; sourceTree = "<group>"; };
+		4D456657308A6F2600725112 /* cinterforge-moltenvk.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "cinterforge-moltenvk.xcodeproj"; path = "../cinterforge-moltenvk/cinterforge-moltenvk.xcodeproj"; sourceTree = SOURCE_ROOT; };
+		4D45D960308A6EF700725112 /* cinterforge-libkrun.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-libkrun.xcodeproj"; sourceTree = "<group>"; };
+		4D45DBB0308A6EF700725112 /* cinterforge-virglrenderer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-virglrenderer.xcodeproj"; sourceTree = "<group>"; };
+		4D45FCF3308A6EF700725112 /* cinterforge-spirv-cross.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-spirv-cross.xcodeproj"; sourceTree = "<group>"; };
+		4DEE2EDB308A6CC30059F151 /* cinterforge-libkrun.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-libkrun.xcodeproj"; sourceTree = "<group>"; };
+		4DEE312B308A6CC30059F151 /* cinterforge-virglrenderer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-virglrenderer.xcodeproj"; sourceTree = "<group>"; };
+		4DEE316D308A6CC40059F151 /* Cube.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Cube.xcodeproj; sourceTree = "<group>"; };
+		4DEE3DB3308A6CC40059F151 /* vulkaninfo.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = vulkaninfo.xcodeproj; sourceTree = "<group>"; };
+		4DEE3E5E308A6CC40059F151 /* MoltenVK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = MoltenVK.xcodeproj; sourceTree = "<group>"; };
+		4DEE3E76308A6CC40059F151 /* MoltenVKShaderConverter.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = MoltenVKShaderConverter.xcodeproj; sourceTree = "<group>"; };
+		4DEE3E99308A6CC40059F151 /* cinterforge-moltenvk.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-moltenvk.xcodeproj"; sourceTree = "<group>"; };
+		4DEE3E9C308A6CC40059F151 /* ExternalDependencies.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = ExternalDependencies.xcodeproj; sourceTree = "<group>"; };
+		4DEE3EA0308A6CC40059F151 /* MoltenVKPackaging.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = MoltenVKPackaging.xcodeproj; sourceTree = "<group>"; };
+		4DEE526E308A6CC40059F151 /* cinterforge-spirv-cross.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-spirv-cross.xcodeproj"; sourceTree = "<group>"; };
+		4DEE8836308A6CC40059F151 /* cinterforge-kosmickrisp-mesa.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-kosmickrisp-mesa.xcodeproj"; sourceTree = "<group>"; };
+		4DF3A5910D54710A60AF5B40 /* CrashReporting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashReporting.swift; sourceTree = "<group>"; };
+		4DF9B215308A88B400E4BDBE /* cinterforge-libkrun.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-libkrun.xcodeproj"; sourceTree = "<group>"; };
+		4DF9B465308A88B400E4BDBE /* cinterforge-virglrenderer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-virglrenderer.xcodeproj"; sourceTree = "<group>"; };
+		4DF9C82B308A88B400E4BDBE /* cinterforge-spirv-cross.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-spirv-cross.xcodeproj"; sourceTree = "<group>"; };
+		4DF9FDF3308A88B500E4BDBE /* cinterforge-kosmickrisp-mesa.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-kosmickrisp-mesa.xcodeproj"; sourceTree = "<group>"; };
+		4E04E12E35BD8DB38858D107 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		4E3DAA555E1668557D4F39C8 /* Gamepad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gamepad.swift; sourceTree = "<group>"; };
+		4F253846C4DD0875B307EDB3 /* Rumble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rumble.swift; sourceTree = "<group>"; };
+		4FB49439F1BBD084DA12D42C /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
+		575BC3366175823CEF5DDA5D /* Suspend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suspend.swift; sourceTree = "<group>"; };
+		5BAF3A4FA172CF120D778013 /* DiskGrower.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskGrower.swift; sourceTree = "<group>"; };
+		5DC196E7A6FAA346F74C7CF7 /* DiskLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskLock.swift; sourceTree = "<group>"; };
+		5E06DC17498E4C8F0542B3A0 /* Console.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Console.swift; sourceTree = "<group>"; };
+		609C8EBF93A7B80890479A01 /* DiskCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskCreator.swift; sourceTree = "<group>"; };
+		62951C6E5D73DF2F83B1D38C /* VM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VM.swift; sourceTree = "<group>"; };
+		65CD0F6A2BEADA797370AF86 /* HIDPassthrough.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HIDPassthrough.swift; sourceTree = "<group>"; };
+		65D3F6F3D1E1B9BF367C1FA3 /* GamePause.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePause.swift; sourceTree = "<group>"; };
+		67CD0C5EC9E32FD33E066F97 /* SteamOSLicense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SteamOSLicense.swift; sourceTree = "<group>"; };
+		6C43E04E908D5C2256AF4421 /* RemotePlayPacket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotePlayPacket.swift; sourceTree = "<group>"; };
+		757863D7410B9362D4D0D771 /* cinterforgeis_ready.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = cinterforgeis_ready.sh; path = scripts/support/cinterforgeis_ready.sh; sourceTree = SOURCE_ROOT; };
+		78078F097664D8E621FE19D9 /* ProgressPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressPill.swift; sourceTree = "<group>"; };
+		8060393F90F270180471F0AC /* Clipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clipboard.swift; sourceTree = "<group>"; };
+		8C8E946EEE705B89D39883D0 /* InputSelfTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputSelfTest.swift; sourceTree = "<group>"; };
+		8DB72F3216A2E5152FA0EFBC /* DebugControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugControl.swift; sourceTree = "<group>"; };
+		8F9B96C629EC98583F78CED7 /* GPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPT.swift; sourceTree = "<group>"; };
+		9535532180A6AB0525A70C9F /* PointerSelfTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PointerSelfTest.swift; sourceTree = "<group>"; };
+		9B1B48C41DF6BD9F9958E136 /* Stall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stall.swift; sourceTree = "<group>"; };
+		A09935684BFDC413995E475F /* SoundControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundControl.swift; sourceTree = "<group>"; };
+		A10000000000000000000001 /* AppIcon.icon (Icon Composer) */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; name = "AppIcon.icon (Icon Composer)"; path = resources/AppIcon.icon; sourceTree = SOURCE_ROOT; };
+		A10000000000000000000003 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = Localizable.xcstrings; path = resources/Localizable.xcstrings; sourceTree = SOURCE_ROOT; };
+		A10000000000000000000004 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = InfoPlist.xcstrings; path = resources/InfoPlist.xcstrings; sourceTree = SOURCE_ROOT; };
+		A10000000000000000000005 /* licenses.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = licenses.sh; path = resources/licenses.sh; sourceTree = SOURCE_ROOT; };
+		A10000000000000000000006 /* l10n.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = l10n.py; path = resources/l10n.py; sourceTree = SOURCE_ROOT; };
+		A3ED2AA5F6F52D451B9CB8CB /* StallSelfTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StallSelfTest.swift; sourceTree = "<group>"; };
+		A445F4B6B3E66DF686FC3FB0 /* Squashfs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Squashfs.swift; sourceTree = "<group>"; };
+		A8A767903C4A2AFB13B70DA1 /* PauseOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PauseOverlay.swift; sourceTree = "<group>"; };
+		A8ED18A2F8000A00ABCD0001 /* shim.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = shim.h; path = source/CKrun/shim.h; sourceTree = SOURCE_ROOT; };
+		A8ED18A2F8000A00ABCD0002 /* CZstd module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = text; name = "CZstd module.modulemap"; path = source/CZstd/module.modulemap; sourceTree = SOURCE_ROOT; };
+		ADAB7B701F23BB82014C8506 /* czstd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = czstd.h; path = source/CZstd/include/czstd.h; sourceTree = SOURCE_ROOT; };
+		B0FBBD34135B3B150561AF12 /* LinuxInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinuxInput.swift; sourceTree = "<group>"; };
+		B27E4B3E42065DCA5F78D738 /* libCZstd.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libCZstd.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		B41083525A9EDFC3A4173E4D /* PerfStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerfStats.swift; sourceTree = "<group>"; };
+		B96AED715C2F8139C18C0670 /* RaucBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RaucBundle.swift; sourceTree = "<group>"; };
+		BA0FE2BD1BAB48DEAE652467 /* VMSizing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMSizing.swift; sourceTree = "<group>"; };
+		BD329F6C48F3715097B779FB /* CreateDiskCLI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateDiskCLI.swift; sourceTree = "<group>"; };
+		BF877692400FCD90718FD479 /* Overlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Overlay.swift; sourceTree = "<group>"; };
+		C5C610919135DD5CA117D997 /* DiskCreationFilesystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskCreationFilesystem.swift; sourceTree = "<group>"; };
+		C70313B3D6F40098A9E0970F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = resources/Info.plist; sourceTree = SOURCE_ROOT; };
+		CD63B8806A8842432656335E /* PillSelfTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PillSelfTest.swift; sourceTree = "<group>"; };
+		D10000000000000000000001 /* Image */ = {isa = PBXFileReference; lastKnownFileType = file; name = Image; path = "../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/Image"; sourceTree = SOURCE_ROOT; };
+		D10000000000000000000002 /* initramfs.cpio.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; name = initramfs.cpio.gz; path = "../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/initramfs.cpio.gz"; sourceTree = SOURCE_ROOT; };
+		D10000000000000000000003 /* steamac-layer.img */ = {isa = PBXFileReference; lastKnownFileType = file; name = "steamac-layer.img"; path = "../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/steamac-layer.img"; sourceTree = SOURCE_ROOT; };
+		D10000000000000000000004 /* gvproxy */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = gvproxy; path = "../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/bin/gvproxy"; sourceTree = SOURCE_ROOT; };
+		D10000000000000000000005 /* desync */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = desync; path = "../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/bin/desync"; sourceTree = SOURCE_ROOT; };
+		D10000000000000000000006 /* steamdeck-images.pem */ = {isa = PBXFileReference; lastKnownFileType = text; name = "steamdeck-images.pem"; path = "scripts/keys/steamdeck-images.pem"; sourceTree = SOURCE_ROOT; };
+		D10000000000000000000007 /* desktop-ready.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = "desktop-ready.sh"; path = "scripts/support/desktop-ready.sh"; sourceTree = SOURCE_ROOT; };
+		D1000000000000000000000A /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text; name = index.html; path = resources/html/splash/index.html; sourceTree = SOURCE_ROOT; };
+		D1000000000000000000000B /* splash.css */ = {isa = PBXFileReference; lastKnownFileType = text; name = splash.css; path = resources/html/splash/splash.css; sourceTree = SOURCE_ROOT; };
+		D1000000000000000000000C /* splash.js */ = {isa = PBXFileReference; lastKnownFileType = text; name = splash.js; path = resources/html/splash/splash.js; sourceTree = SOURCE_ROOT; };
+		D1000000000000000000000D /* cinterforge-logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "cinterforge-logo.png"; path = "resources/html/splash/cinterforge-logo.png"; sourceTree = SOURCE_ROOT; };
+		D3E38EBE765AFC3BF3F0E966 /* Edid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Edid.swift; sourceTree = "<group>"; };
+		D4188BA7FBA2C8119FD56B79 /* Provision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Provision.swift; sourceTree = "<group>"; };
+		DB62D83F5916078DE8603D99 /* ProvisionSelfTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvisionSelfTest.swift; sourceTree = "<group>"; };
+		DCF0D7D2CD120BF42580D43F /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = text; name = module.modulemap; path = source/CKrun/module.modulemap; sourceTree = SOURCE_ROOT; };
+		E51C18B680078B952315358D /* MetalCompilerCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalCompilerCache.swift; sourceTree = "<group>"; };
+		E70000000000000000000001 /* cinterforge-linux-1920x1080.png (guest) */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "cinterforge-linux-1920x1080.png (guest)"; path = "guest/layer/usr/share/cinterforge/backgrounds/cinterforge-linux-1920x1080.png"; sourceTree = SOURCE_ROOT; };
+		E70000000000000000000002 /* cinterforge-windows-1920x1080.png (guest) */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "cinterforge-windows-1920x1080.png (guest)"; path = "guest/layer/usr/share/cinterforge/backgrounds/cinterforge-windows-1920x1080.png"; sourceTree = SOURCE_ROOT; };
+		E70000000000000000000003 /* cinterforge-logo.png (guest) */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "cinterforge-logo.png (guest)"; path = "guest/layer/usr/share/cinterforge/cinterforge-logo.png"; sourceTree = SOURCE_ROOT; };
+		E70000000000000000000004 /* cinterforge-installed-test.desktop (guest) */ = {isa = PBXFileReference; lastKnownFileType = text; name = "cinterforge-installed-test.desktop (guest)"; path = "guest/layer/usr/share/cinterforge/guest_config/cinterforge-installed-test.desktop"; sourceTree = SOURCE_ROOT; };
+		E70000000000000000000005 /* cinterforge-kde-prepare.service (guest) */ = {isa = PBXFileReference; lastKnownFileType = text; name = "cinterforge-kde-prepare.service (guest)"; path = "guest/layer/usr/share/cinterforge/guest_config/cinterforge-kde-prepare.service"; sourceTree = SOURCE_ROOT; };
+		E70000000000000000000006 /* cinterforge-virtiofs-verify.service (guest) */ = {isa = PBXFileReference; lastKnownFileType = text; name = "cinterforge-virtiofs-verify.service (guest)"; path = "guest/layer/usr/share/cinterforge/guest_config/cinterforge-virtiofs-verify.service"; sourceTree = SOURCE_ROOT; };
+		E70000000000000000000007 /* install-kde-places (guest) */ = {isa = PBXFileReference; lastKnownFileType = text; name = "install-kde-places (guest)"; path = "guest/layer/usr/share/cinterforge/guest_config/install-kde-places"; sourceTree = SOURCE_ROOT; };
+		E70000000000000000000008 /* sddm-desktop.conf (guest) */ = {isa = PBXFileReference; lastKnownFileType = text; name = "sddm-desktop.conf (guest)"; path = "guest/layer/usr/share/cinterforge/guest_config/sddm-desktop.conf"; sourceTree = SOURCE_ROOT; };
+		E70000000000000000000009 /* select-kde-desktop-session (guest) */ = {isa = PBXFileReference; lastKnownFileType = text; name = "select-kde-desktop-session (guest)"; path = "guest/layer/usr/share/cinterforge/guest_config/select-kde-desktop-session"; sourceTree = SOURCE_ROOT; };
+		E7000000000000000000000A /* select-kde-wallpaper (guest) */ = {isa = PBXFileReference; lastKnownFileType = text; name = "select-kde-wallpaper (guest)"; path = "guest/layer/usr/share/cinterforge/guest_config/select-kde-wallpaper"; sourceTree = SOURCE_ROOT; };
+		E7000000000000000000000B /* user-places.xbel (guest) */ = {isa = PBXFileReference; lastKnownFileType = text; name = "user-places.xbel (guest)"; path = "guest/layer/usr/share/cinterforge/guest_config/user-places.xbel"; sourceTree = SOURCE_ROOT; };
+		E7000000000000000000000C /* verify-virtiofs-mounts (guest) */ = {isa = PBXFileReference; lastKnownFileType = text; name = "verify-virtiofs-mounts (guest)"; path = "guest/layer/usr/share/cinterforge/guest_config/verify-virtiofs-mounts"; sourceTree = SOURCE_ROOT; };
+		E7000000000000000000000D /* 3d.png (guest) */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "3d.png (guest)"; path = guest/layer/usr/share/cinterforge/icons/3d.png; sourceTree = SOURCE_ROOT; };
+		E7000000000000000000000E /* audio.png (guest) */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "audio.png (guest)"; path = guest/layer/usr/share/cinterforge/icons/audio.png; sourceTree = SOURCE_ROOT; };
+		E7000000000000000000000F /* code.png (guest) */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "code.png (guest)"; path = guest/layer/usr/share/cinterforge/icons/code.png; sourceTree = SOURCE_ROOT; };
+		E70000000000000000000010 /* converter.png (guest) */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "converter.png (guest)"; path = guest/layer/usr/share/cinterforge/icons/converter.png; sourceTree = SOURCE_ROOT; };
+		E70000000000000000000011 /* desktop.png (guest) */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "desktop.png (guest)"; path = guest/layer/usr/share/cinterforge/icons/desktop.png; sourceTree = SOURCE_ROOT; };
+		E70000000000000000000012 /* document.png (guest) */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "document.png (guest)"; path = guest/layer/usr/share/cinterforge/icons/document.png; sourceTree = SOURCE_ROOT; };
+		E70000000000000000000013 /* image.png (guest) */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "image.png (guest)"; path = guest/layer/usr/share/cinterforge/icons/image.png; sourceTree = SOURCE_ROOT; };
+		E70000000000000000000014 /* paint.png (guest) */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "paint.png (guest)"; path = guest/layer/usr/share/cinterforge/icons/paint.png; sourceTree = SOURCE_ROOT; };
+		E70000000000000000000015 /* photo.png (guest) */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "photo.png (guest)"; path = guest/layer/usr/share/cinterforge/icons/photo.png; sourceTree = SOURCE_ROOT; };
+		E70000000000000000000016 /* steam.png (guest) */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "steam.png (guest)"; path = guest/layer/usr/share/cinterforge/icons/steam.png; sourceTree = SOURCE_ROOT; };
+		E70000000000000000000017 /* vector.png (guest) */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "vector.png (guest)"; path = guest/layer/usr/share/cinterforge/icons/vector.png; sourceTree = SOURCE_ROOT; };
+		E70000000000000000000018 /* video.png (guest) */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "video.png (guest)"; path = guest/layer/usr/share/cinterforge/icons/video.png; sourceTree = SOURCE_ROOT; };
+		E70000000000000000000019 /* voxel.png (guest) */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "voxel.png (guest)"; path = guest/layer/usr/share/cinterforge/icons/voxel.png; sourceTree = SOURCE_ROOT; };
+		E817AA7710796FA3D5BFB48C /* Progress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Progress.swift; sourceTree = "<group>"; };
+		E9E791C18ADC4857C321FEFE /* Report.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Report.swift; sourceTree = "<group>"; };
+		EAADDABC38D301DF36BAD95E /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		EBB5DC2367C010154A1EDC81 /* ProvisionPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvisionPayload.swift; sourceTree = "<group>"; };
+		EBF9C787871D32BCF1FFB3D3 /* InputDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputDevice.swift; sourceTree = "<group>"; };
+		EF2049CD22A3AF63D8F5AF5C /* Presenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presenter.swift; sourceTree = "<group>"; };
+		F3016E4783782578EE2FA8CC /* Util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
+		F6ADA088FF5D686F602FCD91 /* CrashReportingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashReportingView.swift; sourceTree = "<group>"; };
+		F94F08AFBBB32CAF0B49970E /* DisplayBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayBackend.swift; sourceTree = "<group>"; };
+		F9772959214F3B831BA81231 /* SteamClientView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SteamClientView.swift; sourceTree = "<group>"; };
+		F9B4AD3881A76EA6388560FE /* RemotePlayRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotePlayRelay.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		AB0000000000000000000001 /* cinterforge-libkrun */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = "cinterforge-libkrun"; path = "../cinterforge-libkrun"; sourceTree = SOURCE_ROOT; };
+		AB0000000000000000000002 /* cinterforge-virglrenderer */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = "cinterforge-virglrenderer"; path = "../cinterforge-virglrenderer"; sourceTree = SOURCE_ROOT; };
+		AB0000000000000000000004 /* cinterforge-spirv-cross */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = "cinterforge-spirv-cross"; path = "../cinterforge-spirv-cross"; sourceTree = SOURCE_ROOT; };
+		AB0000000000000000000005 /* cinterforge-kosmickrisp-mesa */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = "cinterforge-kosmickrisp-mesa"; path = "../cinterforge-kosmickrisp-mesa"; sourceTree = SOURCE_ROOT; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4F6F5CC3FCCF73F75AE9CCF4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4D04A956308AAE39004B97C7 /* libswiftMetal.tbd in Frameworks */,
+				4D04A957308AAE39004B97C7 /* Metal.framework in Frameworks */,
+				4D04A958308AAE39004B97C7 /* MetalPerformancePrimitives.framework in Frameworks */,
+				4D04A959308AAE39004B97C7 /* MetalFX.framework in Frameworks */,
+				4D04A95A308AAE39004B97C7 /* MetalPerformanceShaders.framework in Frameworks */,
+				4D04A95B308AAE39004B97C7 /* MetalPerformanceShadersGraph.framework in Frameworks */,
+				4D04A95C308AAE39004B97C7 /* libswiftMetalKit.tbd in Frameworks */,
+				4D04A95D308AAE39004B97C7 /* MetalKit.framework in Frameworks */,
+				D827EB41C587678E8F4647FF /* Sentry in Frameworks */,
+				132F1990A7B1D0A09E101010 /* libCZstd.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		23747FB2B576839BAA64241A = {
+			isa = PBXGroup;
+			children = (
+				4D058B1D308A8F3600C9965C /* guest */,
+				B56C3B7C54EF5660631B60D3 /* Swift Source */,
+				E4FF2C554B802536654DA341 /* C modules */,
+				AA9D280544D7F28EE9CEBD06 /* App resources */,
+				D30000000000000000000001 /* Host resources */,
+				AB0000000000000000000010 /* Support */,
+				4D04A94D308AAE38004B97C7 /* Frameworks */,
+				86024CAD1E83101D97359D73 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4D0429E3308A9836004B97C7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4D042C32308A9836004B97C7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4D04401B308A9836004B97C7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4D0475C5308A9837004B97C7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4D04A94D308AAE38004B97C7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4D04A94E308AAE38004B97C7 /* libswiftMetal.tbd */,
+				4D04A954308AAE39004B97C7 /* libswiftMetalKit.tbd */,
+				4D04A94F308AAE38004B97C7 /* Metal.framework */,
+				4D04A951308AAE38004B97C7 /* MetalFX.framework */,
+				4D04A955308AAE39004B97C7 /* MetalKit.framework */,
+				4D04A950308AAE38004B97C7 /* MetalPerformancePrimitives.framework */,
+				4D04A952308AAE38004B97C7 /* MetalPerformanceShaders.framework */,
+				4D04A953308AAE39004B97C7 /* MetalPerformanceShadersGraph.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4D050AE8308A8C7300C9965C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4D050D37308A8C7300C9965C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4D052120308A8C7400C9965C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4D0556C9308A8C7400C9965C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4D058A50308A8F3600C9965C /* initramfs */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A4F308A8F3600C9965C /* init */,
+			);
+			path = initramfs;
+			sourceTree = "<group>";
+		};
+		4D058A54308A8F3600C9965C /* config */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A51308A8F3600C9965C /* 00-base-libkrunfw-aarch64.config */,
+				4D058A52308A8F3600C9965C /* 10-frame-userspace.config */,
+				4D058A53308A8F3600C9965C /* 20-steamac.config */,
+			);
+			path = config;
+			sourceTree = "<group>";
+		};
+		4D058A5C308A8F3600C9965C /* patches */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A55308A8F3600C9965C /* 0001-drm-virtio-align-host-visible-blob-placement.patch */,
+				4D058A56308A8F3600C9965C /* 0002-prctl-Introduce-PR_-SET-GET-_MEM_MODEL.patch */,
+				4D058A57308A8F3600C9965C /* 0003-arm64-Implement-PR_-GET-SET-_MEM_MODEL-for-always-TS.patch */,
+				4D058A58308A8F3600C9965C /* 0004-arm64-Introduce-scaffolding-to-add-ACTLR_EL1-to-thre.patch */,
+				4D058A59308A8F3600C9965C /* 0005-arm64-Implement-Apple-IMPDEF-TSO-memory-model-contro.patch */,
+				4D058A5A308A8F3600C9965C /* 0006-ALSA-virtio-reset-partly-filled-periods-on-prepare.patch */,
+				4D058A5B308A8F3600C9965C /* 0007-ALSA-virtio-report-an-xrun-when-a-whole-buffer-passed-unseen.patch */,
+			);
+			path = patches;
+			sourceTree = "<group>";
+		};
+		4D058A5F308A8F3600C9965C /* smoke */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A5D308A8F3600C9965C /* Dockerfile */,
+				4D058A5E308A8F3600C9965C /* init */,
+			);
+			path = smoke;
+			sourceTree = "<group>";
+		};
+		4D058A61308A8F3600C9965C /* tools */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A60308A8F3600C9965C /* gen-frame-fragment.py */,
+			);
+			path = tools;
+			sourceTree = "<group>";
+		};
+		4D058A68308A8F3600C9965C /* kernel */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A54308A8F3600C9965C /* config */,
+				4D058A5C308A8F3600C9965C /* patches */,
+				4D058A5F308A8F3600C9965C /* smoke */,
+				4D058A61308A8F3600C9965C /* tools */,
+				4D058A62308A8F3600C9965C /* build.sh */,
+				4D058A63308A8F3600C9965C /* check-config.sh */,
+				4D058A64308A8F3600C9965C /* config-steamac */,
+				4D058A65308A8F3600C9965C /* container-build.sh */,
+				4D058A66308A8F3600C9965C /* Dockerfile */,
+				4D058A67308A8F3600C9965C /* smoke-test.sh */,
+			);
+			path = kernel;
+			sourceTree = "<group>";
+		};
+		4D058A6A308A8F3600C9965C /* bin */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A69308A8F3600C9965C /* splctl */,
+			);
+			path = bin;
+			sourceTree = "<group>";
+		};
+		4D058A73308A8F3600C9965C /* cinterforge */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A6B308A8F3600C9965C /* installed-app-gui-test */,
+				4D058A6C308A8F3600C9965C /* launch-ardour-linux */,
+				4D058A6D308A8F3600C9965C /* launch-ardour-windows */,
+				4D058A6E308A8F3600C9965C /* run-desktop-ready */,
+				4D058A6F308A8F3600C9965C /* run-linux-amd64 */,
+				4D058A70308A8F3600C9965C /* select-kde-desktop-session */,
+				4D058A71308A8F3600C9965C /* select-kde-wallpaper */,
+				4D058A72308A8F3600C9965C /* verify-virtiofs-mounts */,
+			);
+			path = cinterforge;
+			sourceTree = "<group>";
+		};
+		4D058A75308A8F3600C9965C /* environment.d */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A74308A8F3600C9965C /* 60-steamac-mesa.conf */,
+			);
+			path = environment.d;
+			sourceTree = "<group>";
+		};
+		4D058A77308A8F3600C9965C /* rauc */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A76308A8F3600C9965C /* post-install.sh */,
+			);
+			path = rauc;
+			sourceTree = "<group>";
+		};
+		4D058A7A308A8F3600C9965C /* desktop-bin */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A78308A8F3600C9965C /* kwin_wayland_wrapper */,
+				4D058A79308A8F3600C9965C /* steamosctl */,
+			);
+			path = "desktop-bin";
+			sourceTree = "<group>";
+		};
+		4D058A7C308A8F3600C9965C /* autostart */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A7B308A8F3600C9965C /* steam.desktop */,
+			);
+			path = autostart;
+			sourceTree = "<group>";
+		};
+		4D058A7D308A8F3600C9965C /* desktop-xdg */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A7C308A8F3600C9965C /* autostart */,
+			);
+			path = "desktop-xdg";
+			sourceTree = "<group>";
+		};
+		4D058A7F308A8F3600C9965C /* masks.d */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A7E308A8F3600C9965C /* frame-hardware.list */,
+			);
+			path = masks.d;
+			sourceTree = "<group>";
+		};
+		4D058A81308A8F3600C9965C /* rauc-shims */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A80308A8F3600C9965C /* steamos-chroot */,
+			);
+			path = "rauc-shims";
+			sourceTree = "<group>";
+		};
+		4D058A8A308A8F3600C9965C /* steamac */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A7A308A8F3600C9965C /* desktop-bin */,
+				4D058A7D308A8F3600C9965C /* desktop-xdg */,
+				4D058A7F308A8F3600C9965C /* masks.d */,
+				4D058A81308A8F3600C9965C /* rauc-shims */,
+				4D058A82308A8F3600C9965C /* audio-layout */,
+				4D058A83308A8F3600C9965C /* coredump-report */,
+				4D058A84308A8F3600C9965C /* kernelsetup.sh */,
+				4D058A85308A8F3600C9965C /* mac-clock-format */,
+				4D058A86308A8F3600C9965C /* nested-desktop */,
+				4D058A87308A8F3600C9965C /* steam-client */,
+				4D058A88308A8F3600C9965C /* steam-gfx-env */,
+				4D058A89308A8F3600C9965C /* steam-shader-defaults */,
+			);
+			path = steamac;
+			sourceTree = "<group>";
+		};
+		4D058A8C308A8F3600C9965C /* steamos */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A8B308A8F3600C9965C /* gamescope-session */,
+			);
+			path = steamos;
+			sourceTree = "<group>";
+		};
+		4D058A8E308A8F3600C9965C /* coredump.conf.d */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A8D308A8F3600C9965C /* 30-steamac-namespace.conf */,
+			);
+			path = coredump.conf.d;
+			sourceTree = "<group>";
+		};
+		4D058A90308A8F3600C9965C /* logind.conf.d */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A8F308A8F3600C9965C /* 50-steamac-power-key.conf */,
+			);
+			path = logind.conf.d;
+			sourceTree = "<group>";
+		};
+		4D058A92308A8F3600C9965C /* sleep.conf.d */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A91308A8F3600C9965C /* 50-steamac.conf */,
+			);
+			path = sleep.conf.d;
+			sourceTree = "<group>";
+		};
+		4D058A94308A8F3600C9965C /* home.mount.d */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A93308A8F3600C9965C /* 50-steamac-grow.conf */,
+			);
+			path = home.mount.d;
+			sourceTree = "<group>";
+		};
+		4D058A9A308A8F3600C9965C /* multi-user.target.wants */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A95308A8F3600C9965C /* cinterforge-kde-prepare.service */,
+				4D058A96308A8F3600C9965C /* cinterforge-virtiofs-verify.service */,
+				4D058A97308A8F3600C9965C /* run-Applications.automount */,
+				4D058A98308A8F3600C9965C /* run-DeveloperTests.automount */,
+				4D058A99308A8F3600C9965C /* run-Support.automount */,
+			);
+			path = "multi-user.target.wants";
+			sourceTree = "<group>";
+		};
+		4D058A9C308A8F3600C9965C /* sddm.service.d */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A9B308A8F3600C9965C /* 90-cinterforgeos-desktop.conf */,
+			);
+			path = sddm.service.d;
+			sourceTree = "<group>";
+		};
+		4D058A9E308A8F3600C9965C /* systemd-coredump@.service.d */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A9D308A8F3600C9965C /* 30-steamac-report.conf */,
+			);
+			path = "systemd-coredump@.service.d";
+			sourceTree = "<group>";
+		};
+		4D058AA0308A8F3600C9965C /* systemd-hybrid-sleep.service.d */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A9F308A8F3600C9965C /* 50-steamac-sleep.conf */,
+			);
+			path = "systemd-hybrid-sleep.service.d";
+			sourceTree = "<group>";
+		};
+		4D058AA2308A8F3600C9965C /* systemd-suspend-then-hibernate.service.d */ = {
+			isa = PBXGroup;
+			children = (
+				4D058AA1308A8F3600C9965C /* 50-steamac-sleep.conf */,
+			);
+			path = "systemd-suspend-then-hibernate.service.d";
+			sourceTree = "<group>";
+		};
+		4D058AA4308A8F3600C9965C /* systemd-suspend.service.d */ = {
+			isa = PBXGroup;
+			children = (
+				4D058AA3308A8F3600C9965C /* 50-steamac-sleep.conf */,
+			);
+			path = "systemd-suspend.service.d";
+			sourceTree = "<group>";
+		};
+		4D058AB0308A8F3600C9965C /* system */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A94308A8F3600C9965C /* home.mount.d */,
+				4D058A9A308A8F3600C9965C /* multi-user.target.wants */,
+				4D058A9C308A8F3600C9965C /* sddm.service.d */,
+				4D058A9E308A8F3600C9965C /* systemd-coredump@.service.d */,
+				4D058AA0308A8F3600C9965C /* systemd-hybrid-sleep.service.d */,
+				4D058AA2308A8F3600C9965C /* systemd-suspend-then-hibernate.service.d */,
+				4D058AA4308A8F3600C9965C /* systemd-suspend.service.d */,
+				4D058AA5308A8F3600C9965C /* cinterforge-kde-prepare.service */,
+				4D058AA6308A8F3600C9965C /* cinterforge-virtiofs-verify.service */,
+				4D058AA7308A8F3600C9965C /* fx-clock-sync.service */,
+				4D058AA8308A8F3600C9965C /* fx-pad.service */,
+				4D058AA9308A8F3600C9965C /* fx-pad@.service */,
+				4D058AAA308A8F3600C9965C /* run-Applications.automount */,
+				4D058AAB308A8F3600C9965C /* run-Applications.mount */,
+				4D058AAC308A8F3600C9965C /* run-DeveloperTests.automount */,
+				4D058AAD308A8F3600C9965C /* run-DeveloperTests.mount */,
+				4D058AAE308A8F3600C9965C /* run-Support.automount */,
+				4D058AAF308A8F3600C9965C /* run-Support.mount */,
+			);
+			path = system;
+			sourceTree = "<group>";
+		};
+		4D058AB2308A8F3600C9965C /* app-steam-.scope.d */ = {
+			isa = PBXGroup;
+			children = (
+				4D058AB1308A8F3600C9965C /* 50-steamac-stop.conf */,
+			);
+			path = "app-steam-.scope.d";
+			sourceTree = "<group>";
+		};
+		4D058AB5308A8F3600C9965C /* gamescope-session.target.wants */ = {
+			isa = PBXGroup;
+			children = (
+				4D058AB3308A8F3600C9965C /* fx-clipboard-agent.service */,
+				4D058AB4308A8F3600C9965C /* fx-progress-agent.service */,
+			);
+			path = "gamescope-session.target.wants";
+			sourceTree = "<group>";
+		};
+		4D058AB8308A8F3600C9965C /* plasma-session.target.wants */ = {
+			isa = PBXGroup;
+			children = (
+				4D058AB6308A8F3600C9965C /* fx-clipboard-agent.service */,
+				4D058AB7308A8F3600C9965C /* fx-progress-agent.service */,
+			);
+			path = "plasma-session.target.wants";
+			sourceTree = "<group>";
+		};
+		4D058ABA308A8F3600C9965C /* steam.service.d */ = {
+			isa = PBXGroup;
+			children = (
+				4D058AB9308A8F3600C9965C /* 50-steamac.conf */,
+			);
+			path = steam.service.d;
+			sourceTree = "<group>";
+		};
+		4D058ABC308A8F3600C9965C /* wireplumber.service.d */ = {
+			isa = PBXGroup;
+			children = (
+				4D058ABB308A8F3600C9965C /* 50-steamac.conf */,
+			);
+			path = wireplumber.service.d;
+			sourceTree = "<group>";
+		};
+		4D058AC3308A8F3600C9965C /* user */ = {
+			isa = PBXGroup;
+			children = (
+				4D058AB2308A8F3600C9965C /* app-steam-.scope.d */,
+				4D058AB5308A8F3600C9965C /* gamescope-session.target.wants */,
+				4D058AB8308A8F3600C9965C /* plasma-session.target.wants */,
+				4D058ABA308A8F3600C9965C /* steam.service.d */,
+				4D058ABC308A8F3600C9965C /* wireplumber.service.d */,
+				4D058ABD308A8F3600C9965C /* fx-clipboard-agent.service */,
+				4D058ABE308A8F3600C9965C /* fx-progress-agent.service */,
+				4D058ABF308A8F3600C9965C /* gamescope-session.service */,
+				4D058AC0308A8F3600C9965C /* gamescope-session.target */,
+				4D058AC1308A8F3600C9965C /* plasma-session.target */,
+				4D058AC2308A8F3600C9965C /* steamac-nested-desktop.service */,
+			);
+			path = user;
+			sourceTree = "<group>";
+		};
+		4D058AC4308A8F3600C9965C /* systemd */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A8E308A8F3600C9965C /* coredump.conf.d */,
+				4D058A90308A8F3600C9965C /* logind.conf.d */,
+				4D058A92308A8F3600C9965C /* sleep.conf.d */,
+				4D058AB0308A8F3600C9965C /* system */,
+				4D058AC3308A8F3600C9965C /* user */,
+			);
+			path = systemd;
+			sourceTree = "<group>";
+		};
+		4D058AC7308A8F3600C9965C /* rules.d */ = {
+			isa = PBXGroup;
+			children = (
+				4D058AC5308A8F3600C9965C /* 70-fx-clipboard.rules */,
+				4D058AC6308A8F3600C9965C /* 70-fx-progress.rules */,
+			);
+			path = rules.d;
+			sourceTree = "<group>";
+		};
+		4D058AC8308A8F3600C9965C /* udev */ = {
+			isa = PBXGroup;
+			children = (
+				4D058AC7308A8F3600C9965C /* rules.d */,
+			);
+			path = udev;
+			sourceTree = "<group>";
+		};
+		4D058AC9308A8F3600C9965C /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A73308A8F3600C9965C /* cinterforge */,
+				4D058A75308A8F3600C9965C /* environment.d */,
+				4D058A77308A8F3600C9965C /* rauc */,
+				4D058A8A308A8F3600C9965C /* steamac */,
+				4D058A8C308A8F3600C9965C /* steamos */,
+				4D058AC4308A8F3600C9965C /* systemd */,
+				4D058AC8308A8F3600C9965C /* udev */,
+			);
+			path = lib;
+			sourceTree = "<group>";
+		};
+		4D058ACC308A8F3600C9965C /* backgrounds */ = {
+			isa = PBXGroup;
+			children = (
+				4D058ACA308A8F3600C9965C /* cinterforge-linux-1920x1080.png */,
+				4D058ACB308A8F3600C9965C /* cinterforge-windows-1920x1080.png */,
+			);
+			path = backgrounds;
+			sourceTree = "<group>";
+		};
+		4D058AD6308A8F3600C9965C /* guest_config */ = {
+			isa = PBXGroup;
+			children = (
+				4D058ACD308A8F3600C9965C /* cinterforge-installed-test.desktop */,
+				4D058ACE308A8F3600C9965C /* cinterforge-kde-prepare.service */,
+				4D058ACF308A8F3600C9965C /* cinterforge-virtiofs-verify.service */,
+				4D058AD0308A8F3600C9965C /* install-kde-places */,
+				4D058AD1308A8F3600C9965C /* sddm-desktop.conf */,
+				4D058AD2308A8F3600C9965C /* select-kde-desktop-session */,
+				4D058AD3308A8F3600C9965C /* select-kde-wallpaper */,
+				4D058AD4308A8F3600C9965C /* user-places.xbel */,
+				4D058AD5308A8F3600C9965C /* verify-virtiofs-mounts */,
+			);
+			path = guest_config;
+			sourceTree = "<group>";
+		};
+		4D058AE4308A8F3600C9965C /* icons */ = {
+			isa = PBXGroup;
+			children = (
+				4D058AD7308A8F3600C9965C /* 3d.png */,
+				4D058AD8308A8F3600C9965C /* audio.png */,
+				4D058AD9308A8F3600C9965C /* code.png */,
+				4D058ADA308A8F3600C9965C /* converter.png */,
+				4D058ADB308A8F3600C9965C /* desktop.png */,
+				4D058ADC308A8F3600C9965C /* document.png */,
+				4D058ADD308A8F3600C9965C /* image.png */,
+				4D058ADE308A8F3600C9965C /* paint.png */,
+				4D058ADF308A8F3600C9965C /* photo.png */,
+				4D058AE0308A8F3600C9965C /* steam.png */,
+				4D058AE1308A8F3600C9965C /* vector.png */,
+				4D058AE2308A8F3600C9965C /* video.png */,
+				4D058AE3308A8F3600C9965C /* voxel.png */,
+			);
+			path = icons;
+			sourceTree = "<group>";
+		};
+		4D058AE6308A8F3600C9965C /* cinterforge */ = {
+			isa = PBXGroup;
+			children = (
+				4D058ACC308A8F3600C9965C /* backgrounds */,
+				4D058AD6308A8F3600C9965C /* guest_config */,
+				4D058AE4308A8F3600C9965C /* icons */,
+				4D058AE5308A8F3600C9965C /* cinterforge-logo.png */,
+			);
+			path = cinterforge;
+			sourceTree = "<group>";
+		};
+		4D058AE8308A8F3600C9965C /* deckard */ = {
+			isa = PBXGroup;
+			children = (
+				4D058AE7308A8F3600C9965C /* mesavars.sh */,
+			);
+			path = deckard;
+			sourceTree = "<group>";
+		};
+		4D058AEA308A8F3600C9965C /* wallpapers */ = {
+			isa = PBXGroup;
+			children = (
+				4D058AE9308A8F3600C9965C /* Steam Deck Logo Default.jpg */,
+			);
+			path = wallpapers;
+			sourceTree = "<group>";
+		};
+		4D058AED308A8F3600C9965C /* autostart */ = {
+			isa = PBXGroup;
+			children = (
+				4D058AEB308A8F3600C9965C /* cinterforge-installed-test.desktop */,
+				4D058AEC308A8F3600C9965C /* cinterforge-support-desktop-ready.desktop */,
+			);
+			path = autostart;
+			sourceTree = "<group>";
+		};
+		4D058AEE308A8F3600C9965C /* xdg */ = {
+			isa = PBXGroup;
+			children = (
+				4D058AED308A8F3600C9965C /* autostart */,
+			);
+			path = xdg;
+			sourceTree = "<group>";
+		};
+		4D058AEF308A8F3600C9965C /* share */ = {
+			isa = PBXGroup;
+			children = (
+				4D058AE6308A8F3600C9965C /* cinterforge */,
+				4D058AE8308A8F3600C9965C /* deckard */,
+				4D058AEA308A8F3600C9965C /* wallpapers */,
+				4D058AEE308A8F3600C9965C /* xdg */,
+			);
+			path = share;
+			sourceTree = "<group>";
+		};
+		4D058AF0308A8F3600C9965C /* usr */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A6A308A8F3600C9965C /* bin */,
+				4D058AC9308A8F3600C9965C /* lib */,
+				4D058AEF308A8F3600C9965C /* share */,
+			);
+			path = usr;
+			sourceTree = "<group>";
+		};
+		4D058AF1308A8F3600C9965C /* layer */ = {
+			isa = PBXGroup;
+			children = (
+				4D058AF0308A8F3600C9965C /* usr */,
+			);
+			path = layer;
+			sourceTree = "<group>";
+		};
+		4D058AFC308A8F3600C9965C /* container */ = {
+			isa = PBXGroup;
+			children = (
+				4D058AF2308A8F3600C9965C /* build-aarch64.sh */,
+				4D058AF3308A8F3600C9965C /* build-x86.sh */,
+				4D058AF4308A8F3600C9965C /* common.sh */,
+				4D058AF5308A8F3600C9965C /* fault-report.c */,
+				4D058AF6308A8F3600C9965C /* fault-report-test.c */,
+				4D058AF7308A8F3600C9965C /* fetch-mesa.sh */,
+				4D058AF8308A8F3600C9965C /* i386-linux-gnu.ini */,
+				4D058AF9308A8F3600C9965C /* manifest.sh */,
+				4D058AFA308A8F3600C9965C /* verify.sh */,
+				4D058AFB308A8F3600C9965C /* vkprobe.c */,
+			);
+			path = container;
+			sourceTree = "<group>";
+		};
+		4D058AFF308A8F3600C9965C /* mesa */ = {
+			isa = PBXGroup;
+			children = (
+				4D058AFC308A8F3600C9965C /* container */,
+				4D058AFD308A8F3600C9965C /* build.sh */,
+				4D058AFE308A8F3600C9965C /* versions.env */,
+			);
+			path = mesa;
+			sourceTree = "<group>";
+		};
+		4D058B13308A8F3600C9965C /* src */ = {
+			isa = PBXGroup;
+			children = (
+				4D058B00308A8F3600C9965C /* alive.rs */,
+				4D058B01308A8F3600C9965C /* appname.rs */,
+				4D058B02308A8F3600C9965C /* clipboard.rs */,
+				4D058B03308A8F3600C9965C /* clipwl.rs */,
+				4D058B04308A8F3600C9965C /* clipx11.rs */,
+				4D058B05308A8F3600C9965C /* clock.rs */,
+				4D058B06308A8F3600C9965C /* codec.rs */,
+				4D058B07308A8F3600C9965C /* collect.rs */,
+				4D058B08308A8F3600C9965C /* focus.rs */,
+				4D058B09308A8F3600C9965C /* freeze.rs */,
+				4D058B0A308A8F3600C9965C /* main.rs */,
+				4D058B0B308A8F3600C9965C /* pad.rs */,
+				4D058B0C308A8F3600C9965C /* port.rs */,
+				4D058B0D308A8F3600C9965C /* shutdown.rs */,
+				4D058B0E308A8F3600C9965C /* sleep.rs */,
+				4D058B0F308A8F3600C9965C /* steamlog.rs */,
+				4D058B10308A8F3600C9965C /* steamstrings.rs */,
+				4D058B11308A8F3600C9965C /* uhid.rs */,
+				4D058B12308A8F3600C9965C /* ui.rs */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		4D058B19308A8F3600C9965C /* testdata */ = {
+			isa = PBXGroup;
+			children = (
+				4D058B14308A8F3600C9965C /* steambootstrapper_english.txt */,
+				4D058B15308A8F3600C9965C /* steambootstrapper_german.txt */,
+				4D058B16308A8F3600C9965C /* steambootstrapper_japanese.txt */,
+				4D058B17308A8F3600C9965C /* steambootstrapper_russian.txt */,
+				4D058B18308A8F3600C9965C /* steambootstrapper_schinese.txt */,
+			);
+			path = testdata;
+			sourceTree = "<group>";
+		};
+		4D058B1C308A8F3600C9965C /* progress-agent */ = {
+			isa = PBXGroup;
+			children = (
+				4D058B13308A8F3600C9965C /* src */,
+				4D058B19308A8F3600C9965C /* testdata */,
+				4D058B1A308A8F3600C9965C /* Cargo.lock */,
+				4D058B1B308A8F3600C9965C /* Cargo.toml */,
+			);
+			path = "progress-agent";
+			sourceTree = "<group>";
+		};
+		4D058B1D308A8F3600C9965C /* guest */ = {
+			isa = PBXGroup;
+			children = (
+				4D058A50308A8F3600C9965C /* initramfs */,
+				4D058A68308A8F3600C9965C /* kernel */,
+				4D058AF1308A8F3600C9965C /* layer */,
+				4D058AFF308A8F3600C9965C /* mesa */,
+				4D058B1C308A8F3600C9965C /* progress-agent */,
+			);
+			path = guest;
+			sourceTree = "<group>";
+		};
+		4D4532C5308A6EF800725112 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4D45665A308A6F2600725112 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4D45D967308A6EF700725112 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4D45DBB6308A6EF700725112 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4D45FD1C308A6EF700725112 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DEE2EE2308A6CC30059F151 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DEE3131308A6CC30059F151 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DEE3EA2308A6CC40059F151 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4DEEBC73308A6D600059F151 /* libSPIRVCross.a */,
+				4DEEBC75308A6D600059F151 /* libSPIRVCross.a */,
+				4DEEBC77308A6D600059F151 /* libSPIRVCross.a */,
+				4DEEBC79308A6D600059F151 /* libSPIRVCross.a */,
+				4DEEBC7B308A6D600059F151 /* libSPIRVTools.a */,
+				4DEEBC7D308A6D600059F151 /* libSPIRVTools.a */,
+				4DEEBC7F308A6D600059F151 /* libSPIRVTools.a */,
+				4DEEBC81308A6D600059F151 /* libSPIRVTools.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DEE3EA4308A6CC40059F151 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DEE3EA6308A6CC40059F151 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4DEEBC5E308A6D600059F151 /* Cube.app */,
+				4DEEBC60308A6D600059F151 /* Cube.app */,
+				4DEEBC62308A6D600059F151 /* Cube.app */,
+				4DEEBC64308A6D600059F151 /* Cube.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DEE3EA8308A6CC40059F151 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4DEEBC8C308A6D600059F151 /* libMoltenVK.a */,
+				4DEEBC8E308A6D600059F151 /* libMoltenVK.dylib */,
+				4DEEBC90308A6D600059F151 /* MoltenVK.framework */,
+				4DEEBC92308A6D600059F151 /* libMoltenVK.a */,
+				4DEEBC94308A6D600059F151 /* MoltenVK.framework */,
+				4DEEBC96308A6D600059F151 /* libMoltenVK.a */,
+				4DEEBC98308A6D600059F151 /* MoltenVK.framework */,
+				4DEEBC9A308A6D600059F151 /* libMoltenVK.a */,
+				4DEEBC9C308A6D600059F151 /* MoltenVK.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DEE3EAA308A6CC40059F151 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DEE3EAC308A6CC40059F151 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4DEEBCAA308A6D600059F151 /* MoltenVKShaderConverter */,
+				4DEEBCAC308A6D600059F151 /* libMoltenVKShaderConverter.a */,
+				4DEEBCAE308A6D600059F151 /* libMoltenVKShaderConverter.a */,
+				4DEEBCB0308A6D600059F151 /* libMoltenVKShaderConverter.a */,
+				4DEEBCB2308A6D600059F151 /* libMoltenVKShaderConverter.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DEE3EAE308A6CC40059F151 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4DEEBCB5308A6D600059F151 /* vulkaninfo.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DEE5297308A6CC40059F151 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DEE8840308A6CC40059F151 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DF9B21C308A88B400E4BDBE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DF9B46B308A88B400E4BDBE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DF9C854308A88B400E4BDBE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DF9FDFD308A88B500E4BDBE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		86024CAD1E83101D97359D73 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				39336BD3A0262B77EFBBEFA1 /* CinterForge OS.app */,
+				B27E4B3E42065DCA5F78D738 /* libCZstd.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A8ED18A2F8000A00ABCD0003 /* CKrun (libkrun bridge) */ = {
+			isa = PBXGroup;
+			children = (
+				DCF0D7D2CD120BF42580D43F /* module.modulemap */,
+				A8ED18A2F8000A00ABCD0001 /* shim.h */,
+			);
+			name = "CKrun (libkrun bridge)";
+			sourceTree = "<group>";
+		};
+		A8ED18A2F8000A00ABCD0004 /* CZstd (compression bridge) */ = {
+			isa = PBXGroup;
+			children = (
+				324D8A1D3F81E730D5099A48 /* czstd.c */,
+				ADAB7B701F23BB82014C8506 /* czstd.h */,
+				A8ED18A2F8000A00ABCD0002 /* CZstd module.modulemap */,
+			);
+			name = "CZstd (compression bridge)";
+			sourceTree = "<group>";
+		};
+		AA9D280544D7F28EE9CEBD06 /* App resources */ = {
+			isa = PBXGroup;
+			children = (
+				E90000000000000000000001 /* SteamOS guest assets (editable, explicit) */,
+				A10000000000000000000001 /* AppIcon.icon (Icon Composer) */,
+				A10000000000000000000003 /* Localizable.xcstrings */,
+				A10000000000000000000004 /* InfoPlist.xcstrings */,
+				757863D7410B9362D4D0D771 /* cinterforgeis_ready.sh */,
+				A10000000000000000000005 /* licenses.sh */,
+				A10000000000000000000006 /* l10n.py */,
+				C70313B3D6F40098A9E0970F /* Info.plist */,
+			);
+			name = "App resources";
+			sourceTree = "<group>";
+		};
+		AB0000000000000000000010 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				AB0000000000000000000001 /* cinterforge-libkrun */,
+				AB0000000000000000000002 /* cinterforge-virglrenderer */,
+				AB0000000000000000000004 /* cinterforge-spirv-cross */,
+				AB0000000000000000000005 /* cinterforge-kosmickrisp-mesa */,
+				4D456657308A6F2600725112 /* cinterforge-moltenvk.xcodeproj */,
+			);
+			name = Support;
+			sourceTree = "<group>";
+		};
+		B56C3B7C54EF5660631B60D3 /* Swift Source */ = {
+			isa = PBXGroup;
+			children = (
+				CF0500000000000000000001 /* Core */,
+				CF0500000000000000000002 /* Interface */,
+				CF0500000000000000000003 /* Graphics */,
+				CF0500000000000000000004 /* Input */,
+				CF0500000000000000000005 /* Networking */,
+				CF0500000000000000000006 /* Storage */,
+				CF0500000000000000000007 /* Diagnostics */,
+				CF0500000000000000000008 /* Updates */,
+				CF0500000000000000000009 /* Tests */,
+			);
+			name = "Swift Source";
+			path = "source/Swift Source";
+			sourceTree = SOURCE_ROOT;
+		};
+		CF0500000000000000000001 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				4E04E12E35BD8DB38858D107 /* main.swift */,
+				0E504D562811027DD369D7D5 /* Options.swift */,
+				135E62B016C9E318D2F7122A /* AppBundle.swift */,
+				F3016E4783782578EE2FA8CC /* Util.swift */,
+				5E06DC17498E4C8F0542B3A0 /* Console.swift */,
+				42CECFFC3944AF97687E662F /* Supervisor.swift */,
+				62951C6E5D73DF2F83B1D38C /* VM.swift */,
+				BA0FE2BD1BAB48DEAE652467 /* VMSizing.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		CF0500000000000000000002 /* Interface */ = {
+			isa = PBXGroup;
+			children = (
+				15033E5544A41C7727B73598 /* Window.swift */,
+				EAADDABC38D301DF36BAD95E /* Settings.swift */,
+				3CD73498D7A1521B36C5A4FD /* SettingsWindow.swift */,
+				F9772959214F3B831BA81231 /* SteamClientView.swift */,
+				65D3F6F3D1E1B9BF367C1FA3 /* GamePause.swift */,
+				A8A767903C4A2AFB13B70DA1 /* PauseOverlay.swift */,
+				BF877692400FCD90718FD479 /* Overlay.swift */,
+				E817AA7710796FA3D5BFB48C /* Progress.swift */,
+				78078F097664D8E621FE19D9 /* ProgressPill.swift */,
+				9B1B48C41DF6BD9F9958E136 /* Stall.swift */,
+			);
+			path = Interface;
+			sourceTree = "<group>";
+		};
+		CF0500000000000000000003 /* Graphics */ = {
+			isa = PBXGroup;
+			children = (
+				F94F08AFBBB32CAF0B49970E /* DisplayBackend.swift */,
+				4FB49439F1BBD084DA12D42C /* Renderer.swift */,
+				EF2049CD22A3AF63D8F5AF5C /* Presenter.swift */,
+				D3E38EBE765AFC3BF3F0E966 /* Edid.swift */,
+				E51C18B680078B952315358D /* MetalCompilerCache.swift */,
+				B41083525A9EDFC3A4173E4D /* PerfStats.swift */,
+			);
+			path = Graphics;
+			sourceTree = "<group>";
+		};
+		CF0500000000000000000004 /* Input */ = {
+			isa = PBXGroup;
+			children = (
+				8060393F90F270180471F0AC /* Clipboard.swift */,
+				4E3DAA555E1668557D4F39C8 /* Gamepad.swift */,
+				65CD0F6A2BEADA797370AF86 /* HIDPassthrough.swift */,
+				EBF9C787871D32BCF1FFB3D3 /* InputDevice.swift */,
+				12698E5672FAEC019F587633 /* Keymap.swift */,
+				B0FBBD34135B3B150561AF12 /* LinuxInput.swift */,
+				234EB69A40626CE6EBD3ED0E /* PointerMap.swift */,
+				4F253846C4DD0875B307EDB3 /* Rumble.swift */,
+				A09935684BFDC413995E475F /* SoundControl.swift */,
+			);
+			path = Input;
+			sourceTree = "<group>";
+		};
+		CF0500000000000000000005 /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+				26A72711E214128F954423A9 /* Network.swift */,
+				05FB00F45118487ADE1759DE /* NetworkFailure.swift */,
+				6C43E04E908D5C2256AF4421 /* RemotePlayPacket.swift */,
+				F9B4AD3881A76EA6388560FE /* RemotePlayRelay.swift */,
+			);
+			path = Networking;
+			sourceTree = "<group>";
+		};
+		CF0500000000000000000006 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				BD329F6C48F3715097B779FB /* CreateDiskCLI.swift */,
+				1D35D175DA533012B50E34B6 /* CreateDiskWindow.swift */,
+				C5C610919135DD5CA117D997 /* DiskCreationFilesystem.swift */,
+				609C8EBF93A7B80890479A01 /* DiskCreator.swift */,
+				5BAF3A4FA172CF120D778013 /* DiskGrower.swift */,
+				5DC196E7A6FAA346F74C7CF7 /* DiskLock.swift */,
+				8F9B96C629EC98583F78CED7 /* GPT.swift */,
+				D4188BA7FBA2C8119FD56B79 /* Provision.swift */,
+				EBB5DC2367C010154A1EDC81 /* ProvisionPayload.swift */,
+				B96AED715C2F8139C18C0670 /* RaucBundle.swift */,
+				A445F4B6B3E66DF686FC3FB0 /* Squashfs.swift */,
+				67CD0C5EC9E32FD33E066F97 /* SteamOSLicense.swift */,
+			);
+			path = Storage;
+			sourceTree = "<group>";
+		};
+		CF0500000000000000000007 /* Diagnostics */ = {
+			isa = PBXGroup;
+			children = (
+				4DF3A5910D54710A60AF5B40 /* CrashReporting.swift */,
+				F6ADA088FF5D686F602FCD91 /* CrashReportingView.swift */,
+				E9E791C18ADC4857C321FEFE /* Report.swift */,
+				19E6A1B2C1D64E594D456E97 /* ReportWindow.swift */,
+			);
+			path = Diagnostics;
+			sourceTree = "<group>";
+		};
+		CF0500000000000000000008 /* Updates */ = {
+			isa = PBXGroup;
+			children = (
+				1E626000F93712076EE3AC83 /* UpdateCheck.swift */,
+				575BC3366175823CEF5DDA5D /* Suspend.swift */,
+			);
+			path = Updates;
+			sourceTree = "<group>";
+		};
+		CF0500000000000000000009 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				8DB72F3216A2E5152FA0EFBC /* DebugControl.swift */,
+				8C8E946EEE705B89D39883D0 /* InputSelfTest.swift */,
+				0D1E9CCF5A5A324048B249ED /* OverlaySelfTest.swift */,
+				CD63B8806A8842432656335E /* PillSelfTest.swift */,
+				9535532180A6AB0525A70C9F /* PointerSelfTest.swift */,
+				DB62D83F5916078DE8603D99 /* ProvisionSelfTest.swift */,
+				4B00B58994F91CA783BD95D1 /* RemotePlaySelfTest.swift */,
+				213915CF7AE8C87FBA583335 /* ResizeSelfTest.swift */,
+				42CF6C5219301B765D972FDD /* SelfTest.swift */,
+				12D3BE9E3C108957E2C620A7 /* SettingsSelfTest.swift */,
+				A3ED2AA5F6F52D451B9CB8CB /* StallSelfTest.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		D30000000000000000000001 /* Host resources */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000001 /* Image */,
+				D10000000000000000000002 /* initramfs.cpio.gz */,
+				D10000000000000000000003 /* steamac-layer.img */,
+				D10000000000000000000004 /* gvproxy */,
+				D10000000000000000000005 /* desync */,
+				D10000000000000000000006 /* steamdeck-images.pem */,
+				D10000000000000000000007 /* desktop-ready.sh */,
+				D1000000000000000000000A /* index.html */,
+				D1000000000000000000000B /* splash.css */,
+				D1000000000000000000000C /* splash.js */,
+				D1000000000000000000000D /* cinterforge-logo.png */,
+			);
+			name = "Host resources";
+			sourceTree = "<group>";
+		};
+		E4FF2C554B802536654DA341 /* C modules */ = {
+			isa = PBXGroup;
+			children = (
+				A8ED18A2F8000A00ABCD0003 /* CKrun (libkrun bridge) */,
+				A8ED18A2F8000A00ABCD0004 /* CZstd (compression bridge) */,
+			);
+			name = "C modules";
+			sourceTree = "<group>";
+		};
+		E90000000000000000000001 /* SteamOS guest assets (editable, explicit) */ = {
+			isa = PBXGroup;
+			children = (
+				E70000000000000000000001 /* cinterforge-linux-1920x1080.png (guest) */,
+				E70000000000000000000002 /* cinterforge-windows-1920x1080.png (guest) */,
+				E70000000000000000000003 /* cinterforge-logo.png (guest) */,
+				E70000000000000000000004 /* cinterforge-installed-test.desktop (guest) */,
+				E70000000000000000000005 /* cinterforge-kde-prepare.service (guest) */,
+				E70000000000000000000006 /* cinterforge-virtiofs-verify.service (guest) */,
+				E70000000000000000000007 /* install-kde-places (guest) */,
+				E70000000000000000000008 /* sddm-desktop.conf (guest) */,
+				E70000000000000000000009 /* select-kde-desktop-session (guest) */,
+				E7000000000000000000000A /* select-kde-wallpaper (guest) */,
+				E7000000000000000000000B /* user-places.xbel (guest) */,
+				E7000000000000000000000C /* verify-virtiofs-mounts (guest) */,
+				E7000000000000000000000D /* 3d.png (guest) */,
+				E7000000000000000000000E /* audio.png (guest) */,
+				E7000000000000000000000F /* code.png (guest) */,
+				E70000000000000000000010 /* converter.png (guest) */,
+				E70000000000000000000011 /* desktop.png (guest) */,
+				E70000000000000000000012 /* document.png (guest) */,
+				E70000000000000000000013 /* image.png (guest) */,
+				E70000000000000000000014 /* paint.png (guest) */,
+				E70000000000000000000015 /* photo.png (guest) */,
+				E70000000000000000000016 /* steam.png (guest) */,
+				E70000000000000000000017 /* vector.png (guest) */,
+				E70000000000000000000018 /* video.png (guest) */,
+				E70000000000000000000019 /* voxel.png (guest) */,
+			);
+			name = "SteamOS guest assets (editable, explicit)";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		F02CDF153FDACB65BA83D7EF /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				774F344A615692604DE04091 /* czstd.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		9C049173FAD5F4F89C682312 /* CZstd */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C7F8F21C9E5B1D86A3564945 /* Build configuration list for PBXNativeTarget "CZstd" */;
+			buildPhases = (
+				F02CDF153FDACB65BA83D7EF /* Headers */,
+				252906623B5704E3B9B750E2 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CZstd;
+			productName = CZstd;
+			productReference = B27E4B3E42065DCA5F78D738 /* libCZstd.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		FAD58DE7366495DB4650CFEF /* CinterForgeOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1F76C9FEC60BAD8F050D241B /* Build configuration list for PBXNativeTarget "CinterForgeOS" */;
+			buildPhases = (
+				F00000000000000000000018 /* Prepare host tools (gvproxy, desync) */,
+				F00000000000000000000022 /* Build host MoltenVK (macOS arm64) */,
+				F00000000000000000000023 /* Build host KosmicKrisp (macOS arm64) */,
+				F00000000000000000000021 /* Build host virglrenderer (macOS arm64) */,
+				F00000000000000000000019 /* Build host libkrun (macOS arm64) */,
+				F00000000000000000000012 /* Build guest kernel (ARM64) */,
+				F00000000000000000000013 /* Build guest initramfs */,
+				F00000000000000000000014 /* Build Mesa Venus (ARM64) */,
+				F00000000000000000000016 /* Build Mesa Venus (x86_64 + i386) */,
+				F00000000000000000000017 /* Verify guest Mesa Venus */,
+				F00000000000000000000015 /* Build SteamOS guest layer */,
+				F2AB5FB218DA8B84623F4557 /* Sources */,
+				4F6F5CC3FCCF73F75AE9CCF4 /* Frameworks */,
+				55B558C7EF820E6E00E5993B /* Resources */,
+				E90000000000000000000002 /* Support files */,
+				B40000000000000000000001 /* Splash assets */,
+				F00000000000000000000020 /* Stage and sign native dylibs */,
+				B50000000000000000000001 /* 04 · Export KDE-ready automation hook to Built/Test */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E54DEBD65D8142E7785275AA /* PBXTargetDependency */,
+			);
+			name = CinterForgeOS;
+			packageProductDependencies = (
+				2BAFBE90D711F96380E9193E /* Sentry */,
+			);
+			productName = "CinterForge OS";
+			productReference = 39336BD3A0262B77EFBBEFA1 /* CinterForge OS.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		46F86FAA6BBF9AC94A7E4595 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					9C049173FAD5F4F89C682312 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+					FAD58DE7366495DB4650CFEF = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = A6E60BF7E9C45DC08DD87703 /* Build configuration list for PBXProject "CinterForgeOS" */;
+			compatibilityVersion = "Xcode 15.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 23747FB2B576839BAA64241A;
+			packageReferences = (
+				A46A1BCE0B67C45BEC8F435B /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
+			);
+			productRefGroup = 86024CAD1E83101D97359D73 /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 4D0556C9308A8C7400C9965C /* Products */;
+					ProjectRef = 4D0556BF308A8C7400C9965C /* cinterforge-kosmickrisp-mesa.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DEE8840308A6CC40059F151 /* Products */;
+					ProjectRef = 4DEE8836308A6CC40059F151 /* cinterforge-kosmickrisp-mesa.xcodeproj */;
+				},
+				{
+					ProductGroup = 4D4532C5308A6EF800725112 /* Products */;
+					ProjectRef = 4D4532BB308A6EF800725112 /* cinterforge-kosmickrisp-mesa.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DF9FDFD308A88B500E4BDBE /* Products */;
+					ProjectRef = 4DF9FDF3308A88B500E4BDBE /* cinterforge-kosmickrisp-mesa.xcodeproj */;
+				},
+				{
+					ProductGroup = 4D0475C5308A9837004B97C7 /* Products */;
+					ProjectRef = 4D0475BA308A9837004B97C7 /* cinterforge-kosmickrisp-mesa.xcodeproj */;
+				},
+				{
+					ProductGroup = 4D050AE8308A8C7300C9965C /* Products */;
+					ProjectRef = 4D050AE1308A8C7300C9965C /* cinterforge-libkrun.xcodeproj */;
+				},
+				{
+					ProductGroup = 4D0429E3308A9836004B97C7 /* Products */;
+					ProjectRef = 4D0429DC308A9836004B97C7 /* cinterforge-libkrun.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DF9B21C308A88B400E4BDBE /* Products */;
+					ProjectRef = 4DF9B215308A88B400E4BDBE /* cinterforge-libkrun.xcodeproj */;
+				},
+				{
+					ProductGroup = 4D45D967308A6EF700725112 /* Products */;
+					ProjectRef = 4D45D960308A6EF700725112 /* cinterforge-libkrun.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DEE2EE2308A6CC30059F151 /* Products */;
+					ProjectRef = 4DEE2EDB308A6CC30059F151 /* cinterforge-libkrun.xcodeproj */;
+				},
+				{
+					ProductGroup = 4D45665A308A6F2600725112 /* Products */;
+					ProjectRef = 4D456657308A6F2600725112 /* cinterforge-moltenvk.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DEE3EA4308A6CC40059F151 /* Products */;
+					ProjectRef = 4DEE3E99308A6CC40059F151 /* cinterforge-moltenvk.xcodeproj */;
+				},
+				{
+					ProductGroup = 4D052120308A8C7400C9965C /* Products */;
+					ProjectRef = 4D0520F7308A8C7400C9965C /* cinterforge-spirv-cross.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DEE5297308A6CC40059F151 /* Products */;
+					ProjectRef = 4DEE526E308A6CC40059F151 /* cinterforge-spirv-cross.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DF9C854308A88B400E4BDBE /* Products */;
+					ProjectRef = 4DF9C82B308A88B400E4BDBE /* cinterforge-spirv-cross.xcodeproj */;
+				},
+				{
+					ProductGroup = 4D04401B308A9836004B97C7 /* Products */;
+					ProjectRef = 4D043FF2308A9836004B97C7 /* cinterforge-spirv-cross.xcodeproj */;
+				},
+				{
+					ProductGroup = 4D45FD1C308A6EF700725112 /* Products */;
+					ProjectRef = 4D45FCF3308A6EF700725112 /* cinterforge-spirv-cross.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DEE3131308A6CC30059F151 /* Products */;
+					ProjectRef = 4DEE312B308A6CC30059F151 /* cinterforge-virglrenderer.xcodeproj */;
+				},
+				{
+					ProductGroup = 4D042C32308A9836004B97C7 /* Products */;
+					ProjectRef = 4D042C2C308A9836004B97C7 /* cinterforge-virglrenderer.xcodeproj */;
+				},
+				{
+					ProductGroup = 4D45DBB6308A6EF700725112 /* Products */;
+					ProjectRef = 4D45DBB0308A6EF700725112 /* cinterforge-virglrenderer.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DF9B46B308A88B400E4BDBE /* Products */;
+					ProjectRef = 4DF9B465308A88B400E4BDBE /* cinterforge-virglrenderer.xcodeproj */;
+				},
+				{
+					ProductGroup = 4D050D37308A8C7300C9965C /* Products */;
+					ProjectRef = 4D050D31308A8C7300C9965C /* cinterforge-virglrenderer.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DEE3EA6308A6CC40059F151 /* Products */;
+					ProjectRef = 4DEE316D308A6CC40059F151 /* Cube.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DEE3EA2308A6CC40059F151 /* Products */;
+					ProjectRef = 4DEE3E9C308A6CC40059F151 /* ExternalDependencies.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DEE3EA8308A6CC40059F151 /* Products */;
+					ProjectRef = 4DEE3E5E308A6CC40059F151 /* MoltenVK.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DEE3EAA308A6CC40059F151 /* Products */;
+					ProjectRef = 4DEE3EA0308A6CC40059F151 /* MoltenVKPackaging.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DEE3EAC308A6CC40059F151 /* Products */;
+					ProjectRef = 4DEE3E76308A6CC40059F151 /* MoltenVKShaderConverter.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DEE3EAE308A6CC40059F151 /* Products */;
+					ProjectRef = 4DEE3DB3308A6CC40059F151 /* vulkaninfo.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				FAD58DE7366495DB4650CFEF /* CinterForgeOS */,
+				9C049173FAD5F4F89C682312 /* CZstd */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		4DEEBC5E308A6D600059F151 /* Cube.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = Cube.app;
+			remoteRef = 4DEEBC5D308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC60308A6D600059F151 /* Cube.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = Cube.app;
+			remoteRef = 4DEEBC5F308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC62308A6D600059F151 /* Cube.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = Cube.app;
+			remoteRef = 4DEEBC61308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC64308A6D600059F151 /* Cube.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = Cube.app;
+			remoteRef = 4DEEBC63308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC73308A6D600059F151 /* libSPIRVCross.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSPIRVCross.a;
+			remoteRef = 4DEEBC72308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC75308A6D600059F151 /* libSPIRVCross.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSPIRVCross.a;
+			remoteRef = 4DEEBC74308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC77308A6D600059F151 /* libSPIRVCross.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSPIRVCross.a;
+			remoteRef = 4DEEBC76308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC79308A6D600059F151 /* libSPIRVCross.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSPIRVCross.a;
+			remoteRef = 4DEEBC78308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC7B308A6D600059F151 /* libSPIRVTools.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSPIRVTools.a;
+			remoteRef = 4DEEBC7A308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC7D308A6D600059F151 /* libSPIRVTools.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSPIRVTools.a;
+			remoteRef = 4DEEBC7C308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC7F308A6D600059F151 /* libSPIRVTools.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSPIRVTools.a;
+			remoteRef = 4DEEBC7E308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC81308A6D600059F151 /* libSPIRVTools.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSPIRVTools.a;
+			remoteRef = 4DEEBC80308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC8C308A6D600059F151 /* libMoltenVK.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libMoltenVK.a;
+			remoteRef = 4DEEBC8B308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC8E308A6D600059F151 /* libMoltenVK.dylib */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.dylib";
+			path = libMoltenVK.dylib;
+			remoteRef = 4DEEBC8D308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC90308A6D600059F151 /* MoltenVK.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = MoltenVK.framework;
+			remoteRef = 4DEEBC8F308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC92308A6D600059F151 /* libMoltenVK.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libMoltenVK.a;
+			remoteRef = 4DEEBC91308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC94308A6D600059F151 /* MoltenVK.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = MoltenVK.framework;
+			remoteRef = 4DEEBC93308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC96308A6D600059F151 /* libMoltenVK.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libMoltenVK.a;
+			remoteRef = 4DEEBC95308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC98308A6D600059F151 /* MoltenVK.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = MoltenVK.framework;
+			remoteRef = 4DEEBC97308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC9A308A6D600059F151 /* libMoltenVK.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libMoltenVK.a;
+			remoteRef = 4DEEBC99308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBC9C308A6D600059F151 /* MoltenVK.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = MoltenVK.framework;
+			remoteRef = 4DEEBC9B308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBCAA308A6D600059F151 /* MoltenVKShaderConverter */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = MoltenVKShaderConverter;
+			remoteRef = 4DEEBCA9308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBCAC308A6D600059F151 /* libMoltenVKShaderConverter.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libMoltenVKShaderConverter.a;
+			remoteRef = 4DEEBCAB308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBCAE308A6D600059F151 /* libMoltenVKShaderConverter.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libMoltenVKShaderConverter.a;
+			remoteRef = 4DEEBCAD308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBCB0308A6D600059F151 /* libMoltenVKShaderConverter.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libMoltenVKShaderConverter.a;
+			remoteRef = 4DEEBCAF308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBCB2308A6D600059F151 /* libMoltenVKShaderConverter.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libMoltenVKShaderConverter.a;
+			remoteRef = 4DEEBCB1308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4DEEBCB5308A6D600059F151 /* vulkaninfo.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = vulkaninfo.app;
+			remoteRef = 4DEEBCB4308A6D600059F151 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		55B558C7EF820E6E00E5993B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A20000000000000000000001 /* AppIcon.icon (Icon Composer) in Resources */,
+				A20000000000000000000004 /* Localizable.xcstrings in Resources */,
+				A20000000000000000000005 /* InfoPlist.xcstrings in Resources */,
+				D20000000000000000000001 /* Image in Resources */,
+				D20000000000000000000002 /* initramfs.cpio.gz in Resources */,
+				D20000000000000000000003 /* steamac-layer.img in Resources */,
+				D20000000000000000000004 /* gvproxy in Resources */,
+				D20000000000000000000005 /* desync in Resources */,
+				D20000000000000000000006 /* steamdeck-images.pem in Resources */,
+				E80000000000000000000001 /* cinterforge-linux-1920x1080.png (guest) in Resources */,
+				E80000000000000000000002 /* cinterforge-windows-1920x1080.png (guest) in Resources */,
+				E80000000000000000000003 /* cinterforge-logo.png (guest) in Resources */,
+				E80000000000000000000004 /* cinterforge-installed-test.desktop (guest) in Resources */,
+				E80000000000000000000005 /* cinterforge-kde-prepare.service (guest) in Resources */,
+				E80000000000000000000006 /* cinterforge-virtiofs-verify.service (guest) in Resources */,
+				E80000000000000000000007 /* install-kde-places (guest) in Resources */,
+				E80000000000000000000008 /* sddm-desktop.conf (guest) in Resources */,
+				E80000000000000000000009 /* select-kde-desktop-session (guest) in Resources */,
+				E8000000000000000000000A /* select-kde-wallpaper (guest) in Resources */,
+				E8000000000000000000000B /* user-places.xbel (guest) in Resources */,
+				E8000000000000000000000C /* verify-virtiofs-mounts (guest) in Resources */,
+				E8000000000000000000000D /* 3d.png (guest) in Resources */,
+				E8000000000000000000000E /* audio.png (guest) in Resources */,
+				E8000000000000000000000F /* code.png (guest) in Resources */,
+				E80000000000000000000010 /* converter.png (guest) in Resources */,
+				E80000000000000000000011 /* desktop.png (guest) in Resources */,
+				E80000000000000000000012 /* document.png (guest) in Resources */,
+				E80000000000000000000013 /* image.png (guest) in Resources */,
+				E80000000000000000000014 /* paint.png (guest) in Resources */,
+				E80000000000000000000015 /* photo.png (guest) in Resources */,
+				E80000000000000000000016 /* steam.png (guest) in Resources */,
+				E80000000000000000000017 /* vector.png (guest) in Resources */,
+				E80000000000000000000018 /* video.png (guest) in Resources */,
+				E80000000000000000000019 /* voxel.png (guest) in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		B50000000000000000000001 /* 04 · Export KDE-ready automation hook to Built/Test */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(PROJECT_DIR)/scripts/support/cinterforgeis_ready.sh",
+			);
+			name = "04 · Export KDE-ready automation hook to Built/Test";
+			outputPaths = (
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/Test/cinterforgeis_ready.sh",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "set -euo pipefail\nsource_file=\"$PROJECT_DIR/scripts/support/cinterforgeis_ready.sh\"\ntest_dir=\"$PROJECT_DIR/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/Test\"\n[[ -s \"$source_file\" ]] || { echo \"error: Missing automation hook: $source_file\" >&2; exit 1; }\nmkdir -p \"$test_dir\"\ncp \"$source_file\" \"$test_dir/cinterforgeis_ready.sh\"\nchmod 0755 \"$test_dir/cinterforgeis_ready.sh\"\necho \"[Xcode] KDE-ready automation hook: $test_dir/cinterforgeis_ready.sh\"\n";
+		};
+		F00000000000000000000012 /* Build guest kernel (ARM64) */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(PROJECT_DIR)/guest/kernel/build.sh",
+				"$(PROJECT_DIR)/guest/kernel/container-build.sh",
+				"$(PROJECT_DIR)/guest/kernel/Dockerfile",
+				"$(PROJECT_DIR)/guest/kernel/check-config.sh",
+				"$(PROJECT_DIR)/guest/kernel/config",
+				"$(PROJECT_DIR)/guest/kernel/patches",
+			);
+			name = "Build guest kernel (ARM64)";
+			outputPaths = (
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/Image",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/Image.inputs.json",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "set -euo pipefail\nrepo=\"$PROJECT_DIR\"\nexport STEAMAC_SOURCE_ROOT=\"$repo\"\nexport STEAMAC_WORK_DIR=\"$repo/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work\"\ncd \"$repo\"\nif python3 scripts/guest-artifacts.py check kernel >/dev/null 2>&1; then\n  echo \"[Xcode] kernel verified; no rebuild\"\n  exit 0\nfi\nexport PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\"\nsource \"$repo/scripts/xcode-docker-env.sh\"\nbash guest/kernel/build.sh\npython3 scripts/guest-artifacts.py check kernel\n";
+		};
+		F00000000000000000000013 /* Build guest initramfs */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(PROJECT_DIR)/scripts/build-image.sh",
+				"$(PROJECT_DIR)/scripts/steps/20-initramfs.sh",
+				"$(PROJECT_DIR)/guest/initramfs/init",
+				"$(PROJECT_DIR)/scripts/config.env",
+				"$(PROJECT_DIR)/scripts/builder/Dockerfile",
+			);
+			name = "Build guest initramfs";
+			outputPaths = (
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/initramfs.cpio.gz",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/initramfs.cpio.gz.inputs.json",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "set -euo pipefail\nrepo=\"$PROJECT_DIR\"\nexport STEAMAC_SOURCE_ROOT=\"$repo\"\nexport STEAMAC_WORK_DIR=\"$repo/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work\"\ncd \"$repo\"\nif python3 scripts/guest-artifacts.py check initramfs >/dev/null 2>&1; then\n  echo \"[Xcode] initramfs verified; no rebuild\"\n  exit 0\nfi\nexport PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\"\nsource \"$repo/scripts/xcode-docker-env.sh\"\nbash scripts/build-image.sh builder initramfs\npython3 scripts/guest-artifacts.py check initramfs\n";
+		};
+		F00000000000000000000014 /* Build Mesa Venus (ARM64) */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(PROJECT_DIR)/guest/mesa/build.sh",
+				"$(PROJECT_DIR)/guest/mesa/versions.env",
+				"$(PROJECT_DIR)/scripts/config.env",
+				"$(PROJECT_DIR)/scripts/steps/10-rootfs.sh",
+				"$(PROJECT_DIR)/scripts/builder/Dockerfile",
+				"$(PROJECT_DIR)/scripts/keys/steamdeck-images.pem",
+			);
+			name = "Build Mesa Venus (ARM64)";
+			outputPaths = (
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/mesa-aarch64.inputs.json",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "set -euo pipefail\nrepo=\"$PROJECT_DIR\"\nexport STEAMAC_SOURCE_ROOT=\"$repo\"\nexport STEAMAC_WORK_DIR=\"$repo/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work\"\ncd \"$repo\"\nif python3 scripts/guest-artifacts.py check mesa-aarch64 >/dev/null 2>&1; then echo \"[Xcode] Mesa ARM64 verified\"; exit 0; fi\nexport PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\"\nsource \"$repo/scripts/xcode-docker-env.sh\"\nbash scripts/build-image.sh builder rootfs\nbash guest/mesa/build.sh fetch aarch64\npython3 scripts/guest-artifacts.py check mesa-aarch64\n";
+		};
+		F00000000000000000000015 /* Build SteamOS guest layer */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/mesa-venus.inputs.json",
+				"$(PROJECT_DIR)/guest/layer/usr",
+				"$(PROJECT_DIR)/guest/progress-agent",
+				"$(PROJECT_DIR)/scripts/build-image.sh",
+				"$(PROJECT_DIR)/scripts/steps/25-progress-agent.sh",
+				"$(PROJECT_DIR)/scripts/steps/30-layer.sh",
+				"$(PROJECT_DIR)/guest/mesa/build.sh",
+				"$(PROJECT_DIR)/guest/mesa/versions.env",
+				"$(PROJECT_DIR)/scripts/config.env",
+			);
+			name = "Build SteamOS guest layer";
+			outputPaths = (
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/steamac-layer.img",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/steamac-layer.img.inputs.json",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "set -euo pipefail\nrepo=\"$PROJECT_DIR\"\nexport STEAMAC_SOURCE_ROOT=\"$repo\"\nexport STEAMAC_WORK_DIR=\"$repo/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work\"\ncd \"$repo\"\nif python3 scripts/guest-artifacts.py check layer >/dev/null 2>&1; then\n  echo \"[Xcode] layer verified; no rebuild\"\n  exit 0\nfi\nexport PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\"\nsource \"$repo/scripts/xcode-docker-env.sh\"\npython3 scripts/guest-artifacts.py check mesa\nbash scripts/build-image.sh builder layer\npython3 scripts/guest-artifacts.py check layer\n";
+		};
+		F00000000000000000000016 /* Build Mesa Venus (x86_64 + i386) */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(PROJECT_DIR)/guest/mesa/build.sh",
+				"$(PROJECT_DIR)/guest/mesa/versions.env",
+				"$(PROJECT_DIR)/scripts/config.env",
+				"$(PROJECT_DIR)/scripts/steps/10-rootfs.sh",
+				"$(PROJECT_DIR)/scripts/builder/Dockerfile",
+				"$(PROJECT_DIR)/scripts/keys/steamdeck-images.pem",
+			);
+			name = "Build Mesa Venus (x86_64 + i386)";
+			outputPaths = (
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/mesa-x86.inputs.json",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "set -euo pipefail\nrepo=\"$PROJECT_DIR\"\nexport STEAMAC_SOURCE_ROOT=\"$repo\"\nexport STEAMAC_WORK_DIR=\"$repo/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work\"\ncd \"$repo\"\nif python3 scripts/guest-artifacts.py check mesa-x86 >/dev/null 2>&1; then echo \"[Xcode] Mesa x86 verified\"; exit 0; fi\nexport PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\"\nsource \"$repo/scripts/xcode-docker-env.sh\"\nbash scripts/build-image.sh builder rootfs\nbash guest/mesa/build.sh fetch x86\npython3 scripts/guest-artifacts.py check mesa-x86\n";
+		};
+		F00000000000000000000017 /* Verify guest Mesa Venus */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/mesa-aarch64.inputs.json",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/mesa-x86.inputs.json",
+				"$(PROJECT_DIR)/guest/mesa/build.sh",
+				"$(PROJECT_DIR)/guest/mesa/versions.env",
+				"$(PROJECT_DIR)/scripts/config.env",
+				"$(PROJECT_DIR)/scripts/steps/10-rootfs.sh",
+				"$(PROJECT_DIR)/scripts/builder/Dockerfile",
+				"$(PROJECT_DIR)/scripts/keys/steamdeck-images.pem",
+			);
+			name = "Verify guest Mesa Venus";
+			outputPaths = (
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/mesa-venus.inputs.json",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "set -euo pipefail\nrepo=\"$PROJECT_DIR\"\nexport STEAMAC_SOURCE_ROOT=\"$repo\"\nexport STEAMAC_WORK_DIR=\"$repo/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work\"\ncd \"$repo\"\nif python3 scripts/guest-artifacts.py check mesa >/dev/null 2>&1; then echo \"[Xcode] Mesa already verified\"; exit 0; fi\nexport PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\"\nsource \"$repo/scripts/xcode-docker-env.sh\"\npython3 scripts/guest-artifacts.py check mesa-aarch64\npython3 scripts/guest-artifacts.py check mesa-x86\nbash guest/mesa/build.sh verify\npython3 scripts/guest-artifacts.py check mesa\n";
+		};
+		F00000000000000000000018 /* Prepare host tools (gvproxy, desync) */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(PROJECT_DIR)/resources/fetch-gvproxy.sh",
+				"$(PROJECT_DIR)/resources/fetch-desync.sh",
+			);
+			name = "Prepare host tools (gvproxy, desync)";
+			outputPaths = (
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/bin/gvproxy",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/bin/desync",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "set -euo pipefail\nexport STEAMAC_SOURCE_ROOT=\"$PROJECT_DIR\"\nexport STEAMAC_WORK_DIR=\"$PROJECT_DIR/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work\"\nexport PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\"\nbash \"$PROJECT_DIR/resources/fetch-gvproxy.sh\"\nbash \"$PROJECT_DIR/resources/fetch-desync.sh\"\ntest -x \"$STEAMAC_WORK_DIR/out/host/bin/gvproxy\"\ntest -x \"$STEAMAC_WORK_DIR/out/host/bin/desync\"\n";
+		};
+		F00000000000000000000019 /* Build host libkrun (macOS arm64) */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Build host libkrun (macOS arm64)";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "set -euo pipefail\nbash \"$PROJECT_DIR/scripts/build-host-libkrun.sh\"\n";
+		};
+		F00000000000000000000020 /* Stage and sign native dylibs */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Stage and sign native dylibs";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "set -euo pipefail\nbash \"$PROJECT_DIR/scripts/stage-sign-native-dylibs.sh\"\n";
+		};
+		F00000000000000000000021 /* Build host virglrenderer (macOS arm64) */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Build host virglrenderer (macOS arm64)";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "set -euo pipefail\nbash \"$PROJECT_DIR/scripts/build-virgilrenderer.sh\"\n";
+		};
+		F00000000000000000000022 /* Build host MoltenVK (macOS arm64) */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Build host MoltenVK (macOS arm64)";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "set -euo pipefail\nbash \"$PROJECT_DIR/scripts/build-host-moltenvk.sh\"\n";
+		};
+		F00000000000000000000023 /* Build host KosmicKrisp (macOS arm64) */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Build host KosmicKrisp (macOS arm64)";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "set -euo pipefail\nbash \"$PROJECT_DIR/scripts/build-host-kosmickrisp.sh\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		252906623B5704E3B9B750E2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D0D7FDB6977B26929FB68C60 /* czstd.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F2AB5FB218DA8B84623F4557 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F0D49196DD7C077440E69676 /* AppBundle.swift in Sources */,
+				3114F4BE76F451416ECE06D7 /* Clipboard.swift in Sources */,
+				D72DF2F25462AE369E107869 /* Console.swift in Sources */,
+				47F385710730822B7903CF4E /* CrashReporting.swift in Sources */,
+				D5722D33C0BABDA494E6F25F /* CrashReportingView.swift in Sources */,
+				548248EB559601C85C32D55C /* CreateDiskCLI.swift in Sources */,
+				7404883A63AD8019CF22738F /* CreateDiskWindow.swift in Sources */,
+				620797CCB352F569C34001A6 /* DebugControl.swift in Sources */,
+				39B0B4CD1E1C7D7D56260FBE /* DiskCreationFilesystem.swift in Sources */,
+				8BA440462B3CBD5D0B3921CF /* DiskCreator.swift in Sources */,
+				FDBF41DBECCA53E6D99F8366 /* DiskGrower.swift in Sources */,
+				CC8015C6987EBCBCFE537D42 /* DiskLock.swift in Sources */,
+				BFFE39FEE871612F3C57B80D /* DisplayBackend.swift in Sources */,
+				D130CB0E7E75D52301651440 /* Edid.swift in Sources */,
+				670A74EAAA35A34BED317BC9 /* GPT.swift in Sources */,
+				C4E9810D54823FC044D1E579 /* GamePause.swift in Sources */,
+				303F030181DAE894DD83D58F /* Gamepad.swift in Sources */,
+				DA3D534F5B3CB0DDB153A205 /* HIDPassthrough.swift in Sources */,
+				8406A6A4DAB19ACA9CAE918F /* InputDevice.swift in Sources */,
+				E1DE4F926AEA6A5E0650A047 /* InputSelfTest.swift in Sources */,
+				AFAED497F723FCDCF324EA41 /* Keymap.swift in Sources */,
+				E47A9D0C16B79BF3F81B63FF /* LinuxInput.swift in Sources */,
+				6CB5F9866C83DB32D20DB994 /* MetalCompilerCache.swift in Sources */,
+				313A29D1DFDFD8FA919CAFDF /* Network.swift in Sources */,
+				EE5D9D0304210B67687F0E79 /* NetworkFailure.swift in Sources */,
+				B2ACDB868E88A7FC5CB16527 /* Options.swift in Sources */,
+				5EE2C7203B8C7C8D07E8196F /* Overlay.swift in Sources */,
+				4CBB621210B65066941B7D80 /* OverlaySelfTest.swift in Sources */,
+				164FC21C716F3E53287E645F /* PauseOverlay.swift in Sources */,
+				76382D72AEB6F120E8ADB1C7 /* PerfStats.swift in Sources */,
+				01039E232796DAF045BAA669 /* PillSelfTest.swift in Sources */,
+				FE5B7A7805F1F108D870587A /* PointerMap.swift in Sources */,
+				AA63332BA028CFC841977D6D /* PointerSelfTest.swift in Sources */,
+				F8C5881D3615EC831B294F72 /* Presenter.swift in Sources */,
+				CCDAAA2A3BA0B65ED314D17E /* Progress.swift in Sources */,
+				FE24BC8D3CAF9EF2A9191F0F /* ProgressPill.swift in Sources */,
+				ACB9206FFAB2C95D184B66E7 /* Provision.swift in Sources */,
+				31A83282B5074ABCA9563C89 /* ProvisionPayload.swift in Sources */,
+				AE7FE19F5557E84B980AFAF3 /* ProvisionSelfTest.swift in Sources */,
+				F4B0E4A6665F02B32B99BBE4 /* RaucBundle.swift in Sources */,
+				1E0703520F443B4DCD5FA8F9 /* RemotePlayPacket.swift in Sources */,
+				DAAA12955A56357B69707396 /* RemotePlayRelay.swift in Sources */,
+				FEF21AE2C5888AABD6CD9595 /* RemotePlaySelfTest.swift in Sources */,
+				F6A2C5BD9A690AE71D9CD5AE /* Renderer.swift in Sources */,
+				F45A63E387A3235DD54991E8 /* Report.swift in Sources */,
+				21771F9DAABAA932EC6D4D08 /* ReportWindow.swift in Sources */,
+				53B4A6ED9C261F8481995369 /* ResizeSelfTest.swift in Sources */,
+				936B55C9FE2487B3C119B5D0 /* Rumble.swift in Sources */,
+				A135A8FD9EA156BF7FF88F6B /* SelfTest.swift in Sources */,
+				E3D0E63882FF65BE0F8D7E42 /* Settings.swift in Sources */,
+				6CAAD00DA32B81B140EC614D /* SettingsSelfTest.swift in Sources */,
+				99AEED953806C2E3F6F5C214 /* SettingsWindow.swift in Sources */,
+				A4D041ECFE6A642DF10ED3EB /* SoundControl.swift in Sources */,
+				545479A22E56DF987603285F /* Squashfs.swift in Sources */,
+				12C67B6E7BD1365D9DD94613 /* Stall.swift in Sources */,
+				C49E279609D2288369AA2A7F /* StallSelfTest.swift in Sources */,
+				EB3E7451AB57B62470D87EFC /* SteamClientView.swift in Sources */,
+				61C5F8C11AA515F16351327C /* SteamOSLicense.swift in Sources */,
+				24CC5057623AF6474BC4B3D6 /* Supervisor.swift in Sources */,
+				7B3265BA0C6E24943FFDE0AF /* Suspend.swift in Sources */,
+				395775F231C78BDE42A6F32C /* UpdateCheck.swift in Sources */,
+				CD85C211012AAF65139054E5 /* Util.swift in Sources */,
+				988D22EF365A1F0CB95DD17F /* VM.swift in Sources */,
+				4D5C16FD266970AEB9C63C4E /* VMSizing.swift in Sources */,
+				DCCE1602FDF91BB7FEDFC39A /* Window.swift in Sources */,
+				658CCE19223C3E4003FD072A /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E54DEBD65D8142E7785275AA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9C049173FAD5F4F89C682312 /* CZstd */;
+			targetProxy = 431387EB7262E1CFC79B125E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		324BAF2B999929E396762DC5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				CLANG_ENABLE_MODULES = YES;
+				EXCLUDED_ARCHS = x86_64;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		4E5128A57AB6D892784C74AC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGN_ENTITLEMENTS = "resources/steamac-vm.entitlements";
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/XcodeProduct/$(CONFIGURATION)";
+				ENABLE_DEBUG_DYLIB = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				EXCLUDED_ARCHS = x86_64;
+				EXECUTABLE_NAME = "cfos-vm";
+				GENERATE_INFOPLIST_FILE = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/source/CKrun",
+					"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/include",
+				);
+				INFOPLIST_FILE = resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/lib",
+					"$(SDKROOT)/usr/lib/swift",
+				);
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-lkrun",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.cinterforge.cinterforge-os";
+				PRODUCT_MODULE_NAME = steamac_vm;
+				PRODUCT_NAME = "CinterForge OS";
+				SDKROOT = macosx;
+				STEAMAC_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/lib";
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/source/CKrun $(PROJECT_DIR)/source/CZstd";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		51EF39482A6FA950D2249F44 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				CLANG_ENABLE_MODULES = YES;
+				EXCLUDED_ARCHS = x86_64;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		622CC736FB8DC466EF0C1DC3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGN_ENTITLEMENTS = "resources/steamac-vm.entitlements";
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/XcodeProduct/$(CONFIGURATION)";
+				ENABLE_DEBUG_DYLIB = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				EXCLUDED_ARCHS = x86_64;
+				EXECUTABLE_NAME = "cfos-vm";
+				GENERATE_INFOPLIST_FILE = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/source/CKrun",
+					"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/include",
+				);
+				INFOPLIST_FILE = resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/lib",
+					"$(SDKROOT)/usr/lib/swift",
+				);
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-lkrun",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.cinterforge.cinterforge-os";
+				PRODUCT_MODULE_NAME = steamac_vm;
+				PRODUCT_NAME = "CinterForge OS";
+				SDKROOT = macosx;
+				STEAMAC_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/lib";
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/source/CKrun $(PROJECT_DIR)/source/CZstd";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		8AEAF889DC286031CAA330FE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGN_ENTITLEMENTS = "resources/steamac-vm.entitlements";
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/XcodeProduct/$(CONFIGURATION)";
+				DEFINES_MODULE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/source/CZstd/include",
+					"$(PROJECT_DIR)/source/CZstd",
+				);
+				MODULEMAP_FILE = "$(PROJECT_DIR)/source/CZstd/module.modulemap";
+				PRODUCT_NAME = CZstd;
+				SKIP_INSTALL = YES;
+				STEAMAC_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/lib";
+			};
+			name = Debug;
+		};
+		F6FF4443DCB26EE80FA8AD46 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGN_ENTITLEMENTS = "resources/steamac-vm.entitlements";
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/XcodeProduct/$(CONFIGURATION)";
+				DEFINES_MODULE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/source/CZstd/include",
+					"$(PROJECT_DIR)/source/CZstd",
+				);
+				MODULEMAP_FILE = "$(PROJECT_DIR)/source/CZstd/module.modulemap";
+				PRODUCT_NAME = CZstd;
+				SKIP_INSTALL = YES;
+				STEAMAC_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/lib";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1F76C9FEC60BAD8F050D241B /* Build configuration list for PBXNativeTarget "CinterForgeOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4E5128A57AB6D892784C74AC /* Debug */,
+				622CC736FB8DC466EF0C1DC3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A6E60BF7E9C45DC08DD87703 /* Build configuration list for PBXProject "CinterForgeOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				51EF39482A6FA950D2249F44 /* Debug */,
+				324BAF2B999929E396762DC5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C7F8F21C9E5B1D86A3564945 /* Build configuration list for PBXNativeTarget "CZstd" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8AEAF889DC286031CAA330FE /* Debug */,
+				F6FF4443DCB26EE80FA8AD46 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A46A1BCE0B67C45BEC8F435B /* XCRemoteSwiftPackageReference "sentry-cocoa" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/getsentry/sentry-cocoa.git";
+			requirement = {
+				kind = exactVersion;
+				version = 9.30.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2BAFBE90D711F96380E9193E /* Sentry */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A46A1BCE0B67C45BEC8F435B /* XCRemoteSwiftPackageReference "sentry-cocoa" */;
+			productName = Sentry;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 46F86FAA6BBF9AC94A7E4595 /* Project object */;
+}

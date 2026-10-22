@@ -15,6 +15,47 @@ ST=$(mktemp -d)
 trap 'rm -rf "$ST"' EXIT
 
 cp -a /src/guest/layer/usr "$ST/usr"
+# Authored CinterForgeOS guest configuration: package the actual KDE/systemd
+# paths from guest_config, never generate/inject shell scripts from Hope.
+CFG=/src/guest/layer/usr/share/cinterforge/guest_config
+install -D -m 0755 "$CFG/select-kde-desktop-session" "$ST/usr/lib/cinterforge/select-kde-desktop-session"
+# Fail the build if an obsolete guest login script is accidentally staged.
+# SDDM ExecStartPre runs this on EVERY boot; an invalid awk expression keeps
+# the user at the serial login prompt instead of starting Plasma.
+sh -n "$ST/usr/lib/cinterforge/select-kde-desktop-session"
+grep -Fq 'substr($0, 1, 1) == "["' "$ST/usr/lib/cinterforge/select-kde-desktop-session" \
+    || { echo '[layer] obsolete KDE login script (missing INI parser fix)' >&2; exit 1; }
+install -D -m 0755 "$CFG/select-kde-wallpaper" "$ST/usr/lib/cinterforge/select-kde-wallpaper"
+install -D -m 0755 "$CFG/verify-virtiofs-mounts" "$ST/usr/lib/cinterforge/verify-virtiofs-mounts"
+install -D -m 0755 "$CFG/install-kde-places" "$ST/usr/lib/cinterforge/install-kde-places"
+install -D -m 0644 "$CFG/user-places.xbel" "$ST/usr/share/cinterforge/kde/user-places.xbel"
+install -D -m 0644 "$CFG/cinterforge-installed-test.desktop" "$ST/usr/share/cinterforge/kde/cinterforge-installed-test.desktop"
+install -D -m 0644 "$CFG/cinterforge-installed-test.desktop" "$ST/usr/share/xdg/autostart/cinterforge-installed-test.desktop"
+install -D -m 0644 "$CFG/sddm-desktop.conf" "$ST/usr/lib/systemd/system/sddm.service.d/90-cinterforgeos-desktop.conf"
+install -D -m 0644 "$CFG/cinterforge-kde-prepare.service" "$ST/usr/lib/systemd/system/cinterforge-kde-prepare.service"
+install -D -m 0644 "$CFG/cinterforge-virtiofs-verify.service" "$ST/usr/lib/systemd/system/cinterforge-virtiofs-verify.service"
+
+# Steamac owns executable permissions and the complete desktop integration.
+# Fail during the layer build, not at login, if authored bridge files disappear.
+for command in run-linux-amd64 installed-app-gui-test \
+               launch-ardour-linux launch-ardour-windows run-desktop-ready; do
+    test -s "$ST/usr/lib/cinterforge/$command" || {
+        echo "[layer] missing authored CinterForgeOS command: $command" >&2
+        exit 1
+    }
+    chmod 0755 "$ST/usr/lib/cinterforge/$command"
+    sh -n "$ST/usr/lib/cinterforge/$command"
+done
+for file in \
+    "$ST/usr/share/xdg/autostart/cinterforge-support-desktop-ready.desktop" \
+    "$ST/usr/lib/systemd/system/run-Support.mount" \
+    "$ST/usr/lib/systemd/system/run-Support.automount" \
+    "$ST/usr/lib/systemd/system/multi-user.target.wants/run-Support.automount" \
+    "$ST/usr/share/cinterforge/backgrounds/cinterforge-linux-1920x1080.png" \
+    "$ST/usr/share/wallpapers/Steam Deck Logo Default.jpg"; do
+    test -e "$file" || { echo "[layer] missing authored KDE/Support file: $file" >&2; exit 1; }
+done
+
 
 if [[ -d $VENUS/usr ]]; then
     cp -a "$VENUS/usr/." "$ST/usr/"

@@ -1,0 +1,34 @@
+#!/bin/sh
+set -u
+printf '[CinterForgeOS mounts] checking host VirtioFS shares before KDE\n'
+for name in Applications DeveloperTests; do
+    location=/run/$name
+    printf '[CinterForgeOS mounts] %s: ' "$name"
+    if [ ! -d "$location" ]; then
+        printf 'ERROR missing mountpoint %s\n' "$location"
+        continue
+    fi
+    # A path access triggers the packaged systemd automount; timeout is
+    # essential if a guest has a mount unit but no matching host device.
+    if ! timeout 15 ls -A "$location" >/dev/null 2>&1; then
+        printf 'ERROR mount activation failed or timed out at %s\n' "$location"
+        systemctl --no-pager --full status "run-$name.mount" 2>&1 || true
+        continue
+    fi
+    if ! findmnt -rn --mountpoint "$location" -t virtiofs >/dev/null 2>&1; then
+        printf 'ERROR accessible path is not an active VirtioFS mount: %s\n' "$location"
+        findmnt -T "$location" 2>&1 || true
+        continue
+    fi
+    printf 'PASS virtiofs mounted at %s\n' "$location"
+    if [ "$name" = DeveloperTests ] && [ -e "$location/enabled" ]; then
+        if ! ( : > "$location/.cinterforge-mount-probe" && rm -f "$location/.cinterforge-mount-probe" ); then
+            printf '[CinterForgeOS mounts] ERROR DeveloperTests is not writable\n'
+        else
+            printf '[CinterForgeOS mounts] PASS DeveloperTests writable\n'
+        fi
+    fi
+done
+# Diagnostic service must never shut down the desktop because an optional
+# developer share is absent. The host GUI test checks the recorded results.
+exit 0

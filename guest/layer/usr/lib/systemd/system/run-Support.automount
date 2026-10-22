@@ -1,0 +1,6 @@
+[Unit]
+Description=CinterForgeOS installed Support automount
+[Automount]
+Where=/run/Support
+[Install]
+WantedBy=multi-user.target

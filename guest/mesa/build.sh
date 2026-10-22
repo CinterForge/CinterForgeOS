@@ -87,8 +87,7 @@ for step in "${steps[@]}"; do
             -e LIBDISPLAY_INFO_PKG -e LIBDISPLAY_INFO_SHA256 \
             -e LIB32_LIBDISPLAY_INFO_PKG -e LIB32_LIBDISPLAY_INFO_SHA256 \
             -v "$SRC_VOLUME:/src:ro" -v "$HERE/container:/scripts:ro" -v "$OUT:/out" -v "$WORK:/work" \
-            "$X86_IMAGE" bash /scripts/build-x86.sh > "$WORK/build-x86.log" 2>&1 \
-            || { tail -40 "$WORK/build-x86.log"; exit 1; }
+            "$X86_IMAGE" bash /scripts/build-x86.sh 2>&1 | tee "$WORK/build-x86.log"
         artifacts finish mesa-x86 "$inputs"
         ;;
     verify)

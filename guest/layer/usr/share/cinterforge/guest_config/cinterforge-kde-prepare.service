@@ -1,0 +1,13 @@
+[Unit]
+Description=Select native CinterForgeOS KDE Plasma desktop
+RequiresMountsFor=/home
+After=local-fs.target
+Before=display-manager.service sddm.service graphical.target
+[Service]
+Type=oneshot
+StandardOutput=journal+console
+StandardError=journal+console
+ExecStart=/usr/lib/cinterforge/select-kde-desktop-session
+ExecStart=/usr/lib/cinterforge/select-kde-wallpaper
+[Install]
+WantedBy=multi-user.target

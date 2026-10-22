@@ -26,7 +26,8 @@ cat > /etc/pacman.conf <<EOF
 Architecture = x86_64
 SigLevel = Required DatabaseOptional
 LocalFileSigLevel = Optional
-ParallelDownloads = 8
+ParallelDownloads = 2
+DisableDownloadTimeout
 NoExtract = usr/share/help/* usr/share/doc/* usr/share/man/* usr/share/locale/* usr/share/i18n/*
 
 [core]
@@ -42,8 +43,22 @@ pacman-key --populate archlinux >/dev/null 2>&1
 keyring=$(fetch_pinned HOLO_KEYRING)
 pacman -U --noconfirm "$keyring"
 pacman-key --populate holo >/dev/null 2>&1
-pacman -Syuu --noconfirm
-pacman -S --noconfirm --needed \
+# SteamOS mirror occasionally closes TLS downloads prematurely. Retrying in the SAME
+# container preserves pacman's downloaded package cache; never bypass signatures.
+pacman_retry() {
+    local attempt rc
+    for attempt in 1 2 3 4 5; do
+        if pacman "$@"; then return 0; else rc=$?; fi
+        if (( attempt == 5 )); then
+            echo "[Mesa x86] pacman failed after $attempt attempts (exit $rc): $*" >&2
+            return 1
+        fi
+        echo "[Mesa x86] mirror download failed; retry $((attempt + 1))/5 in 5s" >&2
+        sleep 5
+    done
+}
+pacman_retry -Syuu --noconfirm
+pacman_retry -S --noconfirm --needed \
     base-devel clang meson ninja python-mako python-yaml python-packaging \
     libdrm wayland wayland-protocols libx11 libxcb libxshmfence libxrandr systemd-libs zstd expat zlib \
     xcb-proto xorgproto vulkan-headers \

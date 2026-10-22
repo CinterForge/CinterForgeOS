@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=CinterForgeOS Support desktop-ready hook
+Exec=/usr/lib/cinterforge/run-desktop-ready
+OnlyShowIn=KDE;
+Terminal=false
+X-KDE-autostart-phase=2

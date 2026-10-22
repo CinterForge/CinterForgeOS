@@ -1,0 +1,23 @@
+#!/bin/sh
+# Native SteamOS entry point for installed Windows x64 Ardour through Wine.
+set -eu
+root=${1:-/run/Applications/Windows/Ardour/2026}
+if [ "$#" -gt 0 ]; then shift; fi
+[ -d "$root" ] || { echo "Ardour Windows installation missing: $root" >&2; exit 1; }
+engine=
+for candidate in "$root"/lib/ardour9/ardour-[0-9]*.exe; do
+    [ -f "$candidate" ] || continue
+    [ -z "$engine" ] || { echo "Ambiguous Ardour Windows engines under $root/lib/ardour9" >&2; exit 1; }
+    engine=$candidate
+done
+[ -n "$engine" ] || { echo "Ardour Windows PE executable missing in $root/lib/ardour9" >&2; exit 1; }
+command -v wine >/dev/null 2>&1 || {
+    echo 'Wine is unavailable inside SteamOS. Windows x64 binaries require a configured FEX+Wine environment.' >&2
+    exit 1
+}
+export WINEARCH=win64
+# Keep the Wine prefix on persistent home rather than in an ephemeral test folder.
+export WINEPREFIX="${WINEPREFIX:-$HOME/.local/share/cinterforge/wine-ardour}"
+mkdir -p "$WINEPREFIX"
+# Wine's load environment is provided by the OS; no fake /output prefix.
+exec wine "$engine" "$@"

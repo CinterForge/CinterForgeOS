@@ -35,9 +35,13 @@ config=/etc/sddm.conf
 if [ -f "$config" ]; then
     tmp=$(mktemp "${config}.cinterforge.XXXXXX")
     trap 'rm -f "$tmp"' EXIT HUP INT TERM
+    # Parse INI sections without bracket regex escaping (the previous guest
+    # layer generated an invalid awk expression and prevented SDDM startup).
     awk '
-      /^\[Autologin\]$/ { in_autologin=1; next }
-      /^\[/ { in_autologin=0 }
+      substr($0, 1, 1) == "[" && substr($0, length($0), 1) == "]" {
+          in_autologin = ($0 == "[Autologin]")
+          next
+      }
       !in_autologin { print }
     ' "$config" > "$tmp"
     printf '
@@ -82,6 +86,52 @@ if ! runuser -u steamos -- sh -c 'test -w "$1" && test -w "$1/.config" && : > "$
     exit 1
 fi
 echo "[CinterForgeOS] Verified persistent KDE home and ~/.config writable by steamos"
+    # Native Dolphin Places bookmarks, not pseudo block devices. Preserve
+    # existing user bookmarks; only add the two CinterForge entries once.
+    # They are visible even when a share is unavailable, making failures obvious.
+    places="$home/.local/share/user-places.xbel"
+    install -d -m 0755 -o steamos -g steamos "$home/.local/share"
+    if [ ! -f "$places" ]; then
+        cat > "$places" <<'CFOS_PLACES'
+<?xml version="1.0" encoding="UTF-8"?>
+<xbel version="1.0" xmlns:bookmark="http://www.freedesktop.org/standards/desktop-bookmarks" xmlns:mime="http://www.freedesktop.org/standards/shared-mime-info">
+</xbel>
+CFOS_PLACES
+    fi
+    for name in Applications DeveloperTests; do
+        # Use the exact href, not a matching title that a user may rename.
+        if ! grep -Fq "file:///run/$name" "$places"; then
+            temp=$(mktemp "${places}.cinterforge.XXXXXX")
+            awk -v name="$name" '
+                /<\/xbel>/ && !inserted {
+                    print "  <bookmark href=" sprintf("%c", 34) "file:///run/" name sprintf("%c", 34) "><title>" name "</title></bookmark>"
+                    inserted=1
+                }
+                { print }
+                END { if (!inserted) exit 1 }
+            ' "$places" > "$temp" || {
+                rm -f "$temp"
+                echo "[CinterForgeOS] ERROR: cannot update Dolphin Places XML: $places" >&2
+                exit 1
+            }
+            cat "$temp" > "$places"
+            rm -f "$temp"
+        fi
+    done
+    chown steamos:steamos "$places"
+    chmod 0644 "$places"
+    echo "[CinterForgeOS] Dolphin Places: Applications and DeveloperTests available"
+    # Plasma has separate application and script autostart mechanisms. Keep
+    # a fallback startup script for SteamOS versions that skip XDG desktop
+    # entries; the bridge itself holds a single-process flock lock.
+    scripts="$home/.config/autostart-scripts"
+    install -d -m 0755 -o steamos -g steamos "$scripts"
+    cat > "$scripts/cinterforge-installed-test.sh" <<'CFOS_SCRIPT_AUTOSTART'
+#!/bin/sh
+exec /usr/lib/cinterforge/installed-app-gui-test
+CFOS_SCRIPT_AUTOSTART
+    chmod 0755 "$scripts/cinterforge-installed-test.sh"
+    chown steamos:steamos "$scripts/cinterforge-installed-test.sh"
 # Install a true per-user KDE Autostart entry in the persistent SteamOS
 # home directory. System-wide /usr/share/xdg/autostart may be filtered or
 # overridden by existing Plasma settings; this is the path used by KDE's

@@ -1,6 +1,10 @@
 #!/bin/bash
 set -eu
 control=/run/DeveloperTests
+# KDE can launch this bridge from both XDG application and script autostart.
+# Run exactly one agent; don't compete over the request file.
+exec 9>"/tmp/cinterforge-gui-agent-$(id -u).lock"
+flock -n 9 || exit 0
 # Record startup before testing the mount, so failures do not disappear.
 logger -t cinterforge-gui-test "KDE autostart bridge invoked user=$(id -un) session=${XDG_SESSION_TYPE:-unset} desktop=${XDG_CURRENT_DESKTOP:-unset}" || true
 # systemd automount may not yet have connected the host share at KDE login.

@@ -32,12 +32,35 @@ steps=("$@")
 
 mkdir -p "$WORK/out" "$WORK/cache"
 
+# An existing Docker tag is not proof it points to our Debian builder. In
+# particular the managed Colima daemon may have a stale/wrong tag with no
+# /bin/bash (OCI exit 127). Validate the executable, then rebuild the pinned
+# builder image using the existing authored Dockerfile if required.
+ensure_builder() {
+    if docker run --rm --platform linux/arm64 --entrypoint /bin/bash \
+        "$BUILDER_IMAGE" -c 'command -v mkfs.erofs >/dev/null && command -v install >/dev/null' \
+        >/dev/null 2>&1; then
+        return
+    fi
+    echo "[steamac] Builder image unavailable or invalid; rebuilding $BUILDER_IMAGE" >&2
+    docker build --platform linux/arm64 -t "$BUILDER_IMAGE" \
+        --build-arg BUILDER_BASE="$BUILDER_BASE" \
+        --build-arg DEBIAN_SNAPSHOT="$DEBIAN_SNAPSHOT" \
+        --build-arg DESYNC_VERSION="$DESYNC_VERSION" \
+        --build-arg DESYNC_SHA256="$DESYNC_SHA256" \
+        "$REPO/scripts/builder"
+    docker run --rm --platform linux/arm64 --entrypoint /bin/bash \
+        "$BUILDER_IMAGE" -c 'command -v mkfs.erofs >/dev/null && command -v install >/dev/null' \
+        || { echo "[steamac] ERROR: builder image lacks required tools" >&2; exit 1; }
+}
+
 run_in_builder() {
+    ensure_builder
     # /src: repo (read-only), /work: work dir. --privileged for loop devices.
     docker run --rm --privileged --platform linux/arm64 \
         -e HOME_SIZE_GIB -e STEAMOS_PASSWORD -e FORCE_DISK -e ALLOW_NO_VENUS -e SOURCE_DATE_EPOCH \
         -v "$REPO:/src:ro" -v "$WORK:/work" \
-        "$BUILDER_IMAGE" "$@"
+        "$BUILDER_IMAGE" /bin/bash "$@"
 }
 
 for step in "${steps[@]}"; do
@@ -69,7 +92,7 @@ for step in "${steps[@]}"; do
             docker run --rm --platform linux/arm64 \
                 -e SOURCE_DATE_EPOCH \
                 -v "$REPO:/src:ro" -v "$WORK:/work" \
-                "$RUST_IMAGE" /src/scripts/steps/25-progress-agent.sh
+                "$RUST_IMAGE" /bin/sh /src/scripts/steps/25-progress-agent.sh
             run_in_builder /src/scripts/steps/30-layer.sh
             if [[ ${ALLOW_NO_VENUS:-} != 1 ]]; then
                 artifacts finish layer "$inputs"

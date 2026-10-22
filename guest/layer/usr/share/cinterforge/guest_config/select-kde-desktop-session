@@ -1,0 +1,89 @@
+#!/bin/sh
+set -eu
+# A previous CinterForgeOS release installed a desktop override into the
+# persistent SteamOS root. Removing it from EROFS alone cannot remove the
+# systemd enablement from the retained disk. Retire it on the real guest root.
+# Retire both earlier CinterForge boot mechanisms from persistent SteamOS.
+# The sole entry point is now SDDM ExecStartPre -> KDE per-user Autostart.
+for retired in cinterforge-desktop-default.service; do
+    rm -f "/etc/systemd/system/$retired"           "/etc/systemd/system/multi-user.target.wants/$retired"           "/etc/systemd/system/graphical.target.wants/$retired"
+done
+legacy=cinterforge-desktop-default.service
+if [ -e "/etc/systemd/system/$legacy" ] || [ -L "/etc/systemd/system/$legacy" ]; then
+    rm -f "/etc/systemd/system/$legacy"
+fi
+if [ -e "/etc/systemd/system/graphical.target.wants/$legacy" ] || [ -L "/etc/systemd/system/graphical.target.wants/$legacy" ]; then
+    rm -f "/etc/systemd/system/graphical.target.wants/$legacy"
+fi
+# Prevent an older /usr unit in the persistent A/B root from being started
+# again. Only the retired CinterForge unit is masked; SDDM remains enabled.
+ln -s /dev/null "/etc/systemd/system/$legacy"
+systemctl daemon-reload
+# SteamOS may select Gaming Mode from /etc/sddm.conf after reading conf.d.
+# Set the effective SDDM autologin settings in the highest-precedence file.
+session=/usr/share/wayland-sessions/plasma.desktop
+if [ ! -f "$session" ]; then
+    echo "[CinterForgeOS] ERROR: native Plasma Wayland session missing: $session" >&2
+    exit 1
+fi
+install -d -m 0755 /etc/sddm.conf.d
+printf '[Autologin]\\nUser=steamos\\nSession=plasma.desktop\\n' > /etc/sddm.conf.d/zzzz-cinterforgeos-desktop.conf
+# /etc/sddm.conf has higher precedence than /etc/sddm.conf.d/*.conf.
+# Preserve all other display-manager configuration, replacing only the
+# existing Autologin section instead of clobbering it.
+config=/etc/sddm.conf
+if [ -f "$config" ]; then
+    tmp=$(mktemp "${config}.cinterforge.XXXXXX")
+    trap 'rm -f "$tmp"' EXIT HUP INT TERM
+    # Parse INI sections without bracket regex escaping (the previous guest
+    # layer generated an invalid awk expression and prevented SDDM startup).
+    awk '
+      substr($0, 1, 1) == "[" && substr($0, length($0), 1) == "]" {
+          in_autologin = ($0 == "[Autologin]")
+          next
+      }
+      !in_autologin { print }
+    ' "$config" > "$tmp"
+    printf '\n[Autologin]\nUser=steamos\nSession=plasma.desktop\n' >> "$tmp"
+    cat "$tmp" > "$config"
+    rm -f "$tmp"
+    trap - EXIT HUP INT TERM
+else
+    printf '[Autologin]\nUser=steamos\nSession=plasma.desktop\n' > "$config"
+fi
+# SteamOS disk provisioning can leave the persistent /home/steamos tree
+# owned by root. SDDM autologin succeeds but every KDE component then fails
+# to write ~/.config, leaving a black desktop with repeated dialogs.
+# Repair ownership on the actual mounted home, BEFORE starting SDDM.
+# Never chmod 777, replace the home filesystem, or modify the disk image.
+home=/home/steamos
+if ! mountpoint -q /home; then
+    echo "[CinterForgeOS] ERROR: persistent /home is not mounted; refusing to start KDE" >&2
+    exit 1
+fi
+if ! findmnt -n -o OPTIONS --target "$home" | tr , '\n' | grep -qx rw; then
+    echo "[CinterForgeOS] ERROR: persistent SteamOS home is read-only; check filesystem health" >&2
+    exit 1
+fi
+install -d -m 0755 -o steamos -g steamos "$home"
+chown steamos:steamos "$home"
+chmod u+rwx "$home"
+install -d -m 0700 -o steamos -g steamos "$home/.config"
+# Existing Plasma configuration may have been written as root by earlier
+# installers. Confine corrective ownership to the user configuration tree.
+chown -R steamos:steamos "$home/.config"
+chmod u+rwx "$home/.config"
+if ! runuser -u steamos -- sh -c 'test -w "$1" && test -w "$1/.config" && : > "$1/.config/.cinterforge-write-probe" && rm "$1/.config/.cinterforge-write-probe"' sh "$home"; then
+    echo "[CinterForgeOS] ERROR: KDE home remains unwritable for steamos" >&2
+    exit 1
+fi
+echo "[CinterForgeOS] Verified persistent KDE home and ~/.config writable by steamos"
+# Keep user-authored Places intact. For fresh home directories copy the
+# version-controlled XBEL seed; for existing users append only missing entries.
+/usr/lib/cinterforge/install-kde-places
+# One authored KDE autostart entry. No competing script fallback.
+autostart="$home/.config/autostart"
+install -d -m 0755 -o steamos -g steamos "$autostart"
+install -m 0644 -o steamos -g steamos /usr/share/cinterforge/kde/cinterforge-installed-test.desktop "$autostart/cinterforge-installed-test.desktop"
+echo "[CinterForgeOS] Installed authored KDE autostart entry"
+echo "[CinterForgeOS] SDDM autologin selected native KDE Plasma desktop"

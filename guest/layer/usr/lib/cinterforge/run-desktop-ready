@@ -1,0 +1,9 @@
+#!/bin/sh
+# Called by KDE XDG autostart after the desktop session becomes available.
+set -eu
+hook=/run/Support/cinterforgeis_ready.sh
+if [ ! -r "$hook" ]; then
+    logger -t cinterforge-support "ERROR: Test automation hook missing: $hook" || true
+    exit 1
+fi
+/bin/sh "$hook" 2>&1 | logger -t cinterforge-support

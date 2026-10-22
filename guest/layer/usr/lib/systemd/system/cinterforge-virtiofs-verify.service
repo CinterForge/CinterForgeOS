@@ -1,0 +1,12 @@
+[Unit]
+Description=Check CinterForgeOS host shares before graphical login
+After=local-fs.target run-Applications.automount run-DeveloperTests.automount
+Before=display-manager.service sddm.service graphical.target
+[Service]
+Type=oneshot
+TimeoutStartSec=45
+StandardOutput=journal+console
+StandardError=journal+console
+ExecStart=/usr/lib/cinterforge/verify-virtiofs-mounts
+[Install]
+WantedBy=multi-user.target

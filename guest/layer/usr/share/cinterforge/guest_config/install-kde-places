@@ -1,0 +1,39 @@
+#!/bin/sh
+set -eu
+home=/home/steamos
+places="$home/.local/share/user-places.xbel"
+seed=/usr/share/cinterforge/kde/user-places.xbel
+install -d -m 0755 -o steamos -g steamos "$home/.local/share"
+if [ ! -e "$places" ]; then
+    install -m 0644 -o steamos -g steamos "$seed" "$places"
+    echo '[CinterForgeOS] Installed default Dolphin Places'
+    exit 0
+fi
+# Existing users retain their whole XBEL document. Insert only the authored
+# missing bookmark elements before the closing root tag. Never rewrite the
+# user's other bookmarks or generate XML through AWK quoting.
+for name in Applications DeveloperTests; do
+    if grep -Fq "file:///run/$name" "$places"; then
+        continue
+    fi
+    tmp=$(mktemp "${places}.cinterforge.XXXXXX")
+    trap 'rm -f "$tmp"' EXIT HUP INT TERM
+    seen=0
+    while IFS= read -r line || [ -n "$line" ]; do
+        case "$line" in
+          *'</xbel>'*)
+            printf '  <bookmark href="file:///run/%s"><title>%s</title></bookmark>\n' "$name" "$name" >> "$tmp"
+            seen=1 ;;
+        esac
+        printf '%s\n' "$line" >> "$tmp"
+    done < "$places"
+    if [ "$seen" -ne 1 ]; then
+        echo "[CinterForgeOS] ERROR: invalid Places XBEL: missing </xbel> in $places" >&2
+        exit 1
+    fi
+    chown steamos:steamos "$tmp"
+    chmod 0644 "$tmp"
+    mv -f "$tmp" "$places"
+    trap - EXIT HUP INT TERM
+done
+echo '[CinterForgeOS] Dolphin Places ready: Applications, DeveloperTests'

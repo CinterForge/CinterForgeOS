@@ -1,0 +1,25 @@
+#!/bin/sh
+# Native SteamOS entry point for the installed Linux x86-64 Ardour distribution.
+set -eu
+root=${1:-/run/Applications/Linux/Ardour/2026}
+if [ "$#" -gt 0 ]; then shift; fi
+[ -d "$root" ] || { echo "Ardour Linux installation missing: $root" >&2; exit 1; }
+engine=
+for candidate in "$root"/lib/ardour9/ardour-[0-9]*; do
+    [ -f "$candidate" ] || continue
+    case "$candidate" in *.exe|*.dll) continue ;; esac
+    [ -z "$engine" ] || { echo "Ambiguous Ardour Linux engines under $root/lib/ardour9" >&2; exit 1; }
+    engine=$candidate
+done
+[ -n "$engine" ] || { echo "Ardour Linux ELF executable missing in $root/lib/ardour9 (not a Windows .exe)" >&2; exit 1; }
+[ -x "$engine" ] || { echo "Ardour executable is not executable: $engine" >&2; exit 1; }
+[ -x /usr/lib/cinterforge/run-linux-amd64 ] || { echo 'Shared FEX Linux runner missing' >&2; exit 1; }
+export GTK_PATH="$root/etc/ardour9:$root/lib/ardour9${GTK_PATH:+:$GTK_PATH}"
+export LD_LIBRARY_PATH="$root/lib/ardour9${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export ARDOUR_DATA_PATH="$root/share/ardour9"
+export ARDOUR_CONFIG_PATH="$root/etc/ardour9"
+export ARDOUR_DLL_PATH="$root/lib/ardour9"
+export VAMP_PATH="$root/lib/ardour9/vamp${VAMP_PATH:+:$VAMP_PATH}"
+export UBUNTU_MENUPROXY=''
+export ARDOUR_SELF=ardour9
+exec /usr/lib/cinterforge/run-linux-amd64 "$engine" "$@"
