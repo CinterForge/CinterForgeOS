@@ -69,7 +69,9 @@ final class DiskCreator {
         }
         return path + ".cache"
     }
-    static var defaultPath: String { NSHomeDirectory() + "/Library/Application Support/CinterForge/CinterForgeOS/SteamOS/steamos.img" }
+    static var defaultPath: String {
+        (Bundle.main.bundlePath as NSString).deletingLastPathComponent + "/SteamOS/steamos.img"
+    }
     /// Temporary rootfs.img (sparse desync output) and the disk while it is written.
     static func rootfsTemp(_ path: String) -> String { path + ".rootfs-tmp" }
     static func diskTemp(_ path: String) -> String { path + ".partial" }

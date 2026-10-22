@@ -30,8 +30,20 @@ enum AppBundle {
     /// Where a disk is looked for when Settings has none: Application Support, then the repo's
     /// work/out (next to the bundle, or the build tree recorded in Info.plist at bundle time).
     static func defaultDiskCandidates() -> [String] {
-        // The sole persistent writable SteamOS disk shared with `Hope setup`.
-        return [DiskCreator.defaultPath]
+        let installedVersion = (Bundle.main.bundlePath as NSString).deletingLastPathComponent
+        // The installed .app may be opened through a Finder alias or symlink.
+        // Resolve the bundle itself to recover its real versioned Steam library.
+        let resolvedBundle = URL(fileURLWithPath: Bundle.main.bundlePath).resolvingSymlinksInPath().path
+        let resolvedVersion = (resolvedBundle as NSString).deletingLastPathComponent
+        var c = [resolvedVersion + "/SteamOS/steamos.img"]
+        if installedVersion != resolvedVersion { c.append(installedVersion + "/SteamOS/steamos.img") }
+        let sibling = (Bundle.main.bundlePath as NSString).deletingLastPathComponent + "/steamos.img"
+        if resources != nil { c.append(sibling) }
+        if let out = Bundle.main.object(forInfoDictionaryKey: "SteamacBuildOut") as? String {
+            let p = out + "/steamos.img"
+            if !c.contains(p) { c.append(p) }
+        }
+        return c
     }
 
     static func defaultDisk() -> String? {
@@ -60,9 +72,25 @@ enum AppBundle {
 
     /// The disk the next start uses (Settings value or default), nil if none is usable.
     static func configuredDisk(_ settings: LauncherSettings) -> String? {
-        // Release CinterForgeOS always uses the managed disk, never a prior
-        // Steamac preference that points to a developer workspace.
-        return resources != nil ? defaultDisk() : (settings.diskImage.isEmpty ? defaultDisk() : (isDiskImage(settings.diskImage) ? settings.diskImage : nil))
+        // The installed GUI test has already resolved and validated its disk.
+        // Use that exact path rather than guessing which Steam library is active.
+        if let requested = ProcessInfo.processInfo.environment["CINTER_STEAMOS_DISK"], !requested.isEmpty {
+            if isDiskImage(requested) { return requested }
+            log("configured SteamOS disk is missing or unreadable: \(requested)")
+            return nil
+        }
+        if !settings.diskImage.isEmpty {
+            if isDiskImage(settings.diskImage) { return settings.diskImage }
+            // A previous Setup used the unversioned SteamOS directory. If Setup
+            // moved that exact managed disk, respect the new versioned location.
+            if settings.diskImage == appSupportDir + "/SteamOS/steamos.img" ||
+               settings.diskImage == appSupportDir + "/2026/steamos.img" ||
+               settings.diskImage == (Bundle.main.bundlePath as NSString).deletingLastPathComponent + "/steamos.img" {
+                return defaultDisk()
+            }
+            return nil
+        }
+        return defaultDisk()
     }
 
     /// Bundle defaults for what the command line did not give.
@@ -157,7 +185,7 @@ enum FirstRun {
                 exit(0)
             }
             guard let path = chosen else { continue }
-            if AppBundle.resources == nil { settings.diskImage = path }
+            settings.diskImage = path
             log("first run: disk image \(path)")
             // Tell the supervisor to start the VM now (same marker as a guest reboot).
             if let dir = Supervisor.runDir {

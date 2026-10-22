@@ -92,7 +92,10 @@ final class VM {
             var directory: ObjCBool = false
             guard FileManager.default.fileExists(atPath: path, isDirectory: &directory),
                   directory.boolValue,
-                  FileManager.default.fileExists(atPath: path + "/Linux") else {
+                  URL(fileURLWithPath: path, isDirectory: true).lastPathComponent == "Applications",
+                  ["Linux", "Windows", "macOS"].contains(where: {
+                      FileManager.default.fileExists(atPath: path + "/" + $0)
+                  }) else {
                 throw NSError(domain: "CinterForgeOS", code: 1,
                     userInfo: [NSLocalizedDescriptionKey: "Invalid installed CinterForge share: " + path])
             }

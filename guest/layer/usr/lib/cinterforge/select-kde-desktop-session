@@ -54,6 +54,34 @@ User=steamos
 Session=plasma.desktop
 ' > "$config"
 fi
+# SteamOS disk provisioning can leave the persistent /home/steamos tree
+# owned by root. SDDM autologin succeeds but every KDE component then fails
+# to write ~/.config, leaving a black desktop with repeated dialogs.
+# Repair ownership on the actual mounted home, BEFORE starting SDDM.
+# Never chmod 777, replace the home filesystem, or modify the disk image.
+home=/home/steamos
+if ! mountpoint -q /home; then
+    echo "[CinterForgeOS] ERROR: persistent /home is not mounted; refusing to start KDE" >&2
+    exit 1
+fi
+if ! findmnt -n -o OPTIONS --target "$home" | tr , '
+' | grep -qx rw; then
+    echo "[CinterForgeOS] ERROR: persistent SteamOS home is read-only; check filesystem health" >&2
+    exit 1
+fi
+install -d -m 0755 -o steamos -g steamos "$home"
+chown steamos:steamos "$home"
+chmod u+rwx "$home"
+install -d -m 0700 -o steamos -g steamos "$home/.config"
+# Existing Plasma configuration may have been written as root by earlier
+# installers. Confine corrective ownership to the user configuration tree.
+chown -R steamos:steamos "$home/.config"
+chmod u+rwx "$home/.config"
+if ! runuser -u steamos -- sh -c 'test -w "$1" && test -w "$1/.config" && : > "$1/.config/.cinterforge-write-probe" && rm "$1/.config/.cinterforge-write-probe"' sh "$home"; then
+    echo "[CinterForgeOS] ERROR: KDE home remains unwritable for steamos" >&2
+    exit 1
+fi
+echo "[CinterForgeOS] Verified persistent KDE home and ~/.config writable by steamos"
 # Install a true per-user KDE Autostart entry in the persistent SteamOS
 # home directory. System-wide /usr/share/xdg/autostart may be filtered or
 # overridden by existing Plasma settings; this is the path used by KDE's
