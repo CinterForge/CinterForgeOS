@@ -6,7 +6,8 @@ case "$(uname -m)" in
     x86_64) exec "$@" ;;
     aarch64|arm64)
         command -v FEX >/dev/null 2>&1 || {
-            echo 'CinterForgeOS SteamOS image lacks shared FEX x86-64 support; rebuild the OS image' >&2
+            echo 'FEX emulator missing: the bundled FEXBash wrapper is not an installed FEX runtime.' >&2
+            echo 'Run /usr/lib/cinterforge/inspect-x86-runtime for specific missing components.' >&2
             exit 1
         }
         exec FEX "$@" ;;

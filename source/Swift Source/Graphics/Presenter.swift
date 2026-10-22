@@ -110,7 +110,9 @@ final class VMView: NSView {
     override func makeBackingLayer() -> CALayer { metalLayer }
     override var isOpaque: Bool { true }
     override var acceptsFirstResponder: Bool { true }
-    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+    // A click returning from another macOS app must only activate this window.
+    // Sending that same click into the VM can race guest focus/input state restoration.
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { false }
 
     override func viewDidChangeBackingProperties() {
         super.viewDidChangeBackingProperties()

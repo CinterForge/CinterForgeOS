@@ -38,8 +38,16 @@ MESA_OPTS=(
 build_venus() {
     local builddir=$1 libdir=$2 destdir=$3
     shift 3
-    rm -rf "$builddir" "$destdir"
-    meson setup "$builddir" /src/mesa "${MESA_OPTS[@]}" --libdir="$libdir" "$@"
+    # /work is a persistent host mount. Preserve Meson/Ninja objects between
+    # container invocations and let Ninja decide which translation units changed.
+    # An incompatible Meson configuration must fail explicitly, not silently
+    # destroy a previous successful build cache.
+    rm -rf "$destdir"
+    if [[ -f "$builddir/build.ninja" ]]; then
+        meson setup --reconfigure "$builddir" /src/mesa "${MESA_OPTS[@]}" --libdir="$libdir" "$@"
+    else
+        meson setup "$builddir" /src/mesa "${MESA_OPTS[@]}" --libdir="$libdir" "$@"
+    fi
     ninja -j 1 -C "$builddir"
     DESTDIR="$destdir" meson install -C "$builddir" --strip --no-rebuild --tags runtime
 }

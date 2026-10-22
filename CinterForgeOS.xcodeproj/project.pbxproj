@@ -30,6 +30,7 @@
 		4D04A95B308AAE39004B97C7 /* MetalPerformanceShadersGraph.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D04A953308AAE39004B97C7 /* MetalPerformanceShadersGraph.framework */; };
 		4D04A95C308AAE39004B97C7 /* libswiftMetalKit.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D04A954308AAE39004B97C7 /* libswiftMetalKit.tbd */; };
 		4D04A95D308AAE39004B97C7 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D04A955308AAE39004B97C7 /* MetalKit.framework */; };
+		4D04A95F308ACA1C004B97C7 /* CinterForge.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4D04A95E308ACA1C004B97C7 /* CinterForge.icns */; };
 		4D5C16FD266970AEB9C63C4E /* VMSizing.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0FE2BD1BAB48DEAE652467 /* VMSizing.swift */; };
 		53B4A6ED9C261F8481995369 /* ResizeSelfTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213915CF7AE8C87FBA583335 /* ResizeSelfTest.swift */; };
 		545479A22E56DF987603285F /* Squashfs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A445F4B6B3E66DF686FC3FB0 /* Squashfs.swift */; };
@@ -385,6 +386,7 @@
 		4D04A953308AAE39004B97C7 /* MetalPerformanceShadersGraph.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalPerformanceShadersGraph.framework; path = System/Library/Frameworks/MetalPerformanceShadersGraph.framework; sourceTree = SDKROOT; };
 		4D04A954308AAE39004B97C7 /* libswiftMetalKit.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftMetalKit.tbd; path = usr/lib/swift/libswiftMetalKit.tbd; sourceTree = SDKROOT; };
 		4D04A955308AAE39004B97C7 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+		4D04A95E308ACA1C004B97C7 /* CinterForge.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = CinterForge.icns; path = resources/CinterForge.icns; sourceTree = "<group>"; };
 		4D050AE1308A8C7300C9965C /* cinterforge-libkrun.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-libkrun.xcodeproj"; sourceTree = "<group>"; };
 		4D050D31308A8C7300C9965C /* cinterforge-virglrenderer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-virglrenderer.xcodeproj"; sourceTree = "<group>"; };
 		4D0520F7308A8C7400C9965C /* cinterforge-spirv-cross.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-spirv-cross.xcodeproj"; sourceTree = "<group>"; };
@@ -1564,6 +1566,7 @@
 			children = (
 				E90000000000000000000001 /* SteamOS guest assets (editable, explicit) */,
 				A10000000000000000000001 /* AppIcon.icon (Icon Composer) */,
+				4D04A95E308ACA1C004B97C7 /* CinterForge.icns */,
 				A10000000000000000000003 /* Localizable.xcstrings */,
 				A10000000000000000000004 /* InfoPlist.xcstrings */,
 				757863D7410B9362D4D0D771 /* cinterforgeis_ready.sh */,
@@ -2215,6 +2218,7 @@
 				D20000000000000000000004 /* gvproxy in Resources */,
 				D20000000000000000000005 /* desync in Resources */,
 				D20000000000000000000006 /* steamdeck-images.pem in Resources */,
+				4D04A95F308ACA1C004B97C7 /* CinterForge.icns in Resources */,
 				E80000000000000000000001 /* cinterforge-linux-1920x1080.png (guest) in Resources */,
 				E80000000000000000000002 /* cinterforge-windows-1920x1080.png (guest) in Resources */,
 				E80000000000000000000003 /* cinterforge-logo.png (guest) in Resources */,

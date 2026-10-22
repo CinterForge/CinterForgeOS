@@ -88,6 +88,26 @@ final class WindowController: NSObject, NSWindowDelegate {
     private var guestResizeWork: DispatchWorkItem?
     private var inFullScreenTransition = false
     static let minGuestSize = NSSize(width: 800, height: 500)
+    /// Saved independently of the disposable VM process and guest disk. Restores the Mac app
+    /// window across ordinary quits, Xcode relaunches, and SteamOS guest reboots.
+    private static let savedFrameKey = "CinterForgeOS.MainWindowFrame"
+
+    static func savedWindowFrame() -> NSRect? {
+        guard let raw = UserDefaults.standard.string(forKey: savedFrameKey) else { return nil }
+        let frame = NSRectFromString(raw)
+        guard frame.origin.x.isFinite, frame.origin.y.isFinite,
+              frame.width.isFinite, frame.height.isFinite,
+              frame.width >= minGuestSize.width, frame.height >= minGuestSize.height else { return nil }
+        // Do not resurrect a window on a monitor that has since been disconnected.
+        guard NSScreen.screens.contains(where: { $0.visibleFrame.intersects(frame) }) else { return nil }
+        return frame
+    }
+
+    private func saveWindowFrame() {
+        guard !window.styleMask.contains(.fullScreen), !inFullScreenTransition,
+              window.frame.width > 0, window.frame.height > 0 else { return }
+        UserDefaults.standard.set(NSStringFromRect(window.frame), forKey: Self.savedFrameKey)
+    }
     /// Guest pixels per window point for this session (Settings > Display > Retina resolution:
     /// the screen's backing scale at boot, else 1).
     let pixelScale: Double
@@ -117,6 +137,7 @@ final class WindowController: NSObject, NSWindowDelegate {
         resumeChip = ResumeChipView(frame: rect)
         settings = LauncherSettings.shared
         super.init()
+        let previousFrame = Self.savedWindowFrame()
         window.title = title
         window.contentView = view
         window.delegate = self
@@ -127,6 +148,7 @@ final class WindowController: NSObject, NSWindowDelegate {
         window.contentMinSize = WindowController.minGuestSize
         fitToScreen(width: width, height: height)
         window.center()
+        if let saved = previousFrame { window.setFrame(saved, display: false) }
         view.controller = self
         overlay.frame = view.bounds
         view.addSubview(overlay)
@@ -250,11 +272,19 @@ final class WindowController: NSObject, NSWindowDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + WindowController.guestResizeDebounce, execute: work)
     }
 
-    func windowDidEndLiveResize(_ notification: Notification) { scheduleGuestResize() }
+    func windowDidEndLiveResize(_ notification: Notification) {
+        saveWindowFrame()
+        scheduleGuestResize()
+    }
+
+    func windowDidMove(_ notification: Notification) { saveWindowFrame() }
 
     /// Programmatic / zoom-button resizes (no live resize session).
     func windowDidResize(_ notification: Notification) {
-        if !window.inLiveResize && !inFullScreenTransition { scheduleGuestResize() }
+        if !window.inLiveResize && !inFullScreenTransition {
+            saveWindowFrame()
+            scheduleGuestResize()
+        }
     }
 
     func windowWillEnterFullScreen(_ notification: Notification) { inFullScreenTransition = true }
@@ -918,6 +948,9 @@ extension WindowController {
     }
 
     func pointerButton(_ e: NSEvent, down: Bool) {
+        // Never pass an activation click into the guest before AppKit has restored
+        // keyboard focus. A mouseDown arriving while inactive is not a guest click.
+        guard window.isKeyWindow, NSApp.isActive else { return }
         guard let inputs else { return }
         let b = button(for: e)
         // "Game paused": the click resumes (activates the app → GamePause thaws); it must not

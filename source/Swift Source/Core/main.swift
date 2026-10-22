@@ -18,7 +18,7 @@ var settingsOverrides: [LauncherSettings.Key: String]
 do {
     (options, settingsOverrides) = try Options.resolve(CommandLine.arguments, settings: settings)
 } catch {
-    FileHandle.standardError.write("cfos-vm: \(error)\n\n\(Options.usage)\n".data(using: .utf8)!)
+    FileHandle.standardError.write("steamac-vm: \(error)\n\n\(Options.usage)\n".data(using: .utf8)!)
     MainActor.assumeIsolated { AppBundle.alertIfLaunchedFromFinder("CinterForgeOS cannot start", error.localizedDescription) }
     exit(2)
 }
@@ -76,12 +76,18 @@ if !Supervisor.isChild {
 if options.needsDisk { FirstRun.run(settings: settings) }
 settings.noteBoot(overrides: settingsOverrides, autoCapture: options.autoCapture)
 
-// After a guest reboot, boot at the size the window had (the guest display followed it).
-if let f = Supervisor.windowFrame, !f.isEmpty, !options.headless {
-    let content = NSWindow.contentRect(forFrameRect: NSRectFromString(f), styleMask: [.titled, .closable, .miniaturizable, .resizable])
-    let maxSide = VM.maxDisplaySide & ~1
-    options.displayWidth = min(maxSide, max(Int(WindowController.minGuestSize.width), Int(content.width) & ~1))
-    options.displayHeight = min(maxSide, max(Int(WindowController.minGuestSize.height), Int(content.height) & ~1))
+// Reboot preserves the current frame; a fresh app launch restores its last saved Mac frame.
+// Set the guest's initial display dimensions before creating the VM, so resizing the shell on
+// the previous run also restores the guest resolution rather than just stretching the image.
+let restoredWindowFrame: NSRect? = {
+    if let f = Supervisor.windowFrame, !f.isEmpty { return NSRectFromString(f) }
+    return WindowController.savedWindowFrame()
+}()
+if let frame = restoredWindowFrame, !options.headless {
+    let content = NSWindow.contentRect(forFrameRect: frame, styleMask: [.titled, .closable, .miniaturizable, .resizable])
+    let size = WindowController.guestSize(points: content.size, scale: options.pixelScale)
+    options.displayWidth = size.0
+    options.displayHeight = size.1
 }
 
 // MARK: VM process (one boot)

@@ -46,9 +46,9 @@ fi
 mkdir -p "$OUT" "$WORK"
 
 artifacts() { python3 "$REPO/scripts/guest-artifacts.py" "$@"; }
-# Starting any Mesa operation invalidates the release tree receipt. Per-arch
-# receipts allow a verify-only run, but never bless an old architecture build.
-artifacts invalidate mesa
+# Keep successful receipts until their inputs or outputs actually change.
+# In particular, editing a guest-layer script must not rebuild Mesa.
+receipt_ok() { artifacts check "$1" >/dev/null 2>&1; }
 fetched=0
 fetch_sources() {
     docker run --rm --platform linux/arm64 \
@@ -63,22 +63,35 @@ log() { printf '\n=== %s\n' "$*"; }
 for step in "${steps[@]}"; do
     case $step in
     fetch)
-        log "fetch mesa $MESA_COMMIT"
-        fetch_sources
+        if receipt_ok mesa-aarch64 && receipt_ok mesa-x86; then
+            log "Mesa architecture artifacts valid; source fetch unnecessary"
+        else
+            log "fetch mesa $MESA_COMMIT"
+            fetch_sources
+        fi
         ;;
     aarch64)
+        if receipt_ok mesa-aarch64; then
+            log "reuse verified aarch64 Mesa output (no compilation)"
+            continue
+        fi
         log "build aarch64 (log: $WORK/build-aarch64.log)"
+        artifacts invalidate mesa
         inputs=$(artifacts begin mesa-aarch64)
         [[ $fetched == 1 ]] || fetch_sources
         rm -rf "$OUT/usr/lib/libvulkan_virtio.so" "$OUT/usr/share/vulkan"
         docker run --rm --platform linux/arm64 \
             -v "$SRC_VOLUME:/src:ro" -v "$HERE/container:/scripts:ro" -v "$OUT:/out" -v "$WORK:/work" \
-            "$AARCH64_IMAGE" bash /scripts/build-aarch64.sh > "$WORK/build-aarch64.log" 2>&1 \
-            || { tail -40 "$WORK/build-aarch64.log"; exit 1; }
+            "$AARCH64_IMAGE" bash /scripts/build-aarch64.sh 2>&1 | tee "$WORK/build-aarch64.log"
         artifacts finish mesa-aarch64 "$inputs"
         ;;
     x86)
+        if receipt_ok mesa-x86; then
+            log "reuse verified x86_64 + i386 Mesa outputs (no compilation)"
+            continue
+        fi
         log "build x86_64 + i386 (log: $WORK/build-x86.log)"
+        artifacts invalidate mesa
         inputs=$(artifacts begin mesa-x86)
         [[ $fetched == 1 ]] || fetch_sources
         rm -rf "$OUT/usr/share/guestos" "$OUT/usr/lib/steamac"
@@ -91,6 +104,10 @@ for step in "${steps[@]}"; do
         artifacts finish mesa-x86 "$inputs"
         ;;
     verify)
+        if receipt_ok mesa; then
+            log "reuse verified Mesa release tree (no verification rebuild)"
+            continue
+        fi
         log "manifest + verify against $ROOTFS_IMG (log: $WORK/verify.log)"
         inputs=$(artifacts begin mesa)
         [ -f "$ROOTFS_IMG" ] || { echo "missing stock rootfs image: $ROOTFS_IMG" >&2; exit 1; }

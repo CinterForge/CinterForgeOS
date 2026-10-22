@@ -78,6 +78,20 @@ if ! runuser -u steamos -- sh -c 'test -w "$1" && test -w "$1/.config" && : > "$
     exit 1
 fi
 echo "[CinterForgeOS] Verified persistent KDE home and ~/.config writable by steamos"
+# A previous experimental workaround wrote KDE Qt Quick/KWin renderer
+# overrides into the persistent home.  KWIN_COMPOSE=Q is not an appropriate
+# compositor selection for this nested Plasma Wayland session.  Remove only
+# our own override; never change the user's other session settings.
+legacy_compositor="$home/.config/plasma-workspace/env/50-cinterforgeos-compositor.sh"
+if [ -f "$legacy_compositor" ]; then
+    if grep -Fq 'QT_QUICK_BACKEND=software' "$legacy_compositor" && \
+       grep -Fq 'KWIN_COMPOSE=Q' "$legacy_compositor"; then
+        rm -f "$legacy_compositor"
+        echo '[CinterForgeOS] Removed obsolete KDE compositor override from persistent home'
+    else
+        echo '[CinterForgeOS] WARNING: compositor override has user modifications; leaving it intact' >&2
+    fi
+fi
 # Keep user-authored Places intact. For fresh home directories copy the
 # version-controlled XBEL seed; for existing users append only missing entries.
 /usr/lib/cinterforge/install-kde-places
@@ -86,4 +100,22 @@ autostart="$home/.config/autostart"
 install -d -m 0755 -o steamos -g steamos "$autostart"
 install -m 0644 -o steamos -g steamos /usr/share/cinterforge/kde/cinterforge-installed-test.desktop "$autostart/cinterforge-installed-test.desktop"
 echo "[CinterForgeOS] Installed authored KDE autostart entry"
+# Native KDE bypasses the old gamescope-session.target/steam.service path.
+# Restore Steam's sign-in UI in the real Plasma session, without nesting a
+# second desktop or relying on systemctl --user (which may have no user bus).
+# Reinstall on each boot because /home is persistent across guest layer updates.
+cat > "$autostart/cinterforge-steam.desktop" <<'CFOS_STEAM_AUTOSTART'
+[Desktop Entry]
+Type=Application
+Name=Steam
+Comment=Steam sign-in and desktop client
+Exec=/usr/lib/steamac/steam-kde-login
+Icon=steam
+Terminal=false
+OnlyShowIn=KDE
+X-KDE-autostart-phase=1
+CFOS_STEAM_AUTOSTART
+chmod 0644 "$autostart/cinterforge-steam.desktop"
+chown steamos:steamos "$autostart/cinterforge-steam.desktop"
+echo '[CinterForgeOS] Steam ARM64 KDE sign-in autostart installed for steamos'
 echo "[CinterForgeOS] SDDM autologin selected native KDE Plasma desktop"

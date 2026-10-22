@@ -174,8 +174,8 @@ final class BootProgress {
             var s = state
             s.phase = .running
             s.stageId = "ready"
-            s.title = String(localized: "Steam is ready")
-            s.logTitle = "Steam is ready"
+            s.title = "CinterForgeOS desktop ready"
+            s.logTitle = "CinterForgeOS desktop ready (Steam login separate)"
             s.fraction = 1
             s.indeterminate = false
             s.detail = ""

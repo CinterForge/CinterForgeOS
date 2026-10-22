@@ -26,33 +26,26 @@ new = '''      /* Resolve the Metal 4 class through the running Objective-C runt
        * rather than using an unchecked weak-import class reference. The
        * latter can be null and cause an instruction fetch from address zero
        * when the driver is loaded dynamically by the Vulkan ICD loader. */
-      fprintf(stderr, "KosmicKrisp: Metal compiler: resolving MTL4CompilerDescriptor\\n");
-      fflush(stderr);
       Class compiler_descriptor_class = objc_getClass("MTL4CompilerDescriptor");
       if (compiler_descriptor_class == Nil) {
          fprintf(stderr, "KosmicKrisp: Metal 4 MTL4CompilerDescriptor class is unavailable at runtime\\n");
          return NULL;
       }
-      fprintf(stderr, "KosmicKrisp: Metal compiler: descriptor class=%p device=%p\\n", (void *)compiler_descriptor_class, (void *)dev);
-      fflush(stderr);
       if (dev == nil || ![dev respondsToSelector:@selector(newCompilerWithDescriptor:error:)]) {
          fprintf(stderr, "KosmicKrisp: MTLDevice does not expose Metal 4 compiler creation\\n");
          return NULL;
       }
-      fprintf(stderr, "KosmicKrisp: Metal compiler: creating descriptor\\n");
-      fflush(stderr);
       MTL4CompilerDescriptor *desc = [[compiler_descriptor_class new] autorelease];
       if (desc == nil) {
          fprintf(stderr, "KosmicKrisp: failed to allocate Metal 4 compiler descriptor\\n");
          return NULL;
       }
 
-      fprintf(stderr, "KosmicKrisp: Metal compiler: invoking newCompilerWithDescriptor:error:\\n");
-      fflush(stderr);
       NSError *error = nil;
       id<MTL4Compiler> compiler = [dev newCompilerWithDescriptor:desc error:&error];
-      fprintf(stderr, "KosmicKrisp: Metal compiler: returned compiler=%p error=%p\\n", (void *)compiler, (void *)error);
-      fflush(stderr);'''
+      if (compiler == nil) {
+         fprintf(stderr, "KosmicKrisp: Metal compiler creation failed\\n");
+      }'''
 if new in source:
     print(f'[Xcode] Metal 4 compiler runtime guard already applied: {path}')
     sys.exit(0)
@@ -65,11 +58,8 @@ entry_old = '''mtl_new_compiler(mtl_device *device)
    @autoreleasepool {'''
 entry_new = '''mtl_new_compiler(mtl_device *device)
 {
-   fprintf(stderr, "KosmicKrisp: entering mtl_new_compiler device=%p\\n", (void *)device);
-   fflush(stderr);
    @autoreleasepool {
-      fprintf(stderr, "KosmicKrisp: Metal compiler autoreleasepool entered\\n");
-      fflush(stderr);'''
+'''
 if source.count(entry_old) != 1:
     raise SystemExit(f'error: unexpected mtl_new_compiler entry in {path}')
 patched = source.replace(old, new, 1).replace(entry_old, entry_new, 1)

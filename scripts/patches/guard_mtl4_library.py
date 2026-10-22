@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Resolve Metal library descriptor/options classes at runtime in staged Mesa.
 
+Keep failure diagnostics but omit hot-path per-shader tracing during normal use.
+
 Only modifies the disposable source copy. Fail on unexpected source layouts;
 do not silently build an unguarded Vulkan ICD.
 """
@@ -14,7 +16,7 @@ path = Path(sys.argv[1])
 if not path.is_file():
     raise SystemExit(f'error: missing KosmicKrisp compiler bridge: {path}')
 source = path.read_text()
-marker = 'KosmicKrisp: entering mtl_new_library'
+marker = 'kk_mtl_new_runtime_object(const char *class_name)'
 if marker in source:
     print(f'[Xcode] Metal library class guards already applied: {path}')
     sys.exit(0)
@@ -34,6 +36,22 @@ while end < len(source) and level:
 if level:
     raise SystemExit(f'error: unterminated mtl_new_library implementation: {path}')
 body = source[start.end():end-1]
+# Locate the earlier fault before touching Metal descriptor construction.
+string_stmt = 'NSString *ns_src = [NSString stringWithCString:src encoding:NSASCIIStringEncoding];'
+if body.count(string_stmt) != 1:
+    raise SystemExit(f'error: expected one NSString source conversion: {path}')
+string_replacement = r'''if (src == NULL) {
+         fprintf(stderr, "KosmicKrisp: NULL MSL source\n");
+         fflush(stderr);
+         return NULL;
+      }
+      Class kk_string_class = objc_getClass("NSString");
+      if (kk_string_class == Nil)
+         return NULL;
+      NSString *ns_src = [kk_string_class stringWithCString:src encoding:NSASCIIStringEncoding];
+      if (ns_src == nil)
+         return NULL;'''
+body = body.replace(string_stmt, string_replacement, 1)
 classes = ('MTLCompileOptions', 'MTL4LibraryDescriptor')
 for cls in classes:
     pattern = re.compile(r'\[\[\s*' + cls + r'\s+new\s*\]\s+autorelease\s*\]')
@@ -47,8 +65,7 @@ for cls in classes:
     # No GNU statement-expression reliance: use helper C function instead.
     body = pattern.sub('kk_mtl_new_runtime_object("' + cls + '")', body)
 # Objective-C id return is compatible with descriptor/options declarations.
-body = ('\n   fprintf(stderr, "KosmicKrisp: entering mtl_new_library compiler=%p\\n", (void *)compiler);\n'
-        '   fflush(stderr);\n' + body)
+body = '\n' + body
 # Guard NULL allocations before downstream Objective-C property access.
 # Sending to nil is safe but passing incomplete descriptors to Metal is not.
 for var in ('opts', 'desc'):
@@ -63,8 +80,6 @@ static id
 kk_mtl_new_runtime_object(const char *class_name)
 {
    Class cls = objc_getClass(class_name);
-   fprintf(stderr, "KosmicKrisp: library class %s=%p\\n", class_name, (void *)cls);
-   fflush(stderr);
    if (cls == Nil)
       return nil;
    return [[cls new] autorelease];

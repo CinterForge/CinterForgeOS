@@ -72,8 +72,8 @@ pacman -U --noconfirm "$di64" "$di32"
 
 # Paths inside the provider root; pressure-vessel/FEX resolve them relative to it,
 # matching the provider's freedreno_icd.{x86_64,x86}.json.
-build_venus /tmp/build-x86_64 lib /tmp/dest-x86_64 --buildtype=custom -Doptimization=2
-build_venus /tmp/build-i386 lib32 /tmp/dest-i386 --cross-file /scripts/i386-linux-gnu.ini --buildtype=custom -Doptimization=2
+build_venus /work/build-x86_64 lib /tmp/dest-x86_64 --buildtype=custom -Doptimization=2
+build_venus /work/build-i386 lib32 /tmp/dest-i386 --cross-file /scripts/i386-linux-gnu.ini --buildtype=custom -Doptimization=2
 
 p=/out${FEX_PROVIDER}
 install -D -m 0755 /tmp/dest-x86_64/usr/lib/libvulkan_virtio.so "$p/usr/lib/libvulkan_virtio.so"

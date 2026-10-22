@@ -11,7 +11,7 @@ pacman -Sy --noconfirm --needed \
     libdrm wayland wayland-protocols libx11 libxcb libxshmfence libxrandr libdisplay-info \
     xcb-proto xorgproto vulkan-headers systemd-libs zstd expat zlib
 
-build_venus /tmp/build-aarch64 lib /tmp/dest-aarch64
+build_venus /work/build-aarch64 lib /tmp/dest-aarch64
 
 install -D -m 0755 /tmp/dest-aarch64/usr/lib/libvulkan_virtio.so /out/usr/lib/libvulkan_virtio.so
 install -D -m 0644 /tmp/dest-aarch64/usr/share/vulkan/icd.d/virtio_icd.aarch64.json \

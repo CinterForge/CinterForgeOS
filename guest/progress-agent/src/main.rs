@@ -481,7 +481,7 @@ fn main() {
             if desktop_ready_pending && focus.desktop_shown() {
                 desktop_ready_pending = false;
                 rep.port.send("ready");
-                eprintln!("fx-progress: ready: desktop on screen");
+                eprintln!("fx-progress: desktop visible (Steam authentication NOT checked)");
                 let _ = std::fs::write(ready_marker(), boot_id());
             }
             if let Some(hb) = heartbeat.as_ref() {

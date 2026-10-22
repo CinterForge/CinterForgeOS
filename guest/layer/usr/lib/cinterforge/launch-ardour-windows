@@ -1,23 +1,23 @@
 #!/bin/sh
-# Native SteamOS entry point for installed Windows x64 Ardour through Wine.
+# Installed Windows x64 CinterForge Audio through Wine (FEX where needed).
 set -eu
-root=${1:-/run/Applications/Windows/Ardour/2026}
-if [ "$#" -gt 0 ]; then shift; fi
-[ -d "$root" ] || { echo "Ardour Windows installation missing: $root" >&2; exit 1; }
+base='/run/Applications/Windows/CinterForge Audio'
+if [ "$#" -gt 0 ] && [ -d "$1" ]; then root=$1; shift
+else
+    [ -d "$base" ] || { echo "Windows CinterForge Audio installation missing: $base" >&2; exit 1; }
+    root=$(find "$base" -mindepth 1 -maxdepth 1 -type d -print | LC_ALL=C sort -V | tail -n 1)
+fi
+[ -n "${root:-}" ] && [ -d "$root" ] || { echo "No installed Windows version under $base" >&2; exit 1; }
 engine=
-for candidate in "$root"/lib/ardour9/ardour-[0-9]*.exe; do
+for candidate in "$root"/bin/ardour9.exe "$root"/bin/Ardour*.exe "$root"/lib/ardour9/ardour-[0-9]*.exe; do
     [ -f "$candidate" ] || continue
-    [ -z "$engine" ] || { echo "Ambiguous Ardour Windows engines under $root/lib/ardour9" >&2; exit 1; }
     engine=$candidate
+    break
 done
-[ -n "$engine" ] || { echo "Ardour Windows PE executable missing in $root/lib/ardour9" >&2; exit 1; }
-command -v wine >/dev/null 2>&1 || {
-    echo 'Wine is unavailable inside SteamOS. Windows x64 binaries require a configured FEX+Wine environment.' >&2
-    exit 1
-}
+[ -n "$engine" ] || { echo "Windows Ardour executable missing in $root/bin or $root/lib/ardour9" >&2; ls -la "$root/bin" "$root/lib/ardour9" >&2 2>/dev/null || true; exit 1; }
+command -v wine >/dev/null 2>&1 || { echo 'Wine is not installed in this SteamOS guest. Windows Ardour requires Wine (and FEX on ARM64).' >&2; exit 1; }
 export WINEARCH=win64
-# Keep the Wine prefix on persistent home rather than in an ephemeral test folder.
 export WINEPREFIX="${WINEPREFIX:-$HOME/.local/share/cinterforge/wine-ardour}"
 mkdir -p "$WINEPREFIX"
-# Wine's load environment is provided by the OS; no fake /output prefix.
+printf '[CinterForgeOS] Windows Ardour: %s\n' "$engine" >&2
 exec wine "$engine" "$@"

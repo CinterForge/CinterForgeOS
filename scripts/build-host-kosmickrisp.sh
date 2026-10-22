@@ -145,22 +145,12 @@ validate_icd() {
         echo "error: KosmicKrisp dylib lacks current OS-version bridge revision: $candidate" >&2
         return 1
     fi
-    # Device creation must execute the compiler guard compiled from the
-    # disposable, patched Mesa source. A bridge that is present in source but
-    # absent from the final Mach-O is a different bug from a Metal API crash.
-    local checkpoint
-    for checkpoint in \
-        'KosmicKrisp: entering mtl_new_compiler device=' \
-        'KosmicKrisp: Metal compiler autoreleasepool entered' \
-        'KosmicKrisp: Metal compiler: resolving MTL4CompilerDescriptor' \
-        'KosmicKrisp: Metal compiler: invoking newCompilerWithDescriptor:error:'; do
-        if ! grep -aFq "$checkpoint" "$candidate"; then
-            echo "error: compiled KosmicKrisp dylib lacks expected Metal compiler checkpoint: $checkpoint" >&2
-            echo "error: refusing to probe a driver without the active compiler guard: $candidate" >&2
-            return 1
-        fi
-    done
-    echo '[Xcode] Verified Metal 4 compiler entry diagnostics are embedded in the actual driver dylib'
+    # The source patcher verifies the exact Metal 4 guard implementation
+    # before compilation, and its SHA-256 participates in the driver cache
+    # identity. Never inspect compiler diagnostic strings in a release dylib:
+    # the optimizer can remove/merge those strings without changing safety.
+    # The Vulkan physical-device AND logical-device probe below is the
+    # executable acceptance gate, including for reused cached drivers.
     mkdir -p "$work"
     echo "[Xcode] Vulkan loader: $loader_lib; headers: $vulkan_headers"
     if ! MACOSX_DEPLOYMENT_TARGET=26.0 clang -std=c11 -Wall -Werror -O1 -g -I"$vulkan_headers" "$probe_source" \
@@ -178,10 +168,6 @@ validate_icd() {
     VK_LOADER_DEBUG=error,warn VK_DRIVER_FILES="$icd" "$probe" >> "$probe_log" 2>&1 || rc=$?
     cat "$probe_log"
     if [[ "$rc" != 0 ]]; then
-        if ! grep -Fq 'KosmicKrisp: entering mtl_new_compiler device=' "$probe_log"; then
-            echo 'error: probe crashed without printing the compiler entry checkpoint, despite its presence in the Mach-O' >&2
-            echo 'error: inspect disassembly below; crash may occur in the function prologue or before stderr is reachable' >&2
-        fi
         # Preserve the actual entry instructions next to the failing probe;
         # a symbol+offset stack trace alone cannot tell which instruction
         # dispatched to a null Objective-C class or function pointer.

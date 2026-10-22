@@ -1,0 +1,61 @@
+#!/bin/sh
+# Read-only verification: installed Ardour paths, architecture and runtimes.
+set -eu
+status=0
+printf '[CinterForgeOS] CinterForge Audio runtime preflight\n'
+for platform in Linux Windows; do
+    base="/run/Applications/$platform/CinterForge Audio"
+    if [ ! -d "$base" ]; then
+        printf '[FAIL] %s installation not mounted: %s\n' "$platform" "$base"
+        status=1
+        continue
+    fi
+    found=0
+    for root in "$base"/*; do
+        [ -d "$root" ] || continue
+        if [ "$platform" = Linux ]; then
+            for exe in "$root"/lib/ardour9/ardour-[0-9]* "$root"/bin/ardour-[0-9]* "$root"/bin/ardour9; do
+                [ -f "$exe" ] && [ -x "$exe" ] || continue
+                case "$exe" in *.exe|*.dll|*.so|*.debug) continue ;; esac
+                magic=$(LC_ALL=C od -An -tx1 -N4 "$exe" 2>/dev/null | tr -d ' \n')
+                [ "$magic" = 7f454c46 ] || continue
+                printf '[PASS] Linux Ardour: %s\n' "$exe"
+                found=1
+            done
+        else
+            for exe in "$root"/bin/ardour9.exe "$root"/bin/Ardour*.exe "$root"/lib/ardour9/ardour-[0-9]*.exe; do
+                [ -f "$exe" ] || continue
+                printf '[PASS] Windows Ardour: %s\n' "$exe"
+                found=1
+            done
+        fi
+    done
+    if [ "$found" -eq 0 ]; then
+        printf '[FAIL] %s installation exists, but no Ardour executable found under %s\n' "$platform" "$base"
+        status=1
+    fi
+done
+case "$(uname -m)" in
+    x86_64) printf '[PASS] Native x86-64 Linux guest\n' ;;
+    aarch64|arm64)
+        if command -v FEX >/dev/null 2>&1; then
+            printf '[PASS] FEX: %s\n' "$(command -v FEX)"
+        else
+            printf '[FAIL] FEX missing (required for Linux x86-64 Ardour on ARM64)\n'
+            status=1
+        fi ;;
+    *) printf '[FAIL] Unsupported architecture: %s\n' "$(uname -m)"; status=1 ;;
+esac
+if command -v wine >/dev/null 2>&1; then
+    printf '[PASS] Wine: %s\n' "$(command -v wine)"
+else
+    printf '[FAIL] Wine missing (required for Windows Ardour)\n'
+    status=1
+fi
+if mountpoint -q /run/DeveloperTests; then
+    printf '[PASS] DeveloperTests share mounted\n'
+else
+    printf '[WARN] DeveloperTests share not mounted; separate from Ardour launch\n'
+fi
+printf '[INFO] Audio output is separate: current libkrun reported no SND support.\n'
+exit "$status"

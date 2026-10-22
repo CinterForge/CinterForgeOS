@@ -14,7 +14,7 @@ RUN set -eux; \
     printf 'Acquire::Retries "5";\nAcquire::http::Timeout "60";\n' > /etc/apt/apt.conf.d/80retries; \
     apt-get update; \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        ca-certificates curl openssl jq xxd file binutils \
+        ca-certificates curl openssl jq xxd file binutils python3 \
         squashfs-tools btrfs-progs e2fsprogs dosfstools mtools gdisk fdisk util-linux \
         erofs-utils busybox-static cpio gzip zstd xz-utils rsync kmod \
         gcc make libc6-dev pkgconf \

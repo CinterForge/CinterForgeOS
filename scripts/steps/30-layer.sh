@@ -37,7 +37,7 @@ install -D -m 0644 "$CFG/cinterforge-virtiofs-verify.service" "$ST/usr/lib/syste
 
 # Steamac owns executable permissions and the complete desktop integration.
 # Fail during the layer build, not at login, if authored bridge files disappear.
-for command in run-linux-amd64 installed-app-gui-test \
+for command in desktop-health run-linux-amd64 inspect-x86-runtime installed-app-gui-test ardour-runtime-check \
                launch-ardour-linux launch-ardour-windows run-desktop-ready; do
     test -s "$ST/usr/lib/cinterforge/$command" || {
         echo "[layer] missing authored CinterForgeOS command: $command" >&2
@@ -86,7 +86,7 @@ done
 [[ -f $ST/usr/lib/systemd/user/plasma-session.target && -f $ST/usr/lib/systemd/user/steamac-nested-desktop.service ]] \
     && ! grep -q '^Wants=.*steamvr' "$ST/usr/lib/systemd/user/plasma-session.target" \
     && grep -q 'steamac-nested-desktop.service' "$ST/usr/lib/steamos/gamescope-session" \
-    && grep -q '^Exec=/usr/lib/steamac/steam-client --desktop' "$ST/usr/lib/steamac/desktop-xdg/autostart/steam.desktop" \
+    && grep -q '^Exec=/usr/lib/steamac/steam-kde-login' "$ST/usr/lib/steamac/desktop-xdg/autostart/steam.desktop" \
     || { echo "[layer] Desktop Mode units (plasma-session.target, steamac-nested-desktop.service, Steam autostart) missing" >&2; exit 1; }
 # Same binary, root mode: started by udev for the launcher's fx.clock port.
 grep -q 'fx-progress-agent clock-sync' "$ST/usr/lib/systemd/system/fx-clock-sync.service" \
@@ -109,6 +109,7 @@ grep -q 'fx-progress-agent sleep suspend$' "$ST/usr/lib/systemd/system/systemd-s
 for f in usr/bin/splctl usr/lib/rauc/post-install.sh usr/lib/steamac/kernelsetup.sh \
          usr/lib/steamac/rauc-shims/steamos-chroot usr/lib/steamac/steam-gfx-env \
          usr/lib/steamac/steam-shader-defaults usr/lib/steamac/steam-client \
+         usr/lib/steamac/steam-kde-login \
          usr/lib/steamac/nested-desktop usr/lib/steamac/desktop-bin/kwin_wayland_wrapper \
          usr/lib/steamac/desktop-bin/steamosctl usr/lib/steamos/gamescope-session; do
     [[ -x $ST/$f ]] || { echo "[layer] $f missing or not executable" >&2; exit 1; }
@@ -121,6 +122,9 @@ done
 grep -q 'ExecStartPre=/usr/lib/steamac/steam-client' "$ST/usr/lib/systemd/user/steam.service.d/50-steamac.conf" \
     && grep -q 'ExecStartPost=/usr/lib/steamac/steam-client --watch' "$ST/usr/lib/systemd/user/steam.service.d/50-steamac.conf" \
     || { echo "[layer] steam.service client setup or watcher missing" >&2; exit 1; }
+[[ -f $ST/usr/lib/steamac/bootstrap-steam-arm64.py ]] \
+    || { echo '[layer] Valve ARM64 client bootstrap missing' >&2; exit 1; }
+python3 -c 'import ast,sys; ast.parse(open(sys.argv[1]).read())' "$ST/usr/lib/steamac/bootstrap-steam-arm64.py"
 ls "$ST"/usr/lib/steamac/masks.d/*.list >/dev/null
 
 # layer-release: content hash (excluding itself) so a boot log identifies the layer.

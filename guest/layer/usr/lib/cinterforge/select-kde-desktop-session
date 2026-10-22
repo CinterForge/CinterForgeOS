@@ -149,4 +149,22 @@ CFOS_AUTOSTART
 chmod 0644 "$autostart/cinterforge-installed-test.desktop"
 chown steamos:steamos "$autostart/cinterforge-installed-test.desktop"
 echo "[CinterForgeOS] Installed native per-user KDE Autostart for steamos"
+# Native KDE bypasses the old gamescope-session.target/steam.service path.
+# Restore Steam's sign-in UI in the real Plasma session, without nesting a
+# second desktop or relying on systemctl --user (which may have no user bus).
+# Reinstall on each boot because /home is persistent across guest layer updates.
+cat > "$autostart/cinterforge-steam.desktop" <<'CFOS_STEAM_AUTOSTART'
+[Desktop Entry]
+Type=Application
+Name=Steam
+Comment=Steam sign-in and desktop client
+Exec=/usr/lib/steamac/steam-kde-login
+Icon=steam
+Terminal=false
+OnlyShowIn=KDE
+X-KDE-autostart-phase=1
+CFOS_STEAM_AUTOSTART
+chmod 0644 "$autostart/cinterforge-steam.desktop"
+chown steamos:steamos "$autostart/cinterforge-steam.desktop"
+echo '[CinterForgeOS] Steam ARM64 KDE sign-in autostart installed for steamos'
 echo "[CinterForgeOS] SDDM autologin selected native KDE Plasma desktop"

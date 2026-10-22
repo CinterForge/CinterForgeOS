@@ -1,0 +1,62 @@
+#!/bin/bash
+# Native ARM64 Steam sign-in in the existing KDE session. SteamOS's generic
+# /usr/bin/steam launcher can point to an uninstalled /steamrtarm64/steam.
+# Install Valve's native client in the persistent user's Steam directory,
+# never in the immutable OS or disposable application image.
+set -euo pipefail
+export HOME=/home/steamos
+steamroot="$HOME/.local/share/Steam"
+client="$steamroot/steamrtarm64/steam"
+logdir="$HOME/.local/state/cinterforge"
+mkdir -p "$logdir" "$steamroot/package"
+# Keep actionable startup events visible in the VM journal as well as in a
+# persistent file. Detailed client stdout/stderr stays in steam-login.log.
+status_file="$logdir/steam-status"
+report() { printf '%s\n' "$*" | tee -a "$status_file" >&2; }
+: > "$status_file"
+exec >>"$logdir/steam-login.log" 2>&1
+on_error() {
+    code=$?
+    report "[Steam login] FAILED (exit $code): see $logdir/steam-login.log"
+    if command -v notify-send >/dev/null 2>&1; then
+        notify-send -u critical 'Steam sign-in could not start' "See $logdir/steam-login.log"
+    fi
+}
+trap on_error ERR
+printf '[Steam login] %s launching Steam in KDE\n' "$(date -Is)"
+report "[Steam login] Starting ARM64 client"
+if [[ $(id -un) != steamos ]]; then
+    echo '[Steam login] ERROR: must run as steamos, never root' >&2
+    exit 1
+fi
+if [[ $(uname -m) != aarch64 ]]; then
+    echo '[Steam login] ERROR: expected native ARM64 SteamOS guest' >&2
+    exit 1
+fi
+# Keep any existing account data, Steam library, and downloaded tools intact.
+if [[ ! -x $client ]]; then
+    report '[Steam login] ARM64 client missing; attempting Valve bootstrap'
+    command -v python3 >/dev/null || { echo '[Steam login] ERROR: python3 required for Valve client bootstrap'; exit 1; }
+    python3 /usr/lib/steamac/bootstrap-steam-arm64.py "$steamroot"
+fi
+[[ -x $client ]] || { echo "[Steam login] ERROR: Valve ARM64 Steam executable still missing: $client"; exit 1; }
+# Read the selection from the VM kernel command line, preserving the explicit
+# user-selected branch. Do not use Frame-only -deckard arguments in KDE.
+branch=publicbeta
+if grep -Eq '(^| )steamac.steam_client=deck( |$)' /proc/cmdline; then
+    branch=steamdeck_stable
+elif grep -Eq '(^| )steamac.steam_client=deckbeta( |$)' /proc/cmdline; then
+    branch=steamdeck_publicbeta
+fi
+printf '%s\n' "$branch" > "$steamroot/package/beta"
+mkdir -p "$HOME/.steam"
+for link in root steam; do
+    if [[ ! -e "$HOME/.steam/$link" && ! -L "$HOME/.steam/$link" ]]; then
+        ln -s "$steamroot" "$HOME/.steam/$link"
+    fi
+done
+export LD_LIBRARY_PATH="$steamroot/steamrtarm64:$steamroot/steamrtarm64/panorama${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+cd "$steamroot"
+report "[Steam login] Starting Valve Steam ARM64 ($branch)"
+echo "[Steam login] executable: $client"
+exec "$client" -vrdisable
