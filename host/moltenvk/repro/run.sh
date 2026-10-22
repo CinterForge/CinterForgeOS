@@ -158,17 +158,19 @@ GAMESCOPE_COMMIT=fa0b4d3342078f01eadff0193e09c3b561f40c03
 
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../../.." && pwd)
-inc=$root/work/build/host-moltenvk/src/Package/Release/MoltenVK/include
+STEAMAC_SOURCE_ROOT="$root"
+. "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
+inc=$STEAMAC_WORK_DIR/build/host-moltenvk/src/Package/Release/MoltenVK/include
 driver=${REPRO_DRIVER:-moltenvk}
 case $driver in
 moltenvk)
-	work=$root/work/build/host-moltenvk/repro
-	libdir=${1:-$root/work/out/host/lib}
+	work=$STEAMAC_WORK_DIR/build/host-moltenvk/repro
+	libdir=${1:-$STEAMAC_WORK_DIR/out/host/lib}
 	link="-L$libdir -lMoltenVK -Wl,-rpath,$libdir"
 	export MVK_CONFIG_LOG_LEVEL=1
 	;;
 kosmickrisp)
-	work=$root/work/build/host-kosmickrisp/repro
+	work=$STEAMAC_WORK_DIR/build/host-kosmickrisp/repro
 	kk=${1:?usage: REPRO_DRIVER=kosmickrisp $0 <libvulkan_kosmickrisp.dylib>}
 	brew list --versions vulkan-loader > /dev/null 2>&1 || brew install vulkan-loader
 	loader=$(brew --prefix vulkan-loader)/lib

@@ -5,7 +5,7 @@ set -eu
 # systemd enablement from the retained disk. Retire it on the real guest root.
 # Retire both earlier CinterForge boot mechanisms from persistent SteamOS.
 # The sole entry point is now SDDM ExecStartPre -> KDE per-user Autostart.
-for retired in cinterforge-desktop-default.service cinterforge-kde-prepare.service; do
+for retired in cinterforge-desktop-default.service; do
     rm -f "/etc/systemd/system/$retired"           "/etc/systemd/system/multi-user.target.wants/$retired"           "/etc/systemd/system/graphical.target.wants/$retired"
 done
 legacy=cinterforge-desktop-default.service

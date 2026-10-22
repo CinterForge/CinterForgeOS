@@ -246,7 +246,7 @@ layer = res + '/steamac-layer.img'
 kernel_version = '7.2.9'
 archive('linux-kernel', kernel_version, 'GPL-2.0-only WITH Linux-syscall-note', image,
         'https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-' + kernel_version + '.tar.xz',
-        Path(os.environ['STEAMAC_WORK_DIR']) / f'cache/kernel/linux-{kernel_version}.tar.xz', ('COPYING', 'LICENSES/exceptions/Linux-syscall-note', 'LICENSES/preferred/GPL-2.0'))
+        root / f'work/cache/kernel/linux-{kernel_version}.tar.xz', ('COPYING', 'LICENSES/exceptions/Linux-syscall-note', 'LICENSES/preferred/GPL-2.0'))
 # busybox is the Debian snapshot's busybox-static; retrieve the matching installed
 # package copyright instead of pretending a GPL text from another release is sufficient.
 builder = config['BUILDER_IMAGE']
@@ -264,14 +264,14 @@ add('busybox-static', busybox_version, 'GPL-2.0-only', init + ':/bin/busybox',
     [('copyright', require(busybox_copyright).read_bytes()),
      ('GPL-2.0', require(stage / 'linux-kernel/LICENSES/preferred/GPL-2.0').read_bytes())])
 archive('dosfstools', config['DOSFSTOOLS_VERSION'], 'GPL-3.0-or-later', init + ':/bin/{fsck.fat,mkfs.fat}',
-        config['DOSFSTOOLS_URL'], Path(os.environ["STEAMAC_WORK_DIR"]) / f"cache/dosfstools/{config['DOSFSTOOLS_VERSION']}/dosfstools-{config['DOSFSTOOLS_VERSION']}.tar.gz",
+        config['DOSFSTOOLS_URL'], root / f"work/cache/dosfstools/{config['DOSFSTOOLS_VERSION']}/dosfstools-{config['DOSFSTOOLS_VERSION']}.tar.gz",
         ('COPYING', 'LICENSE'))
 archive('e2fsprogs', config['E2FSPROGS_VERSION'], 'GPL-2.0-only AND LGPL-2.0-only AND BSD-3-Clause AND LicenseRef-MIT-SIPB',
         init + ':/bin/mke2fs (static libext2fs/libuuid/libblkid/libcom_err)', config['E2FSPROGS_URL'],
-        Path(os.environ["STEAMAC_WORK_DIR"]) / f"cache/e2fsprogs/{config['E2FSPROGS_VERSION']}/e2fsprogs-{config['E2FSPROGS_VERSION']}.tar.xz",
+        root / f"work/cache/e2fsprogs/{config['E2FSPROGS_VERSION']}/e2fsprogs-{config['E2FSPROGS_VERSION']}.tar.xz",
         ('NOTICE', 'debian/copyright', 'lib/uuid/COPYING'))
 archive('btrfs-progs', config['BTRFSPROGS_VERSION'], 'GPL-2.0-only', init + ':/bin/btrfstune',
-        config['BTRFSPROGS_URL'], Path(os.environ["STEAMAC_WORK_DIR"]) / f"cache/btrfs-progs/{config['BTRFSPROGS_VERSION']}/btrfs-progs-v{config['BTRFSPROGS_VERSION']}.tar.xz",
+        config['BTRFSPROGS_URL'], root / f"work/cache/btrfs-progs/{config['BTRFSPROGS_VERSION']}/btrfs-progs-v{config['BTRFSPROGS_VERSION']}.tar.xz",
         ('COPYING', 'LICENSE'))
 versions = {}
 for line in (root / 'guest/mesa/versions.env').read_text().splitlines():

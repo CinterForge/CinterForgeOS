@@ -18,14 +18,13 @@ export MACOSX_DEPLOYMENT_TARGET=15.0
 
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../.." && pwd)
-STEAMAC_ROOT="$root"
-export STEAMAC_ROOT
-. "$STEAMAC_ROOT/scripts/paths.sh"
-work=${STEAMAC_WORK_DIR}/build/host-libepoxy
+STEAMAC_SOURCE_ROOT="$root"
+. "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
+work=$STEAMAC_WORK_DIR/build/host-libepoxy
 src=$work/src
 build=$work/build
 stage=$work/stage
-out=${STEAMAC_WORK_DIR}/out/host
+out=$STEAMAC_WORK_DIR/out/host
 archive=$work/libepoxy-$VERSION.tar.xz
 
 # Like Homebrew's isolated formula environment, exclude unrelated host packages (e.g. XQuartz).

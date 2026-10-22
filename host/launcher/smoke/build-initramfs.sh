@@ -6,10 +6,9 @@ set -euo pipefail
 ALPINE="alpine:3.20@sha256:d9e853e87e55526f6b2917df91a2115c36dd7c696a35be12163d44e6e2a4b6bc"
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../../.." && pwd)
-STEAMAC_ROOT="$ROOT"
-export STEAMAC_ROOT
-. "$STEAMAC_ROOT/scripts/paths.sh"
-OUT="${STEAMAC_WORK_DIR}/out/smoke"
+STEAMAC_SOURCE_ROOT="$ROOT"
+. "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
+OUT="$STEAMAC_WORK_DIR/out/smoke"
 mkdir -p "$OUT"
 
 docker run --rm --platform linux/arm64 -v "$HERE:/src:ro" -v "$OUT:/out" "$ALPINE" sh -euc '

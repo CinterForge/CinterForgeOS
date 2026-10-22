@@ -27,10 +27,9 @@
 set -euo pipefail
 
 REPO=$(cd "$(dirname "$0")/../.." && pwd)
-STEAMAC_ROOT="$REPO"
-export STEAMAC_ROOT
-. "$STEAMAC_ROOT/scripts/paths.sh"
-S=${S:-${STEAMAC_WORK_DIR}/scratch/vkd3d-tiled}
+STEAMAC_SOURCE_ROOT="$REPO"
+. "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
+S=${S:-$STEAMAC_WORK_DIR/scratch/vkd3d-tiled}
 PORT=${SSH_PORT:-2241}
 # Proton 11.0's vkd3d-proton submodule (ValveSoftware/Proton branch proton_11.0)
 VKD3D_PROTON_URL=https://github.com/HansKristian-Work/vkd3d-proton
@@ -96,9 +95,9 @@ start() {
     local vm=$S/vm log
     [[ -f $vm/test.img ]] || { echo "run '$0 disk' first" >&2; exit 1; }
     [[ -f $vm/vm.pid ]] && kill -0 "$(cat "$vm/vm.pid")" 2>/dev/null && { echo "already running"; return; }
-    cp -c "${STEAMAC_WORK_DIR}/out/Image" "${STEAMAC_WORK_DIR}/out/initramfs.cpio.gz" "${STEAMAC_WORK_DIR}/out/steamac-layer.img" "$vm/"
+    cp -c "$STEAMAC_WORK_DIR/out/Image" "$STEAMAC_WORK_DIR/out/initramfs.cpio.gz" "$STEAMAC_WORK_DIR/out/steamac-layer.img" "$vm/"
     log=$vm/vm-$(date +%Y%m%d-%H%M%S).log
-    nohup "${STEAMAC_WORK_DIR}/out/steamac-vm" --kernel "$vm/Image" --initrd "$vm/initramfs.cpio.gz" \
+    nohup "$STEAMAC_WORK_DIR/out/steamac-vm" --kernel "$vm/Image" --initrd "$vm/initramfs.cpio.gz" \
         --cmdline "console=hvc0 loglevel=4 rootwait" \
         --disk "$vm/test.img" --disk "$vm/steamac-layer.img:ro" \
         --ssh-port "$PORT" --no-sound --headless --cpus 4 --mem 8192 \
@@ -140,7 +139,7 @@ run() {
     done
     {
         echo "== host: macOS $(sw_vers -productVersion), driver ${VULKAN_DRIVER:-kosmickrisp}, $(cat "$S/vm/vm.env" 2>/dev/null)," \
-            "$(stat -f '%Sm %N' "$REPO"/work/out/host/lib/libvulkan_kosmickrisp*.dylib 2>/dev/null | head -1)"
+            "$(stat -f '%Sm %N' "$STEAMAC_WORK_DIR"/out/host/lib/libvulkan_kosmickrisp*.dylib 2>/dev/null | head -1)"
         echo "== vkd3d-proton $VKD3D_PROTON_COMMIT"
         echo "== vulkaninfo"
         ssh_g 'vulkaninfo 2>/dev/null' | grep -E 'deviceName|driverName|driverInfo|apiVersion|sparse|[Rr]esidency|shaderResourceMinLod|filterMinmax|minLod|shaderStorageImageReadWithoutFormat|SPARSE_BINDING' \

@@ -12,8 +12,10 @@ set -eu
 
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../../.." && pwd)
-work=$root/work/build/host-moltenvk/bench
-inc=$root/work/build/host-moltenvk/src/Package/Release/MoltenVK/include
+STEAMAC_SOURCE_ROOT="$root"
+. "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
+work=$STEAMAC_WORK_DIR/build/host-moltenvk/bench
+inc=$STEAMAC_WORK_DIR/build/host-moltenvk/src/Package/Release/MoltenVK/include
 rounds=${ROUNDS:-5}
 [ $# -ge 1 ] || { echo "usage: $0 <libdir> [<libdir> ...]" >&2; exit 2; }
 

@@ -47,10 +47,12 @@ SPVC_COMMIT=939b40b33a44443c404c4078823c406e3c94866f
 
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../.." && pwd)
-work=$root/work/build/host-moltenvk
+STEAMAC_SOURCE_ROOT="$root"
+. "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
+work=$STEAMAC_WORK_DIR/build/host-moltenvk
 src=$work/src
 spvc=$work/SPIRV-Cross
-out=$root/work/out/host
+out=$STEAMAC_WORK_DIR/out/host
 
 if [ "${1:-}" = clean ]; then
 	rm -rf "$work"

@@ -5,7 +5,9 @@
 set -eu
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../../.." && pwd)
-out=$root/work/build/guest-failures
+STEAMAC_SOURCE_ROOT="$root"
+. "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
+out=$STEAMAC_WORK_DIR/build/guest-failures
 mkdir -p "$out"
 cp "$here/guest_failures.c" "$out/"
 

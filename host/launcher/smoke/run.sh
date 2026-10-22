@@ -8,11 +8,10 @@ set -euo pipefail
 
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../../.." && pwd)
-STEAMAC_ROOT="$ROOT"
-export STEAMAC_ROOT
-. "$STEAMAC_ROOT/scripts/paths.sh"
-OUT="${STEAMAC_WORK_DIR}/out"
-S="${STEAMAC_WORK_DIR}/smoke"
+STEAMAC_SOURCE_ROOT="$ROOT"
+. "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
+OUT="$STEAMAC_WORK_DIR/out"
+S="$STEAMAC_WORK_DIR/smoke"
 MODE=window
 [[ "${1:-}" == "--headless" ]] && MODE=headless
 

@@ -41,11 +41,13 @@ export MACOSX_DEPLOYMENT_TARGET=15.0
 
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../.." && pwd)
-work=$root/work/build/host-virglrenderer
+STEAMAC_SOURCE_ROOT="$root"
+. "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
+work=$STEAMAC_WORK_DIR/build/host-virglrenderer
 src=$work/src
 build=$work/build
 stage=$work/stage
-out=$root/work/out/host
+out=$STEAMAC_WORK_DIR/out/host
 mvk_lib=$out/lib/libMoltenVK.dylib
 kk_lib=$out/lib/libvulkan_kosmickrisp.dylib
 

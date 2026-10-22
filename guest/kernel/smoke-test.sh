@@ -6,17 +6,16 @@
 set -eu
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../.." && pwd)
-STEAMAC_ROOT="$root"
-export STEAMAC_ROOT
-. "$STEAMAC_ROOT/scripts/paths.sh"
+STEAMAC_SOURCE_ROOT="$root"
+. "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
 IMAGE=steamac-kernel-smoke:trixie
 
-[ -f "${STEAMAC_WORK_DIR}/out/Image" ] || { echo "smoke-test: build work/out/Image first" >&2; exit 2; }
+[ -f "$STEAMAC_WORK_DIR/out/Image" ] || { echo "smoke-test: build work/out/Image first" >&2; exit 2; }
 docker build --platform linux/arm64 -q -t "$IMAGE" "$here/smoke" > /dev/null
 
-log=${STEAMAC_WORK_DIR}/out/kernel-smoke.log
+log=$STEAMAC_WORK_DIR/out/kernel-smoke.log
 docker run --rm --platform linux/arm64 \
-	-v "${STEAMAC_WORK_DIR}/out/Image":/Image:ro \
+	-v "$STEAMAC_WORK_DIR/out/Image":/Image:ro \
 	-v "$here/smoke/init":/smoke-init:ro \
 	"$IMAGE" sh -euc '
 		mkdir -p /ir/bin && cp /bin/busybox /ir/bin/busybox && cp /smoke-init /ir/init

@@ -14,11 +14,10 @@ set -eu
 
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../../.." && pwd)
-STEAMAC_ROOT="$root"
-export STEAMAC_ROOT
-. "$STEAMAC_ROOT/scripts/paths.sh"
-out=${STEAMAC_WORK_DIR}/out
-dir=${1:-${STEAMAC_WORK_DIR}/scratch/resize-test}
+STEAMAC_SOURCE_ROOT="$root"
+. "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
+out=$STEAMAC_WORK_DIR/out
+dir=${1:-$STEAMAC_WORK_DIR/scratch/resize-test}
 port=${SSH_PORT:-2230}
 sizes=${SIZES:-1600x1000 1024x640}
 boot_wait=${BOOT_WAIT:-600}
@@ -27,7 +26,7 @@ settle=${SETTLE:-45}
 mkdir -p "$dir"
 run=$(mktemp -d /tmp/krun-resize.XXXXXX)
 clone=$dir/steamos.img
-bin=${STEAMAC_WORK_DIR}/build/host-libkrun/resize
+bin=$STEAMAC_WORK_DIR/build/host-libkrun/resize
 
 clang -std=c11 -Wall -Wextra -Werror -o "$bin" "$here/resize.c" \
 	-I"$out/host/include" -L"$out/host/lib" -lkrun -Wl,-rpath,"$out/host/lib" \

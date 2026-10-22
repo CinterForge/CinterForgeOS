@@ -9,10 +9,9 @@ URL="https://github.com/containers/gvisor-tap-vsock/releases/download/${VERSION}
 
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../.." && pwd)
-STEAMAC_ROOT="$ROOT"
-export STEAMAC_ROOT
-. "$STEAMAC_ROOT/scripts/paths.sh"
-DEST="${GVPROXY_DEST:-${STEAMAC_WORK_DIR}/out/host/bin/gvproxy}"
+STEAMAC_SOURCE_ROOT="$ROOT"
+. "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
+DEST="${GVPROXY_DEST:-$STEAMAC_WORK_DIR/out/host/bin/gvproxy}"
 
 sum() { shasum -a 256 "$1" | awk '{print $1}'; }
 

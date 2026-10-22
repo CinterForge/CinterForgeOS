@@ -57,11 +57,10 @@ JOBS=${JOBS:-16}
 
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../.." && pwd)
-STEAMAC_ROOT="$root"
-export STEAMAC_ROOT
-. "$STEAMAC_ROOT/scripts/paths.sh"
-cache=${STEAMAC_WORK_DIR}/cache/kernel
-out=${STEAMAC_WORK_DIR}/out
+STEAMAC_SOURCE_ROOT="$root"
+. "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
+cache=$STEAMAC_WORK_DIR/cache/kernel
+out=$STEAMAC_WORK_DIR/out
 
 if [ "${1:-}" = clean ]; then
 	docker volume rm -f "$VOLUME"

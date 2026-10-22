@@ -9,6 +9,8 @@
 #   ./build.sh guest      only the guest side (kernel, rootfs, Mesa, initramfs, layer, disk)
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
+STEAMAC_SOURCE_ROOT="$PWD"
+. "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
 
 host() {
     host/moltenvk/build.sh
