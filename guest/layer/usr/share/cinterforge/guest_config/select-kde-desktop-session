@@ -21,13 +21,26 @@ ln -s /dev/null "/etc/systemd/system/$legacy"
 systemctl daemon-reload
 # SteamOS may select Gaming Mode from /etc/sddm.conf after reading conf.d.
 # Set the effective SDDM autologin settings in the highest-precedence file.
-session=/usr/share/wayland-sessions/plasma.desktop
-if [ ! -f "$session" ]; then
-    echo "[CinterForgeOS] ERROR: native Plasma Wayland session missing: $session" >&2
-    exit 1
+# SteamOS's plasma.desktop can be replaced by session-selection packages or
+# retained rootfs configuration. Use our explicit Plasma Desktop Mode entry,
+# which starts plasma-session.target (never gamescope-session.target / Steam).
+# SteamOS may expose only the stock Plasma Wayland session in the overlay.
+# Never prevent SDDM from starting because an optional branded .desktop file
+# is absent from the generated image (this previously stranded the guest at
+# a text login after an ordinary Xcode Clean & Build).
+session_name=cinterforgeos.desktop
+session=/usr/share/wayland-sessions/$session_name
+if [ ! -f "$session" ] || ! grep -Fxq 'Exec=/usr/bin/start-gamescope-session plasma-session.target' "$session"; then
+    echo "[CinterForgeOS] WARNING: $session unavailable; selecting installed Plasma desktop session" >&2
+    session_name=plasma.desktop
+    session=/usr/share/wayland-sessions/$session_name
+    if [ ! -f "$session" ]; then
+        echo "[CinterForgeOS] ERROR: neither CinterForgeOS nor stock Plasma session exists" >&2
+        exit 1
+    fi
 fi
 install -d -m 0755 /etc/sddm.conf.d
-printf '[Autologin]\\nUser=steamos\\nSession=plasma.desktop\\n' > /etc/sddm.conf.d/zzzz-cinterforgeos-desktop.conf
+printf '[Autologin]\nUser=steamos\nSession=%s\n' "$session_name" > /etc/sddm.conf.d/zzzz-cinterforgeos-desktop.conf
 # /etc/sddm.conf has higher precedence than /etc/sddm.conf.d/*.conf.
 # Preserve all other display-manager configuration, replacing only the
 # existing Autologin section instead of clobbering it.
@@ -44,12 +57,12 @@ if [ -f "$config" ]; then
       }
       !in_autologin { print }
     ' "$config" > "$tmp"
-    printf '\n[Autologin]\nUser=steamos\nSession=plasma.desktop\n' >> "$tmp"
+    printf '\n[Autologin]\nUser=steamos\nSession=%s\n' "$session_name" >> "$tmp"
     cat "$tmp" > "$config"
     rm -f "$tmp"
     trap - EXIT HUP INT TERM
 else
-    printf '[Autologin]\nUser=steamos\nSession=plasma.desktop\n' > "$config"
+    printf '[Autologin]\nUser=steamos\nSession=%s\n' "$session_name" > "$config"
 fi
 # SteamOS disk provisioning can leave the persistent /home/steamos tree
 # owned by root. SDDM autologin succeeds but every KDE component then fails
@@ -100,22 +113,74 @@ autostart="$home/.config/autostart"
 install -d -m 0755 -o steamos -g steamos "$autostart"
 install -m 0644 -o steamos -g steamos /usr/share/cinterforge/kde/cinterforge-installed-test.desktop "$autostart/cinterforge-installed-test.desktop"
 echo "[CinterForgeOS] Installed authored KDE autostart entry"
-# Native KDE bypasses the old gamescope-session.target/steam.service path.
-# Restore Steam's sign-in UI in the real Plasma session, without nesting a
-# second desktop or relying on systemctl --user (which may have no user bus).
-# Reinstall on each boot because /home is persistent across guest layer updates.
-cat > "$autostart/cinterforge-steam.desktop" <<'CFOS_STEAM_AUTOSTART'
+# Steam must not start automatically in the native KDE session. On SteamOS,
+# the Deck client can initiate a Gamescope/Gaming Mode session transition;
+# that terminates the SDDM Plasma login and makes the desktop disappear.
+# Remove the autostart entry installed by earlier CinterForgeOS layers from
+# persistent /home, but preserve the Steam client and all account data.
+rm -f "$autostart/cinterforge-steam.desktop"
+# Shadow both SteamOS global and earlier layer-provided Steam XDG autostarts.
+# Hidden=true disables matching system entries without removing the Steam app.
+cat > "$autostart/steam.desktop" <<'CFOS_DISABLE_STEAM_AUTOSTART'
 [Desktop Entry]
 Type=Application
 Name=Steam
-Comment=Steam sign-in and desktop client
+Hidden=true
+CFOS_DISABLE_STEAM_AUTOSTART
+chmod 0644 "$autostart/steam.desktop"
+chown steamos:steamos "$autostart/steam.desktop"
+# Provide an explicit, user-launchable Steam entry instead of starting it
+# during session establishment. This is not an XDG autostart directory.
+applications="$home/.local/share/applications"
+install -d -m 0755 -o steamos -g steamos "$applications"
+cat > "$applications/cinterforge-steam.desktop" <<'CFOS_STEAM_LAUNCHER'
+[Desktop Entry]
+Type=Application
+Name=Steam (CinterForgeOS)
+Comment=Launch the native Steam client from KDE
 Exec=/usr/lib/steamac/steam-kde-login
 Icon=steam
 Terminal=false
-OnlyShowIn=KDE
-X-KDE-autostart-phase=1
-CFOS_STEAM_AUTOSTART
-chmod 0644 "$autostart/cinterforge-steam.desktop"
-chown steamos:steamos "$autostart/cinterforge-steam.desktop"
-echo '[CinterForgeOS] Steam ARM64 KDE sign-in autostart installed for steamos'
-echo "[CinterForgeOS] SDDM autologin selected native KDE Plasma desktop"
+Categories=Game;
+CFOS_STEAM_LAUNCHER
+chown steamos:steamos "$applications/cinterforge-steam.desktop"
+chmod 0644 "$applications/cinterforge-steam.desktop"
+# Linux Ardour is an ELF application, not a Proton/Steam shortcut. Expose the
+# installed GUI launcher in KDE and on the desktop. It invokes the existing
+# Linux x86-64 FEX runner directly and cannot trigger a SteamOS mode switch.
+cat > "$applications/cinterforge-audio-linux.desktop" <<'CFOS_ARDOUR_LINUX'
+[Desktop Entry]
+Type=Application
+Name=CinterForge Audio (Linux)
+Comment=Launch installed Linux x86-64 Ardour on the KDE desktop
+Exec=/usr/lib/cinterforge/launch-ardour-linux
+Icon=audio-x-generic
+Terminal=true
+Categories=AudioVideo;Audio;AudioVideoEditing;
+StartupNotify=true
+CFOS_ARDOUR_LINUX
+chmod 0644 "$applications/cinterforge-audio-linux.desktop"
+chown steamos:steamos "$applications/cinterforge-audio-linux.desktop"
+desktop="$home/Desktop"
+install -d -m 0755 -o steamos -g steamos "$desktop"
+install -m 0755 -o steamos -g steamos "$applications/cinterforge-audio-linux.desktop" "$desktop/cinterforge-audio-linux.desktop"
+# Windows Ardour runs as a KDE window through the existing Wine/FEX guest
+# launcher, never as a Steam shortcut or a Gaming Mode transition.
+cat > "$applications/cinterforge-audio-windows.desktop" <<'CFOS_ARDOUR_WINDOWS'
+[Desktop Entry]
+Type=Application
+Name=Ardour (Windows)
+Comment=Launch installed Windows x64 Ardour on the KDE desktop
+Exec=/usr/lib/cinterforge/launch-ardour-windows
+Icon=audio-x-generic
+Terminal=true
+Categories=AudioVideo;Audio;AudioVideoEditing;
+StartupNotify=true
+CFOS_ARDOUR_WINDOWS
+chmod 0644 "$applications/cinterforge-audio-windows.desktop"
+chown steamos:steamos "$applications/cinterforge-audio-windows.desktop"
+install -m 0755 -o steamos -g steamos "$applications/cinterforge-audio-windows.desktop" "$desktop/cinterforge-audio-windows.desktop"
+echo '[CinterForgeOS] Installed direct Windows Ardour KDE/desktop launcher (Wine/FEX, no Steam)'
+echo '[CinterForgeOS] Installed direct Linux Ardour KDE/desktop launcher (no Steam or Proton)'
+echo '[CinterForgeOS] Native Steam launcher available; Steam autostart disabled to protect KDE session'
+echo '[CinterForgeOS] SDDM autologin selected explicit CinterForgeOS Plasma Desktop Mode (not Steam Gaming Mode)'

@@ -23,6 +23,8 @@ install -D -m 0755 "$CFG/select-kde-desktop-session" "$ST/usr/lib/cinterforge/se
 # SDDM ExecStartPre runs this on EVERY boot; an invalid awk expression keeps
 # the user at the serial login prompt instead of starting Plasma.
 sh -n "$ST/usr/lib/cinterforge/select-kde-desktop-session"
+grep -Fq 'Hidden=true' "$ST/usr/lib/cinterforge/select-kde-desktop-session" \
+    || { echo '[layer] KDE protection missing: Steam autostart must be disabled' >&2; exit 1; }
 grep -Fq 'substr($0, 1, 1) == "["' "$ST/usr/lib/cinterforge/select-kde-desktop-session" \
     || { echo '[layer] obsolete KDE login script (missing INI parser fix)' >&2; exit 1; }
 install -D -m 0755 "$CFG/select-kde-wallpaper" "$ST/usr/lib/cinterforge/select-kde-wallpaper"

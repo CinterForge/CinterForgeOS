@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Ardour (Windows)
+GenericName=Windows Ardour
+Comment=Launch installed Windows x64 Ardour directly in KDE (no Steam gaming mode)
+Exec=/usr/lib/cinterforge/launch-ardour-windows
+Icon=audio-x-generic
+Terminal=true
+Categories=AudioVideo;Audio;AudioVideoEditing;
+StartupNotify=true
