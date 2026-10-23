@@ -215,8 +215,8 @@ final class ClipboardPort {
 
 /// Settings > General "Share clipboard with SteamOS": the Mac's general pasteboard ↔ SteamOS's
 /// clipboard (text both ways; PNG images, written to the Mac as PNG + TIFF). The pasteboard's
-/// changeCount is checked on a 0.5 s timer only while the app is active, the VM runs and the
-/// guest agent is connected, and once on every activation — nothing polls in the background.
+/// changeCount is checked on a 0.5 s timer while the VM runs and the guest agent is
+/// connected, including when another Mac app has focus (where copying normally happens).
 /// Items marked concealed or transient (org.nspasteboard.ConcealedType / TransientType: password
 /// managers) stay on the Mac unless "Include concealed (password manager) items" is on.
 /// Echo suppression: the content last sent or taken over (hash) is never sent again, and the
@@ -300,7 +300,10 @@ final class ClipboardSync {
     }
 
     private func updateTimer() {
-        let run = enabled && guestConnected && appActive && !vmPaused
+        // A copy normally happens while another Mac app has focus. Stopping the
+        // watcher on didResignActive can leave the guest stuck with the first
+        // clipboard value if activation is not delivered on returning to the VM.
+        let run = enabled && guestConnected && !vmPaused
         if run, timer == nil {
             let t = DispatchSource.makeTimerSource(queue: .main)
             t.schedule(deadline: .now() + ClipboardSync.pollInterval, repeating: ClipboardSync.pollInterval, leeway: .milliseconds(200))

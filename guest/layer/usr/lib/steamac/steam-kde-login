@@ -59,4 +59,7 @@ export LD_LIBRARY_PATH="$steamroot/steamrtarm64:$steamroot/steamrtarm64/panorama
 cd "$steamroot"
 report "[Steam login] Starting Valve Steam ARM64 ($branch)"
 echo "[Steam login] executable: $client"
-exec "$client" -vrdisable
+# Explicitly request the desktop window rather than Steam Deck's ten-foot UI.
+# The chosen ARM64 client branch stays unchanged; only the UI mode differs.
+# Do not use -gamepadui/-tenfoot/-steamdeck or session-select here.
+exec "$client" -vrdisable -nobigpicture -vgui
