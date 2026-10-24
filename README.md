@@ -1,5 +1,5 @@
 # CinterForge OS
-
+![CinterForge OS development: Xcode, Finder, and the macOS application](docs/dev-environment/Hero%20shot.png)
 ### Built by a macOS developer. For macOS developers.
 
 **Build and debug Linux x86-64 and Windows applications on your Mac — in a real SteamOS desktop.**
@@ -80,6 +80,7 @@ This project is evolving. Contributions that improve build reproducibility, grap
 | [Guest](docs/technical/CinterForgeOS%20guest.md) | SteamOS image, boot, overlays, mounts, KDE, and guest integration. |
 | [Host](docs/technical/CinterForgeOS%20host.md) | Native macOS host, VM lifecycle, graphics, input, storage, and diagnostics. |
 | [Xcode project](docs/technical/CinterForgeOS%20XCode%20Project.md) | App target, dependencies, build phases, generated outputs, and staging responsibilities. |
+| [Graphics benchmarking](docs/technical/CinterForgeOS%20Graphics%20Benchmarking.md) | Linux Superposition and Windows Heaven showcase targets, proven controls, and verification criteria. |
 | [Original steamac README](docs/technical/Steamac%20README.md) | Upstream context, platform prerequisites, and technical foundations. |
 
 For operational commands used to install and test Linux/Windows applications, see the **CinterForge** repository's `creativeSuite/apps/cinterforge-os/external/` documentation. The `Hope` entry point inside SteamOS delegates to tools installed outside the guest image.
