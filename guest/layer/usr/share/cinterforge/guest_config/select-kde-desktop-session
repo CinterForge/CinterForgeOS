@@ -123,11 +123,10 @@ fi
 # Keep user-authored Places intact. For fresh home directories copy the
 # version-controlled XBEL seed; for existing users append only missing entries.
 /usr/lib/cinterforge/install-kde-places
-# One authored KDE autostart entry. No competing script fallback.
+# Remove the retired test autostart entry from existing persistent user homes.
 autostart="$home/.config/autostart"
 install -d -m 0755 -o steamos -g steamos "$autostart"
-install -m 0644 -o steamos -g steamos /usr/share/cinterforge/kde/cinterforge-installed-test.desktop "$autostart/cinterforge-installed-test.desktop"
-echo "[CinterForgeOS] Installed authored KDE autostart entry"
+rm -f "$autostart/cinterforge-installed-test.desktop"
 # Steam must not start automatically in the native KDE session. On SteamOS,
 # the Deck client can initiate a Gamescope/Gaming Mode session transition;
 # that terminates the SDDM Plasma login and makes the desktop disappear.

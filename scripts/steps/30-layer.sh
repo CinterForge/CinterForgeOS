@@ -156,8 +156,6 @@ install -D -m 0755 "$CFG/select-kde-wallpaper" "$ST/usr/lib/cinterforge/select-k
 install -D -m 0755 "$CFG/verify-virtiofs-mounts" "$ST/usr/lib/cinterforge/verify-virtiofs-mounts"
 install -D -m 0755 "$CFG/install-kde-places" "$ST/usr/lib/cinterforge/install-kde-places"
 install -D -m 0644 "$CFG/user-places.xbel" "$ST/usr/share/cinterforge/kde/user-places.xbel"
-install -D -m 0644 "$CFG/cinterforge-installed-test.desktop" "$ST/usr/share/cinterforge/kde/cinterforge-installed-test.desktop"
-install -D -m 0644 "$CFG/cinterforge-installed-test.desktop" "$ST/usr/share/xdg/autostart/cinterforge-installed-test.desktop"
 install -D -m 0644 "$CFG/sddm-desktop.conf" "$ST/usr/lib/systemd/system/sddm.service.d/90-cinterforgeos-desktop.conf"
 install -D -m 0644 "$CFG/cinterforge-kde-prepare.service" "$ST/usr/lib/systemd/system/cinterforge-kde-prepare.service"
 install -D -m 0644 "$CFG/cinterforge-virtiofs-verify.service" "$ST/usr/lib/systemd/system/cinterforge-virtiofs-verify.service"

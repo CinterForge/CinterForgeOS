@@ -92,7 +92,6 @@
 		E80000000000000000000001 /* cinterforge-linux-1920x1080.png (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000001 /* cinterforge-linux-1920x1080.png (guest) */; };
 		E80000000000000000000002 /* cinterforge-windows-1920x1080.png (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000002 /* cinterforge-windows-1920x1080.png (guest) */; };
 		E80000000000000000000003 /* cinterforge-logo.png (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000003 /* cinterforge-logo.png (guest) */; };
-		E80000000000000000000004 /* cinterforge-installed-test.desktop (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000004 /* cinterforge-installed-test.desktop (guest) */; };
 		E80000000000000000000005 /* cinterforge-kde-prepare.service (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000005 /* cinterforge-kde-prepare.service (guest) */; };
 		E80000000000000000000006 /* cinterforge-virtiofs-verify.service (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000006 /* cinterforge-virtiofs-verify.service (guest) */; };
 		E80000000000000000000007 /* install-kde-places (guest) in Resources */ = {isa = PBXBuildFile; fileRef = E70000000000000000000007 /* install-kde-places (guest) */; };
@@ -478,7 +477,6 @@
 		4D058AC6308A8F3600C9965C /* 70-fx-progress.rules */ = {isa = PBXFileReference; lastKnownFileType = text; path = "70-fx-progress.rules"; sourceTree = "<group>"; };
 		4D058ACA308A8F3600C9965C /* cinterforge-linux-1920x1080.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cinterforge-linux-1920x1080.png"; sourceTree = "<group>"; };
 		4D058ACB308A8F3600C9965C /* cinterforge-windows-1920x1080.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cinterforge-windows-1920x1080.png"; sourceTree = "<group>"; };
-		4D058ACD308A8F3600C9965C /* cinterforge-installed-test.desktop */ = {isa = PBXFileReference; lastKnownFileType = text; path = "cinterforge-installed-test.desktop"; sourceTree = "<group>"; };
 		4D058ACE308A8F3600C9965C /* cinterforge-kde-prepare.service */ = {isa = PBXFileReference; lastKnownFileType = text; path = "cinterforge-kde-prepare.service"; sourceTree = "<group>"; };
 		4D058ACF308A8F3600C9965C /* cinterforge-virtiofs-verify.service */ = {isa = PBXFileReference; lastKnownFileType = text; path = "cinterforge-virtiofs-verify.service"; sourceTree = "<group>"; };
 		4D058AD0308A8F3600C9965C /* install-kde-places */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "install-kde-places"; sourceTree = "<group>"; };
@@ -503,7 +501,6 @@
 		4D058AE5308A8F3600C9965C /* cinterforge-logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cinterforge-logo.png"; sourceTree = "<group>"; };
 		4D058AE7308A8F3600C9965C /* mesavars.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = mesavars.sh; sourceTree = "<group>"; };
 		4D058AE9308A8F3600C9965C /* Steam Deck Logo Default.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "Steam Deck Logo Default.jpg"; sourceTree = "<group>"; };
-		4D058AEB308A8F3600C9965C /* cinterforge-installed-test.desktop */ = {isa = PBXFileReference; lastKnownFileType = text; path = "cinterforge-installed-test.desktop"; sourceTree = "<group>"; };
 		4D058AEC308A8F3600C9965C /* cinterforge-support-desktop-ready.desktop */ = {isa = PBXFileReference; lastKnownFileType = text; path = "cinterforge-support-desktop-ready.desktop"; sourceTree = "<group>"; };
 		4D058AF2308A8F3600C9965C /* build-aarch64.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-aarch64.sh"; sourceTree = "<group>"; };
 		4D058AF3308A8F3600C9965C /* build-x86.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-x86.sh"; sourceTree = "<group>"; };
@@ -548,6 +545,10 @@
 		4D45D960308A6EF700725112 /* cinterforge-libkrun.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-libkrun.xcodeproj"; sourceTree = "<group>"; };
 		4D45DBB0308A6EF700725112 /* cinterforge-virglrenderer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-virglrenderer.xcodeproj"; sourceTree = "<group>"; };
 		4D45FCF3308A6EF700725112 /* cinterforge-spirv-cross.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-spirv-cross.xcodeproj"; sourceTree = "<group>"; };
+		4DA7A336308AF76B001FA0CE /* cinterforge-libkrun.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-libkrun.xcodeproj"; sourceTree = "<group>"; };
+		4DA7A586308AF76B001FA0CE /* cinterforge-virglrenderer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-virglrenderer.xcodeproj"; sourceTree = "<group>"; };
+		4DA7B94C308AF76C001FA0CE /* cinterforge-spirv-cross.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-spirv-cross.xcodeproj"; sourceTree = "<group>"; };
+		4DA7EF14308AF76C001FA0CE /* cinterforge-kosmickrisp-mesa.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-kosmickrisp-mesa.xcodeproj"; sourceTree = "<group>"; };
 		4DEE2EDB308A6CC30059F151 /* cinterforge-libkrun.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-libkrun.xcodeproj"; sourceTree = "<group>"; };
 		4DEE312B308A6CC30059F151 /* cinterforge-virglrenderer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-virglrenderer.xcodeproj"; sourceTree = "<group>"; };
 		4DEE316D308A6CC40059F151 /* Cube.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Cube.xcodeproj; sourceTree = "<group>"; };
@@ -627,7 +628,6 @@
 		E70000000000000000000001 /* cinterforge-linux-1920x1080.png (guest) */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "cinterforge-linux-1920x1080.png (guest)"; path = "guest/layer/usr/share/cinterforge/backgrounds/cinterforge-linux-1920x1080.png"; sourceTree = SOURCE_ROOT; };
 		E70000000000000000000002 /* cinterforge-windows-1920x1080.png (guest) */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "cinterforge-windows-1920x1080.png (guest)"; path = "guest/layer/usr/share/cinterforge/backgrounds/cinterforge-windows-1920x1080.png"; sourceTree = SOURCE_ROOT; };
 		E70000000000000000000003 /* cinterforge-logo.png (guest) */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "cinterforge-logo.png (guest)"; path = "guest/layer/usr/share/cinterforge/cinterforge-logo.png"; sourceTree = SOURCE_ROOT; };
-		E70000000000000000000004 /* cinterforge-installed-test.desktop (guest) */ = {isa = PBXFileReference; lastKnownFileType = text; name = "cinterforge-installed-test.desktop (guest)"; path = "guest/layer/usr/share/cinterforge/guest_config/cinterforge-installed-test.desktop"; sourceTree = SOURCE_ROOT; };
 		E70000000000000000000005 /* cinterforge-kde-prepare.service (guest) */ = {isa = PBXFileReference; lastKnownFileType = text; name = "cinterforge-kde-prepare.service (guest)"; path = "guest/layer/usr/share/cinterforge/guest_config/cinterforge-kde-prepare.service"; sourceTree = SOURCE_ROOT; };
 		E70000000000000000000006 /* cinterforge-virtiofs-verify.service (guest) */ = {isa = PBXFileReference; lastKnownFileType = text; name = "cinterforge-virtiofs-verify.service (guest)"; path = "guest/layer/usr/share/cinterforge/guest_config/cinterforge-virtiofs-verify.service"; sourceTree = SOURCE_ROOT; };
 		E70000000000000000000007 /* install-kde-places (guest) */ = {isa = PBXFileReference; lastKnownFileType = text; name = "install-kde-places (guest)"; path = "guest/layer/usr/share/cinterforge/guest_config/install-kde-places"; sourceTree = SOURCE_ROOT; };
@@ -1172,7 +1172,6 @@
 		4D058AD6308A8F3600C9965C /* guest_config */ = {
 			isa = PBXGroup;
 			children = (
-				4D058ACD308A8F3600C9965C /* cinterforge-installed-test.desktop */,
 				4D058ACE308A8F3600C9965C /* cinterforge-kde-prepare.service */,
 				4D058ACF308A8F3600C9965C /* cinterforge-virtiofs-verify.service */,
 				4D058AD0308A8F3600C9965C /* install-kde-places */,
@@ -1235,7 +1234,6 @@
 		4D058AED308A8F3600C9965C /* autostart */ = {
 			isa = PBXGroup;
 			children = (
-				4D058AEB308A8F3600C9965C /* cinterforge-installed-test.desktop */,
 				4D058AEC308A8F3600C9965C /* cinterforge-support-desktop-ready.desktop */,
 			);
 			path = autostart;
@@ -1395,6 +1393,34 @@
 			sourceTree = "<group>";
 		};
 		4D45FD1C308A6EF700725112 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DA7A33D308AF76B001FA0CE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DA7A58C308AF76B001FA0CE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DA7B975308AF76C001FA0CE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DA7EF1E308AF76C001FA0CE /* Products */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -1768,7 +1794,6 @@
 				E70000000000000000000001 /* cinterforge-linux-1920x1080.png (guest) */,
 				E70000000000000000000002 /* cinterforge-windows-1920x1080.png (guest) */,
 				E70000000000000000000003 /* cinterforge-logo.png (guest) */,
-				E70000000000000000000004 /* cinterforge-installed-test.desktop (guest) */,
 				E70000000000000000000005 /* cinterforge-kde-prepare.service (guest) */,
 				E70000000000000000000006 /* cinterforge-virtiofs-verify.service (guest) */,
 				E70000000000000000000007 /* install-kde-places (guest) */,
@@ -1908,6 +1933,10 @@
 					ProjectRef = 4DF9FDF3308A88B500E4BDBE /* cinterforge-kosmickrisp-mesa.xcodeproj */;
 				},
 				{
+					ProductGroup = 4DA7EF1E308AF76C001FA0CE /* Products */;
+					ProjectRef = 4DA7EF14308AF76C001FA0CE /* cinterforge-kosmickrisp-mesa.xcodeproj */;
+				},
+				{
 					ProductGroup = 4D0475C5308A9837004B97C7 /* Products */;
 					ProjectRef = 4D0475BA308A9837004B97C7 /* cinterforge-kosmickrisp-mesa.xcodeproj */;
 				},
@@ -1926,6 +1955,10 @@
 				{
 					ProductGroup = 4D45D967308A6EF700725112 /* Products */;
 					ProjectRef = 4D45D960308A6EF700725112 /* cinterforge-libkrun.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DA7A33D308AF76B001FA0CE /* Products */;
+					ProjectRef = 4DA7A336308AF76B001FA0CE /* cinterforge-libkrun.xcodeproj */;
 				},
 				{
 					ProductGroup = 4DEE2EE2308A6CC30059F151 /* Products */;
@@ -1952,6 +1985,10 @@
 					ProjectRef = 4DF9C82B308A88B400E4BDBE /* cinterforge-spirv-cross.xcodeproj */;
 				},
 				{
+					ProductGroup = 4DA7B975308AF76C001FA0CE /* Products */;
+					ProjectRef = 4DA7B94C308AF76C001FA0CE /* cinterforge-spirv-cross.xcodeproj */;
+				},
+				{
 					ProductGroup = 4D04401B308A9836004B97C7 /* Products */;
 					ProjectRef = 4D043FF2308A9836004B97C7 /* cinterforge-spirv-cross.xcodeproj */;
 				},
@@ -1974,6 +2011,10 @@
 				{
 					ProductGroup = 4DF9B46B308A88B400E4BDBE /* Products */;
 					ProjectRef = 4DF9B465308A88B400E4BDBE /* cinterforge-virglrenderer.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DA7A58C308AF76B001FA0CE /* Products */;
+					ProjectRef = 4DA7A586308AF76B001FA0CE /* cinterforge-virglrenderer.xcodeproj */;
 				},
 				{
 					ProductGroup = 4D050D37308A8C7300C9965C /* Products */;
@@ -2222,7 +2263,6 @@
 				E80000000000000000000001 /* cinterforge-linux-1920x1080.png (guest) in Resources */,
 				E80000000000000000000002 /* cinterforge-windows-1920x1080.png (guest) in Resources */,
 				E80000000000000000000003 /* cinterforge-logo.png (guest) in Resources */,
-				E80000000000000000000004 /* cinterforge-installed-test.desktop (guest) in Resources */,
 				E80000000000000000000005 /* cinterforge-kde-prepare.service (guest) in Resources */,
 				E80000000000000000000006 /* cinterforge-virtiofs-verify.service (guest) in Resources */,
 				E80000000000000000000007 /* install-kde-places (guest) in Resources */,

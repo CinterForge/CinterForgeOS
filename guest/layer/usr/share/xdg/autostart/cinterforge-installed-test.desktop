@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=CinterForgeOS KDE guest smoke bridge
-Exec=Hope help
-Hidden=true
-OnlyShowIn=KDE;
-Terminal=false
-X-KDE-autostart-phase=2
