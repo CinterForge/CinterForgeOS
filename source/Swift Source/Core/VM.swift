@@ -141,9 +141,23 @@ final class VM {
                 throw NSError(domain: "CinterForgeOS", code: 2, userInfo: [
                     NSLocalizedDescriptionKey: "Steamapps override disagrees with selected VM disk: " + path])
             }
-            try krun("krun_add_virtiofs3(steamapps)",
-                     krun_add_virtiofs3(ctx, "steamapps", path, 0, false))
-            log("steamapps VirtioFS attached read/write: " + path + " -> /run/steamapps")
+            // Steam apps are owned by the macOS user, while KDE processes run
+            // as the Linux `steamos` user. Standard Linux ownership emulation
+            // makes those same host-writable directories appear unwritable to
+            // KDE. libkrun's simplified permissions mode presents files using
+            // the requesting guest user's identity, while retaining the host
+            // filesystem's permission bits and the read/write export.
+            // This configures the one existing Steam library mount; it does
+            // not change permissions on the macOS Steam library.
+            try krun("krun_add_virtiofs4(steamapps)",
+                     krun_add_virtiofs4(ctx,
+                                       "steamapps",
+                                       path,
+                                       0,
+                                       false,
+                                       UInt32(KRUN_SEMANTICS_LINUX_SIMPLIFIED)))
+            log("steamapps VirtioFS attached read/write with simplified guest ownership: "
+                + path + " -> /run/steamapps")
 
             // Keep one visible, descriptive boot report in the existing Logs tree.
             // Older builds left hidden write-probe files at the Logs root; remove

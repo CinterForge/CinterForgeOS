@@ -7,7 +7,8 @@ printf 'kernel: '; uname -rm
 printf '%s\n' '--- process memory (RSS KiB; one line per process) ---'
 ps -eo pid,comm,rss --sort=-rss 2>/dev/null | head -n 20 || true
 printf '%s\n' '--- GPU/desktop application processes ---'
-ps -eo pid,comm,rss,etime 2>/dev/null | grep -Ei 'plasmashell|kwin|dolphin|konsole|steam|Xwayland' || true
+ps -eo pid,comm,rss,etime 2>/dev/null | \
+    grep -Ei 'plasmashell|kwin|dolphin|konsole|steam|Xwayland' || true
 printf '%s\n' '--- memory summary ---'
 free -m || true
 printf '%s\n' '--- Steam startup state ---'
@@ -17,5 +18,7 @@ else
   echo 'No Steam startup status recorded; do not treat desktop readiness as Steam readiness'
 fi
 printf '%s\n' '--- recently crashed KDE applications (journal) ---'
-journalctl -b --no-pager -n 1500 2>/dev/null | grep -Ei 'segfault|coredump|kwin.*(error|crash|fail)|plasmashell.*(error|crash|fail)|gpu.*(fault|hang|reset)' | tail -n 25 || true
+journalctl -b --no-pager -n 1500 2>/dev/null | \
+    grep -Ei 'segfault|coredump|kwin.*(error|crash|fail)|plasmashell.*(error|crash|fail)|gpu.*(fault|hang|reset)' | \
+    tail -n 25 || true
 printf '%s\n' 'NOTE: Venus memory-type fallback is not evidence of a leak. Compare RSS across samples and check coredumps.'

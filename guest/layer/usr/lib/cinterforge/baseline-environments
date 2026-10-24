@@ -10,9 +10,12 @@ import shutil
 import subprocess
 import sys
 
-# The host-owned VirtioFS Applications tree is not writable by the guest steamos
-# user. SteamOS /home is persistent and writable; keep baseline reports there.
-LOGS = Path.home() / '.local' / 'state' / 'cinterforge' / 'EnvironmentBaselines'
+# Environment baselines are shared artifacts. Save them in the persistent
+# Steam library so they can be inspected from macOS and from CFOS Konsole.
+# If the shared directory is not writable, report the actual failure rather
+# than silently saving a different copy inside the guest home directory.
+steam_library_directory = Path('/run/steamapps/common/CinterForge')
+BASELINE_DIRECTORY = steam_library_directory / 'Applications' / 'Logs' / 'EnvironmentBaselines'
 FEX = Path('/usr/share/cinterforge/fex')
 
 def command(*args):
@@ -42,7 +45,7 @@ def inventory(root):
     return {'root': str(root), 'exists': True, 'entries': result}
 
 def save(name, data):
-    path = LOGS / name / 'Baseline.json'
+    path = BASELINE_DIRECTORY / name / 'Baseline.json'
     path.parent.mkdir(parents=True, exist_ok=True)
     temp = path.with_suffix('.json.tmp')
     temp.write_text(json.dumps(data, indent=2, sort_keys=True) + '\n')

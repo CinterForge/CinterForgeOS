@@ -16,6 +16,29 @@ ST=$(mktemp -d)
 trap 'rm -rf "$ST"' EXIT
 
 cp -a /src/guest/layer/usr "$ST/usr"
+
+# ZIP archives and source checkouts do not always preserve executable bits.
+# Every authored command in this directory has a script interpreter header.
+# Install these commands with executable permissions instead of relying on
+# whichever permissions happened to survive archive extraction.
+guest_command_sources="/src/guest/layer/usr/lib/cinterforge"
+guest_command_destination="$ST/usr/lib/cinterforge"
+
+for source_script in "$guest_command_sources"/*; do
+    if [[ ! -f "$source_script" ]]; then
+        continue
+    fi
+
+    read -r first_line < "$source_script" || true
+
+    if [[ "$first_line" != '#!'* ]]; then
+        continue
+    fi
+
+    command_name="$(basename "$source_script")"
+    install -D -m 0755 "$source_script" "$guest_command_destination/$command_name"
+done
+
 # KDE's login preparation requires all four groups of eight launchers.
 # Explicitly stage the authored entries and reject an incomplete OS layer
 # during BUILD, not during SDDM login (which otherwise prevents the desktop).
@@ -74,9 +97,24 @@ done
 ln -sfn ../run-steamapps.automount "$ST/usr/lib/systemd/system/multi-user.target.wants/run-steamapps.automount"
 [[ -f "$ST/usr/lib/systemd/system/run-steamapps.mount" && -f "$ST/usr/lib/systemd/system/run-steamapps.automount" ]] \
   || { echo '[layer] steamapps units failed to stage' >&2; exit 1; }
-# Validate the native guest CLI before sealing the read-only OS layer.
-[[ -x "$ST/usr/bin/Hope" ]] || { echo '[layer] guest Hope CLI missing' >&2; exit 1; }
-sh -n "$ST/usr/bin/Hope"
+# Install the guest Hope entry point with executable permissions.
+# Source archive permissions are not reliable, so set the mode explicitly.
+guest_hope_source="/src/guest/layer/usr/bin/Hope"
+guest_hope_destination="$ST/usr/bin/Hope"
+
+if [[ ! -f "$guest_hope_source" ]]; then
+    echo "[layer] guest Hope source file missing: $guest_hope_source" >&2
+    exit 1
+fi
+
+install -D -m 0755 "$guest_hope_source" "$guest_hope_destination"
+
+if [[ ! -x "$guest_hope_destination" ]]; then
+    echo "[layer] guest Hope entry point is not executable: $guest_hope_destination" >&2
+    exit 1
+fi
+
+sh -n "$guest_hope_destination"
 # This guest command is an authored source input, not a generated output.
 # Fail with the actual missing path before attempting compilation.
 WINDOWS_INSPECTOR=/src/guest/layer/usr/lib/cinterforge/inspect-unforked-windows

@@ -1,17 +1,33 @@
 #!/bin/sh
+# Confirm that the single Steam library share is mounted and accessible.
+# Diagnostics deliberately report errors without blocking guest startup.
 set -u
-location=/run/steamapps
-printf '[CinterForgeOS mounts] verifying sole Steam library share: %s\n' "$location"
-timeout 15 ls -A "$location" >/dev/null || { echo '[CinterForgeOS mounts] ERROR: steamapps mount unavailable' >&2; exit 0; }
-findmnt -rn --mountpoint "$location" -t virtiofs >/dev/null || { echo '[CinterForgeOS mounts] ERROR: steamapps is not virtiofs' >&2; exit 0; }
+
+steam_library=/run/steamapps
+printf '[CinterForgeOS mounts] verifying sole Steam library share: %s\n' "$steam_library"
+
+if ! timeout 15 ls -A "$steam_library" >/dev/null; then
+    echo '[CinterForgeOS mounts] ERROR: steamapps mount unavailable' >&2
+    exit 0
+fi
+
+if ! findmnt -rn --mountpoint "$steam_library" -t virtiofs >/dev/null; then
+    echo '[CinterForgeOS mounts] ERROR: steamapps is not virtiofs' >&2
+    exit 0
+fi
+
 # Probe actual access using desktop credentials. Do not chmod the host library.
-if ! runuser -u steamos -- test -r "$location" || ! runuser -u steamos -- test -x "$location"; then
+if ! runuser -u steamos -- test -r "$steam_library" || \
+   ! runuser -u steamos -- test -x "$steam_library"; then
     echo '[CinterForgeOS mounts] ERROR: steamos cannot read/traverse steamapps' >&2
     exit 0
 fi
-probe="$location/.cinterforge-steamapps-rwx-check"
-if ! runuser -u steamos -- sh -c 'umask 077; : > "$1" && test -w "$1" && rm -f "$1"' sh "$probe"; then
+
+write_probe="$steam_library/.cinterforge-steamapps-rwx-check"
+if ! runuser -u steamos -- sh -c \
+    'umask 077; : > "$1" && test -w "$1" && rm -f "$1"' sh "$write_probe"; then
     echo '[CinterForgeOS mounts] ERROR: steamapps is not writable by steamos (host permissions / VirtioFS ownership)' >&2
     exit 0
 fi
+
 printf '[CinterForgeOS mounts] PASS steamapps read/write/traverse for steamos\n'
