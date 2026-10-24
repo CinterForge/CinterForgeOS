@@ -1,5 +1,5 @@
 # CinterForge OS
-![CinterForge OS development: Xcode, Finder, and the macOS application](docs/dev-environment/Hero%20shot.png)
+![CinterForge OS development: Xcode, Finder, and the macOS application](docs/dev-environment/Hero%20Shot.png)
 ### Built by a macOS developer. For macOS developers.
 
 **Build and debug Linux x86-64 and Windows applications on your Mac — in a real SteamOS desktop.**
