@@ -1,7 +1,7 @@
 #!/bin/sh
 # Installed Windows x64 CinterForge Audio through Wine (FEX where needed).
 set -eu
-base='/run/Applications/Windows/CinterForge Audio'
+base='/run/steamapps/common/CinterForge/Applications/Windows/CinterForge Audio'
 if [ "$#" -gt 0 ] && [ -d "$1" ]; then root=$1; shift
 else
     [ -d "$base" ] || { echo "Windows CinterForge Audio installation missing: $base" >&2; exit 1; }
@@ -15,9 +15,9 @@ for candidate in "$root"/bin/ardour9.exe "$root"/bin/Ardour*.exe "$root"/lib/ard
     break
 done
 [ -n "$engine" ] || { echo "Windows Ardour executable missing in $root/bin or $root/lib/ardour9" >&2; ls -la "$root/bin" "$root/lib/ardour9" >&2 2>/dev/null || true; exit 1; }
-command -v wine >/dev/null 2>&1 || { echo 'Wine is not installed in this SteamOS guest. Windows Ardour requires Wine (and FEX on ARM64).' >&2; exit 1; }
+[ -x /usr/lib/cinterforge/cinterforge-wine ] || { echo 'CinterForgeOS portable Wine/FEX runner missing' >&2; exit 1; }
 export WINEARCH=win64
 export WINEPREFIX="${WINEPREFIX:-$HOME/.local/share/cinterforge/wine-ardour}"
 mkdir -p "$WINEPREFIX"
 printf '[CinterForgeOS] Windows Ardour: %s\n' "$engine" >&2
-exec wine "$engine" "$@"
+exec /usr/lib/cinterforge/cinterforge-wine "$engine" "$@"

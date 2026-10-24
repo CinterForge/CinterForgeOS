@@ -1,39 +1,108 @@
 #!/bin/sh
 set -eu
 home=/home/steamos
+# Hope's live dispatcher is persistent user data in the Steam library.
+# It is installed by the host Build -> Stage lifecycle, never during guest boot.
+# This KDE preparation script must not create, modify, or replace that file.
 places="$home/.local/share/user-places.xbel"
 seed=/usr/share/cinterforge/kde/user-places.xbel
 install -d -m 0755 -o steamos -g steamos "$home/.local/share"
-if [ ! -e "$places" ]; then
-    install -m 0644 -o steamos -g steamos "$seed" "$places"
-    echo '[CinterForgeOS] Installed default Dolphin Places'
-    exit 0
+# Install only the missing local entry point so Konsole users can type ./Hope.
+# Never overwrite a user's existing ~/Hope file or link.
+if [ ! -e "$home/Hope" ] && [ ! -L "$home/Hope" ]; then
+    ln -s /usr/bin/Hope "$home/Hope"
+    chown -h steamos:steamos "$home/Hope"
 fi
-# Existing users retain their whole XBEL document. Insert only the authored
-# missing bookmark elements before the closing root tag. Never rewrite the
-# user's other bookmarks or generate XML through AWK quoting.
-for name in Applications DeveloperTests; do
-    if grep -Fq "file:///run/$name" "$places"; then
-        continue
-    fi
+# The sole host filesystem share is /run/steamapps. Do not create shadow shares.
+# Four separate groups: staged CinterForge applications vs original publishers.
+# The app menu uses categories while the desktop uses actual folders.
+install -d -m 0755 /etc/xdg/menus/applications-merged
+install -m 0644 /usr/share/cinterforge/kde/cinterforge-unforked.menu /etc/xdg/menus/applications-merged/cinterforge-unforked.menu
+desktop="$home/Desktop"
+install -d -m 0755 -o steamos -g steamos "$desktop"
+for platform in Linux Windows; do
+    lower=$(printf '%s' "$platform" | tr '[:upper:]' '[:lower:]')
+    for flavor in built unforked; do
+        if [ "$flavor" = built ]; then
+            group="$desktop/CinterForge $platform"
+        else
+            group="$desktop/$platform Unforked"
+        fi
+        install -d -m 0755 -o steamos -g steamos "$group"
+        for app in GIMP Krita Inkscape Scribus Blender Kdenlive Ardour RapidRAW; do
+            slug=$(printf '%s' "$app" | tr '[:upper:]' '[:lower:]')
+            src="/usr/share/applications/cinterforge-$flavor-$lower-$slug.desktop"
+            if [ "$flavor" = built ]; then
+                case "$app" in
+                    GIMP) product='CinterForge Image' ;; Krita) product='CinterForge Paint' ;;
+                    Inkscape) product='CinterForge Vector' ;; Scribus) product='CinterForge Document' ;;
+                    Blender) product='CinterForge 3D' ;; Kdenlive) product='CinterForge Video' ;;
+                    Ardour) product='CinterForge Audio' ;; RapidRAW) product='CinterForge Photo' ;;
+                esac
+                # Remove only shortcuts previously produced under upstream names.
+                legacy="$group/$app.desktop"
+                if [ -f "$legacy" ] && grep -Fq "Exec=/usr/lib/cinterforge/launch-cinterforge $platform $app" "$legacy"; then
+                    rm -f -- "$legacy"
+                fi
+                dst="$group/$product.desktop"
+            else
+                dst="$group/$app.desktop"
+            fi
+            [ -f "$src" ] || { echo "Missing KDE launcher: $src" >&2; exit 1; }
+            # Replace ONLY the old CinterForge-generated launchers, not other
+            # user-created files. Existing old symlinks pointed at unforked.
+            if [ -L "$dst" ]; then
+                case "$(readlink "$dst")" in
+                  /usr/share/applications/cinterforge-*.desktop) rm -f "$dst" ;;
+                esac
+            fi
+            if [ -f "$dst" ] && grep -Fxq "$(grep '^Exec=' "$src")" "$dst"; then
+                # Our launcher: refresh branding and icon even on persistent KDE homes.
+                install -m 0755 -o steamos -g steamos "$src" "$dst"
+            elif [ ! -e "$dst" ] && [ ! -L "$dst" ]; then
+                install -m 0755 -o steamos -g steamos "$src" "$dst"
+            fi
+        done
+    done
+done
+# Install launchers for the two dedicated publisher installer groups.
+for platform in Linux Windows; do
+    lower=$(printf '%s' "$platform" | tr '[:upper:]' '[:lower:]')
+    group="$desktop/$platform Install"
+    install -d -m 0755 -o steamos -g steamos "$group"
+    for app in GIMP Krita Inkscape Scribus Blender Kdenlive Ardour RapidRAW; do
+        slug=$(printf '%s' "$app" | tr '[:upper:]' '[:lower:]')
+        src="/usr/share/applications/cinterforge-install-$lower-$slug.desktop"
+        dst="$group/$app.desktop"
+        [ -f "$src" ] || { echo "Missing KDE installer launcher: $src" >&2; exit 1; }
+        if [ -f "$dst" ] && grep -Fxq "$(grep '^Exec=' "$src")" "$dst"; then
+            install -m 0755 -o steamos -g steamos "$src" "$dst"
+        elif [ ! -e "$dst" ] && [ ! -L "$dst" ]; then
+            install -m 0755 -o steamos -g steamos "$src" "$dst"
+        fi
+    done
+done
+# Migrate old persistent Dolphin bookmarks without disturbing user-defined places.
+if [ -f "$places" ]; then
     tmp=$(mktemp "${places}.cinterforge.XXXXXX")
     trap 'rm -f "$tmp"' EXIT HUP INT TERM
-    seen=0
-    while IFS= read -r line || [ -n "$line" ]; do
-        case "$line" in
-          *'</xbel>'*)
-            printf '  <bookmark href="file:///run/%s"><title>%s</title></bookmark>\n' "$name" "$name" >> "$tmp"
-            seen=1 ;;
-        esac
-        printf '%s\n' "$line" >> "$tmp"
-    done < "$places"
-    if [ "$seen" -ne 1 ]; then
-        echo "[CinterForgeOS] ERROR: invalid Places XBEL: missing </xbel> in $places" >&2
-        exit 1
+    # Remove only the two legacy bookmarks owned by CinterForgeOS.
+    grep -v -e 'href="file:///run/Applications"' \
+            -e 'href="file:///run/DeveloperTests"' "$places" > "$tmp" || true
+    if ! grep -Fq 'file:///run/steamapps' "$tmp"; then
+        sed -i '/<\/xbel>/i\  <bookmark href="file:///run/steamapps"><title>steamapps</title></bookmark>' "$tmp"
     fi
     chown steamos:steamos "$tmp"
     chmod 0644 "$tmp"
     mv -f "$tmp" "$places"
     trap - EXIT HUP INT TERM
-done
-echo '[CinterForgeOS] Dolphin Places ready: Applications, DeveloperTests'
+else
+    install -m 0644 -o steamos -g steamos "$seed" "$places"
+fi
+# Remove legacy root-level shadow link from earlier CinterForgeOS builds.
+if [ -L /run/Applications ]; then
+    case "$(readlink /run/Applications)" in
+        /run/steamapps/common/CinterForge/Applications) rm -f /run/Applications ;;
+    esac
+fi
+echo '[CinterForgeOS] Dolphin Places ready: steamapps only'

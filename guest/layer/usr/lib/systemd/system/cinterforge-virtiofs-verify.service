@@ -1,6 +1,6 @@
 [Unit]
 Description=Check CinterForgeOS host shares before graphical login
-After=local-fs.target run-Applications.automount run-DeveloperTests.automount
+After=local-fs.target run-steamapps.automount
 Before=display-manager.service sddm.service graphical.target
 [Service]
 Type=oneshot

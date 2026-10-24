@@ -1,41 +1,17 @@
 #!/bin/sh
 set -u
-printf '[CinterForgeOS mounts] checking host VirtioFS shares before KDE
-'
-for name in Applications DeveloperTests; do
-    location=/run/$name
-    printf '[CinterForgeOS mounts] %s: ' "$name"
-    if [ ! -d "$location" ]; then
-        printf 'ERROR missing mountpoint %s
-' "$location"
-        continue
-    fi
-    # A path access triggers the packaged systemd automount; timeout is
-    # essential if a guest has a mount unit but no matching host device.
-    if ! timeout 15 ls -A "$location" >/dev/null 2>&1; then
-        printf 'ERROR mount activation failed or timed out at %s
-' "$location"
-        systemctl --no-pager --full status "run-$name.mount" 2>&1 || true
-        continue
-    fi
-    if ! findmnt -rn --mountpoint "$location" -t virtiofs >/dev/null 2>&1; then
-        printf 'ERROR accessible path is not an active VirtioFS mount: %s
-' "$location"
-        findmnt -T "$location" 2>&1 || true
-        continue
-    fi
-    printf 'PASS virtiofs mounted at %s
-' "$location"
-    if [ "$name" = DeveloperTests ] && [ -e "$location/enabled" ]; then
-        if ! ( : > "$location/.cinterforge-mount-probe" && rm -f "$location/.cinterforge-mount-probe" ); then
-            printf '[CinterForgeOS mounts] ERROR DeveloperTests is not writable
-'
-        else
-            printf '[CinterForgeOS mounts] PASS DeveloperTests writable
-'
-        fi
-    fi
-done
-# Diagnostic service must never shut down the desktop because an optional
-# developer share is absent. The host GUI test checks the recorded results.
-exit 0
+location=/run/steamapps
+printf '[CinterForgeOS mounts] verifying sole Steam library share: %s\n' "$location"
+timeout 15 ls -A "$location" >/dev/null || { echo '[CinterForgeOS mounts] ERROR: steamapps mount unavailable' >&2; exit 0; }
+findmnt -rn --mountpoint "$location" -t virtiofs >/dev/null || { echo '[CinterForgeOS mounts] ERROR: steamapps is not virtiofs' >&2; exit 0; }
+# Probe actual access using desktop credentials. Do not chmod the host library.
+if ! runuser -u steamos -- test -r "$location" || ! runuser -u steamos -- test -x "$location"; then
+    echo '[CinterForgeOS mounts] ERROR: steamos cannot read/traverse steamapps' >&2
+    exit 0
+fi
+probe="$location/.cinterforge-steamapps-rwx-check"
+if ! runuser -u steamos -- sh -c 'umask 077; : > "$1" && test -w "$1" && rm -f "$1"' sh "$probe"; then
+    echo '[CinterForgeOS mounts] ERROR: steamapps is not writable by steamos (host permissions / VirtioFS ownership)' >&2
+    exit 0
+fi
+printf '[CinterForgeOS mounts] PASS steamapps read/write/traverse for steamos\n'

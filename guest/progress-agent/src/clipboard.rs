@@ -461,11 +461,14 @@ impl Coordinator {
                     eprintln!("{TAG}: Mac -> SteamOS #{}: {} (already the clipboard)", f.seq, c.describe());
                     return self.ack(f.seq, ACK_SAME);
                 }
-                eprintln!("{TAG}: Mac -> SteamOS #{}: {} -> {} display(s)", f.seq, c.describe(), self.workers.len());
+                eprintln!("{TAG}: Mac -> SteamOS #{}: {} -> {} connected display(s)", f.seq, c.describe(), self.workers.len());
+                if self.workers.is_empty() {
+                    eprintln!("{TAG}: no X11/Wayland clipboard worker yet; retaining content for the next display, NOT claiming an applied selection");
+                }
                 let c = Arc::new(c);
                 self.current = Some(c.clone());
                 self.broadcast(&c, None);
-                self.ack(f.seq, ACK_APPLIED);
+                self.ack(f.seq, if self.workers.is_empty() { ACK_REJECTED } else { ACK_APPLIED });
             }
             T_ACK if f.payload.len() >= 5 => {
                 let seq = u32::from_le_bytes(f.payload[..4].try_into().unwrap());
@@ -639,18 +642,55 @@ fn discover(tx: Sender<Ev>) {
             return;
         }
     }
+    // A Wayland socket can be created before its compositor calls bind(2),
+    // or nested Plasma can create its runtime directory while we are starting.
+    // An IN_CREATE notification alone is not enough: a failed is_socket()
+    // check otherwise loses this display permanently. Periodically reconcile
+    // actual listening sockets as well as consuming inotify notifications.
     if ino < 0 {
-        eprintln!("{TAG}: inotify: {}; only the displays present at start are shared", io::Error::last_os_error());
-        return;
+        eprintln!("{TAG}: inotify unavailable ({}); polling displays instead", io::Error::last_os_error());
     }
     let mut buf = vec![0u8; 16 * 1024];
     loop {
+        // Reconciliation also recovers KDE sessions started after the agent,
+        // and worker connections that fail before Wayland data control is ready.
+        let mut found = scan(X11_DIR);
+        found.extend(scan(&runtime));
+        if let Ok(rd) = std::fs::read_dir(&runtime) {
+            for e in rd.flatten().filter(|e| e.file_type().is_ok_and(|t| t.is_dir())) {
+                let sub = format!("{runtime}/{}", e.file_name().to_string_lossy());
+                watch(&mut dirs, &sub);
+                found.extend(scan(&sub));
+            }
+        }
+        for ev in found {
+            if tx.send(ev).is_err() { return; }
+        }
+        if ino < 0 {
+            std::thread::sleep(Duration::from_secs(2));
+            continue;
+        }
+        // Timeout matters: relying on inotify alone misses a socket whose
+        // initial IN_CREATE arrived before bind(), without any later event.
+        let revents = poll_in(&[ino], Some(Duration::from_secs(2)));
+        if revents[0] & libc::POLLIN == 0 { continue; }
         let n = unsafe { libc::read(ino, buf.as_mut_ptr() as *mut libc::c_void, buf.len()) };
         if n <= 0 {
-            if n < 0 && io::Error::last_os_error().kind() == io::ErrorKind::Interrupted {
-                continue;
+            if n < 0 && io::Error::last_os_error().kind() == io::ErrorKind::Interrupted { continue; }
+            eprintln!("{TAG}: inotify stopped; periodic reconciliation continues");
+            unsafe { libc::close(ino); }
+            // Use polling from now on; never abandon the clipboard watcher.
+            loop {
+                let mut found = scan(X11_DIR);
+                found.extend(scan(&runtime));
+                if let Ok(rd) = std::fs::read_dir(&runtime) {
+                    for e in rd.flatten().filter(|e| e.file_type().is_ok_and(|t| t.is_dir())) {
+                        found.extend(scan(&format!("{runtime}/{}", e.file_name().to_string_lossy())));
+                    }
+                }
+                for ev in found { if tx.send(ev).is_err() { return; } }
+                std::thread::sleep(Duration::from_secs(2));
             }
-            return;
         }
         let mut at = 0usize;
         while at + std::mem::size_of::<libc::inotify_event>() <= n as usize {
@@ -661,22 +701,14 @@ fn discover(tx: Sender<Ev>) {
             at = name_start + ev.len as usize;
             let Some(dir) = dirs.get(&ev.wd).cloned() else { continue };
             let found = if ev.mask & libc::IN_ISDIR != 0 {
-                if dir != runtime || name == "doc" {
-                    continue;
-                }
-                // A new runtime directory (the nested desktop's): watch it and look inside
-                // (its socket may already exist by the time the watch is in place).
+                if dir != runtime || name == "doc" { continue; }
                 let sub = format!("{runtime}/{name}");
                 watch(&mut dirs, &sub);
                 scan(&sub)
             } else {
                 report(&dir, &name).into_iter().collect()
             };
-            for e in found {
-                if tx.send(e).is_err() {
-                    return;
-                }
-            }
+            for e in found { if tx.send(e).is_err() { return; } }
         }
     }
 }

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Install RapidRAW (Original Windows)
+Comment=Install or inspect original publisher distribution for RapidRAW on Windows
+Exec=konsole --hold -e /usr/lib/cinterforge/install-unforked Windows RapidRAW
+Terminal=false
+Icon=/usr/share/cinterforge/icons/launchers/install-rapidraw.png
+Categories=WindowsInstall;System;
+StartupNotify=false

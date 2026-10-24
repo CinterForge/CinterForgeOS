@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Install Scribus (Original Windows)
+Comment=Install or inspect original publisher distribution for Scribus on Windows
+Exec=konsole --hold -e /usr/lib/cinterforge/install-unforked Windows Scribus
+Terminal=false
+Icon=/usr/share/cinterforge/icons/launchers/install-scribus.png
+Categories=WindowsInstall;System;
+StartupNotify=false

@@ -1,7 +1,0 @@
-[Unit]
-Description=CinterForge developer Applications share
-[Mount]
-What=Applications
-Where=/run/Applications
-Type=virtiofs
-Options=ro

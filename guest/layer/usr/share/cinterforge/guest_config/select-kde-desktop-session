@@ -105,6 +105,21 @@ if [ -f "$legacy_compositor" ]; then
         echo '[CinterForgeOS] WARNING: compositor override has user modifications; leaving it intact' >&2
     fi
 fi
+# Enable native Plasma previous-session restore on first setup. Respect a
+# user-selected setting (e.g. empty session or manually saved session).
+# Session state lives in the existing persistent /home/steamos; it is never
+# written to the disposable image or the host Steam library.
+session_config="$home/.config/ksmserverrc"
+if ! grep -Eq '^[[:space:]]*loginMode[[:space:]]*=' "$session_config" 2>/dev/null; then
+    if command -v kwriteconfig6 >/dev/null 2>&1; then
+        runuser -u steamos -- kwriteconfig6 --file ksmserverrc --group General --key loginMode restorePreviousLogout
+    elif command -v kwriteconfig5 >/dev/null 2>&1; then
+        runuser -u steamos -- kwriteconfig5 --file ksmserverrc --group General --key loginMode restorePreviousLogout
+    else
+        echo '[CinterForgeOS] WARNING: kwriteconfig missing; configure Plasma session restore via System Settings' >&2
+    fi
+    echo '[CinterForgeOS] Plasma session restore: previous logout (unless user overrides)'
+fi
 # Keep user-authored Places intact. For fresh home directories copy the
 # version-controlled XBEL seed; for existing users append only missing entries.
 /usr/lib/cinterforge/install-kde-places
@@ -145,42 +160,16 @@ Categories=Game;
 CFOS_STEAM_LAUNCHER
 chown steamos:steamos "$applications/cinterforge-steam.desktop"
 chmod 0644 "$applications/cinterforge-steam.desktop"
-# Linux Ardour is an ELF application, not a Proton/Steam shortcut. Expose the
-# installed GUI launcher in KDE and on the desktop. It invokes the existing
-# Linux x86-64 FEX runner directly and cannot trigger a SteamOS mode switch.
-cat > "$applications/cinterforge-audio-linux.desktop" <<'CFOS_ARDOUR_LINUX'
-[Desktop Entry]
-Type=Application
-Name=CinterForge Audio (Linux)
-Comment=Launch installed Linux x86-64 Ardour on the KDE desktop
-Exec=/usr/lib/cinterforge/launch-ardour-linux
-Icon=audio-x-generic
-Terminal=true
-Categories=AudioVideo;Audio;AudioVideoEditing;
-StartupNotify=true
-CFOS_ARDOUR_LINUX
-chmod 0644 "$applications/cinterforge-audio-linux.desktop"
-chown steamos:steamos "$applications/cinterforge-audio-linux.desktop"
+# Legacy standalone Ardour desktop launchers are superseded by the branded
+# CinterForge Audio entries in the Linux and Windows desktop folders.
 desktop="$home/Desktop"
-install -d -m 0755 -o steamos -g steamos "$desktop"
-install -m 0755 -o steamos -g steamos "$applications/cinterforge-audio-linux.desktop" "$desktop/cinterforge-audio-linux.desktop"
-# Windows Ardour runs as a KDE window through the existing Wine/FEX guest
-# launcher, never as a Steam shortcut or a Gaming Mode transition.
-cat > "$applications/cinterforge-audio-windows.desktop" <<'CFOS_ARDOUR_WINDOWS'
-[Desktop Entry]
-Type=Application
-Name=Ardour (Windows)
-Comment=Launch installed Windows x64 Ardour on the KDE desktop
-Exec=/usr/lib/cinterforge/launch-ardour-windows
-Icon=audio-x-generic
-Terminal=true
-Categories=AudioVideo;Audio;AudioVideoEditing;
-StartupNotify=true
-CFOS_ARDOUR_WINDOWS
-chmod 0644 "$applications/cinterforge-audio-windows.desktop"
-chown steamos:steamos "$applications/cinterforge-audio-windows.desktop"
-install -m 0755 -o steamos -g steamos "$applications/cinterforge-audio-windows.desktop" "$desktop/cinterforge-audio-windows.desktop"
-echo '[CinterForgeOS] Installed direct Windows Ardour KDE/desktop launcher (Wine/FEX, no Steam)'
-echo '[CinterForgeOS] Installed direct Linux Ardour KDE/desktop launcher (no Steam or Proton)'
+for legacy in cinterforge-audio-linux.desktop cinterforge-audio-windows.desktop; do
+    if [ -f "$desktop/$legacy" ] && grep -Eq '^Exec=/usr/lib/cinterforge/launch-ardour-(linux|windows)$' "$desktop/$legacy"; then
+        rm -f -- "$desktop/$legacy"
+    fi
+    if [ -f "$applications/$legacy" ] && grep -Eq '^Exec=/usr/lib/cinterforge/launch-ardour-(linux|windows)$' "$applications/$legacy"; then
+        rm -f -- "$applications/$legacy"
+    fi
+done
 echo '[CinterForgeOS] Native Steam launcher available; Steam autostart disabled to protect KDE session'
 echo '[CinterForgeOS] SDDM autologin selected explicit CinterForgeOS Plasma Desktop Mode (not Steam Gaming Mode)'

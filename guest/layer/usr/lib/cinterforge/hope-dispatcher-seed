@@ -1,0 +1,83 @@
+#!/bin/sh
+# CinterForgeOS Hope dispatcher. Stored in host steamapps for live editing.
+# Edit this file in steamapps to change Hope behavior without restarting the VM.
+# This does not run host Hope's build/stage flows or touch fork installations.
+set -eu
+ins=/run/steamapps/common/CinterForge/Applications/UnforkedInstallers
+win=/usr/lib/cinterforge/inspect-unforked-windows
+runtime=/usr/lib/cinterforge/test-x86-runtime
+linuxrunner=/usr/lib/cinterforge/run-linux-amd64
+usage() {
+  cat <<'HELP'
+CinterForgeOS / Konsole Hope — original upstream application inspection
+
+  ./Hope help
+  ./Hope baseline [linux|win|all] # Save FEX/Wine baselines in steamapps
+  ./Hope installers [win|mac|linux|all]
+  ./Hope test runtime [--gui]        # FEX + Wine; optional Notepad GUI
+  ./Hope test linux <absolute-executable> [arguments...]
+  ./Hope inspect <app> win before
+  ./Hope inspect <app> win install <publisher-installer.exe|.msi>
+  ./Hope inspect <app> win after
+  ./Hope inspect <app> win launch <absolute-Windows-exe-path>
+  ./Hope inspect <app> win launchafter
+
+Baselines: /run/steamapps/common/CinterForge/Logs/EnvirontmentalBaseline/{Linux,Windows}/Baseline.json
+Run from your home directory in Konsole. Windows inspection reports use the host's
+writable /run/steamapps/common/CinterForge/Applications/Logs/UnforkedInspection/Windows.
+Publisher downloads are shared read-only at /run/steamapps/common/CinterForge/Applications/UnforkedInstallers.
+Installation uses an isolated per-application Wine prefix under your guest home.
+No CinterForge-built application distributions are installed by these commands.
+Linux upstream installation snapshots run in the separate Ubuntu AMD64 reference
+environment, not in this SteamOS/KDE guest.
+HELP
+}
+main() {
+[ $# -gt 0 ] || { usage; return 0; }
+case "$1" in
+  baseline)
+    [ "$#" -le 2 ] || { usage >&2; exit 2; }
+    exec /usr/lib/cinterforge/baseline-environments "${2:-all}" ;;
+  help|-h|--help) usage ;;
+  installers)
+    platform=${2:-all}
+    [ "$#" -le 2 ] || { usage >&2; exit 2; }
+    case "$platform" in
+      win|windows|Windows) platforms=Windows ;;
+      mac|macOS) platforms=macOS ;;
+      linux|Linux) platforms=Linux ;;
+      all) platforms='macOS Linux Windows' ;;
+      *) echo "Unknown platform: $platform" >&2; exit 2 ;;
+    esac
+    for p in $platforms; do
+      echo "[unforked] $p installers: $ins/$p"
+      if [ ! -d "$ins/$p" ]; then echo '  Not downloaded/mount unavailable'; continue; fi
+      find "$ins/$p" -maxdepth 2 -type f ! -name '*.part' -print | sort
+    done ;;
+  test)
+    [ "$#" -ge 2 ] || { usage >&2; exit 2; }
+    type=$2; shift 2
+    case "$type" in
+      runtime) exec "$runtime" "$@" ;;
+      linux) [ "$#" -ge 1 ] || { usage >&2; exit 2; }; exec "$linuxrunner" "$@" ;;
+      *) echo "Unsupported test target: $type" >&2; exit 2 ;;
+    esac ;;
+  inspect)
+    [ "$#" -ge 4 ] || { usage >&2; exit 2; }
+    app=$2; platform=$3; phase=$4; shift 4
+    case "$platform" in
+      win|Windows|windows)
+        [ -x "$win" ] || { echo "Windows guest inspector missing: $win" >&2; exit 1; }
+        case "$phase" in
+          before|after|launchafter) [ "$#" -eq 0 ] || { usage >&2; exit 2; }; exec "$win" "$app" "$phase" ;;
+          install) [ "$#" -eq 1 ] || { usage >&2; exit 2; }; exec "$win" "$app" install --installer "$1" ;;
+          launch) [ "$#" -eq 1 ] || { usage >&2; exit 2; }; exec "$win" "$app" launch --exe "$1" ;;
+          *) echo "Unsupported Windows phase: $phase" >&2; exit 2 ;;
+        esac ;;
+      *) echo "This guest currently supports Windows install snapshots; Linux reference snapshots run in Ubuntu AMD64." >&2; exit 2 ;;
+    esac ;;
+  *) echo "Unknown Hope command: $1" >&2; usage >&2; exit 2 ;;
+esac
+}
+
+main "$@"

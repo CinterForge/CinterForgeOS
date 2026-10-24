@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Install Inkscape (Original Linux)
+Comment=Install or inspect original publisher distribution for Inkscape on Linux
+Exec=konsole --hold -e /usr/lib/cinterforge/install-unforked Linux Inkscape
+Terminal=false
+Icon=/usr/share/cinterforge/icons/launchers/install-inkscape.png
+Categories=LinuxInstall;System;
+StartupNotify=false

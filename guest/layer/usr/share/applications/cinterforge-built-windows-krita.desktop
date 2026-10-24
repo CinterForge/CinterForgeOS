@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=CinterForge Paint
+Comment=Launch source-built CinterForge Paint for Windows
+Exec=/usr/lib/cinterforge/launch-cinterforge Windows Krita
+Terminal=true
+Icon=/usr/share/cinterforge/icons/launchers/built-krita.png
+Categories=CinterForgeWindows;Graphics;
+StartupNotify=true

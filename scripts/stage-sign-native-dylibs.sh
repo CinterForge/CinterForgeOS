@@ -138,3 +138,43 @@ for lib in "${libraries[@]}"; do
     codesign --verify --strict "$frameworks/$lib"
     echo "[Xcode] Staged and signed $lib"
 done
+
+# Validate the finished Xcode application payload *inside Xcode*, before its
+# final app-bundle CodeSign step. The Hope Build packaging validator checks
+# the same product later, but direct Xcode builds must fail on missing assets.
+resources="$app/Contents/Resources"
+required_resources=(
+    Image
+    initramfs.cpio.gz
+    steamac-layer.img
+    steamdeck-images.pem
+    gvproxy
+    desync
+)
+for name in "${required_resources[@]}"; do
+    if [[ ! -s "$resources/$name" ]]; then
+        echo "error: Xcode app missing required VM resource: $resources/$name" >&2
+        exit 1
+    fi
+done
+for name in index.html splash.css splash.js cinterforge-logo.png; do
+    if [[ ! -s "$resources/cinterforge-os-splash/$name" ]]; then
+        echo "error: Xcode app missing splash resource: $resources/cinterforge-os-splash/$name" >&2
+        exit 1
+    fi
+done
+for lib in "${libraries[@]}"; do
+    if [[ ! -s "$frameworks/$lib" ]]; then
+        echo "error: Xcode app missing signed Frameworks library: $lib" >&2
+        exit 1
+    fi
+    codesign --verify --strict "$frameworks/$lib" || {
+        echo "error: Xcode app contains invalid signed Frameworks library: $lib" >&2
+        exit 1
+    }
+done
+[[ -s "$executable" ]] || {
+    echo "error: Xcode app missing native executable: $executable" >&2
+    exit 1
+}
+echo "[Xcode] CinterForgeOS payload validated: native executable, ${#libraries[@]} signed libraries, ${#required_resources[@]} VM resources, splash assets"

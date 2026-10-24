@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=CinterForge Image
+Comment=Launch source-built CinterForge Image for Linux
+Exec=/usr/lib/cinterforge/launch-cinterforge Linux GIMP
+Terminal=true
+Icon=/usr/share/cinterforge/icons/launchers/built-gimp.png
+Categories=CinterForgeLinux;Graphics;
+StartupNotify=true

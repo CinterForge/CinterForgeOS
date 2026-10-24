@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Scribus (Unforked Linux)
+Comment=Launch original upstream Scribus through CinterForgeOS Linux reference environment
+Exec=/usr/lib/cinterforge/launch-unforked Linux Scribus
+Terminal=false
+Icon=/usr/share/cinterforge/icons/launchers/unforked-scribus.png
+Categories=LinuxUnforked;Graphics;
+StartupNotify=true

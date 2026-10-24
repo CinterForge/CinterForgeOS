@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Name=CinterForgeOS Support desktop-ready hook
+Name=CinterForgeOS desktop ready
 Exec=/usr/lib/cinterforge/run-desktop-ready
 OnlyShowIn=KDE;
 Terminal=false

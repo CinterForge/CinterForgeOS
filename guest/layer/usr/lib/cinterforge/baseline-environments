@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+"""Read-only CinterForgeOS reference environment baselines (not app installations)."""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import platform
+import shutil
+import subprocess
+import sys
+
+# The host-owned VirtioFS Applications tree is not writable by the guest steamos
+# user. SteamOS /home is persistent and writable; keep baseline reports there.
+LOGS = Path.home() / '.local' / 'state' / 'cinterforge' / 'EnvironmentBaselines'
+FEX = Path('/usr/share/cinterforge/fex')
+
+def command(*args):
+    try:
+        r = subprocess.run(args, text=True, capture_output=True, timeout=30)
+        return {'exitCode': r.returncode, 'stdout': r.stdout[:100000], 'stderr': r.stderr[:20000]}
+    except (OSError, subprocess.TimeoutExpired) as e:
+        return {'error': str(e)}
+
+def inventory(root):
+    result = {}
+    if not root.is_dir():
+        return {'root': str(root), 'exists': False, 'entries': result}
+    for current, dirs, files in os.walk(root, followlinks=False):
+        dirs[:] = sorted(d for d in dirs if d not in ('proc', 'sys', 'dev', 'run', 'tmp') or Path(current) != root)
+        for name in sorted(dirs + files):
+            path = Path(current) / name
+            try:
+                st = path.lstat()
+                entry = {'size': st.st_size, 'mode': oct(st.st_mode & 0o7777), 'mtimeNs': st.st_mtime_ns,
+                         'type': 'symlink' if path.is_symlink() else 'directory' if path.is_dir() else 'file'}
+                if path.is_symlink():
+                    entry['target'] = os.readlink(path)
+                result[str(path.relative_to(root))] = entry
+            except OSError as e:
+                result[str(path.relative_to(root))] = {'error': str(e)}
+    return {'root': str(root), 'exists': True, 'entries': result}
+
+def save(name, data):
+    path = LOGS / name / 'Baseline.json'
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp = path.with_suffix('.json.tmp')
+    temp.write_text(json.dumps(data, indent=2, sort_keys=True) + '\n')
+    temp.replace(path)
+    print(f'[baseline] {name}: {path}', flush=True)
+
+def linux():
+    root = FEX / 'RootFS'
+    if not root.is_dir():
+        raise RuntimeError(f'FEX rootfs not found: {root}')
+    data = {'schemaVersion': 1, 'environment': 'Linux-FEX', 'architecture': platform.machine(),
+            'osRelease': Path('/etc/os-release').read_text() if Path('/etc/os-release').exists() else '',
+            'fex': command('/usr/bin/FEX', '--version'), 'rootfs': inventory(root),
+            'sharedInstallers': Path('/run/steamapps/common/CinterForge/Applications/UnforkedInstallers/Linux').is_dir()}
+    save('Linux', data)
+
+def windows():
+    wine = Path('/usr/lib/cinterforge/cinterforge-wine')
+    if not wine.is_file():
+        raise RuntimeError(f'Wine launcher not found: {wine}')
+    prefixes = Path.home() / '.local/share/cinterforge/reference-wine'
+    data = {'schemaVersion': 1, 'environment': 'Windows-Wine-FEX',
+            'wineLauncher': str(wine), 'wineVersion': command(str(wine), '--version'),
+            'prefixes': inventory(prefixes),
+            'winePayload': inventory(FEX / 'Wine'),
+            'sharedInstallers': Path('/run/steamapps/common/CinterForge/Applications/UnforkedInstallers/Windows').is_dir(),
+            'note': 'This is the pre-install Wine infrastructure baseline; application-specific clean prefixes are snapshotted by inspect-unforked-windows.'}
+    save('Windows', data)
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('platform', choices=('all', 'linux', 'win'))
+    args = parser.parse_args()
+    failures = 0
+    for target, callback in (('linux', linux), ('win', windows)):
+        if args.platform not in ('all', target):
+            continue
+        try:
+            callback()
+        except (OSError, RuntimeError) as e:
+            print(f'[baseline] ERROR {target}: {e}', file=sys.stderr)
+            failures += 1
+    return 1 if failures else 0
+
+if __name__ == '__main__':
+    sys.exit(main())

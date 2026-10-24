@@ -2,7 +2,7 @@
 # Launch the installed Linux x86-64 Ardour engine, not the build-tree wrapper.
 # Upstream's bin/ardour9 launcher may embed /work/Install from its build host.
 set -eu
-base='/run/Applications/Linux/CinterForge Audio'
+base='/run/steamapps/common/CinterForge/Applications/Linux/CinterForge Audio'
 if [ "$#" -gt 0 ] && [ -d "$1" ]; then root=$1; shift
 else
     [ -d "$base" ] || { echo "Linux CinterForge Audio installation missing: $base" >&2; exit 1; }

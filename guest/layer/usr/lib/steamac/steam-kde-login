@@ -9,18 +9,46 @@ steamroot="$HOME/.local/share/Steam"
 client="$steamroot/steamrtarm64/steam"
 logdir="$HOME/.local/state/cinterforge"
 mkdir -p "$logdir" "$steamroot/package"
+source /usr/lib/cinterforge/app-launch-diagnostics
+cfdiag_init Steam
+trap 'code=$?; cfdiag_finish "$code"' EXIT
 # Keep actionable startup events visible in the VM journal as well as in a
 # persistent file. Detailed client stdout/stderr stays in steam-login.log.
 status_file="$logdir/steam-status"
 report() { printf '%s\n' "$*" | tee -a "$status_file" >&2; }
 : > "$status_file"
-exec >>"$logdir/steam-login.log" 2>&1
-on_error() {
-    code=$?
-    report "[Steam login] FAILED (exit $code): see $logdir/steam-login.log"
+# Per-launch capture now goes to /run/Applications/Logs/Steam/<launch>/launch.log.
+# Record a separate diagnostic snapshot for every attempt. The original script
+# used `set -e` around the Steam child, so a crash skipped its exit-status log.
+started_at=$(date -Is)
+run_stamp=$(date +%Y%m%d-%H%M%S)
+run_log="$CF_DIAG_ROOT/steam-failure.log"
+: > "$run_log"
+record_failure() {
+    local code=$1
+    {
+        printf 'started=%s ended=%s exit=%s\n' "$started_at" "$(date -Is)" "$code"
+        if (( code >= 128 )); then
+            printf 'possible signal=%s (shell signal-exit convention; not independently verified)\n' "$((code - 128))"
+        fi
+        printf '\n-- Steam-related user journal since launch --\n'
+        journalctl --user --since "$started_at" --no-pager -o short-iso 2>&1 | \
+            grep -Ei 'steam|crash|signal|segfault|core.dump|gamescope|kwin|gpu|renderer' | tail -120 || true
+        printf '\n-- Recent Steam coredump metadata --\n'
+        if command -v coredumpctl >/dev/null 2>&1; then
+            coredumpctl --no-pager --since "$started_at" list 2>&1 | tail -30 || true
+        else
+            echo 'coredumpctl unavailable'
+        fi
+    } >> "$run_log" 2>&1
+    report "[Steam login] Client failed (exit $code); diagnostics: $run_log"
     if command -v notify-send >/dev/null 2>&1; then
-        notify-send -u critical 'Steam sign-in could not start' "See $logdir/steam-login.log"
+        notify-send -u critical 'Steam did not start successfully' "Exit $code; see $run_log" || true
     fi
+}
+on_error() {
+    local code=$?
+    record_failure "$code"
 }
 trap on_error ERR
 printf '[Steam login] %s launching Steam in KDE\n' "$(date -Is)"
@@ -58,8 +86,18 @@ done
 export LD_LIBRARY_PATH="$steamroot/steamrtarm64:$steamroot/steamrtarm64/panorama${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 cd "$steamroot"
 report "[Steam login] Starting Valve Steam ARM64 ($branch)"
+printf "[Steam login] session=%s XDG_SESSION_TYPE=%s WAYLAND_DISPLAY=%s DISPLAY=%s\n" "${XDG_CURRENT_DESKTOP:-unset}" "${XDG_SESSION_TYPE:-unset}" "${WAYLAND_DISPLAY:-unset}" "${DISPLAY:-unset}"
 echo "[Steam login] executable: $client"
 # Explicitly request the desktop window rather than Steam Deck's ten-foot UI.
 # The chosen ARM64 client branch stays unchanged; only the UI mode differs.
 # Do not use -gamepadui/-tenfoot/-steamdeck or session-select here.
-exec "$client" -vrdisable -nobigpicture -vgui
+# An `if` condition is exempt from errexit; always capture the client exit.
+# No Gamescope/SteamOS session-switching command is issued here.
+if "$client" -vrdisable -nobigpicture -vgui; then
+    result=0
+else
+    result=$?
+    record_failure "$result"
+fi
+report "[Steam login] Client exited (status $result); KDE session is unchanged; log $logdir/steam-login.log"
+exit "$result"

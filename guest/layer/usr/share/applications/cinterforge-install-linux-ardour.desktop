@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Install Ardour (Original Linux)
+Comment=Install or inspect original publisher distribution for Ardour on Linux
+Exec=konsole --hold -e /usr/lib/cinterforge/install-unforked Linux Ardour
+Terminal=false
+Icon=/usr/share/cinterforge/icons/launchers/install-ardour.png
+Categories=LinuxInstall;System;
+StartupNotify=false

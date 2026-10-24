@@ -115,8 +115,8 @@ echo "[Xcode] Host Rust: $("${RUSTC:-rustc}" --version); Cargo: $(cargo --versio
     # Makefile uses GCC_VERSION for Debian bookworm's cross-compile libgcc package.
     # Specify the Debian GCC major version for both make invocations so Xcode's
     # unrelated setting cannot become a bogus libgcc-<Xcode identifier>-dev name.
-    make GCC_VERSION=12 GPU=1 INPUT=1 BLK=1 NET=1 PREFIX="$prefix"
-    make install GCC_VERSION=12 GPU=1 INPUT=1 BLK=1 NET=1 PREFIX="$prefix"
+    make GCC_VERSION=12 GPU=1 INPUT=1 BLK=1 NET=1 SND=1 PREFIX="$prefix"
+    make install GCC_VERSION=12 GPU=1 INPUT=1 BLK=1 NET=1 SND=1 PREFIX="$prefix"
 ) > >(tee "$log") 2> >(tee -a "$log" >&2)
 
 for header in libkrun.h libkrun_display.h libkrun_input.h; do

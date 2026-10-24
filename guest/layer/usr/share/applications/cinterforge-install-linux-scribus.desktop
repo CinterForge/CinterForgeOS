@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Install Scribus (Original Linux)
+Comment=Install or inspect original publisher distribution for Scribus on Linux
+Exec=konsole --hold -e /usr/lib/cinterforge/install-unforked Linux Scribus
+Terminal=false
+Icon=/usr/share/cinterforge/icons/launchers/install-scribus.png
+Categories=LinuxInstall;System;
+StartupNotify=false

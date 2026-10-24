@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Blender (Unforked Linux)
+Comment=Launch original upstream Blender through CinterForgeOS Linux reference environment
+Exec=/usr/lib/cinterforge/launch-unforked Linux Blender
+Terminal=false
+Icon=/usr/share/cinterforge/icons/launchers/unforked-blender.png
+Categories=LinuxUnforked;Graphics;
+StartupNotify=true

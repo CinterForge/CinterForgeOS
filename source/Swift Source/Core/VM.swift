@@ -86,15 +86,11 @@ final class VM {
             log("disk \(id): \(d.path)\(d.readOnly ? " (ro)" : "")")
         }
 
-        // Installed CinterForgeOS always exposes the persistent Creative Suite
-        // Applications directory. It is a filesystem share, not a block disk,
-        // and therefore appears at /run/Applications rather than Dolphin Devices.
-        // Resolve Finder symlinks before walking the versioned installation path.
-        let installedOverride = ProcessInfo.processInfo.environment["CINTER_DEV_APPLICATIONS_DIR"]
-        // Xcode launches a disposable bundle outside the managed installation.
-        // The already-selected SteamOS disk is authoritative: derive the same
-        // installed Applications directory from its actual versioned location.
-        // Never create a second share or guess a fixed Steam library path.
+        // Share the Steam library actually containing this VM's selected disk.
+        // Never assume Steam is installed on the system drive: Steam's selected
+        // library may reside on an external volume or a custom library path.
+        let override = ProcessInfo.processInfo.environment["CINTER_STEAM_APPS_ROOT"]
+        let devApplications = ProcessInfo.processInfo.environment["CINTER_DEV_APPLICATIONS_DIR"]
         let managedApplications: URL? = o.disks.lazy.filter { !$0.readOnly }.compactMap { disk in
             let image = URL(fileURLWithPath: disk.path).resolvingSymlinksInPath()
             guard image.lastPathComponent == "steamos.img",
@@ -109,66 +105,72 @@ final class VM {
             return applications
         }.first
         let resolvedApp = URL(fileURLWithPath: Bundle.main.bundlePath).resolvingSymlinksInPath()
-        let versionDirectory = resolvedApp.deletingLastPathComponent()
-        let appDirectory = versionDirectory.deletingLastPathComponent()
-        let platformDirectory = appDirectory.deletingLastPathComponent()
-        let applicationsDirectory = platformDirectory.deletingLastPathComponent()
-        let isInstalledCinterForgeOS =
-            appDirectory.lastPathComponent == "CinterForgeOS" &&
-            platformDirectory.lastPathComponent == "macOS" &&
-            applicationsDirectory.lastPathComponent == "Applications"
-        if isInstalledCinterForgeOS || managedApplications != nil || (installedOverride != nil && !installedOverride!.isEmpty) {
-            let candidate = (installedOverride != nil && !installedOverride!.isEmpty)
-                ? URL(fileURLWithPath: installedOverride!, isDirectory: true).standardizedFileURL
-                : (managedApplications ?? applicationsDirectory)
-            let path = candidate.resolvingSymlinksInPath().path
-            var directory: ObjCBool = false
-            guard FileManager.default.fileExists(atPath: path, isDirectory: &directory),
-                  directory.boolValue,
-                  URL(fileURLWithPath: path, isDirectory: true).lastPathComponent == "Applications",
-                  ["Linux", "Windows", "macOS"].contains(where: {
-                      var subdir: ObjCBool = false
-                      return FileManager.default.fileExists(atPath: path + "/" + $0, isDirectory: &subdir) && subdir.boolValue
-                  }) else {
-                throw NSError(domain: "CinterForgeOS", code: 1,
-                    userInfo: [NSLocalizedDescriptionKey: "Invalid installed CinterForge Applications share: " + path])
+        let version = resolvedApp.deletingLastPathComponent()
+        let product = version.deletingLastPathComponent()
+        let platform = product.deletingLastPathComponent()
+        let apps = platform.deletingLastPathComponent()
+        let installed = product.lastPathComponent == "CinterForgeOS" &&
+            platform.lastPathComponent == "macOS" && apps.lastPathComponent == "Applications"
+        let selectedApplications = managedApplications ?? (installed ? apps : nil)
+        let selectedSteamapps: URL? = {
+            if let override, !override.isEmpty {
+                let url = URL(fileURLWithPath: (override as NSString).expandingTildeInPath).resolvingSymlinksInPath()
+                return url
             }
-            try krun("krun_add_virtiofs3(Applications)",
-                     krun_add_virtiofs3(ctx, "Applications", path, 0, true))
-            log("Applications VirtioFS attached read-only: " + path + " -> /run/Applications")
-        } else {
-            log("Applications VirtioFS unavailable: launcher is not in an installed CinterForgeOS version and no development override was supplied")
-        }
-        // Only the KDE-ready test automation hook lives outside the app bundle.
-        // Xcode builds export it to the existing Built/.../work/out/Test folder;
-        // installed versions use <version>/Test, never <version>/Support.
-        // All native helpers and resources remain inside Contents/.
-        let testOverride = ProcessInfo.processInfo.environment["CINTER_DEV_TEST_DIR"]
-        let builtTestDirectory = resolvedApp.deletingLastPathComponent()
-            .deletingLastPathComponent().deletingLastPathComponent()
-            .appendingPathComponent("Test", isDirectory: true)
-        let testDirectory = (testOverride != nil && !testOverride!.isEmpty)
-            ? URL(fileURLWithPath: testOverride!, isDirectory: true).standardizedFileURL
-            : (isInstalledCinterForgeOS
-                ? versionDirectory.appendingPathComponent("Test", isDirectory: true)
-                : builtTestDirectory)
-        let testHook = testDirectory.appendingPathComponent("cinterforgeis_ready.sh")
-        if FileManager.default.fileExists(atPath: testHook.path) {
-            try krun("krun_add_virtiofs3(KDE ready hook)",
-                     krun_add_virtiofs3(ctx, "Support", testDirectory.path, 0, true))
-            log("KDE-ready Test hook mounted: " + testHook.path + " -> /run/Support/cinterforgeis_ready.sh")
-        } else {
-            log("KDE-ready Test hook not available: " + testHook.path)
-        }
-        if let control = ProcessInfo.processInfo.environment["CINTER_DEV_GUEST_TEST_CONTROL"], !control.isEmpty {
-            let path = URL(fileURLWithPath: control, isDirectory: true).standardizedFileURL.path
-            var directory: ObjCBool = false
-            guard FileManager.default.fileExists(atPath: path, isDirectory: &directory), directory.boolValue else {
-                throw NSError(domain: "CinterForgeOS", code: 2, userInfo: [NSLocalizedDescriptionKey: "Invalid developer test control folder: " + path])
+            if let devApplications, !devApplications.isEmpty {
+                let apps = URL(fileURLWithPath: devApplications).resolvingSymlinksInPath()
+                return apps.deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
             }
-            try krun("krun_add_virtiofs3(DeveloperTests)",
-                     krun_add_virtiofs3(ctx, "DeveloperTests", path, 0, false))
-            log("development test control shared: " + path)
+            return selectedApplications?.deletingLastPathComponent().deletingLastPathComponent()
+                .deletingLastPathComponent()
+        }()
+        if let steamapps = selectedSteamapps {
+            let path = steamapps.path
+            let applicationPath = path + "/common/CinterForge/Applications"
+            var directory: ObjCBool = false
+            guard steamapps.lastPathComponent == "steamapps",
+                  FileManager.default.fileExists(atPath: applicationPath, isDirectory: &directory),
+                  directory.boolValue else {
+                throw NSError(domain: "CinterForgeOS", code: 1, userInfo: [
+                    NSLocalizedDescriptionKey: "Invalid Steam library for CinterForgeOS: " + path])
+            }
+            // Fail on mismatched development overrides instead of silently
+            // mounting another Steam library containing different user data.
+            if let actual = selectedApplications,
+               actual.resolvingSymlinksInPath().path != URL(fileURLWithPath: applicationPath).resolvingSymlinksInPath().path {
+                throw NSError(domain: "CinterForgeOS", code: 2, userInfo: [
+                    NSLocalizedDescriptionKey: "Steamapps override disagrees with selected VM disk: " + path])
+            }
+            try krun("krun_add_virtiofs3(steamapps)",
+                     krun_add_virtiofs3(ctx, "steamapps", path, 0, false))
+            log("steamapps VirtioFS attached read/write: " + path + " -> /run/steamapps")
+
+            // Keep one visible, descriptive boot report in the existing Logs tree.
+            // Older builds left hidden write-probe files at the Logs root; remove
+            // only those known temporary diagnostics, never arbitrary user files.
+            let logs = applicationPath + "/Logs"
+            let boot = logs + "/CinterForgeOS/Boot"
+            try FileManager.default.createDirectory(atPath: boot, withIntermediateDirectories: true)
+            if let entries = try? FileManager.default.contentsOfDirectory(atPath: logs) {
+                for name in entries where name.hasPrefix(".cinterforge-") && name.contains("-probe-") {
+                    let candidate = logs + "/" + name
+                    var isDirectory: ObjCBool = false
+                    if FileManager.default.fileExists(atPath: candidate, isDirectory: &isDirectory),
+                       !isDirectory.boolValue {
+                        try FileManager.default.removeItem(atPath: candidate)
+                    }
+                }
+            }
+            let report = """
+            CinterForgeOS Steamapps Mount
+            Host: \(path)
+            Guest: /run/steamapps
+            Mode: read/write
+            Applications: /run/steamapps/common/CinterForge/Applications
+            """
+            try (report + "\n").write(toFile: boot + "/SteamappsMount.log", atomically: true, encoding: .utf8)
+        } else {
+            log("steamapps VirtioFS unavailable: VM disk is outside a managed Steam installation; set CINTER_STEAM_APPS_ROOT for development")
         }
         // virtio-snd → CoreAudio default output (and default input while the guest records).
         if o.sound {

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Install Inkscape (Original Windows)
+Comment=Install or inspect original publisher distribution for Inkscape on Windows
+Exec=konsole --hold -e /usr/lib/cinterforge/install-unforked Windows Inkscape
+Terminal=false
+Icon=/usr/share/cinterforge/icons/launchers/install-inkscape.png
+Categories=WindowsInstall;System;
+StartupNotify=false

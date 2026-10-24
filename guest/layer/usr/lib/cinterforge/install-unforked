@@ -1,0 +1,56 @@
+#!/bin/sh
+# Original publisher installation entry point for KDE Install groups.
+# Never installs or modifies a CinterForge-built application.
+set -eu
+[ "$#" -eq 2 ] || { echo 'Usage: install-unforked <Linux|Windows> <app>' >&2; exit 2; }
+platform=$1 app=$2
+case "$app" in GIMP|Krita|Inkscape|Scribus|Blender|Kdenlive|Ardour|RapidRAW) ;; *) echo "Unsupported app: $app" >&2; exit 2 ;; esac
+root=/run/steamapps/common/CinterForge/Applications/UnforkedInstallers
+case "$platform" in
+ Windows)
+  folder="$root/Windows/$app"
+  [ -d "$folder" ] || { echo "Publisher installer folder missing: $folder" >&2; exit 1; }
+  # Portable ZIPs are distributions, not executable installers. They must be
+  # unpacked into the reference area and launched by the unforked shortcut.
+  count=$(find "$folder" -maxdepth 1 -type f \( -iname '*.exe' -o -iname '*.msi' \) | wc -l)
+  [ "$count" -eq 1 ] || { echo "Expected exactly one EXE/MSI installer in $folder; found $count." >&2; echo 'ZIP-only distributions require extraction, not Wine installation.' >&2; exit 1; }
+  installer=$(find "$folder" -maxdepth 1 -type f \( -iname '*.exe' -o -iname '*.msi' \) -print -quit)
+  name=${installer##*/}
+  inspector=/usr/lib/cinterforge/inspect-unforked-windows
+  [ -x "$inspector" ] || { echo "Missing Windows inspector: $inspector" >&2; exit 1; }
+  echo "[unforked Windows install] $app: $name"
+  "$inspector" "$app" before
+  "$inspector" "$app" install --installer "$name"
+  "$inspector" "$app" after
+  echo "[unforked Windows install] Reports: /run/steamapps/common/CinterForge/Applications/Logs/UnforkedInspection/Windows/$app"
+  ;;
+ Linux)
+  folder="$root/Linux/$app"
+  [ -d "$folder" ] || { echo "Publisher installer folder missing: $folder" >&2; exit 1; }
+  count=$(find "$folder" -maxdepth 1 -type f | wc -l)
+  [ "$count" -eq 1 ] || { echo "Expected exactly one Linux publisher distribution in $folder; found $count" >&2; exit 1; }
+  installer=$(find "$folder" -maxdepth 1 -type f -print -quit)
+  case "$installer" in
+   *.AppImage|*.appimage)
+    echo "[unforked Linux] AppImage $installer"
+    echo 'An AppImage is a portable executable, not an APT installation.'
+    echo 'To run it, use the Linux Unforked launcher after setting up a writable reference install.'
+    exit 2 ;;
+   *.tar.xz|*.tar.gz)
+    echo "[unforked Linux] Publisher archive: $installer"
+    echo 'A publisher tarball is a portable distribution. No system package installation is required.'
+    echo 'Extract it to a writable reference application directory before launching.'
+    exit 2 ;;
+   *.deb|*.sh)
+    echo "[unforked Linux] Ubuntu package installer: $installer"
+    echo 'Ubuntu APT/dpkg must run in the existing Ubuntu AMD64 headless environment.'
+    echo 'This SteamOS/FEX guest is not Ubuntu. No host package database will be modified.'
+    exit 2 ;;
+   *.run)
+    echo "[unforked Linux] Publisher executable installer: $installer"
+    echo 'Requires a writable Linux AMD64 installation environment; not executing into read-only FEX RootFS.'
+    exit 2 ;;
+   *) echo "Unsupported Linux distribution format: $installer" >&2; exit 2 ;;
+  esac ;;
+ *) echo "Unsupported platform: $platform" >&2; exit 2 ;;
+esac

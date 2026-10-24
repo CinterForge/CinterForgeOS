@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Kdenlive (Unforked Windows)
+Comment=Launch original upstream Kdenlive through CinterForgeOS Windows reference environment
+Exec=/usr/lib/cinterforge/launch-unforked Windows Kdenlive
+Terminal=false
+Icon=/usr/share/cinterforge/icons/launchers/unforked-kdenlive.png
+Categories=WindowsUnforked;Graphics;
+StartupNotify=true

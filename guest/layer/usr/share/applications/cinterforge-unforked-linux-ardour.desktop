@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Ardour (Unforked Linux)
+Comment=Launch original upstream Ardour through CinterForgeOS Linux reference environment
+Exec=/usr/lib/cinterforge/launch-unforked Linux Ardour
+Terminal=false
+Icon=/usr/share/cinterforge/icons/launchers/unforked-ardour.png
+Categories=LinuxUnforked;Graphics;
+StartupNotify=true

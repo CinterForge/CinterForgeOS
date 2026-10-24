@@ -1,21 +1,3 @@
-#!/bin/bash
-set -eu
-control=/run/DeveloperTests
-# KDE can launch this bridge from both XDG application and script autostart.
-# Run exactly one agent; don't compete over the request file.
-exec 9>"/tmp/cinterforge-gui-agent-$(id -u).lock"
-flock -n 9 || exit 0
-# Record startup before testing the mount, so failures do not disappear.
-logger -t cinterforge-gui-test "KDE autostart bridge invoked user=$(id -un) session=${XDG_SESSION_TYPE:-unset} desktop=${XDG_CURRENT_DESKTOP:-unset}" || true
-# systemd automount may not yet have connected the host share at KDE login.
-for attempt in $(seq 1 90); do
-    if [ -f "$control/enabled" ] && [ -r "$control/kde_gui_smoke_agent.sh" ]; then
-        printf "[guest] KDE bridge started user=%s session=%s desktop=%s
-" "$(id -un)" "${XDG_SESSION_TYPE:-unset}" "${XDG_CURRENT_DESKTOP:-unset}" >> "$control/guest-agent.log"
-        exec /bin/bash "$control/kde_gui_smoke_agent.sh"
-    fi
-    sleep 1
-done
-printf '[guest] ERROR: host KDE smoke agent not available on DeveloperTests share
-' >&2
+#!/bin/sh
+echo "[CinterForgeOS] DeveloperTests share retired; use the installed app Test facility" >&2
 exit 1

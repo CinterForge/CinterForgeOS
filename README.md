@@ -1020,3 +1020,17 @@ Docker”).
 Steam, the Steam logo, SteamOS, Steam Deck, and Steam Frame are trademarks and/or registered trademarks
 of Valve Corporation in the United States and/or other countries. The project is not affiliated with or
 endorsed by Valve Corporation.
+
+
+### Standalone FEX runtime (Linux ARM64)
+
+`guest/fex/build.sh fetch` downloads upstream FEX-2610 and all submodules into
+`$STEAMAC_WORK_DIR/DependencySources/FEX` on the Mac. `guest/fex/build.sh build`
+compiles inside a dedicated Linux/arm64 Docker build image, keeping Clang and
+headers out of SteamOS. `scripts/build-image.sh fex layer` injects the ARM64
+runtime into the existing erofs `/usr` layer. A layer build now fails if the
+real FEX binary is missing; the older `FEXBash` wrapper is not sufficient.
+
+**Not yet included:** an x86-64 RootFS and verified WOW64 Wine distribution.
+FEX installation by itself does not run Ardour. Do not report x86 execution
+ready until the RootFS and actual installed-application smoke tests pass.

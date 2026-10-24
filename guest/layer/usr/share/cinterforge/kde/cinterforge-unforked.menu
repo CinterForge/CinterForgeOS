@@ -1,0 +1,34 @@
+<!DOCTYPE Menu PUBLIC "-//freedesktop//DTD Menu 1.0//EN" "http://www.freedesktop.org/standards/menu-spec/menu-1.0.dtd">
+<Menu>
+  <Name>Applications</Name>
+  <Menu>
+    <Name>CinterForge Linux</Name>
+    <Directory>cinterforge-linux.directory</Directory>
+    <Include><Category>CinterForgeLinux</Category></Include>
+  </Menu>
+  <Menu>
+    <Name>CinterForge Windows</Name>
+    <Directory>cinterforge-windows.directory</Directory>
+    <Include><Category>CinterForgeWindows</Category></Include>
+  </Menu>
+  <Menu>
+    <Name>Linux Unforked</Name>
+    <Directory>linux-unforked.directory</Directory>
+    <Include><Category>LinuxUnforked</Category></Include>
+  </Menu>
+  <Menu>
+    <Name>Windows Unforked</Name>
+    <Directory>windows-unforked.directory</Directory>
+    <Include><Category>WindowsUnforked</Category></Include>
+  </Menu>
+  <Menu>
+    <Name>Linux Install</Name>
+    <Directory>linux-install.directory</Directory>
+    <Include><Category>LinuxInstall</Category></Include>
+  </Menu>
+  <Menu>
+    <Name>Windows Install</Name>
+    <Directory>windows-install.directory</Directory>
+    <Include><Category>WindowsInstall</Category></Include>
+  </Menu>
+</Menu>

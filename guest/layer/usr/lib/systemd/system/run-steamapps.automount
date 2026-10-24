@@ -1,0 +1,8 @@
+[Unit]
+Description=Host Steam library automount
+
+[Automount]
+Where=/run/steamapps
+
+[Install]
+WantedBy=multi-user.target

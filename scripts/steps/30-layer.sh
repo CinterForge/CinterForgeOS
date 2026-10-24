@@ -11,10 +11,113 @@ set -euo pipefail
 
 OUT=/work/out/steamac-layer.img
 VENUS=/work/out/mesa-venus
+FEX=/work/out/fex
 ST=$(mktemp -d)
 trap 'rm -rf "$ST"' EXIT
 
 cp -a /src/guest/layer/usr "$ST/usr"
+# KDE's login preparation requires all four groups of eight launchers.
+# Explicitly stage the authored entries and reject an incomplete OS layer
+# during BUILD, not during SDDM login (which otherwise prevents the desktop).
+for platform in linux windows; do
+    for flavor in built unforked; do
+        for app in gimp krita inkscape scribus blender kdenlive ardour rapidraw; do
+            entry="cinterforge-$flavor-$platform-$app.desktop"
+            source_entry="/src/guest/layer/usr/share/applications/$entry"
+            [[ -s "$source_entry" ]] || { echo "[layer] missing KDE source launcher: $source_entry" >&2; exit 1; }
+            install -D -m 0644 "$source_entry" "$ST/usr/share/applications/$entry"
+        done
+    done
+done
+# Two independent original-publisher installer categories.
+for platform in linux windows; do
+    for app in gimp krita inkscape scribus blender kdenlive ardour rapidraw; do
+        entry="cinterforge-install-$platform-$app.desktop"
+        source_entry="/src/guest/layer/usr/share/applications/$entry"
+        [[ -s "$source_entry" ]] || { echo "[layer] missing installer launcher: $source_entry" >&2; exit 1; }
+        install -D -m 0644 "$source_entry" "$ST/usr/share/applications/$entry"
+    done
+done
+install -D -m 0755 /src/guest/layer/usr/lib/cinterforge/install-unforked "$ST/usr/lib/cinterforge/install-unforked"
+sh -n "$ST/usr/lib/cinterforge/install-unforked"
+for group in cinterforge-linux cinterforge-windows linux-unforked windows-unforked linux-install windows-install; do
+    source_directory="/src/guest/layer/usr/share/desktop-directories/$group.directory"
+    [[ -s "$source_directory" ]] || { echo "[layer] missing KDE menu directory: $source_directory" >&2; exit 1; }
+    install -D -m 0644 "$source_directory" "$ST/usr/share/desktop-directories/$group.directory"
+done
+menu=/src/guest/layer/usr/share/cinterforge/kde/cinterforge-unforked.menu
+[[ -s "$menu" ]] || { echo "[layer] missing KDE four-group menu: $menu" >&2; exit 1; }
+install -D -m 0644 "$menu" "$ST/usr/share/cinterforge/kde/cinterforge-unforked.menu"
+echo '[layer] validated 32 KDE launchers and 4 application-menu groups'
+# Exactly one shared Steam library: remove old nested VirtioFS mount units
+# even if an older checkout still contains them. Don't layer two mounts.
+rm -f "$ST/usr/lib/systemd/system/run-DeveloperTests.mount" \
+      "$ST/usr/lib/systemd/system/run-DeveloperTests.automount" \
+      "$ST/usr/lib/systemd/system/multi-user.target.wants/run-DeveloperTests.automount" \
+      "$ST/usr/lib/systemd/system/run-Applications.mount" \
+      "$ST/usr/lib/systemd/system/run-Applications.automount" \
+      "$ST/usr/lib/systemd/system/run-Applications-Logs.mount" \
+      "$ST/usr/lib/systemd/system/multi-user.target.wants/run-Applications.automount" \
+      "$ST/usr/lib/systemd/system/multi-user.target.wants/run-Applications-Logs.mount" \
+      "$ST/usr/lib/systemd/system/run-Support.mount" \
+      "$ST/usr/lib/systemd/system/run-Support.automount" \
+      "$ST/usr/lib/systemd/system/multi-user.target.wants/run-Support.automount"
+# Stage the two authored steamapps units explicitly, as we do KDE launchers.
+# The host source may have both units while a stale/intermediate copied tree
+# does not; fail with the exact source path rather than a misleading generic
+# staged-unit error. Never recreate the deleted Applications/Support mounts.
+for unit in run-steamapps.mount run-steamapps.automount; do
+    source_unit="/src/guest/layer/usr/lib/systemd/system/$unit"
+    [[ -s "$source_unit" ]] || { echo "[layer] missing authored steamapps unit: $source_unit" >&2; exit 1; }
+    install -D -m 0644 "$source_unit" "$ST/usr/lib/systemd/system/$unit"
+done
+ln -sfn ../run-steamapps.automount "$ST/usr/lib/systemd/system/multi-user.target.wants/run-steamapps.automount"
+[[ -f "$ST/usr/lib/systemd/system/run-steamapps.mount" && -f "$ST/usr/lib/systemd/system/run-steamapps.automount" ]] \
+  || { echo '[layer] steamapps units failed to stage' >&2; exit 1; }
+# Validate the native guest CLI before sealing the read-only OS layer.
+[[ -x "$ST/usr/bin/Hope" ]] || { echo '[layer] guest Hope CLI missing' >&2; exit 1; }
+sh -n "$ST/usr/bin/Hope"
+# This guest command is an authored source input, not a generated output.
+# Fail with the actual missing path before attempting compilation.
+WINDOWS_INSPECTOR=/src/guest/layer/usr/lib/cinterforge/inspect-unforked-windows
+[[ -f "$WINDOWS_INSPECTOR" ]] || {
+    echo "[layer] missing authored Windows inspection tool: $WINDOWS_INSPECTOR" >&2
+    exit 1
+}
+install -D -m 0755 "$WINDOWS_INSPECTOR" "$ST/usr/lib/cinterforge/inspect-unforked-windows"
+python3 - "$ST/usr/lib/cinterforge/inspect-unforked-windows" <<'PY_CHECK'
+import pathlib, sys
+script = pathlib.Path(sys.argv[1])
+compile(script.read_bytes(), str(script), 'exec')
+PY_CHECK
+# Standalone FEX is a required ARM64 runtime, not the bundled FEXBash stub.
+[[ -x "$FEX/usr/bin/FEX" ]] || {
+    echo "[layer] FEX ARM64 runtime missing: run scripts/build-image.sh fex" >&2; exit 1;
+}
+cp -a "$FEX/usr/." "$ST/usr/"
+[[ -x "$ST/usr/bin/FEX" ]] || { echo '[layer] FEX binary not installed' >&2; exit 1; }
+
+# Standalone x86-64 userspace is independent of Valve's Steam runtime.
+# Only copy verified Build artifacts; never edit the installed SteamOS disk.
+USERSPACE=/work/out/fex-userspace
+[[ -s "$USERSPACE/wine-executable.txt" && -x "$USERSPACE/RootFS/usr/bin/bash" && -e "$USERSPACE/RootFS/usr/lib/x86_64-linux-gnu/libglib-2.0.so.0" ]] || {
+    echo '[layer] FEX x86-64 RootFS/Wine missing: run scripts/build-image.sh userspace' >&2; exit 1;
+}
+mkdir -p "$ST/usr/share/cinterforge/fex" "$ST/usr/share/fex-emu"
+cp -a "$USERSPACE/RootFS" "$ST/usr/share/cinterforge/fex/RootFS"
+cp -a "$USERSPACE/Wine" "$ST/usr/share/cinterforge/fex/Wine"
+install -m 0644 "$USERSPACE/wine-executable.txt" "$ST/usr/share/cinterforge/fex/wine-executable.txt"
+cat > "$ST/usr/share/fex-emu/Config.json" <<'FEX_CONFIG'
+{
+  "Config": {
+    "RootFS": "/usr/share/cinterforge/fex/RootFS"
+  }
+}
+FEX_CONFIG
+# Export a stable command for the installed Windows launcher, but leave
+# Steam/Proton's own Wine and pressure-vessel environment entirely untouched.
+install -D -m 0755 /src/guest/layer/usr/lib/cinterforge/cinterforge-wine "$ST/usr/lib/cinterforge/cinterforge-wine"
+
 # Authored CinterForgeOS guest configuration: package the actual KDE/systemd
 # paths from guest_config, never generate/inject shell scripts from Hope.
 CFG=/src/guest/layer/usr/share/cinterforge/guest_config
@@ -37,10 +140,13 @@ install -D -m 0644 "$CFG/sddm-desktop.conf" "$ST/usr/lib/systemd/system/sddm.ser
 install -D -m 0644 "$CFG/cinterforge-kde-prepare.service" "$ST/usr/lib/systemd/system/cinterforge-kde-prepare.service"
 install -D -m 0644 "$CFG/cinterforge-virtiofs-verify.service" "$ST/usr/lib/systemd/system/cinterforge-virtiofs-verify.service"
 
+# KDE readiness stays inside the guest layer; no extra host mount is required.
+install -D -m 0755 /src/scripts/support/cinterforgeis_ready.sh "$ST/usr/lib/cinterforge/cinterforgeis_ready.sh"
+
 # Steamac owns executable permissions and the complete desktop integration.
 # Fail during the layer build, not at login, if authored bridge files disappear.
 for command in desktop-health run-linux-amd64 inspect-x86-runtime installed-app-gui-test ardour-runtime-check \
-               launch-ardour-linux launch-ardour-windows run-desktop-ready; do
+               launch-ardour-linux launch-ardour-windows launch-unforked launch-cinterforge run-desktop-ready; do
     test -s "$ST/usr/lib/cinterforge/$command" || {
         echo "[layer] missing authored CinterForgeOS command: $command" >&2
         exit 1
@@ -50,12 +156,9 @@ for command in desktop-health run-linux-amd64 inspect-x86-runtime installed-app-
 done
 for file in \
     "$ST/usr/share/xdg/autostart/cinterforge-support-desktop-ready.desktop" \
-    "$ST/usr/lib/systemd/system/run-Support.mount" \
-    "$ST/usr/lib/systemd/system/run-Support.automount" \
-    "$ST/usr/lib/systemd/system/multi-user.target.wants/run-Support.automount" \
     "$ST/usr/share/cinterforge/backgrounds/cinterforge-linux-1920x1080.png" \
     "$ST/usr/share/wallpapers/Steam Deck Logo Default.jpg"; do
-    test -e "$file" || { echo "[layer] missing authored KDE/Support file: $file" >&2; exit 1; }
+    test -e "$file" || { echo "[layer] missing authored KDE file: $file" >&2; exit 1; }
 done
 
 

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Krita (Unforked Linux)
+Comment=Launch original upstream Krita through CinterForgeOS Linux reference environment
+Exec=/usr/lib/cinterforge/launch-unforked Linux Krita
+Terminal=false
+Icon=/usr/share/cinterforge/icons/launchers/unforked-krita.png
+Categories=LinuxUnforked;Graphics;
+StartupNotify=true

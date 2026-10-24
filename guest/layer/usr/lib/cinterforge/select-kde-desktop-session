@@ -105,6 +105,21 @@ if [ -f "$legacy_compositor" ]; then
         echo '[CinterForgeOS] WARNING: compositor override has user modifications; leaving it intact' >&2
     fi
 fi
+# Enable native Plasma previous-session restore on first setup. Respect a
+# user-selected setting (e.g. empty session or manually saved session).
+# Session state lives in the existing persistent /home/steamos; it is never
+# written to the disposable image or the host Steam library.
+session_config="$home/.config/ksmserverrc"
+if ! grep -Eq '^[[:space:]]*loginMode[[:space:]]*=' "$session_config" 2>/dev/null; then
+    if command -v kwriteconfig6 >/dev/null 2>&1; then
+        runuser -u steamos -- kwriteconfig6 --file ksmserverrc --group General --key loginMode restorePreviousLogout
+    elif command -v kwriteconfig5 >/dev/null 2>&1; then
+        runuser -u steamos -- kwriteconfig5 --file ksmserverrc --group General --key loginMode restorePreviousLogout
+    else
+        echo '[CinterForgeOS] WARNING: kwriteconfig missing; configure Plasma session restore via System Settings' >&2
+    fi
+    echo '[CinterForgeOS] Plasma session restore: previous logout (unless user overrides)'
+fi
 # Keep user-authored Places intact. For fresh home directories copy the
 # version-controlled XBEL seed; for existing users append only missing entries.
 /usr/lib/cinterforge/install-kde-places

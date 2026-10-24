@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=CinterForge Photo
+Comment=Launch source-built CinterForge Photo for Linux
+Exec=/usr/lib/cinterforge/launch-cinterforge Linux RapidRAW
+Terminal=true
+Icon=/usr/share/cinterforge/icons/launchers/built-rapidraw.png
+Categories=CinterForgeLinux;Graphics;
+StartupNotify=true

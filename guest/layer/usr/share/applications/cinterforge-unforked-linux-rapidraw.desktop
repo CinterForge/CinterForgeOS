@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=RapidRAW (Unforked Linux)
+Comment=Launch original upstream RapidRAW through CinterForgeOS Linux reference environment
+Exec=/usr/lib/cinterforge/launch-unforked Linux RapidRAW
+Terminal=false
+Icon=/usr/share/cinterforge/icons/launchers/unforked-rapidraw.png
+Categories=LinuxUnforked;Graphics;
+StartupNotify=true

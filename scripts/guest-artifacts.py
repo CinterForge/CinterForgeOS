@@ -87,6 +87,20 @@ def hash_entry(digest, path, name):
         raise ValueError(f"missing or unsupported input: {path}")
 
 
+def tree_digest(root):
+    digest = hashlib.sha256()
+    for directory, dirs, files in os.walk(root, followlinks=False):
+        for name in sorted(dirs + files):
+            path = Path(directory) / name
+            rel = path.relative_to(root)
+            if path.is_dir() and not path.is_symlink():
+                add_record(digest, str(rel), "directory")
+            else:
+                hash_entry(digest, path, str(rel))
+        dirs.sort()
+    return digest.hexdigest()
+
+
 def input_digest(kind):
     paths = subprocess.check_output(
         ["git", "-C", str(ROOT), "ls-files", "-z", "--cached", "--others",
@@ -94,13 +108,29 @@ def input_digest(kind):
     digest = hashlib.sha256()
     add_record(digest, "steamac-guest-inputs-1", kind)
     for name in sorted(set(p for p in paths if p)):
+        path = ROOT / os.fsdecode(name)
+        # `git ls-files --cached` includes tracked files deleted in the working
+        # tree. A deliberate deletion is a source change, not an invalid input.
+        # Record a tombstone so removing (or restoring) a file invalidates any
+        # prior build receipt. Required sources are checked by the build step.
+        if not os.path.lexists(path):
+            add_record(digest, name, "deleted")
+            continue
         try:
-            hash_entry(digest, ROOT / os.fsdecode(name), name)
+            hash_entry(digest, path, name)
         except (OSError, ValueError) as error:
             fail(kind, f"missing/invalid source input ({error})")
     if kind in ("initramfs", "layer"):
         add_record(digest, "SOURCE_DATE_EPOCH", os.environ.get("SOURCE_DATE_EPOCH", "1767225600"))
     if kind == "layer":
+        fex = OUT / "fex" / "usr"
+        if not (fex / "bin" / "FEX").is_file():
+            fail("layer", "standalone FEX runtime missing (run scripts/build-image.sh fex)")
+        add_record(digest, "fex-runtime", tree_digest(fex))
+        userspace = OUT / "fex-userspace"
+        if not (userspace / "wine-executable.txt").is_file() or not (userspace / "RootFS/usr/bin/bash").is_file() or not (userspace / "RootFS/usr/lib/x86_64-linux-gnu/libglib-2.0.so.0").exists() or not (userspace / "RootFS/usr/lib/x86_64-linux-gnu/libpangomm-1.4.so.1").exists():
+            fail("layer", "FEX x86-64 RootFS/Wine missing (run scripts/build-image.sh userspace)")
+        add_record(digest, "fex-userspace", tree_digest(userspace))
         check("mesa")
         add_record(digest, "mesa-receipt", file_digest(stamp_path("mesa")))
     if kind == "mesa":

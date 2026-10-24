@@ -4,7 +4,7 @@ set -eu
 status=0
 printf '[CinterForgeOS] CinterForge Audio runtime preflight\n'
 for platform in Linux Windows; do
-    base="/run/Applications/$platform/CinterForge Audio"
+    base="/run/steamapps/common/CinterForge/Applications/$platform/CinterForge Audio"
     if [ ! -d "$base" ]; then
         printf '[FAIL] %s installation not mounted: %s\n' "$platform" "$base"
         status=1
@@ -51,11 +51,6 @@ if command -v wine >/dev/null 2>&1; then
 else
     printf '[FAIL] Wine missing (required for Windows Ardour)\n'
     status=1
-fi
-if mountpoint -q /run/DeveloperTests; then
-    printf '[PASS] DeveloperTests share mounted\n'
-else
-    printf '[WARN] DeveloperTests share not mounted; separate from Ardour launch\n'
 fi
 printf '[INFO] Audio output is separate: current libkrun reported no SND support.\n'
 exit "$status"

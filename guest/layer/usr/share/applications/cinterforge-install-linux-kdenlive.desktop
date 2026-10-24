@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Install Kdenlive (Original Linux)
+Comment=Install or inspect original publisher distribution for Kdenlive on Linux
+Exec=konsole --hold -e /usr/lib/cinterforge/install-unforked Linux Kdenlive
+Terminal=false
+Icon=/usr/share/cinterforge/icons/launchers/install-kdenlive.png
+Categories=LinuxInstall;System;
+StartupNotify=false

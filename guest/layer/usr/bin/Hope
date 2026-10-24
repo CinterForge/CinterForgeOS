@@ -1,0 +1,11 @@
+#!/bin/sh
+# CinterForgeOS guest Hope: execute the live, user-owned dispatcher.
+# Provisioning belongs exclusively to host Build ZIP -> Stage, never boot/launch.
+set -eu
+dispatcher=/run/steamapps/common/CinterForge/Applications/Test/Dispatcher/Hope
+[ -f "$dispatcher" ] && [ -r "$dispatcher" ] || {
+    echo "[Hope] Dispatcher missing/unreadable: $dispatcher" >&2
+    echo '[Hope] Build and Stage CinterForgeOS to install it; guest launch never creates user data.' >&2
+    exit 1
+}
+exec /bin/sh "$dispatcher" "$@"

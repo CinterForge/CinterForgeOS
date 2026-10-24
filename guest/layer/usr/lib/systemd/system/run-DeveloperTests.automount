@@ -1,6 +1,0 @@
-[Unit]
-Description=CinterForge developer DeveloperTests automount
-[Automount]
-Where=/run/DeveloperTests
-[Install]
-WantedBy=multi-user.target

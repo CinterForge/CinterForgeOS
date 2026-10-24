@@ -1,0 +1,8 @@
+[Unit]
+Description=Host Steam library shared read/write with CinterForgeOS
+
+[Mount]
+What=steamapps
+Where=/run/steamapps
+Type=virtiofs
+Options=rw
