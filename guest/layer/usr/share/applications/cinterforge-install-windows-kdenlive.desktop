@@ -2,7 +2,7 @@
 Type=Application
 Name=Install Kdenlive (Original Windows)
 Comment=Install or inspect original publisher distribution for Kdenlive on Windows
-Exec=konsole --hold -e /usr/lib/cinterforge/install-unforked Windows Kdenlive
+Exec=konsole --hold -e Hope install-unforked Windows Kdenlive
 Terminal=false
 Icon=/usr/share/cinterforge/icons/launchers/install-kdenlive.png
 Categories=WindowsInstall;System;

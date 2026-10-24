@@ -2,7 +2,7 @@
 Type=Application
 Name=CinterForge Image
 Comment=Launch source-built CinterForge Image for Windows
-Exec=/usr/lib/cinterforge/launch-cinterforge Windows GIMP
+Exec=Hope launch-cinterforge Windows GIMP
 Terminal=true
 Icon=/usr/share/cinterforge/icons/launchers/built-gimp.png
 Categories=CinterForgeWindows;Graphics;

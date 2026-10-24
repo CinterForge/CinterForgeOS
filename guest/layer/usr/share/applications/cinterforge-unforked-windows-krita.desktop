@@ -2,7 +2,7 @@
 Type=Application
 Name=Krita (Unforked Windows)
 Comment=Launch original upstream Krita through CinterForgeOS Windows reference environment
-Exec=/usr/lib/cinterforge/launch-unforked Windows Krita
+Exec=Hope launch-unforked Windows Krita
 Terminal=false
 Icon=/usr/share/cinterforge/icons/launchers/unforked-krita.png
 Categories=WindowsUnforked;Graphics;

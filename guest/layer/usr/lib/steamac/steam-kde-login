@@ -9,7 +9,7 @@ steamroot="$HOME/.local/share/Steam"
 client="$steamroot/steamrtarm64/steam"
 logdir="$HOME/.local/state/cinterforge"
 mkdir -p "$logdir" "$steamroot/package"
-source /usr/lib/cinterforge/app-launch-diagnostics
+source /run/steamapps/common/CinterForge/Applications/Test/Scripts/app-launch-diagnostics
 cfdiag_init Steam
 trap 'code=$?; cfdiag_finish "$code"' EXIT
 # Keep actionable startup events visible in the VM journal as well as in a

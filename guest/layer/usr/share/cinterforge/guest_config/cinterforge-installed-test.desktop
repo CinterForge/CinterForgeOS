@@ -1,7 +1,8 @@
 [Desktop Entry]
 Type=Application
 Name=CinterForgeOS KDE guest smoke bridge
-Exec=/usr/lib/cinterforge/installed-app-gui-test
+Exec=Hope help
+Hidden=true
 Terminal=false
 X-KDE-autostart-phase=2
 OnlyShowIn=KDE;

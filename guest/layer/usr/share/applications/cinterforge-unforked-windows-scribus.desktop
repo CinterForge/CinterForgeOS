@@ -2,7 +2,7 @@
 Type=Application
 Name=Scribus (Unforked Windows)
 Comment=Launch original upstream Scribus through CinterForgeOS Windows reference environment
-Exec=/usr/lib/cinterforge/launch-unforked Windows Scribus
+Exec=Hope launch-unforked Windows Scribus
 Terminal=false
 Icon=/usr/share/cinterforge/icons/launchers/unforked-scribus.png
 Categories=WindowsUnforked;Graphics;

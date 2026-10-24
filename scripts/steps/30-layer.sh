@@ -61,8 +61,6 @@ for platform in linux windows; do
         install -D -m 0644 "$source_entry" "$ST/usr/share/applications/$entry"
     done
 done
-install -D -m 0755 /src/guest/layer/usr/lib/cinterforge/install-unforked "$ST/usr/lib/cinterforge/install-unforked"
-sh -n "$ST/usr/lib/cinterforge/install-unforked"
 for group in cinterforge-linux cinterforge-windows linux-unforked windows-unforked linux-install windows-install; do
     source_directory="/src/guest/layer/usr/share/desktop-directories/$group.directory"
     [[ -s "$source_directory" ]] || { echo "[layer] missing KDE menu directory: $source_directory" >&2; exit 1; }
@@ -115,19 +113,6 @@ if [[ ! -x "$guest_hope_destination" ]]; then
 fi
 
 sh -n "$guest_hope_destination"
-# This guest command is an authored source input, not a generated output.
-# Fail with the actual missing path before attempting compilation.
-WINDOWS_INSPECTOR=/src/guest/layer/usr/lib/cinterforge/inspect-unforked-windows
-[[ -f "$WINDOWS_INSPECTOR" ]] || {
-    echo "[layer] missing authored Windows inspection tool: $WINDOWS_INSPECTOR" >&2
-    exit 1
-}
-install -D -m 0755 "$WINDOWS_INSPECTOR" "$ST/usr/lib/cinterforge/inspect-unforked-windows"
-python3 - "$ST/usr/lib/cinterforge/inspect-unforked-windows" <<'PY_CHECK'
-import pathlib, sys
-script = pathlib.Path(sys.argv[1])
-compile(script.read_bytes(), str(script), 'exec')
-PY_CHECK
 # Standalone FEX is a required ARM64 runtime, not the bundled FEXBash stub.
 [[ -x "$FEX/usr/bin/FEX" ]] || {
     echo "[layer] FEX ARM64 runtime missing: run scripts/build-image.sh fex" >&2; exit 1;
@@ -154,7 +139,6 @@ cat > "$ST/usr/share/fex-emu/Config.json" <<'FEX_CONFIG'
 FEX_CONFIG
 # Export a stable command for the installed Windows launcher, but leave
 # Steam/Proton's own Wine and pressure-vessel environment entirely untouched.
-install -D -m 0755 /src/guest/layer/usr/lib/cinterforge/cinterforge-wine "$ST/usr/lib/cinterforge/cinterforge-wine"
 
 # Authored CinterForgeOS guest configuration: package the actual KDE/systemd
 # paths from guest_config, never generate/inject shell scripts from Hope.
@@ -179,19 +163,9 @@ install -D -m 0644 "$CFG/cinterforge-kde-prepare.service" "$ST/usr/lib/systemd/s
 install -D -m 0644 "$CFG/cinterforge-virtiofs-verify.service" "$ST/usr/lib/systemd/system/cinterforge-virtiofs-verify.service"
 
 # KDE readiness stays inside the guest layer; no extra host mount is required.
-install -D -m 0755 /src/scripts/support/cinterforgeis_ready.sh "$ST/usr/lib/cinterforge/cinterforgeis_ready.sh"
 
 # Steamac owns executable permissions and the complete desktop integration.
 # Fail during the layer build, not at login, if authored bridge files disappear.
-for command in desktop-health run-linux-amd64 inspect-x86-runtime installed-app-gui-test ardour-runtime-check \
-               launch-ardour-linux launch-ardour-windows launch-unforked launch-cinterforge run-desktop-ready; do
-    test -s "$ST/usr/lib/cinterforge/$command" || {
-        echo "[layer] missing authored CinterForgeOS command: $command" >&2
-        exit 1
-    }
-    chmod 0755 "$ST/usr/lib/cinterforge/$command"
-    sh -n "$ST/usr/lib/cinterforge/$command"
-done
 for file in \
     "$ST/usr/share/xdg/autostart/cinterforge-support-desktop-ready.desktop" \
     "$ST/usr/share/cinterforge/backgrounds/cinterforge-linux-1920x1080.png" \
@@ -255,7 +229,15 @@ for f in usr/bin/splctl usr/lib/rauc/post-install.sh usr/lib/steamac/kernelsetup
          usr/lib/steamac/steam-kde-login \
          usr/lib/steamac/nested-desktop usr/lib/steamac/desktop-bin/kwin_wayland_wrapper \
          usr/lib/steamac/desktop-bin/steamosctl usr/lib/steamos/gamescope-session; do
-    [[ -x $ST/$f ]] || { echo "[layer] $f missing or not executable" >&2; exit 1; }
+    # Source archives may lose executable mode. Install the required OS startup
+    # commands explicitly, just as we do the guest Hope bridge above.
+    source_command="/src/guest/layer/$f"
+    if [[ ! -f "$source_command" ]]; then
+        echo "[layer] required OS command missing: $source_command" >&2
+        exit 1
+    fi
+    install -D -m 0755 "$source_command" "$ST/$f"
+    [[ -x "$ST/$f" ]] || { echo "[layer] $f missing or not executable" >&2; exit 1; }
     bash -n "$ST/$f"
 done
 [[ -f $ST/usr/lib/systemd/user/steam.service.d/50-steamac.conf ]] \

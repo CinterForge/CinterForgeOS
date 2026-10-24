@@ -2,7 +2,7 @@
 Type=Application
 Name=CinterForge 3D
 Comment=Launch source-built CinterForge 3D for Linux
-Exec=/usr/lib/cinterforge/launch-cinterforge Linux Blender
+Exec=Hope launch-cinterforge Linux Blender
 Terminal=true
 Icon=/usr/share/cinterforge/icons/launchers/built-blender.png
 Categories=CinterForgeLinux;Graphics;

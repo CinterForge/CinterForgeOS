@@ -2,7 +2,7 @@
 Type=Application
 Name=Install RapidRAW (Original Linux)
 Comment=Install or inspect original publisher distribution for RapidRAW on Linux
-Exec=konsole --hold -e /usr/lib/cinterforge/install-unforked Linux RapidRAW
+Exec=konsole --hold -e Hope install-unforked Linux RapidRAW
 Terminal=false
 Icon=/usr/share/cinterforge/icons/launchers/install-rapidraw.png
 Categories=LinuxInstall;System;

@@ -2,7 +2,7 @@
 Type=Application
 Name=Install Krita (Original Windows)
 Comment=Install or inspect original publisher distribution for Krita on Windows
-Exec=konsole --hold -e /usr/lib/cinterforge/install-unforked Windows Krita
+Exec=konsole --hold -e Hope install-unforked Windows Krita
 Terminal=false
 Icon=/usr/share/cinterforge/icons/launchers/install-krita.png
 Categories=WindowsInstall;System;

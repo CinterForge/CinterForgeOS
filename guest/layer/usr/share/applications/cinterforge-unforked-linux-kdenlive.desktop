@@ -2,7 +2,7 @@
 Type=Application
 Name=Kdenlive (Unforked Linux)
 Comment=Launch original upstream Kdenlive through CinterForgeOS Linux reference environment
-Exec=/usr/lib/cinterforge/launch-unforked Linux Kdenlive
+Exec=Hope launch-unforked Linux Kdenlive
 Terminal=false
 Icon=/usr/share/cinterforge/icons/launchers/unforked-kdenlive.png
 Categories=LinuxUnforked;Graphics;

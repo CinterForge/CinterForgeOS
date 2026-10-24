@@ -5,5 +5,5 @@
 set -eu
 printf '[CinterForgeOS Support] desktop ready: user=%s session=%s desktop=%s\n' "$(id -un)" "${XDG_SESSION_TYPE:-unset}" "${XDG_CURRENT_DESKTOP:-unset}"
 # Add application automation here, for example:
-# /usr/lib/cinterforge/launch-ardour-linux
-# /usr/lib/cinterforge/launch-ardour-windows
+# Hope launch-ardour-linux
+# Hope launch-ardour-windows

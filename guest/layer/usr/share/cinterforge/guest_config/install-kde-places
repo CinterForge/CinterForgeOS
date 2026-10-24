@@ -41,7 +41,7 @@ for platform in Linux Windows; do
                 esac
                 # Remove only shortcuts previously produced under upstream names.
                 legacy="$group/$app.desktop"
-                if [ -f "$legacy" ] && grep -Fq "Exec=/usr/lib/cinterforge/launch-cinterforge $platform $app" "$legacy"; then
+                if [ -f "$legacy" ] && grep -Fq "Exec=Hope launch-cinterforge $platform $app" "$legacy"; then
                     rm -f -- "$legacy"
                 fi
                 dst="$group/$product.desktop"

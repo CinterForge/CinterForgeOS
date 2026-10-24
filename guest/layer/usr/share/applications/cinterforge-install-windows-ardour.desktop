@@ -2,7 +2,7 @@
 Type=Application
 Name=Install Ardour (Original Windows)
 Comment=Install or inspect original publisher distribution for Ardour on Windows
-Exec=konsole --hold -e /usr/lib/cinterforge/install-unforked Windows Ardour
+Exec=konsole --hold -e Hope install-unforked Windows Ardour
 Terminal=false
 Icon=/usr/share/cinterforge/icons/launchers/install-ardour.png
 Categories=WindowsInstall;System;
