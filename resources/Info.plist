@@ -5,15 +5,19 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>Q</string>
+	<string>CinterForgeOS</string>
 	<key>CFBundleExecutable</key>
 	<string>cfos-vm</string>
+	<key>CFBundleGetInfoString</key>
+	<string></string>
 	<key>CFBundleIconFile</key>
-	<string>AppIcon</string>
+	<string>CinterForge</string>
 	<key>CFBundleIconName</key>
 	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.cinterforge.cinterforge-os</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>1.0</string>
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>en</string>
@@ -26,6 +30,10 @@
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.9.1</string>
+	<key>CFBundleVersion</key>
+	<string></string>
+	<key>CinterForgeOS</key>
+	<string>1.0</string>
 	<key>GCSupportsControllerUserInteraction</key>
 	<true/>
 	<key>GCSupportsGameMode</key>
@@ -38,6 +46,8 @@
 	<true/>
 	<key>NSHighResolutionCapable</key>
 	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string></string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Discover Steam Link and Remote Play devices on your local network and connect them to Steam in the SteamOS virtual machine when LAN Remote Play is enabled.</string>
 	<key>NSMicrophoneUsageDescription</key>
