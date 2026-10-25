@@ -23,7 +23,7 @@ Heaven is the Windows showcase running through **Proton 11 ARM64 / Wine / FEX** 
 ![Actual CinterForgeOS Windows DX9 Heaven 4.0 benchmark rendering at approximately 120 FPS](../dev-environment/Windows%20Heaven%20DX9%20-%20AO%20Off.png)
 **Actual capture from CinterForgeOS, October 25, 2026.** The on-screen benchmark HUD shows **131 FPS** at the captured instant, with minimum **70 FPS** and maximum **160 FPS** reported during the run. The broader observed run was approximately **120 FPS**; these are live frame-rate observations, **not a completed benchmark score**.
 
-**[Watch the Windows DX9 ~120 FPS QuickTime recording](https://cdndev.ucreg.io/Linux%20x86%20gl%204.3%20120FPS.mov)** (`.mov`, captured in the actual CFOS desktop).
+**[Watch the Windows DX9 ~120 FPS QuickTime recording](https://cdndev.ucreg.io/WIN%20DX9%20NO%20AO.mov)** (`.mov`, captured in the actual CFOS desktop).
 
 **Successful showcase criterion (not yet met):** Heaven sustains its animated scene, completes a benchmark, and records API, GPU/renderer, FPS, score, and driver warnings. **Observed:** the launcher opens and stays alive; `heaven.exe` starts, opens its window, and exits. WineD3D DLLs and OpenGL/Zink/Venus libraries were verified in its process mappings. DirectX 11/DXVK previously triggered a host shader-compiler crash in KosmicKrisp/NIR; WineD3D and native OpenGL attempts also ended with the engine closing. These are distinct failure modes and should not be conflated.
 
