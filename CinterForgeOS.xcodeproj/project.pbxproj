@@ -547,8 +547,12 @@
 		4DA722A4308D1DF8001FA0CE /* CinterForge.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; name = CinterForge.icon; path = resources/CinterForge.icon; sourceTree = "<group>"; };
 		4DA7A336308AF76B001FA0CE /* cinterforge-libkrun.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-libkrun.xcodeproj"; sourceTree = "<group>"; };
 		4DA7A586308AF76B001FA0CE /* cinterforge-virglrenderer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-virglrenderer.xcodeproj"; sourceTree = "<group>"; };
+		4DA7A6C4308DAE55001FA0CE /* cinterforge-libkrun.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-libkrun.xcodeproj"; sourceTree = "<group>"; };
+		4DA7A914308DAE55001FA0CE /* cinterforge-virglrenderer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-virglrenderer.xcodeproj"; sourceTree = "<group>"; };
 		4DA7B94C308AF76C001FA0CE /* cinterforge-spirv-cross.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-spirv-cross.xcodeproj"; sourceTree = "<group>"; };
+		4DA7BCDA308DAE55001FA0CE /* cinterforge-spirv-cross.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-spirv-cross.xcodeproj"; sourceTree = "<group>"; };
 		4DA7EF14308AF76C001FA0CE /* cinterforge-kosmickrisp-mesa.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-kosmickrisp-mesa.xcodeproj"; sourceTree = "<group>"; };
+		4DA7F2A2308DAE56001FA0CE /* cinterforge-kosmickrisp-mesa.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-kosmickrisp-mesa.xcodeproj"; sourceTree = "<group>"; };
 		4DEE2EDB308A6CC30059F151 /* cinterforge-libkrun.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-libkrun.xcodeproj"; sourceTree = "<group>"; };
 		4DEE312B308A6CC30059F151 /* cinterforge-virglrenderer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-virglrenderer.xcodeproj"; sourceTree = "<group>"; };
 		4DEE316D308A6CC40059F151 /* Cube.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Cube.xcodeproj; sourceTree = "<group>"; };
@@ -1413,6 +1417,20 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		4DA7A6CB308DAE55001FA0CE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DA7A91A308DAE55001FA0CE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		4DA7B975308AF76C001FA0CE /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -1420,7 +1438,21 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		4DA7BD03308DAE55001FA0CE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		4DA7EF1E308AF76C001FA0CE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DA7F2AC308DAE56001FA0CE /* Products */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -1921,12 +1953,20 @@
 					ProjectRef = 4D0556BF308A8C7400C9965C /* cinterforge-kosmickrisp-mesa.xcodeproj */;
 				},
 				{
-					ProductGroup = 4DEE8840308A6CC40059F151 /* Products */;
-					ProjectRef = 4DEE8836308A6CC40059F151 /* cinterforge-kosmickrisp-mesa.xcodeproj */;
-				},
-				{
 					ProductGroup = 4D4532C5308A6EF800725112 /* Products */;
 					ProjectRef = 4D4532BB308A6EF800725112 /* cinterforge-kosmickrisp-mesa.xcodeproj */;
+				},
+				{
+					ProductGroup = 4D0475C5308A9837004B97C7 /* Products */;
+					ProjectRef = 4D0475BA308A9837004B97C7 /* cinterforge-kosmickrisp-mesa.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DA7F2AC308DAE56001FA0CE /* Products */;
+					ProjectRef = 4DA7F2A2308DAE56001FA0CE /* cinterforge-kosmickrisp-mesa.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DEE8840308A6CC40059F151 /* Products */;
+					ProjectRef = 4DEE8836308A6CC40059F151 /* cinterforge-kosmickrisp-mesa.xcodeproj */;
 				},
 				{
 					ProductGroup = 4DF9FDFD308A88B500E4BDBE /* Products */;
@@ -1937,16 +1977,8 @@
 					ProjectRef = 4DA7EF14308AF76C001FA0CE /* cinterforge-kosmickrisp-mesa.xcodeproj */;
 				},
 				{
-					ProductGroup = 4D0475C5308A9837004B97C7 /* Products */;
-					ProjectRef = 4D0475BA308A9837004B97C7 /* cinterforge-kosmickrisp-mesa.xcodeproj */;
-				},
-				{
 					ProductGroup = 4D050AE8308A8C7300C9965C /* Products */;
 					ProjectRef = 4D050AE1308A8C7300C9965C /* cinterforge-libkrun.xcodeproj */;
-				},
-				{
-					ProductGroup = 4D0429E3308A9836004B97C7 /* Products */;
-					ProjectRef = 4D0429DC308A9836004B97C7 /* cinterforge-libkrun.xcodeproj */;
 				},
 				{
 					ProductGroup = 4DF9B21C308A88B400E4BDBE /* Products */;
@@ -1957,6 +1989,14 @@
 					ProjectRef = 4D45D960308A6EF700725112 /* cinterforge-libkrun.xcodeproj */;
 				},
 				{
+					ProductGroup = 4DA7A6CB308DAE55001FA0CE /* Products */;
+					ProjectRef = 4DA7A6C4308DAE55001FA0CE /* cinterforge-libkrun.xcodeproj */;
+				},
+				{
+					ProductGroup = 4D0429E3308A9836004B97C7 /* Products */;
+					ProjectRef = 4D0429DC308A9836004B97C7 /* cinterforge-libkrun.xcodeproj */;
+				},
+				{
 					ProductGroup = 4DA7A33D308AF76B001FA0CE /* Products */;
 					ProjectRef = 4DA7A336308AF76B001FA0CE /* cinterforge-libkrun.xcodeproj */;
 				},
@@ -1965,12 +2005,20 @@
 					ProjectRef = 4DEE2EDB308A6CC30059F151 /* cinterforge-libkrun.xcodeproj */;
 				},
 				{
+					ProductGroup = 4DEE3EA4308A6CC40059F151 /* Products */;
+					ProjectRef = 4DEE3E99308A6CC40059F151 /* cinterforge-moltenvk.xcodeproj */;
+				},
+				{
 					ProductGroup = 4D45665A308A6F2600725112 /* Products */;
 					ProjectRef = 4D456657308A6F2600725112 /* cinterforge-moltenvk.xcodeproj */;
 				},
 				{
-					ProductGroup = 4DEE3EA4308A6CC40059F151 /* Products */;
-					ProjectRef = 4DEE3E99308A6CC40059F151 /* cinterforge-moltenvk.xcodeproj */;
+					ProductGroup = 4DA7B975308AF76C001FA0CE /* Products */;
+					ProjectRef = 4DA7B94C308AF76C001FA0CE /* cinterforge-spirv-cross.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DA7BD03308DAE55001FA0CE /* Products */;
+					ProjectRef = 4DA7BCDA308DAE55001FA0CE /* cinterforge-spirv-cross.xcodeproj */;
 				},
 				{
 					ProductGroup = 4D052120308A8C7400C9965C /* Products */;
@@ -1985,10 +2033,6 @@
 					ProjectRef = 4DF9C82B308A88B400E4BDBE /* cinterforge-spirv-cross.xcodeproj */;
 				},
 				{
-					ProductGroup = 4DA7B975308AF76C001FA0CE /* Products */;
-					ProjectRef = 4DA7B94C308AF76C001FA0CE /* cinterforge-spirv-cross.xcodeproj */;
-				},
-				{
 					ProductGroup = 4D04401B308A9836004B97C7 /* Products */;
 					ProjectRef = 4D043FF2308A9836004B97C7 /* cinterforge-spirv-cross.xcodeproj */;
 				},
@@ -2001,16 +2045,20 @@
 					ProjectRef = 4DEE312B308A6CC30059F151 /* cinterforge-virglrenderer.xcodeproj */;
 				},
 				{
+					ProductGroup = 4DF9B46B308A88B400E4BDBE /* Products */;
+					ProjectRef = 4DF9B465308A88B400E4BDBE /* cinterforge-virglrenderer.xcodeproj */;
+				},
+				{
 					ProductGroup = 4D042C32308A9836004B97C7 /* Products */;
 					ProjectRef = 4D042C2C308A9836004B97C7 /* cinterforge-virglrenderer.xcodeproj */;
 				},
 				{
-					ProductGroup = 4D45DBB6308A6EF700725112 /* Products */;
-					ProjectRef = 4D45DBB0308A6EF700725112 /* cinterforge-virglrenderer.xcodeproj */;
+					ProductGroup = 4DA7A91A308DAE55001FA0CE /* Products */;
+					ProjectRef = 4DA7A914308DAE55001FA0CE /* cinterforge-virglrenderer.xcodeproj */;
 				},
 				{
-					ProductGroup = 4DF9B46B308A88B400E4BDBE /* Products */;
-					ProjectRef = 4DF9B465308A88B400E4BDBE /* cinterforge-virglrenderer.xcodeproj */;
+					ProductGroup = 4D45DBB6308A6EF700725112 /* Products */;
+					ProjectRef = 4D45DBB0308A6EF700725112 /* cinterforge-virglrenderer.xcodeproj */;
 				},
 				{
 					ProductGroup = 4DA7A58C308AF76B001FA0CE /* Products */;

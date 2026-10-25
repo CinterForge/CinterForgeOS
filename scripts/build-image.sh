@@ -189,7 +189,7 @@ for step in "${steps[@]}"; do
             # Presence alone is insufficient: Xcode's layer-only invocation
             # must pick up edits to glx-probe.c even with a cached RootFS.
             # Recompile just this diagnostic, never the whole AMD64 userspace.
-            probe_sha=$(shasum -a 256 "$REPO/guest/fex/glx-probe.c" | awk '{print $1}')
+            probe_sha=$(cat "$REPO/guest/fex/glx-probe.c" "$REPO/guest/fex/gl-probe-render.h" | shasum -a 256 | awk '{print $1}')
             if ! strings "$rootfs/usr/bin/cinterforge-glx-probe" 2>/dev/null \
                 | grep -Fx "CINTERFORGE_GLX_PROBE_SHA=$probe_sha" >/dev/null; then
                 echo "[steamac] GLX probe source changed; rebuilding AMD64 probe only ($probe_sha)"

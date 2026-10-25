@@ -176,7 +176,9 @@ def require_current_glx_probe():
     source = ROOT / "guest/fex/glx-probe.c"
     binary = OUT / "fex-userspace/RootFS/usr/bin/cinterforge-glx-probe"
     try:
-        expected = b"CINTERFORGE_GLX_PROBE_SHA=" + file_digest(source).encode("ascii")
+        import hashlib
+        digest = hashlib.sha256(source.read_bytes() + (source.parent / "gl-probe-render.h").read_bytes()).hexdigest()
+        expected = b"CINTERFORGE_GLX_PROBE_SHA=" + digest.encode("ascii")
         if expected not in binary.read_bytes():
             fail("layer", "FEX GLX probe is stale against guest/fex/glx-probe.c")
     except OSError as error:

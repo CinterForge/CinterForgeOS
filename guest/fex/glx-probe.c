@@ -9,6 +9,7 @@
 #include <GL/gl.h>
 #include <GL/glx.h>
 #include <GL/glxext.h>
+#include "gl-probe-render.h"
 
 #ifndef CINTERFORGE_GLX_PROBE_SOURCE_SHA
 #define CINTERFORGE_GLX_PROBE_SOURCE_SHA "unversioned"
@@ -119,20 +120,8 @@ int main(int argc, char **argv) {
     made_current = glXMakeCurrent(d, window, ctx) == True;
     printf("[glx-probe] make_current=%d\n", made_current);
     if (!checked(d, "make-current") || !made_current) { rc = 10; goto cleanup; }
-    const GLubyte *vendor = glGetString(GL_VENDOR);
-    const GLubyte *renderer = glGetString(GL_RENDERER);
-    const GLubyte *version = glGetString(GL_VERSION);
-    printf("[glx-probe] GL_VENDOR=%s\n", vendor ? (const char *)vendor : "(null)");
-    printf("[glx-probe] GL_RENDERER=%s\n", renderer ? (const char *)renderer : "(null)");
-    printf("[glx-probe] GL_VERSION=%s\n", version ? (const char *)version : "(null)");
-    if (!vendor || !renderer || !version) { rc = 11; goto cleanup; }
-    glViewport(0, 0, 256, 256);
-    glClearColor(0.1f, 0.2f, 0.4f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glFinish();
-    GLenum gl_error = glGetError();
-    printf("[glx-probe] clear/finish GL error=0x%x\n", (unsigned)gl_error);
-    if (gl_error != GL_NO_ERROR) { rc = 12; goto cleanup; }
+    rc = cf_gl_render_check("glx");
+    if (rc) goto cleanup;
     glXSwapBuffers(d, window);
     if (!checked(d, "swap-buffers")) { rc = 13; goto cleanup; }
     printf("[glx-probe] accelerated-context-path-complete\n");

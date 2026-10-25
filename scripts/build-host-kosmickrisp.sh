@@ -208,9 +208,23 @@ if [[ "$source_changed" == 0 && -s "$intermediate" ]] && file "$intermediate" | 
     source_changed=1
 fi
 mkdir -p "$work" "$prefix/lib"
-rm -rf "$src"
-mkdir -p "$src"
-rsync -a --exclude=.git --exclude=build --exclude=target "$fork/" "$src/"
+# macOS can report "Directory not empty" during recursive deletion when a
+# concurrent process creates files in the old Mesa source tree. Do not let a
+# failed cleanup abort the rebuild or reuse any part of the old checkout.
+# Prepare a fresh source directory, then atomically replace the old path.
+fresh_src="$work/src.new.$$"
+mkdir -p "$fresh_src"
+rsync -a --exclude=.git --exclude=build --exclude=target "$fork/" "$fresh_src/"
+if [[ -e "$src" ]]; then
+    retired_src="$work/src.old.$$"
+    mv "$src" "$retired_src"
+fi
+mv "$fresh_src" "$src"
+# The retired checkout is disposable. A concurrent writer may keep it busy;
+# its removal must not affect the newly populated source checkout.
+if [[ -n "${retired_src:-}" ]]; then
+    rm -rf "$retired_src" 2>/dev/null || echo "[Xcode] Warning: old KosmicKrisp source cleanup deferred: $retired_src" >&2
+fi
 # The fork is already patched. Preserve its complete contents as supplied.
 # Reverse-applying old patches here would mutate the disposable build tree and
 # can reject valid additional source changes after the original patch series.

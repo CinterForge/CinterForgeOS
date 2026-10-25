@@ -319,6 +319,8 @@ final class NoPictureGuard {
     private var missingSince: CFTimeInterval?
     /// No picture or a black one since; a non-black frame resets it.
     private var darkSince: CFTimeInterval?
+    /// Frame counter at the start of the current black/no-picture interval.
+    private var darkStartPresented: UInt64?
     private var shownSince: CFTimeInterval?
     private var lastAlive: CFTimeInterval = 0
     private var cpuSamples: [(CFTimeInterval, Double)] = []
@@ -364,6 +366,7 @@ final class NoPictureGuard {
     private func gateChanged(_ closedBy: String) {
         missingSince = nil
         darkSince = nil
+        darkStartPresented = nil
         lastDark = nil
         seen = .max
         cpuSamples.removeAll()
@@ -382,14 +385,21 @@ final class NoPictureGuard {
         if missing {
             lastDark = nil
             if missingSince == nil { missingSince = now }
-            if darkSince == nil { darkSince = now }
+            if darkSince == nil {
+                darkSince = now
+                darkStartPresented = p.presented
+            }
         } else {
             missingSince = nil
             if let d = lastDark {
                 if d >= NoPictureGuard.blackFraction {
-                    if darkSince == nil { darkSince = now }
+                    if darkSince == nil {
+                        darkSince = now
+                        darkStartPresented = p.presented
+                    }
                 } else if darkSince != nil {
                     darkSince = nil
+                    darkStartPresented = nil
                     hide("first non-black frame")
                 }
             }
@@ -401,8 +411,10 @@ final class NoPictureGuard {
                               : now - (darkSince ?? now) >= NoPictureGuard.blackThreshold
             guard due, let since = darkSince else { return }
             shownSince = since
+            let framesDuringBlack = p.presented &- (darkStartPresented ?? p.presented)
             log("no-picture: shown after \(String(format: "%.1f", now - since)) s (\(reason)"
-                + (missing ? "" : String(format: " %.1f%%", (lastDark ?? 1) * 100)) + "; \(status(now)))")
+                + (missing ? "" : String(format: " %.1f%%", (lastDark ?? 1) * 100))
+                + "; presented=\(p.presented), framesDuringBlack=\(framesDuringBlack); \(status(now)))")
         }
         guard let since = shownSince else { return }
         var parts: [String] = []

@@ -33,7 +33,7 @@ sha_check() { printf '%s  %s\n' "$WINE_SHA256" "$ARCHIVE" | shasum -a 256 -c -; 
 # Rebuild only the AMD64 GLX diagnostic when its authored source changes.
 # The stamp is embedded in the executable so stale generated RootFS copies
 # cannot satisfy readiness merely by containing a runnable old probe.
-probe_source_sha() { shasum -a 256 "$REPO/guest/fex/glx-probe.c" | awk '{print $1}'; }
+probe_source_sha() { cat "$REPO/guest/fex/glx-probe.c" "$REPO/guest/fex/gl-probe-render.h" | shasum -a 256 | awk '{print $1}'; }
 build_glx_probe() {
   local destination="$1" probe_sha probe_output
   probe_sha=$(probe_source_sha)
@@ -43,12 +43,13 @@ build_glx_probe() {
   docker run --rm --platform linux/amd64 \
     -e PROBE_SOURCE_SHA="$probe_sha" \
     -v "$REPO/guest/fex/glx-probe.c:/src/glx-probe.c:ro" \
+    -v "$REPO/guest/fex/gl-probe-render.h:/src/gl-probe-render.h:ro" \
     -v "$probe_output:/output" \
     "$FEX_ROOTFS_CONTAINER" /bin/bash -euc '
       export DEBIAN_FRONTEND=noninteractive
       apt-get update
       apt-get install -y --no-install-recommends gcc libc6-dev libgl-dev libx11-dev file
-      gcc -std=c11 -O2 -Wall -Wextra \
+      gcc -std=c11 -O2 -Wall -Wextra -I/src \
         -DCINTERFORGE_GLX_PROBE_SOURCE_SHA=\"$PROBE_SOURCE_SHA\" \
         -o /output/cinterforge-glx-probe /src/glx-probe.c -lGL -lX11
       file /output/cinterforge-glx-probe | grep -Eq "x86-64|x86_64"
@@ -61,7 +62,28 @@ build_glx_probe() {
   remove_disposable_tree "$probe_output"
   echo "[FEX userspace] GLX probe built from source SHA $probe_sha"
 }
+build_wgl_probe() {
+  # Same authored OpenGL rendering checks as GLX; only context creation differs.
+  # Output remains in the existing external Build tree, never the guest image.
+  local output="$STEAMAC_WORK_DIR/out/fex-userspace/Windows"
+  mkdir -p "$output"
+  . "$REPO/scripts/xcode-docker-env.sh"
+  docker run --rm --platform linux/amd64 \
+    -v "$REPO/guest/fex:/src:ro" -v "$output:/output" \
+    "$FEX_ROOTFS_CONTAINER" /bin/bash -euc '
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update
+      apt-get install -y --no-install-recommends gcc-mingw-w64-x86-64
+      x86_64-w64-mingw32-gcc -std=c11 -O2 -Wall -Wextra -I/src \
+        -o /output/cinterforge-gl-probe.exe /src/wgl-probe.c -lopengl32 -lgdi32 -luser32
+      test -s /output/cinterforge-gl-probe.exe
+    ' 2>&1 | tee "$LOG/wgl-probe-build.log"
+  echo "[WGL probe] Built $output/cinterforge-gl-probe.exe"
+}
 case "${1:-}" in
+  probe-windows)
+    build_wgl_probe
+    ;;
   probe)
     # Called by the normal Xcode layer build when only glx-probe.c changed.
     # Never create a partial RootFS or silently reuse a stale diagnostic.
