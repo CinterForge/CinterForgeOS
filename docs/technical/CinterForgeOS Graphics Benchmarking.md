@@ -20,8 +20,8 @@ Heaven is the Windows showcase running through **Proton 11 ARM64 / Wine / FEX** 
 
 ### Windows x64 — UNIGINE Heaven
 
-![Actual CinterForgeOS Windows DX9 Heaven 4.0 benchmark rendering at approximately 120 FPS](../dev-environment/Windows%20Heaven%20DX9%20-%20AO%20Off.jpeg)
-**Actual capture from CinterForgeOS, October 25, 2026.** The on-screen benchmark HUD shows **160 FPS** at the captured instant, with minimum **70 FPS** and maximum **160 FPS** reported during the run. The broader observed run was approximately **120 FPS**; these are live frame-rate observations, **not a completed benchmark score**.
+![Actual CinterForgeOS Windows DX9 Heaven 4.0 benchmark rendering at approximately 120 FPS](../dev-environment/Windows%20Heaven%20DX9%20-%20AO%20Off.png)
+**Actual capture from CinterForgeOS, October 25, 2026.** The on-screen benchmark HUD shows **131 FPS** at the captured instant, with minimum **70 FPS** and maximum **160 FPS** reported during the run. The broader observed run was approximately **120 FPS**; these are live frame-rate observations, **not a completed benchmark score**.
 
 **[Watch the Windows DX9 ~120 FPS QuickTime recording](https://cdndev.ucreg.io/Linux%20x86%20gl%204.3%20120FPS.mov)** (`.mov`, captured in the actual CFOS desktop).
 
@@ -31,7 +31,7 @@ Heaven is the Windows showcase running through **Proton 11 ARM64 / Wine / FEX** 
 
 ### Linux x86-64 — UNIGINE Heaven 4.0 (verified rendering)
 
-![Actual CinterForgeOS Linux x86-64 Heaven 4.0 benchmark rendering at approximately 120 FPS](../dev-environment/Linux%20x86%20gl%204.3%20120FPS.png)
+![Actual CinterForgeOS Linux x86-64 Heaven 4.0 benchmark rendering at approximately 120 FPS](../dev-environment/Linux%20x86%20gl%204.3%20120FPS.jpeg)
 
 **Actual capture from CinterForgeOS, October 24, 2026.** The on-screen benchmark HUD shows **118.6 FPS** at the captured instant, with minimum **74.3 FPS** and maximum **160.6 FPS** reported during the run. The broader observed run was approximately **120–124 FPS**; these are live frame-rate observations, **not a completed benchmark score**.
 
