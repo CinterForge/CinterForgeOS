@@ -108,7 +108,7 @@ pub fn run(display: String, tx: Sender<Ev>) {
             Ok(c) => break c,
             Err(Fail::NotOurs(why)) => {
                 eprintln!("{TAG}: {display}: {why}; not shared");
-                let _ = tx.send(Ev::Down(display));
+                let _ = tx.send(Ev::RejectedX11(display));
                 return;
             }
             Err(Fail::Retry(why)) => {

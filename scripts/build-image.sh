@@ -80,8 +80,7 @@ for step in "${steps[@]}"; do
             run_in_builder /src/scripts/steps/20-initramfs.sh
             artifacts finish initramfs "$inputs"
             ;;
-        fex)      "$REPO/guest/fex/build.sh" fetch
-                  "$REPO/guest/fex/build.sh" build ;;
+        fex)      "$REPO/guest/fex/build.sh" build ;;
         userspace) bash "$REPO/guest/fex/runtime.sh" build ;;
         layer)
             # Fetch the publisher artwork referenced by Hope's authoritative CSV.
@@ -148,19 +147,59 @@ for step in "${steps[@]}"; do
             # requires standalone FEX and its x86-64 RootFS/Wine inputs, so
             # prepare missing inputs before the layer receipt is calculated.
             # Build only: source/archive acquisition remains Hope Setup's job.
-            if [[ ! -s "$WORK/out/fex/usr/bin/FEX" ]]; then
-                echo "[steamac] Missing standalone FEX: building ARM64 runtime"
+            # Xcode normally invokes only `builder layer`, not the explicit
+            # `fex` step. Check the COMPLETE required FEX output before using
+            # a cached build: a pre-thunk FEX binary is not a valid input.
+            fex_out="$WORK/out/fex/usr"
+            fex_incomplete=0
+            [[ -x "$fex_out/bin/FEX" ]] || fex_incomplete=1
+            for library in libGL-host.so libvulkan-host.so; do
+                [[ -s "$fex_out/lib/aarch64-linux-gnu/fex-emu/HostThunks/$library" ]] || fex_incomplete=1
+            done
+            for library in libGL-guest.so libvulkan-guest.so; do
+                [[ -s "$fex_out/share/fex-emu/GuestThunks/$library" ]] || fex_incomplete=1
+            done
+            # A new fork commit selected by Setup must rebuild FEX even when
+            # old host/guest thunk files are still present.
+            if [[ ! -s "$WORK/DependencySources/FEX.selected-commit" ]] ||
+               [[ ! -s "$WORK/out/fex.source-commit" ]] ||
+               ! cmp -s "$WORK/DependencySources/FEX.selected-commit" "$WORK/out/fex.source-commit"; then
+                fex_incomplete=1
+            fi
+            if (( fex_incomplete )); then
+                echo "[steamac] FEX absent or source commit changed: rebuilding complete FEX artifact"
                 "$REPO/guest/fex/build.sh" build
             fi
-            # Keep this prerequisite check aligned with runtime.sh's verified
-            # x86-64 libraries. A pre-Pangomm RootFS must not be reused.
-            if [[ ! -s "$WORK/out/fex-userspace/wine-executable.txt" || \
-                  ! -x "$WORK/out/fex-userspace/RootFS/usr/bin/bash" || \
-                  ! -e "$WORK/out/fex-userspace/RootFS/usr/lib/x86_64-linux-gnu/libglib-2.0.so.0" || \
-                  ! -e "$WORK/out/fex-userspace/RootFS/usr/lib/x86_64-linux-gnu/libpangomm-1.4.so.1" ]]; then
-                echo "[steamac] Missing FEX userspace: building x86-64 RootFS/Wine"
+            # Likewise, old userspace outputs lack the Qt/X11 and AMD64
+            # graphics diagnostics added to the rootfs preparation recipe.
+            userspace="$WORK/out/fex-userspace"
+            rootfs="$userspace/RootFS"
+            userspace_incomplete=0
+            [[ -s "$userspace/wine-executable.txt" && -x "$rootfs/usr/bin/bash" ]] || userspace_incomplete=1
+            for library in libglib-2.0.so.0 libpangomm-1.4.so.1 libSM.so.6 libICE.so.6; do
+                [[ -e "$rootfs/usr/lib/x86_64-linux-gnu/$library" ]] || userspace_incomplete=1
+            done
+            for binary in glxinfo vulkaninfo cinterforge-glx-probe; do
+                [[ -x "$rootfs/usr/bin/$binary" ]] || userspace_incomplete=1
+            done
+            if (( userspace_incomplete )); then
+                echo "[steamac] FEX userspace incomplete: rebuilding AMD64 RootFS/Wine"
                 bash "$REPO/guest/fex/runtime.sh" build
             fi
+            # Presence alone is insufficient: Xcode's layer-only invocation
+            # must pick up edits to glx-probe.c even with a cached RootFS.
+            # Recompile just this diagnostic, never the whole AMD64 userspace.
+            probe_sha=$(shasum -a 256 "$REPO/guest/fex/glx-probe.c" | awk '{print $1}')
+            if ! strings "$rootfs/usr/bin/cinterforge-glx-probe" 2>/dev/null \
+                | grep -Fx "CINTERFORGE_GLX_PROBE_SHA=$probe_sha" >/dev/null; then
+                echo "[steamac] GLX probe source changed; rebuilding AMD64 probe only ($probe_sha)"
+                bash "$REPO/guest/fex/runtime.sh" probe
+            fi
+            strings "$rootfs/usr/bin/cinterforge-glx-probe" \
+                | grep -Fx "CINTERFORGE_GLX_PROBE_SHA=$probe_sha" >/dev/null || {
+                echo '[steamac] ERROR: FEX GLX diagnostic remains stale after rebuilding' >&2
+                exit 1
+            }
             if [[ ${ALLOW_NO_VENUS:-} == 1 ]]; then
                 # Test-only layers must never acquire a release receipt.
                 artifacts invalidate layer

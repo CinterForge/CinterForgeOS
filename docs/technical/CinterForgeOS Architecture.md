@@ -1,6 +1,6 @@
 # CinterForgeOS Architecture
 
-**Engineering orientation · 24 October 2026**  
+**Engineering orientation · updated 24 October 2026**  
 **Audience:** engineers encountering this repository for the first time.  
 **Basis:** the supplied `technical/` documentation, cross-checked against the current CinterForgeOS source snapshot available for this review. This is an architectural source walkthrough, **not** a claim that the complete system has been rebuilt or runtime-tested here.
 
@@ -19,41 +19,7 @@ These layers have separate responsibilities and different update costs. A baseli
 
 ## 2. System-level diagram
 
-```text
-Developer working from ~/Source/Hope (macOS)
-  ./Hope <setup | build | stage | test> ...
-                |
-                | existing Creative Suite lifecycle
-                v
-       Built native/guest artifacts  --->  Stage  --->  Steam library
-                |                                       |
-                v                                       |
-   CinterForge OS.app (macOS)                           |
-   +------------------------------+                     |
-   | Swift/AppKit launcher        |                     |
-   | Supervisor, VM, Storage      |                     |
-   | libkrun / virtio devices     |                     |
-   | renderer + macOS integration |                     |
-   +--------------+---------------+                     |
-                  | Linux kernel + initramfs + disks     |
-                  v                                      |
-        ARM64 SteamOS virtual machine                    |
-   +---------------------------------------+             |
-   | initramfs -> systemd -> SDDM/KDE      |             |
-   | SteamOS root + read-only /usr layer   |             |
-   | FEX, Wine, Venus, guest agents        |             |
-   | /usr/bin/Hope (minimal bridge) -------+----+        |
-   +---------------------------------------+    |        |
-                                                v        |
-                             /run/steamapps (VirtioFS) <-+
-                                                |
-                             common/CinterForge/Applications/
-                                   Test/Dispatcher/Hope
-                                           |
-                                   Test/Scripts/<command>
-                                           |
-                             application installs/tests/logs
-```
+![CinterForge OS development: Xcode, Finder, and the macOS application](../dev-environment/Architecture.png)
 
 **Critical distinction:** `Hope` inside Konsole is *not* the macOS `./Hope` launcher. They present a consistent command interface in their respective environments. The guest `/usr/bin/Hope` is a small forwarding bridge, not an embedded test framework.
 
@@ -162,7 +128,58 @@ There are distinct execution environments:
 
 The current guest image tooling packages selected FEX and Wine runtime binaries/rootfs under `/usr/share/cinterforge/fex/`; do not confuse **external operational scripts** with **image-baked compatibility binaries**. Updating an externally staged launcher does not automatically replace image-baked FEX components.
 
-## 8. Build, Stage, Test: different owners and guarantees
+## 8. Linux AMD64, FEX graphics, and Windows Proton: current integration
+
+### Execution boundaries
+
+The KDE guest is **ARM64 SteamOS**, while `FEXBash` executes Linux **x86-64** binaries using a separate Debian 13 (Trixie) rootfs. The rootfs is an image-baked compatibility userspace under `/usr/share/cinterforge/fex/RootFS`, not a writable Ubuntu GUI VM. Do not infer an executable's architecture from `uname -m` inside `FEXBash`: PATH can still find a **native ARM64** SteamOS utility. Resolve and inspect the actual ELF with `file` or `readelf` before treating graphics-test results as AMD64 results. The separate Ubuntu 24.04 AMD64 environment remains **headless**, for build/test work only.
+
+Windows graphical execution has been demonstrated with the guest's **Proton 11.0 (ARM64)** runtime: Windows Notepad displayed in KDE, and `cmd.exe` successfully wrote a file in its compatibility prefix. This is evidence of Windows GUI/execution, **not** evidence that DXVK/DirectX 11 accelerated gaming or the Heaven benchmark works. A standalone Wine 11.19 AMD64 runtime previously failed even for `cmd.exe` with `kernel32.dll`/`c0000135`; do not conflate the two runners. Installed applications belong under persistent `Applications/Windows/<app>/<version>/`, outside disposable prefixes where possible.
+
+### Shared FEX Setup/Build preparation (source implementation)
+
+The current source incorporates incremental FEX graphics preparation; whether the newly configured thunk-enabled build succeeds and runs on the actual VM is **not yet verified**:
+
+| Source path | Present implementation / contract |
+|---|---|
+| `guest/fex/Dockerfile` | Debian Trixie ARM64 build-toolchain dependencies, including `llvm-19-dev`, cross-compilers and OpenGL/Vulkan development libraries. This is a **build** container, not guest package installation. |
+| `guest/fex/build.sh` | Build pinned FEX with `-DBUILD_THUNKS=ON`; install to a fresh staging directory and check for `libGL-host.so` and `libvulkan-host.so` under `usr/lib/aarch64-linux-gnu/fex-emu/HostThunks` (AArch64), and `libGL-guest.so` and `libvulkan-guest.so` under `usr/share/fex-emu/GuestThunks` (x86-64); promote only validated output. These paths/checks reflect the **current source contract**, not a confirmed successful upstream build. |
+| `guest/fex/runtime.sh` | Builds the Debian AMD64 rootfs in an AMD64 Docker environment, including `libsm6`, `libice6`, X11/XCB, Mesa GL/Vulkan drivers, and architecture-specific `glxinfo`/`vulkaninfo`. Produces a packaged userspace without relying on DNS inside the running guest. |
+| `scripts/build-image.sh` | Before reusing cached guest compatibility inputs, checks for complete FEX host/guest graphics libraries and required AMD64 rootfs content; triggers the existing rebuild steps when incomplete. |
+| `scripts/steps/30-layer.sh` | Copies FEX binaries and rootfs into the read-only OS layer, checks thunk presence/ELF architectures, writes a FEX config pointing to the embedded rootfs and enabling GL/Vulkan thunk entries. |
+
+**Setup/readiness rule:** FEX bootstrap preparation is **build-time** work orchestrated through the existing guest image pipeline and Xcode. The VM should not `apt install` libraries on every boot. Application-specific pinned libraries remain in each application's persistent install when necessary; common AMD64 GUI dependencies belong in the shared prepared rootfs. `ThunksDB.json` alone describes potential overlays and does not prove functioning guest/host thunk binaries. A successful CMake configure, package extraction, or presence check does not establish graphics or desktop readiness.
+
+### Observed graphical benchmark evidence (24 October 2026)
+
+| Workload / check | Observed result | Meaning |
+|---|---|---|
+| Native ARM64 `vulkaninfo --summary` | Detects `Virtio-GPU Venus (Apple M4 Max)` and Mesa Venus; Vulkan API 1.4 reported | Native GPU discovery works; rendering throughput not proved. |
+| Actual AMD64 GLMark2 via FEX | Windowed 3D scene rendered; `GL_RENDERER: llvmpipe (LLVM 19.1.7, 256 bits)`; Mesa 25.0.7; OpenGL 4.3 compatibility | Verified **software** 3D, **not** Apple GPU acceleration. |
+| AMD64 Superposition 1.1 | 2.8 GB extracted to `Applications/Linux/Superposition/2026/`; Qt initially failed on `libSM.so.6`, corrected by extracting Debian `libsm6` / `libice6` into app-local `Dependencies/` | Illustrates why GUI libraries must be prepared in the common rootfs. |
+| Superposition launch | Qt/XCB and QML plugins loaded and a black KDE window appeared; normal hardware path logged `failed to create dri3 screen` and `failed to load driver: virtio_gpu` | Window creation established; benchmark rendering **not** established. |
+| Superposition forced llvmpipe | Segmentation fault, exit code 139 | Crash remains unlocated; no basis to ascribe it solely to driver or FEX. |
+| `glxinfo` invoked by name inside FEX | Resolved to native ARM64 `/usr/bin/glxinfo`, not AMD64; GLX context creation failed | Not a valid diagnostic of the x86-64 GLX path. |
+| AMD64 Vulkan in previous installed rootfs | Loader found, but the inspected AMD64 ICD config and driver were absent | Incomplete earlier image; current source now prepares Mesa Vulkan ICDs, **not yet verified in rebuilt guest**. |
+| Windows Heaven / Proton | Installer acquired; no confirmed Heaven benchmark rendering or score | Pending acceptance test. |
+
+The existing installed FEX runtime showed `/usr/bin/FEX` and a `ThunksDB.json` mapping `GL` and `Vulkan`, but searches did not find `libGL-guest.so` / `libvulkan-guest.so` or matching host libraries. That is evidence of an **incomplete or not-yet-discovered** graphics-forwarding installation, not proof of a functional hardware bridge. The source changes described above aim to fail early on missing components; **the complete Xcode/FEX rebuild and hardware test are still pending**. A recent Xcode build reported missing `libGL-host.so`; a subsequent build exposed an LLVM 19 CMake configuration prerequisite, motivating the `llvm-19-dev` addition. No successful end-to-end build is claimed here.
+
+### Graphics acceleration contract
+
+```text
+Linux x86-64 Superposition / GLMark2
+  -> FEX AMD64 guest execution + GL/Vulkan forwarding (target; unverified)
+  -> native ARM64 Venus -> Virtio-GPU -> macOS host graphics / Apple GPU
+
+Windows x64 Heaven
+  -> Proton 11 ARM64 / Windows compatibility + DXVK (target; unverified)
+  -> native Vulkan Venus -> Virtio-GPU -> macOS host graphics / Apple GPU
+```
+
+Treat Vulkan device *enumeration*, OpenGL *software rendering*, Qt *window creation*, and *hardware GPU rendering* as **four different tests**. Hardware-ready status requires a real AMD64 graphics workload that identifies a non-llvmpipe accelerated renderer and successfully draws frames; Heaven requires a real DirectX benchmark run. These requirements apply to the shared Linux environment and tests, not to one-off Superposition launch hacks.
+
+## 9. Build, Stage, Test: different owners and guarantees
 
 **Native Build:** The current Xcode `CinterForgeOS` scheme compiles and signs the native macOS application. Its project declares shell phases for host tools/libraries and Linux guest kernel/initramfs/Mesa/layer construction. Those phases call the **existing** `scripts/` tooling; Xcode is the orchestrator, not the Linux compiler for guest code. `CZstd` is a local target and Sentry is an additional package dependency described in the project documentation.
 
@@ -183,7 +200,7 @@ The current guest image tooling packages selected FEX and Wine runtime binaries/
 | Kernel, initramfs, image-baked services, KDE `.desktop` entries, guest graphics runtime | Existing guest image Build, then Stage | **Yes**, for changed image content |
 | Host Vulkan/libkrun binary changes | Rebuild/sign native dependencies/app, then Stage | Not inherently |
 
-## 9. Host/guest contracts to preserve
+## 10. Host/guest contracts to preserve
 
 | Contract | Owner and check |
 |---|---|
@@ -197,7 +214,7 @@ The current guest image tooling packages selected FEX and Wine runtime binaries/
 
 Avoid reintroducing old `/run/Applications` or `/run/DeveloperTests` mounts. Do not introduce additional guest-side test scripts or alternate Stage wrappers as a workaround for a missing external script.
 
-## 10. Troubleshooting by symptom
+## 11. Troubleshooting by symptom
 
 | Symptom | Inspect first | Common boundary involved |
 |---|---|---|
@@ -212,13 +229,13 @@ Avoid reintroducing old `/run/Applications` or `/run/DeveloperTests` mounts. Do 
 | Vulkan game launches but graphics fail | guest Venus, virglrenderer, MoltenVK/KosmicKrisp, GPU logs | GPU pipeline |
 | Stage succeeds but new external command unavailable | staged script list, external dispatcher, persistent Steam library | lifecycle delivery, not OS boot |
 
-## 11. How a visiting engineer should work
+## 12. How a visiting engineer should work
 
 Start by deciding which side owns the behavior. To understand **guest boot**, read **CinterForgeOS guest.md**, `guest/initramfs/init`, the units in `guest/layer` and `scripts/steps/30-layer.sh`. To understand **host internals**, read **CinterForgeOS host.md**, `Core/VM.swift`, `Core/Supervisor.swift`, `Core/main.swift` and the graphics/network/device modules. For **Xcode phases and build products**, read **CinterForgeOS XCode Project.md** and the **actual** `project.pbxproj`; source documents sometimes describe earlier arrangements. The extensive **Steamac README.md** is valuable for ancestry, technical details and graphics patches, but some paths and workflows are historical.
 
 For ordinary project operations use the existing Hope interfaces, from their default working directories. A code change should be local to its owner, preserve the guest/host contract, and produce a changed-files-only patch. Do not “fix” a missing external operational script by embedding it in the OS. Do not make the developer rebuild the VM to iterate on a test algorithm.
 
-## 12. Verified scope, historical material, and open questions
+## 13. Verified scope, historical material, and open questions
 
 The following points are **directly visible in the inspected source**: the Xcode target's declared build phases; the supervisor/VM child separation; the `steamapps` share in the active `source/Swift Source/Core/VM.swift`; the minimal `/usr/bin/Hope` forwarding implementation; the guest layer construction scripts; and the guest directory ownership boundaries. The source also shows legacy host launcher content remaining in the examined snapshot; the user has declared it retired. This document treats the **Xcode Swift tree as authoritative**.
 

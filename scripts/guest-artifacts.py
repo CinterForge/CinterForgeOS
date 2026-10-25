@@ -29,8 +29,12 @@ INPUTS = {
     "mesa": MESA_INPUTS,
     "mesa-aarch64": MESA_INPUTS,
     "mesa-x86": MESA_INPUTS,
-    "layer": ("guest/layer/usr", "guest/progress-agent", "scripts/build-image.sh",
-              "scripts/steps/25-progress-agent.sh", "scripts/steps/30-layer.sh") + MESA_INPUTS,
+    # Include the entire authored FEX directory, including newly added files.
+    # A new/edited probe, build recipe, or graphics patch must dirty the layer
+    # receipt before Xcode can decide to skip its build phase.
+    "layer": ("guest/layer/usr", "guest/progress-agent", "guest/fex",
+              "scripts/build-image.sh", "scripts/steps/25-progress-agent.sh",
+              "scripts/steps/30-layer.sh") + MESA_INPUTS,
 }
 OUTPUTS = {
     "kernel": (OUT / "Image",),
@@ -161,7 +165,27 @@ def output_digest(kind, resources=None):
     return digest.hexdigest()
 
 
+def require_current_glx_probe():
+    """A receipt must never accept a layer built from an older FEX GLX probe.
+
+    The diagnostic is part of the rootfs, but its version is established by
+    the *authored* C source rather than by mere presence of an executable.
+    Checking this before accepting a cached layer forces the existing Xcode
+    phase to rebuild the probe and layer together.
+    """
+    source = ROOT / "guest/fex/glx-probe.c"
+    binary = OUT / "fex-userspace/RootFS/usr/bin/cinterforge-glx-probe"
+    try:
+        expected = b"CINTERFORGE_GLX_PROBE_SHA=" + file_digest(source).encode("ascii")
+        if expected not in binary.read_bytes():
+            fail("layer", "FEX GLX probe is stale against guest/fex/glx-probe.c")
+    except OSError as error:
+        fail("layer", f"FEX GLX probe missing/unreadable ({error})")
+
+
 def check(kind, resources=None):
+    if kind == "layer":
+        require_current_glx_probe()
     try:
         receipt = json.loads(stamp_path(kind, resources).read_text())
     except (OSError, ValueError) as error:

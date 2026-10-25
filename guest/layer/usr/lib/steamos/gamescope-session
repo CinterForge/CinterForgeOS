@@ -65,6 +65,11 @@ GAMESCOPE_ARGS=(
   --hide-cursor-delay 3000
   --max-scale 2
   --xwayland-count 2
+  # Virtio-GPU KMS cannot scan out the AR24/implicit-modifier DMA-BUFs emitted
+  # by nested Xwayland clients. Composite into the KMS-compatible output
+  # buffer instead of repeatedly attempting unsupported direct scan-out.
+  # Keep the DRM backend, Vulkan rendering, and all application APIs intact.
+  --force-composition
 )
 
 GAMESCOPE_SESSION_TARGET="${GAMESCOPE_SESSION_TARGET:-gamescope-session.target}"

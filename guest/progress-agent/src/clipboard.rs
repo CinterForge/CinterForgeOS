@@ -285,6 +285,8 @@ pub enum Ev {
     Up(String, Mailbox),
     /// A worker's connection ended.
     Down(String),
+    /// An X server is not a gamescope Xwayland; retry only when its socket changes.
+    RejectedX11(String),
     /// The clipboard of display `src` changed to this content.
     Guest(String, Content),
 }
@@ -355,6 +357,8 @@ struct Coordinator {
     workers: HashMap<String, Mailbox>,
     /// Displays with a worker (connecting or connected).
     started: HashMap<String, Kind>,
+    /// Rejected X11 display socket identities; a new socket is a new server.
+    rejected_x11: HashMap<String, (u64, u64)>,
     current: Option<Arc<Content>>,
     enabled: bool,
     seq: u32,
@@ -392,6 +396,16 @@ impl Coordinator {
                 return false;
             }
             Ev::Display(kind, name) => {
+                if kind == Kind::X11 {
+                    // Discovery reconciles every two seconds. A Plasma Xwayland
+                    // socket is not ours: never reconnect to the same rejected
+                    // server. When the socket is replaced, it can be reconsidered.
+                    let identity = x11_socket_identity(&name);
+                    if self.rejected_x11.get(&name).is_some_and(|old| Some(*old) == identity) {
+                        return true;
+                    }
+                    self.rejected_x11.remove(&name);
+                }
                 if !self.started.contains_key(&name) {
                     self.started.insert(name.clone(), kind);
                     let tx = self.tx.clone();
@@ -406,6 +420,7 @@ impl Coordinator {
                 }
             }
             Ev::Up(name, m) => {
+                self.rejected_x11.remove(&name);
                 eprintln!("{TAG}: {name}: sharing this display's clipboard");
                 if let Some(c) = &self.current {
                     m.send(Cmd::Own(c.clone()));
@@ -415,6 +430,13 @@ impl Coordinator {
             Ev::Down(name) => {
                 self.workers.remove(&name);
                 self.started.remove(&name);
+            }
+            Ev::RejectedX11(name) => {
+                self.workers.remove(&name);
+                self.started.remove(&name);
+                if let Some(identity) = x11_socket_identity(&name) {
+                    self.rejected_x11.insert(name, identity);
+                }
             }
             Ev::Guest(src, c) => {
                 if self.current.as_ref().is_some_and(|cur| cur.hash == c.hash) {
@@ -555,6 +577,7 @@ pub fn run() -> i32 {
         out: out_tx,
         workers: HashMap::new(),
         started: HashMap::new(),
+        rejected_x11: HashMap::new(),
         current: None,
         enabled: false,
         seq: 0,
@@ -579,6 +602,18 @@ pub fn run() -> i32 {
 // MARK: display discovery
 
 const X11_DIR: &str = "/tmp/.X11-unix";
+
+/// Identify an X server by its socket device/inode, not just its display
+/// number. This permits a new gamescope server to reuse a rejected display.
+fn x11_socket_identity(display: &str) -> Option<(u64, u64)> {
+    use std::os::unix::fs::{FileTypeExt, MetadataExt};
+    let number = display.strip_prefix(':')?;
+    if number.is_empty() || !number.bytes().all(|b| b.is_ascii_digit()) {
+        return None;
+    }
+    let meta = std::fs::metadata(format!("{X11_DIR}/X{number}")).ok()?;
+    meta.file_type().is_socket().then_some((meta.dev(), meta.ino()))
+}
 
 /// `X<n>` -> `:<n>`.
 pub fn x11_display(name: &str) -> Option<String> {

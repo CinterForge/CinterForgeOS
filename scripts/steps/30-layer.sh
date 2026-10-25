@@ -119,21 +119,51 @@ sh -n "$guest_hope_destination"
 }
 cp -a "$FEX/usr/." "$ST/usr/"
 [[ -x "$ST/usr/bin/FEX" ]] || { echo '[layer] FEX binary not installed' >&2; exit 1; }
+# ThunksDB is only a mapping; the actual ARM64 host and AMD64 guest
+# implementations must both be staged in the upstream FEX install layout.
+for library in libGL-host.so libvulkan-host.so; do
+    path="$ST/usr/lib/aarch64-linux-gnu/fex-emu/HostThunks/$library"
+    [[ -s "$path" ]] || { echo "[layer] missing FEX ARM64 host thunk: $path" >&2; exit 1; }
+    readelf -h "$path" | grep -q 'AArch64' || {
+        echo "[layer] host thunk has incorrect architecture: $path" >&2; exit 1;
+    }
+done
+for library in libGL-guest.so libvulkan-guest.so; do
+    path="$ST/usr/share/fex-emu/GuestThunks/$library"
+    [[ -s "$path" ]] || { echo "[layer] missing FEX AMD64 guest thunk: $path" >&2; exit 1; }
+    readelf -h "$path" | grep -q 'Advanced Micro Devices X86-64' || {
+        echo "[layer] guest thunk has incorrect architecture: $path" >&2; exit 1;
+    }
+done
 
 # Standalone x86-64 userspace is independent of Valve's Steam runtime.
 # Only copy verified Build artifacts; never edit the installed SteamOS disk.
 USERSPACE=/work/out/fex-userspace
-[[ -s "$USERSPACE/wine-executable.txt" && -x "$USERSPACE/RootFS/usr/bin/bash" && -e "$USERSPACE/RootFS/usr/lib/x86_64-linux-gnu/libglib-2.0.so.0" ]] || {
+[[ -s "$USERSPACE/wine-executable.txt" && -x "$USERSPACE/RootFS/usr/bin/bash" && -e "$USERSPACE/RootFS/usr/lib/x86_64-linux-gnu/libglib-2.0.so.0" && -e "$USERSPACE/RootFS/usr/lib/x86_64-linux-gnu/libSM.so.6" && -e "$USERSPACE/RootFS/usr/lib/x86_64-linux-gnu/libICE.so.6" && -x "$USERSPACE/RootFS/usr/bin/glxinfo" && -x "$USERSPACE/RootFS/usr/bin/vulkaninfo" ]] || {
     echo '[layer] FEX x86-64 RootFS/Wine missing: run scripts/build-image.sh userspace' >&2; exit 1;
 }
 mkdir -p "$ST/usr/share/cinterforge/fex" "$ST/usr/share/fex-emu"
 cp -a "$USERSPACE/RootFS" "$ST/usr/share/cinterforge/fex/RootFS"
 cp -a "$USERSPACE/Wine" "$ST/usr/share/cinterforge/fex/Wine"
 install -m 0644 "$USERSPACE/wine-executable.txt" "$ST/usr/share/cinterforge/fex/wine-executable.txt"
+# The graphics probe is part of the installed AMD64 FEX userspace, not a
+# boot-time process; it runs only when explicitly invoked for diagnosis.
+[[ -x "$ST/usr/share/cinterforge/fex/RootFS/usr/bin/cinterforge-glx-probe" ]] || {
+    echo '[layer] missing AMD64 GLX context diagnostic: rebuild FEX userspace' >&2; exit 1;
+}
+
+# FEX has two distinct configuration namespaces: emulator options under
+# "Config" and library-forwarding selections under top-level "ThunksDB".
+# Putting ThunksDB inside Config makes FEX reject it as an unknown option.
+# Preserve the upstream-installed ThunksDB.json mapping and actual thunk DSOs.
 cat > "$ST/usr/share/fex-emu/Config.json" <<'FEX_CONFIG'
 {
   "Config": {
     "RootFS": "/usr/share/cinterforge/fex/RootFS"
+  },
+  "ThunksDB": {
+    "GL": 1,
+    "Vulkan": 1
   }
 }
 FEX_CONFIG

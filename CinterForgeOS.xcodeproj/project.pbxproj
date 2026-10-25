@@ -2373,6 +2373,7 @@
 		};
 		F00000000000000000000015 /* Build SteamOS guest layer */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
