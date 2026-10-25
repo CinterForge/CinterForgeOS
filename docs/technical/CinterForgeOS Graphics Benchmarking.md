@@ -10,8 +10,6 @@ The aim is more than a screenshot. We want repeatable evidence that the applicat
 
 ## Two worlds, one desktop
 
-### Windows x64 — UNIGINE Heaven
-
 ![UNIGINE Heaven benchmark promotional preview](../dev-environment/Heaven.png)
 
 Heaven is the Windows showcase running through **Proton 11 ARM64 / Wine / FEX** in the same KDE desktop. Its launcher works, and selecting Run creates a benchmark window and `heaven.exe` process, but the engine exits while the launcher remains alive. No stable Windows rendering or benchmark score is established.
@@ -21,6 +19,13 @@ Heaven is the Windows showcase running through **Proton 11 ARM64 / Wine / FEX** 
 - **Execution:** Apple Silicon macOS → CinterForgeOS ARM64 SteamOS → Proton 11 ARM64 → Windows application → KDE window
 - **Graphics target:** DirectX 11 translated through DXVK/Vulkan where supported; identify the actual Vulkan device
 - **Install destination:** persistent `Applications/Windows/Heaven/<version>/` with isolated Proton compatibility data
+
+### Windows x64 — UNIGINE Heaven
+
+![Actual CinterForgeOS Windows DX9 Heaven 4.0 benchmark rendering at approximately 120 FPS](../dev-environment/Windows%20Heaven%20DX9%20-%20AO%20Off.jpeg)
+**Actual capture from CinterForgeOS, October 24, 2026.** The on-screen benchmark HUD shows **118.6 FPS** at the captured instant, with minimum **74.3 FPS** and maximum **160.6 FPS** reported during the run. The broader observed run was approximately **120–124 FPS**; these are live frame-rate observations, **not a completed benchmark score**.
+
+**[Watch the Windows DX9 ~120 FPS QuickTime recording](https://cdndev.ucreg.io/Linux%20x86%20gl%204.3%20120FPS.mov)** (`.mov`, captured in the actual CFOS desktop).
 
 **Successful showcase criterion (not yet met):** Heaven sustains its animated scene, completes a benchmark, and records API, GPU/renderer, FPS, score, and driver warnings. **Observed:** the launcher opens and stays alive; `heaven.exe` starts, opens its window, and exits. WineD3D DLLs and OpenGL/Zink/Venus libraries were verified in its process mappings. DirectX 11/DXVK previously triggered a host shader-compiler crash in KosmicKrisp/NIR; WineD3D and native OpenGL attempts also ended with the engine closing. These are distinct failure modes and should not be conflated.
 
@@ -32,7 +37,7 @@ Heaven is the Windows showcase running through **Proton 11 ARM64 / Wine / FEX** 
 
 **Actual capture from CinterForgeOS, October 24, 2026.** The on-screen benchmark HUD shows **118.6 FPS** at the captured instant, with minimum **74.3 FPS** and maximum **160.6 FPS** reported during the run. The broader observed run was approximately **120–124 FPS**; these are live frame-rate observations, **not a completed benchmark score**.
 
-**[Watch the Linux x86-64 OpenGL 4.3 ~120 FPS QuickTime recording](../dev-environment/Linux%20x86%20gl%204.3%20120FPS.mov)** (`.mov`, captured in the actual CFOS desktop).
+**[Watch the Linux x86-64 OpenGL 4.3 ~120 FPS QuickTime recording](https://cdndev.ucreg.io/Linux%20x86%20gl%204.3%20120FPS.mov)** (`.mov`, captured in the actual CFOS desktop).
 
 - **Application:** UNIGINE Heaven 4.0, Linux x86-64 edition, executed under FEX.
 - **Graphics:** OpenGL 4.3 Mesa/Zink over Venus/virglrenderer → KosmicKrisp Vulkan/Metal → Apple M4 Max.
