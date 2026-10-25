@@ -12,11 +12,11 @@ The aim is more than a screenshot. We want repeatable evidence that the applicat
 
 ### Linux x86-64 — UNIGINE Heaven 4.0 (verified rendering)
 
-![Actual CinterForgeOS Linux x86-64 Heaven 4.0 benchmark rendering at approximately 120 FPS](../dev-environment/Linux%20x86%20gl%204.3%20120FPS.jpeg)
+![Actual CinterForgeOS Linux x86-64 Heaven 4.0 benchmark rendering at approximately 120 FPS](../dev-environment/Linux%20x86%20gl%204.3%20120FPS.png)
 
 **Actual capture from CinterForgeOS, October 24, 2026.** The on-screen benchmark HUD shows **118.6 FPS** at the captured instant, with minimum **74.3 FPS** and maximum **160.6 FPS** reported during the run. The broader observed run was approximately **120–124 FPS**; these are live frame-rate observations, **not a completed benchmark score**.
 
-**[Watch the Linux x86-64 OpenGL 4.3 ~120 FPS QuickTime recording](../dev-environment/Linux%20x86%20gl%204.3%20120FPS.mov)** (`.mov`, captured in the actual CFOS desktop).
+**[Watch the Linux x86-64 OpenGL 4.3 ~120 FPS QuickTime recording](https://cdndev.ucreg.io/Linux%20x86%20gl%204.3%20120FPS.mov)** (`.mov`, captured in the actual CFOS desktop).
 
 - **Application:** UNIGINE Heaven 4.0, Linux x86-64 edition, executed under FEX.
 - **Graphics:** OpenGL 4.3 Mesa/Zink over Venus/virglrenderer → KosmicKrisp Vulkan/Metal → Apple M4 Max.
