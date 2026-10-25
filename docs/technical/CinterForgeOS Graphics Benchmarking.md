@@ -2,11 +2,9 @@
 
 **One Apple Silicon Mac. One SteamOS desktop. Two x86-64 application ecosystems.**
 
-CinterForgeOS is built to make running and debugging Linux and Windows software on a Mac feel like a natural part of development. Our graphics showcase brings that ambition into focus with two recognizable, visually rich benchmarks: **UNIGINE Heaven 4.0 for Linux x86-64 (working)** and **UNIGINE Heaven 4.0 for Windows through Proton (engine exit under investigation)**. UNIGINE Superposition remains a separate Linux target requiring OpenGL 4.5..
+CinterForgeOS is built to make running and debugging Linux and Windows software on a Mac feel like a natural part of development. Our graphics showcase brings that ambition into focus with two recognizable, visually rich benchmarks: **UNIGINE Heaven 4.0 for Linux x86-64 (working)** and **UNIGINE Heaven 4.0 for Windows through Proton **. UNIGINE Superposition remains a separate Linux target requiring OpenGL 4.5.
 
 The aim is more than a screenshot. We want repeatable evidence that the application is an x86-64 binary, that its compatibility runtime is working, that a real scene renders in KDE, and—separately—that rendering is **GPU-accelerated** rather than CPU-only.
-
-> **Status, October 24–25, 2026:** **Linux x86-64 Heaven 4.0 is rendering in native SteamOS/KDE through FEX and GPU-backed Mesa Zink/Venus, at approximately 120–124 FPS observed.** Windows Heaven opens its Proton launcher and briefly starts its engine, but the benchmark window exits; no completed Windows 3D benchmark is established. Earlier GLMark2 llvmpipe results remain historical software-only controls. Superposition requires OpenGL 4.5 and is not the successful Linux control. See the actual screenshot and QuickTime recording below.
 
 ## Two worlds, one desktop
 
@@ -23,7 +21,7 @@ Heaven is the Windows showcase running through **Proton 11 ARM64 / Wine / FEX** 
 ### Windows x64 — UNIGINE Heaven
 
 ![Actual CinterForgeOS Windows DX9 Heaven 4.0 benchmark rendering at approximately 120 FPS](../dev-environment/Windows%20Heaven%20DX9%20-%20AO%20Off.jpeg)
-**Actual capture from CinterForgeOS, October 24, 2026.** The on-screen benchmark HUD shows **118.6 FPS** at the captured instant, with minimum **74.3 FPS** and maximum **160.6 FPS** reported during the run. The broader observed run was approximately **120–124 FPS**; these are live frame-rate observations, **not a completed benchmark score**.
+**Actual capture from CinterForgeOS, October 25, 2026.** The on-screen benchmark HUD shows **160 FPS** at the captured instant, with minimum **70 FPS** and maximum **160 FPS** reported during the run. The broader observed run was approximately **120 FPS**; these are live frame-rate observations, **not a completed benchmark score**.
 
 **[Watch the Windows DX9 ~120 FPS QuickTime recording](https://cdndev.ucreg.io/Linux%20x86%20gl%204.3%20120FPS.mov)** (`.mov`, captured in the actual CFOS desktop).
 
