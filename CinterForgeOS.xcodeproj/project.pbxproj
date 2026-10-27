@@ -544,6 +544,9 @@
 		4D45D960308A6EF700725112 /* cinterforge-libkrun.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-libkrun.xcodeproj"; sourceTree = "<group>"; };
 		4D45DBB0308A6EF700725112 /* cinterforge-virglrenderer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-virglrenderer.xcodeproj"; sourceTree = "<group>"; };
 		4D45FCF3308A6EF700725112 /* cinterforge-spirv-cross.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-spirv-cross.xcodeproj"; sourceTree = "<group>"; };
+		4D6765E330912A3E00114F27 /* cinterforge-libkrun.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-libkrun.xcodeproj"; sourceTree = "<group>"; };
+		4D67683330912A3E00114F27 /* cinterforge-virglrenderer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-virglrenderer.xcodeproj"; sourceTree = "<group>"; };
+		4D677BF830912A3E00114F27 /* cinterforge-spirv-cross.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-spirv-cross.xcodeproj"; sourceTree = "<group>"; };
 		4DA722A4308D1DF8001FA0CE /* CinterForge.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; name = CinterForge.icon; path = resources/CinterForge.icon; sourceTree = "<group>"; };
 		4DA7293E3090C93C001FA0CE /* cinterforge-libkrun.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-libkrun.xcodeproj"; sourceTree = "<group>"; };
 		4DA72B8E3090C93C001FA0CE /* cinterforge-virglrenderer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-virglrenderer.xcodeproj"; sourceTree = "<group>"; };
@@ -1406,6 +1409,27 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		4D6765EA30912A3E00114F27 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4D67683930912A3E00114F27 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4D677C2130912A3E00114F27 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		4DA729453090C93C001FA0CE /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -2001,6 +2025,10 @@
 					ProjectRef = 4DA7EF14308AF76C001FA0CE /* cinterforge-kosmickrisp-mesa.xcodeproj */;
 				},
 				{
+					ProductGroup = 4D6765EA30912A3E00114F27 /* Products */;
+					ProjectRef = 4D6765E330912A3E00114F27 /* cinterforge-libkrun.xcodeproj */;
+				},
+				{
 					ProductGroup = 4D050AE8308A8C7300C9965C /* Products */;
 					ProjectRef = 4D050AE1308A8C7300C9965C /* cinterforge-libkrun.xcodeproj */;
 				},
@@ -2053,6 +2081,10 @@
 					ProjectRef = 4DA73F543090C93C001FA0CE /* cinterforge-spirv-cross.xcodeproj */;
 				},
 				{
+					ProductGroup = 4D677C2130912A3E00114F27 /* Products */;
+					ProjectRef = 4D677BF830912A3E00114F27 /* cinterforge-spirv-cross.xcodeproj */;
+				},
+				{
 					ProductGroup = 4D052120308A8C7400C9965C /* Products */;
 					ProjectRef = 4D0520F7308A8C7400C9965C /* cinterforge-spirv-cross.xcodeproj */;
 				},
@@ -2075,6 +2107,10 @@
 				{
 					ProductGroup = 4DEE3131308A6CC30059F151 /* Products */;
 					ProjectRef = 4DEE312B308A6CC30059F151 /* cinterforge-virglrenderer.xcodeproj */;
+				},
+				{
+					ProductGroup = 4D67683930912A3E00114F27 /* Products */;
+					ProjectRef = 4D67683330912A3E00114F27 /* cinterforge-virglrenderer.xcodeproj */;
 				},
 				{
 					ProductGroup = 4DF9B46B308A88B400E4BDBE /* Products */;
@@ -2726,6 +2762,7 @@
 			buildSettings = {
 				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CFOS_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/lib";
 				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGN_ENTITLEMENTS = "resources/cfos-vm.entitlements";
 				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/XcodeProduct/$(CONFIGURATION)";
@@ -2750,10 +2787,9 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.cinterforge.cinterforge-os";
-				PRODUCT_MODULE_NAME = steamac_vm;
+				PRODUCT_MODULE_NAME = CinterForgeOS;
 				PRODUCT_NAME = "CinterForge OS";
 				SDKROOT = macosx;
-				STEAMAC_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/lib";
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/source/CKrun $(PROJECT_DIR)/source/CZstd";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -2780,6 +2816,7 @@
 			buildSettings = {
 				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CFOS_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/lib";
 				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGN_ENTITLEMENTS = "resources/cfos-vm.entitlements";
 				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/XcodeProduct/$(CONFIGURATION)";
@@ -2804,10 +2841,9 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.cinterforge.cinterforge-os";
-				PRODUCT_MODULE_NAME = steamac_vm;
+				PRODUCT_MODULE_NAME = CinterForgeOS;
 				PRODUCT_NAME = "CinterForge OS";
 				SDKROOT = macosx;
-				STEAMAC_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/lib";
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/source/CKrun $(PROJECT_DIR)/source/CZstd";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -2819,6 +2855,7 @@
 		8AEAF889DC286031CAA330FE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CFOS_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/lib";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGN_ENTITLEMENTS = "resources/cfos-vm.entitlements";
@@ -2831,13 +2868,13 @@
 				MODULEMAP_FILE = "$(PROJECT_DIR)/source/CZstd/module.modulemap";
 				PRODUCT_NAME = CZstd;
 				SKIP_INSTALL = YES;
-				STEAMAC_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/lib";
 			};
 			name = Debug;
 		};
 		F6FF4443DCB26EE80FA8AD46 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CFOS_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/lib";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGN_ENTITLEMENTS = "resources/cfos-vm.entitlements";
@@ -2850,7 +2887,6 @@
 				MODULEMAP_FILE = "$(PROJECT_DIR)/source/CZstd/module.modulemap";
 				PRODUCT_NAME = CZstd;
 				SKIP_INSTALL = YES;
-				STEAMAC_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/lib";
 			};
 			name = Release;
 		};

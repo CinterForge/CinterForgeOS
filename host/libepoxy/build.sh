@@ -35,8 +35,13 @@ if [ "${1:-}" = clean ]; then
 	exit 0
 fi
 
+# Setup owns package installation. Builds (including Xcode build phases) must
+# never invoke Homebrew installs or upgrades; fail with a useful preflight.
 for dep in $BREW_DEPS; do
-	brew list --versions "$dep" > /dev/null 2>&1 || brew install "$dep"
+	if ! brew list --versions "$dep" > /dev/null 2>&1; then
+		echo "Missing build prerequisite: $dep. Run ./CFOS setup cinterforge-os mac Release outside Xcode." >&2
+		exit 1
+	fi
 done
 mkdir -p "$work" "$out"
 if [ ! -f "$archive" ]; then

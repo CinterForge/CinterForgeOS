@@ -152,6 +152,16 @@
 # KosmicKrisp creates and draws these layouts).
 set -eu
 
+# Xcode's Run Script PATH omits Homebrew's bin directories.  Setup owns
+# installation; this only makes already-installed tools visible to scripts.
+for brew_bin in /opt/homebrew/bin /usr/local/bin; do
+    if [ -x "$brew_bin/brew" ]; then
+        PATH="$brew_bin:$PATH"
+        break
+    fi
+done
+export PATH
+
 GAMESCOPE_REPO=https://github.com/ValveSoftware/gamescope.git
 GAMESCOPE_TAG=3.16.28
 GAMESCOPE_COMMIT=fa0b4d3342078f01eadff0193e09c3b561f40c03
@@ -160,7 +170,7 @@ here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../../.." && pwd)
 STEAMAC_SOURCE_ROOT="$root"
 . "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
-inc=$STEAMAC_WORK_DIR/build/host-moltenvk/src/Package/Release/MoltenVK/include
+inc=$STEAMAC_SOURCE_ROOT/../cinterforge-moltenvk/Package/Release/MoltenVK/include
 driver=${REPRO_DRIVER:-moltenvk}
 case $driver in
 moltenvk)
@@ -172,7 +182,7 @@ moltenvk)
 kosmickrisp)
 	work=$STEAMAC_WORK_DIR/build/host-kosmickrisp/repro
 	kk=${1:?usage: REPRO_DRIVER=kosmickrisp $0 <libvulkan_kosmickrisp.dylib>}
-	brew list --versions vulkan-loader > /dev/null 2>&1 || brew install vulkan-loader
+	brew list --versions vulkan-loader > /dev/null 2>&1 || { echo "repro: missing vulkan-loader; run ./CFOS setup cinterforge-os mac Release" >&2; exit 1; }
 	loader=$(brew --prefix vulkan-loader)/lib
 	link="-L$loader -lvulkan -Wl,-rpath,$loader"
 	mkdir -p "$work"
@@ -188,8 +198,12 @@ kosmickrisp)
 esac
 export MTL_DEBUG_LAYER=1 MTL_DEBUG_LAYER_ERROR_MODE=assert
 
-brew list --versions glslang > /dev/null 2>&1 || brew install glslang
-brew list --versions spirv-tools > /dev/null 2>&1 || brew install spirv-tools
+for formula in glslang spirv-tools; do
+	brew list --versions "$formula" > /dev/null 2>&1 || {
+		echo "repro: missing $formula; run ./CFOS setup cinterforge-os mac Release" >&2
+		exit 1
+	}
+done
 mkdir -p "$work"
 
 # build <program> [cflags...]: $here/<program>.c -> $work/<program>, linked against the driver

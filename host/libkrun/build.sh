@@ -1,12 +1,12 @@
 #!/bin/sh
-# Build libkrun v1.19.6 + steamac patches for the macOS launcher.
+# Build the local CinterForge libkrun fork for the macOS launcher.
 #
 #   host/libkrun/build.sh        build/refresh work/out/host/{lib,include}
 #   host/libkrun/build.sh clean  drop the source/build tree (next build is from scratch)
 #
 # Inputs (all pinned):
 #   libkrun        tag v1.19.6 (227b2de6), github.com/libkrun/libkrun
-#   patches/       applied in order (git format-patch series, see each header)
+#   source         ~/Source/cinterforge-libkrun, committed HEAD (no patch series)
 #   virglrenderer  host/virglrenderer/build.sh output in work/out/host (built first if
 #                  missing); Venus over the steamac MoltenVK (host/moltenvk)
 #   Rust           $RUST_TOOLCHAIN via rustup (deps need >= 1.87)
@@ -45,7 +45,7 @@ root=$(cd "$here/../.." && pwd)
 STEAMAC_SOURCE_ROOT="$root"
 . "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
 work=$STEAMAC_WORK_DIR/build/host-libkrun
-src=$work/src
+src=$root/../cinterforge-libkrun
 out=$STEAMAC_WORK_DIR/out/host
 
 if [ "${1:-}" = clean ]; then
@@ -53,8 +53,13 @@ if [ "${1:-}" = clean ]; then
 	exit 0
 fi
 
+# Setup owns package installation. Builds (including Xcode build phases) must
+# never invoke Homebrew installs or upgrades; fail with a useful preflight.
 for dep in $BREW_DEPS; do
-	brew list --versions "$dep" > /dev/null 2>&1 || brew install "$dep"
+	if ! brew list --versions "$dep" > /dev/null 2>&1; then
+		echo "Missing build prerequisite: $dep. Run ./CFOS setup cinterforge-os mac Release outside Xcode." >&2
+		exit 1
+	fi
 done
 rustup toolchain list | grep -q "^$RUST_TOOLCHAIN-" ||
 	rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal
@@ -69,22 +74,10 @@ fi
 
 mkdir -p "$work" "$out/lib/pkgconfig" "$out/include"
 
-# --- source at the pinned tag + patches (target/ and the auto-fetched Debian sysroot
-#     for the init binary survive re-runs)
-if [ ! -d "$src/.git" ]; then
-	git init -q "$src"
-	git -C "$src" remote add origin "$REPO"
-fi
-if ! git -C "$src" cat-file -e "$COMMIT^{commit}" 2> /dev/null; then
-	git -C "$src" fetch -q --depth 1 origin "refs/tags/$TAG:refs/tags/$TAG"
-fi
-test "$(git -C "$src" rev-parse "$TAG^{commit}")" = "$COMMIT"
-git -C "$src" checkout -q -f --detach "$COMMIT"
-git -C "$src" clean -q -fdx -e /target -e /linux-sysroot
-for p in "$here"/patches/*.patch; do
-	echo ">> applying $(basename "$p")"
-	git -C "$src" apply "$p"
-done
+# Use committed local fork. Preserve only generated build caches in staging.
+[ -f "$src/Makefile" ] || { echo "Missing local libkrun source: $src" >&2; exit 1; }
+echo ">> libkrun: building directly from $src"
+COMMIT=$(git -C "$src" rev-parse HEAD)
 
 # --- build
 (

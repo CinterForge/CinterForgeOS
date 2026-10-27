@@ -44,7 +44,7 @@ root=$(cd "$here/../.." && pwd)
 STEAMAC_SOURCE_ROOT="$root"
 . "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
 work=$STEAMAC_WORK_DIR/build/host-virglrenderer
-src=$work/src
+src=$root/../cinterforge-virglrenderer
 build=$work/build
 stage=$work/stage
 out=$STEAMAC_WORK_DIR/out/host
@@ -56,8 +56,13 @@ if [ "${1:-}" = clean ]; then
 	exit 0
 fi
 
+# Setup owns package installation. Builds (including Xcode build phases) must
+# never invoke Homebrew installs or upgrades; fail with a useful preflight.
 for dep in $BREW_DEPS; do
-	brew list --versions "$dep" > /dev/null 2>&1 || brew install "$dep"
+	if ! brew list --versions "$dep" > /dev/null 2>&1; then
+		echo "Missing build prerequisite: $dep. Run ./CFOS setup cinterforge-os mac Release outside Xcode." >&2
+		exit 1
+	fi
 done
 if [ ! -f "$out/lib/libepoxy.0.dylib" ] || [ ! -f "$out/lib/pkgconfig/epoxy.pc" ]; then
 	"$root/host/libepoxy/build.sh"
@@ -70,36 +75,10 @@ fi
 
 mkdir -p "$work" "$out"
 
-# --- source at the pinned commit + local patches
-if [ ! -d "$src/.git" ]; then
-	git init -q "$src"
-	git -C "$src" remote add origin "$REPO"
-fi
-if ! git -C "$src" cat-file -e "$COMMIT^{commit}" 2> /dev/null; then
-	git -C "$src" fetch -q origin "$COMMIT"
-fi
-if ! git -C "$src" cat-file -e "$UPSTREAM_COMMIT^{commit}" 2> /dev/null; then
-	git -C "$src" fetch -q "$UPSTREAM_REPO" "$UPSTREAM_COMMIT"
-fi
-git -C "$src" merge --abort 2> /dev/null || true
-git -C "$src" checkout -q -f --detach "$COMMIT"
-git -C "$src" clean -q -fdx
-export GIT_AUTHOR_NAME=steamac GIT_AUTHOR_EMAIL=steamac@local GIT_COMMITTER_NAME=steamac \
-	GIT_COMMITTER_EMAIL=steamac@local GIT_AUTHOR_DATE=2026-10-03T00:00:00Z \
-	GIT_COMMITTER_DATE=2026-10-03T00:00:00Z
-if ! git -C "$src" merge -q --no-ff --no-edit "$UPSTREAM_COMMIT" > /dev/null 2>&1; then
-	(cd "$src" && python3 "$here/merge-resolve.py")
-	git -C "$src" commit -q --no-edit
-fi
-if git -C "$src" grep -qE '^(<<<<<<<|>>>>>>>) ' -- '*.c' '*.h' '*.build'; then
-	echo "unresolved merge conflict markers" >&2
-	exit 1
-fi
-for p in "$here"/patches/*.patch; do
-	[ -e "$p" ] || continue
-	echo ">> applying $(basename "$p")"
-	git -C "$src" apply --whitespace=nowarn "$p"
-done
+# Fork already contains our merged changes. No upstream merge or patch application.
+[ -f "$src/meson.build" ] || { echo "Missing local virglrenderer source: $src" >&2; exit 1; }
+echo ">> virglrenderer: building directly from $src"
+COMMIT=$(git -C "$src" rev-parse HEAD)
 
 # --- build-time python (src/gallium needs PyYAML, venus-protocol 1.1.3 needs Mako)
 if [ ! -x "$work/venv/bin/python3" ]; then

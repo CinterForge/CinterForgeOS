@@ -24,7 +24,7 @@ STEAMAC_SOURCE_ROOT="$root"
 . "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
 work=$STEAMAC_WORK_DIR/build/host-moltenvk/bench
 spvc=$STEAMAC_WORK_DIR/build/host-moltenvk/SPIRV-Cross
-lib=$STEAMAC_WORK_DIR/build/host-moltenvk/src/External/build/Release/SPIRVCross.xcframework/macos-arm64_x86_64/libSPIRVCross.a
+lib=$STEAMAC_SOURCE_ROOT/../cinterforge-moltenvk/External/build/Release/SPIRVCross.xcframework/macos-arm64_x86_64/libSPIRVCross.a
 threads=${THREADS:-1 8}
 [ $# -ge 1 ] || { echo "usage: $0 <dump dir> [options]" >&2; exit 2; }
 [ -f "$lib" ] || { echo "$lib missing: run host/moltenvk/build.sh" >&2; exit 1; }

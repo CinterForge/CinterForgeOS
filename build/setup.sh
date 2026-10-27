@@ -3,6 +3,19 @@
 # Sourced by ../CFOS. Nothing in this file runs until cfos_setup is called.
 cfos_setup() {
   cfos_require_mac
+  # Never install host dependencies through Intel Homebrew under Rosetta.
+  # This also makes Setup and Xcode build scripts resolve the same formulae.
+  if (( ! CFOS_DRY_RUN )); then
+    [[ -x /opt/homebrew/bin/brew ]] || {
+      echo 'CFOS: missing native Apple Silicon Homebrew at /opt/homebrew/bin/brew (do not use /usr/local Intel Homebrew).' >&2
+      return 1
+    }
+    export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+    [[ "$(brew --prefix)" == /opt/homebrew ]] || {
+      echo "CFOS: wrong Homebrew prefix: $(brew --prefix); expected /opt/homebrew" >&2
+      return 1
+    }
+  fi
   if (( ! CFOS_DRY_RUN )); then
     command -v brew >/dev/null || {
       echo 'CFOS: install Apple Silicon Homebrew first.' >&2
@@ -10,6 +23,8 @@ cfos_setup() {
     }
   fi
 
+  # Install MoltenVK repro/bench shader tools here, never inside Xcode build
+  # scripts. The formulae below include glslang, spirv-tools and vulkan-loader.
   # Keep the dependency list explicit: reviewers can see what we require.
   local formula
   local formulae=(
@@ -22,6 +37,19 @@ cfos_setup() {
       cfos_run brew install "$formula"
     fi
   done
+
+  # Homebrew packages can be installed but their executables hidden from
+  # Xcode's sanitized PATH.  Validate the actual shader tools in Setup.
+  if (( ! CFOS_DRY_RUN )); then
+    local brew_bin tool
+    brew_bin="$(brew --prefix)/bin"
+    for tool in meson ninja pkg-config glslangValidator spirv-as spirv-link; do
+      if [[ ! -x "$brew_bin/$tool" ]] && ! command -v "$tool" >/dev/null 2>&1; then
+        echo "CFOS: Setup missing $tool (Homebrew prefix: $(brew --prefix))" >&2
+        return 1
+      fi
+    done
+  fi
 
   # Validate binaries, not just Homebrew package metadata.
   if (( ! CFOS_DRY_RUN )); then

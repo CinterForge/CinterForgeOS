@@ -10,7 +10,7 @@ source "$source_root/scripts/paths.sh"
 
 fork="${CINTERFORGE_VIRGLRENDERER_SOURCE:-$(dirname "$source_root")/cinterforge-virglrenderer}"
 work="$STEAMAC_WORK_DIR/build/host-virglrenderer"
-src="$work/src"
+src="$fork"
 build="$work/build"
 stage="$work/stage"
 prefix="$STEAMAC_WORK_DIR/out/host"
@@ -36,7 +36,7 @@ if [[ -s "$lib" && -s "$pc" && -d "$prefix/include" && -s "$identity_file" ]] &&
 fi
 
 export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
-for tool in rsync meson ninja pkg-config python3 clang install_name_tool otool codesign; do
+for tool in meson ninja pkg-config python3 clang install_name_tool otool codesign; do
     command -v "$tool" >/dev/null || { echo "error: $tool missing; run CFOS Setup" >&2; exit 1; }
 done
 # Homebrew provisioning and formula validation belong to CFOS Setup.
@@ -49,17 +49,9 @@ epoxy_pc="/opt/homebrew/opt/libepoxy/lib/pkgconfig/epoxy.pc"
 export PKG_CONFIG_PATH="$(dirname "$epoxy_pc")${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
 pkg-config --exists epoxy || { echo 'error: pkg-config cannot resolve epoxy; run CFOS Setup' >&2; exit 1; }
 
-# Keep the existing patched fork authoritative. The old UTM/upstream merge and
-# patch application must NOT overwrite or reapply changes from that checkout.
-# The source tree is disposable. rsync --delete alone cannot reliably remove
-# stale Meson wrap unpack directories from a previous failed build (notably
-# subprojects/venus-protocol-1.1.3). They can shadow a valid .wrap and make
-# Meson report "Subproject exists but has no meson.build file".
-# Never clean or modify the authoritative patched fork itself.
+# Build from the existing on-disk fork. Only build artifacts live in Builds.
 mkdir -p "$work" "$prefix"
-rm -rf "$src"
-mkdir -p "$src"
-rsync -a --exclude=.git --exclude=build --exclude=target "$fork/" "$src/"
+echo "[Xcode] Building virglrenderer from $src"
 
 # Prepare the generator dependencies before resolving Meson subprojects.
 if [[ ! -x "$work/venv/bin/python3" ]]; then
@@ -70,10 +62,8 @@ fi
     exit 1
 }
 
-# The patched checkout can itself contain a partially unpacked Meson wrap.
-# Do not assume a fresh rsync makes that source valid: a bad directory copied
-# from the fork can shadow venus-protocol.wrap just as a stale build can.
-# Repair ONLY the disposable staged copy, using the fork's pinned wrap.
+# Resolve the fork's pinned Meson subproject directly. This may create
+# dependency files in the checkout; it never duplicates the source repository.
 wrap="$src/subprojects/venus-protocol.wrap"
 [[ -f "$wrap" ]] || {
     echo "error: Patched virglrenderer is missing its venus-protocol.wrap: $fork/subprojects" >&2

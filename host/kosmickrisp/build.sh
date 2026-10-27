@@ -198,9 +198,9 @@
 # -Db_ndebug=true (a Mesa assert reached from the guest would abort the VMM) and
 # MACOSX_DEPLOYMENT_TARGET=26.0. The dylib links only system libraries and frameworks.
 #
-# The staged dylib is checked before installation: host/moltenvk/probe (required features) and
-# host/moltenvk/repro (REPRO_DRIVER=kosmickrisp), both through the Khronos loader (Homebrew
-# vulkan-loader, test only).
+# Build probes the staged Vulkan driver before installation. The CFOS-specific
+# regression suite is deliberately an explicit test action, never a build gate.
+# Run: host/kosmickrisp/build.sh test (or ./CFOS test cinterforge-os mac Release).
 #
 # Output (work/out/host):
 #   lib/libvulkan_kosmickrisp.dylib   install_name @rpath/libvulkan_kosmickrisp.dylib, ad-hoc signed.
@@ -222,7 +222,7 @@ root=$(cd "$here/../.." && pwd)
 STEAMAC_SOURCE_ROOT="$root"
 . "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
 work=$STEAMAC_WORK_DIR/build/host-kosmickrisp
-src=$work/src
+src=$root/../cinterforge-kosmickrisp-mesa
 clc=$work/clc
 out=$STEAMAC_WORK_DIR/out/host
 
@@ -231,13 +231,36 @@ if [ "${1:-}" = clean ]; then
 	exit 0
 fi
 
+if [ "${1:-}" = test ]; then
+    # Validate the exact installed host driver; never clone, reset or rebuild source.
+    staged=$out/lib/libvulkan_kosmickrisp.dylib
+    [ -f "$staged" ] || { echo "Missing built KosmicKrisp driver: $staged" >&2; exit 1; }
+    repro_log=$work/repro.log
+    mkdir -p "$work"
+    echo ">> KosmicKrisp regression suite: $staged"
+    if REPRO_DRIVER=kosmickrisp "$root/host/moltenvk/repro/run.sh" "$staged" > "$repro_log" 2>&1; then
+        grep -v '^	' "$repro_log" | grep -v 'Metal API Validation Enabled' || true
+        echo ">> KosmicKrisp regression tests passed"
+    else
+        cat "$repro_log"
+        echo "KosmicKrisp regression tests FAILED; full results: $repro_log" >&2
+        exit 1
+    fi
+    exit 0
+fi
+
 [ "$(uname -m)" = arm64 ] || { echo "KosmicKrisp needs Apple silicon" >&2; exit 1; }
 macos=$(sw_vers -productVersion | cut -d. -f1)
 [ "$macos" -ge 26 ] || { echo "KosmicKrisp needs macOS 26 or newer (Metal 4); this is macOS $macos" >&2; exit 1; }
 xcrun --find metal > /dev/null
 
+# Setup owns package installation. Builds (including Xcode build phases) must
+# never invoke Homebrew installs or upgrades; fail with a useful preflight.
 for dep in $BREW_DEPS; do
-	brew list --versions "$dep" > /dev/null 2>&1 || brew install "$dep"
+	if ! brew list --versions "$dep" > /dev/null 2>&1; then
+		echo "Missing build prerequisite: $dep. Run ./CFOS setup cinterforge-os mac Release outside Xcode." >&2
+		exit 1
+	fi
 done
 python=
 for v in 3.14 3.13 3.12 3.11 3.10; do
@@ -250,21 +273,11 @@ done
 
 mkdir -p "$work"
 
-# --- source at the pinned commit + patches
-if [ ! -d "$src/.git" ]; then
-	git init -q "$src"
-	git -C "$src" remote add origin "$MESA_REPO"
-fi
-if ! git -C "$src" cat-file -e "$MESA_COMMIT^{commit}" 2> /dev/null; then
-	git -C "$src" fetch -q --depth 1 origin "$MESA_COMMIT"
-fi
-git -C "$src" checkout -q -f --detach "$MESA_COMMIT"
-git -C "$src" clean -q -fdx
-for p in "$here"/patches/*.patch; do
-	echo ">> applying $(basename "$p")"
-	git -C "$src" apply --whitespace=nowarn "$p"
-done
-patch_rev=$(cat "$here"/patches/*.patch | shasum -a 256 | cut -c1-8)
+# Build only the checked-in local fork; do not reapply historical patch series.
+[ -f "$src/meson.build" ] || { echo "Missing local KosmicKrisp source: $src" >&2; exit 1; }
+echo ">> KosmicKrisp: building directly from $src"
+MESA_COMMIT=$(git -C "$src" rev-parse HEAD)
+patch_rev=$(printf '%s' "$MESA_COMMIT" | shasum -a 256 | cut -c1-8)
 
 # --- build-time python (Mesa needs Mako, PyYAML, packaging)
 if [ ! -x "$work/venv/bin/python3" ] || ! "$work/venv/bin/python3" -c 'import sys; sys.exit(sys.version_info < (3, 10))'; then
@@ -316,15 +329,14 @@ printf '{"file_format_version": "1.0.1", "ICD": {"library_path": "%s", "api_vers
 	"$staged" > "$icd"
 loader=$(brew --prefix vulkan-loader)/lib
 probe=$work/probe
-xcrun clang -std=c11 -Wall -Werror -O1 -I"$STEAMAC_WORK_DIR/build/host-moltenvk/src/Package/Release/MoltenVK/include" \
+xcrun clang -std=c11 -Wall -Werror -O1 -I"$root/../cinterforge-moltenvk/Package/Release/MoltenVK/include" \
 	"$root/host/moltenvk/probe/probe.c" -L"$loader" -lvulkan -Wl,-rpath,"$loader" -o "$probe"
 echo ">> probe: $staged"
 VK_DRIVER_FILES=$icd "$probe"
-echo ">> repro (REPRO_DRIVER=kosmickrisp)"
-repro_log=$work/repro.log
-REPRO_DRIVER=kosmickrisp "$root/host/moltenvk/repro/run.sh" "$staged" > "$repro_log" 2>&1 ||
-	{ cat "$repro_log"; exit 1; }
-grep -v '^	' "$repro_log" | grep -v 'Metal API Validation Enabled'
+# The extensive CFOS-specific Vulkan regression suite runs only in the
+# explicit Test lifecycle. A driver that compiles and passes the basic Vulkan
+# feature probe must be installable even when optional upstream capabilities
+# do not pass CFOS's custom stress tests.
 
 # --- install (temp + rename, never rewrite a mapped dylib in place)
 mkdir -p "$out/lib"
@@ -338,13 +350,13 @@ mv -f "$lib.tmp.$$" "$lib"
 	echo
 	echo "source:          $MESA_REPO"
 	echo "commit:          $MESA_COMMIT (main, 2026-10-05)"
-	echo "patch revision:  $patch_rev (sha256 of host/kosmickrisp/patches/*.patch)"
+	echo "fork revision:   $MESA_COMMIT (fingerprint $patch_rev)"
 	echo "driver:          $(VK_DRIVER_FILES=$icd "$probe" 2> /dev/null | sed -n 's/^driver: *//p')"
 	echo "Xcode:           $(xcodebuild -version | tr '\n' ' ')"
 	echo "built:           $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 	echo
-	echo "Patches (host/kosmickrisp/patches):"
-	for p in "$here"/patches/*.patch; do echo "  $(basename "$p")"; done
+	echo "Patches applied during build: none (local fork contains its own changes)"
+	echo "  none (changes live in local fork)"
 	echo "  0001-0015 = mesa!44928 (draft) transform feedback on mesa!44786 geometry shaders"
 	echo "  0016 = mesa!44929 tiled images in host pointer imports"
 	echo "  0017 = mesa!44221 device-local-only memory type"

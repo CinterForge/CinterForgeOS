@@ -10,16 +10,29 @@
 # parentheses, and each build relative to the first. Metal API validation is off. Run on an idle Mac.
 set -eu
 
+# Xcode's Run Script PATH omits Homebrew's bin directories.  Setup owns
+# installation; this only makes already-installed tools visible to scripts.
+for brew_bin in /opt/homebrew/bin /usr/local/bin; do
+    if [ -x "$brew_bin/brew" ]; then
+        PATH="$brew_bin:$PATH"
+        break
+    fi
+done
+export PATH
+
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../../.." && pwd)
 STEAMAC_SOURCE_ROOT="$root"
 . "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
 work=$STEAMAC_WORK_DIR/build/host-moltenvk/bench
-inc=$STEAMAC_WORK_DIR/build/host-moltenvk/src/Package/Release/MoltenVK/include
+inc=$STEAMAC_SOURCE_ROOT/../cinterforge-moltenvk/Package/Release/MoltenVK/include
 rounds=${ROUNDS:-5}
 [ $# -ge 1 ] || { echo "usage: $0 <libdir> [<libdir> ...]" >&2; exit 2; }
 
-brew list --versions glslang > /dev/null 2>&1 || brew install glslang
+brew list --versions glslang > /dev/null 2>&1 || {
+	echo "bench: missing glslang; run ./CFOS setup cinterforge-os mac Release" >&2
+	exit 1
+}
 spv=$work/spv
 repro_spv=$work/repro-spv
 rm -rf "$spv" "$repro_spv" "$work/results"

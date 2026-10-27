@@ -98,15 +98,15 @@ def archive(name, version, license_id, location, url, filename, prefixes):
 host = 'Contents/Frameworks'
 res = 'Contents/Resources'
 launcher = 'Contents/MacOS/steamac-vm'
-krun = Path(os.environ['STEAMAC_WORK_DIR']) / 'build/host-libkrun/src'
+krun = Path(os.environ['STEAMAC_ROOT']).parent / 'cinterforge-libkrun'
 source('libkrun', '1.19.6', 'Apache-2.0', host + '/libkrun.1.dylib',
        'https://github.com/libkrun/libkrun/tree/v1.19.6', krun)
 source('libkrun-rutabaga-gfx', '1.19.6', 'BSD-3-Clause', host + '/libkrun.1.dylib',
        'https://github.com/google/crosvm/tree/main/rutabaga_gfx',
        krun / 'src/rutabaga_gfx', ('ffi/LICENSE',))
 source('virglrenderer', '5d26f605+aafa9bd2', 'MIT', host + '/libvirglrenderer.1.dylib',
-       'https://github.com/utmapp/virglrenderer', Path(os.environ['STEAMAC_WORK_DIR']) / 'build/host-virglrenderer/src')
-mvk = Path(os.environ['STEAMAC_WORK_DIR']) / 'build/host-moltenvk/src'
+       'https://github.com/utmapp/virglrenderer', Path(os.environ['STEAMAC_ROOT']).parent / 'cinterforge-virglrenderer')
+mvk = Path(os.environ['STEAMAC_ROOT']).parent / 'cinterforge-moltenvk'
 source('MoltenVK', '05604465', 'Apache-2.0', host + '/libMoltenVK.dylib',
        'https://github.com/utmapp/MoltenVK', mvk)
 revisions = mvk / 'ExternalRevisions'
@@ -127,7 +127,7 @@ source('MoltenVK-SPIRV-Headers', require(revisions / 'SPIRV-Headers_repo_revisio
 # Vulkan-Tools is fetched by MoltenVK for SDK tooling, not linked into the dylib.
 # KosmicKrisp (Mesa), bundled when host/kosmickrisp built it (macOS 26+ build hosts).
 if (Path(os.environ['STEAMAC_WORK_DIR']) / 'out/host/lib/libvulkan_kosmickrisp.dylib').is_file():
-    mesa = Path(os.environ['STEAMAC_WORK_DIR']) / 'build/host-kosmickrisp/src'
+    mesa = Path(os.environ['STEAMAC_ROOT']).parent / 'cinterforge-kosmickrisp-mesa'
     mesa_commit = re.search(r'^MESA_COMMIT=([0-9a-f]{40})$', (root / 'host/kosmickrisp/build.sh').read_text(), re.M)
     if not mesa_commit:
         raise RuntimeError('missing pinned KosmicKrisp Mesa commit')

@@ -105,7 +105,7 @@ def tree_digest(root):
     return digest.hexdigest()
 
 
-def input_digest(kind):
+def input_digest(kind, components=None):
     paths = subprocess.check_output(
         ["git", "-C", str(ROOT), "ls-files", "-z", "--cached", "--others",
          "--exclude-standard", "--", *INPUTS[kind]]).split(b"\0")
@@ -117,26 +117,48 @@ def input_digest(kind):
         # tree. A deliberate deletion is a source change, not an invalid input.
         # Record a tombstone so removing (or restoring) a file invalidates any
         # prior build receipt. Required sources are checked by the build step.
+        label = os.fsdecode(name)
         if not os.path.lexists(path):
             add_record(digest, name, "deleted")
+            if components is not None:
+                components[label] = "deleted"
             continue
         try:
+            if components is not None:
+                if path.is_symlink():
+                    components[label] = "symlink:" + os.readlink(path)
+                elif path.is_file():
+                    components[label] = ("executable:" if path.stat().st_mode & 0o111 else "file:") + file_digest(path)
+                else:
+                    raise ValueError(f"unsupported input: {path}")
             hash_entry(digest, path, name)
         except (OSError, ValueError) as error:
             fail(kind, f"missing/invalid source input ({error})")
     if kind in ("initramfs", "layer"):
-        add_record(digest, "SOURCE_DATE_EPOCH", os.environ.get("SOURCE_DATE_EPOCH", "1767225600"))
+        epoch = os.environ.get("SOURCE_DATE_EPOCH", "1767225600")
+        add_record(digest, "SOURCE_DATE_EPOCH", epoch)
+        if components is not None:
+            components["SOURCE_DATE_EPOCH"] = epoch
     if kind == "layer":
         fex = OUT / "fex" / "usr"
         if not (fex / "bin" / "FEX").is_file():
             fail("layer", "standalone FEX runtime missing (run scripts/build-image.sh fex)")
-        add_record(digest, "fex-runtime", tree_digest(fex))
+        fex_digest = tree_digest(fex)
+        add_record(digest, "fex-runtime", fex_digest)
+        if components is not None:
+            components["built:fex-runtime"] = fex_digest
         userspace = OUT / "fex-userspace"
         if not (userspace / "wine-executable.txt").is_file() or not (userspace / "RootFS/usr/bin/bash").is_file() or not (userspace / "RootFS/usr/lib/x86_64-linux-gnu/libglib-2.0.so.0").exists() or not (userspace / "RootFS/usr/lib/x86_64-linux-gnu/libpangomm-1.4.so.1").exists():
             fail("layer", "FEX x86-64 RootFS/Wine missing (run scripts/build-image.sh userspace)")
-        add_record(digest, "fex-userspace", tree_digest(userspace))
+        userspace_digest = tree_digest(userspace)
+        add_record(digest, "fex-userspace", userspace_digest)
+        if components is not None:
+            components["built:fex-userspace"] = userspace_digest
         check("mesa")
-        add_record(digest, "mesa-receipt", file_digest(stamp_path("mesa")))
+        mesa_digest = file_digest(stamp_path("mesa"))
+        add_record(digest, "mesa-receipt", mesa_digest)
+        if components is not None:
+            components["built:mesa-receipt"] = mesa_digest
     if kind == "mesa":
         for architecture in ("mesa-aarch64", "mesa-x86"):
             check(architecture)
@@ -221,11 +243,38 @@ def main():
     if action in ("begin", "invalidate"):
         stamp.unlink(missing_ok=True)
         if action == "begin":
-            print(input_digest(kind))
+            if kind == "layer":
+                components = {}
+                inputs = input_digest(kind, components)
+                print(json.dumps({"digest": inputs, "components": components}, sort_keys=True))
+            else:
+                print(input_digest(kind))
     elif action == "finish":
-        inputs = input_digest(kind)
-        if inputs != sys.argv[3]:
-            fail(kind, "inputs changed during build")
+        prior = sys.argv[3]
+        if kind == "layer":
+            try:
+                snapshot = json.loads(prior)
+                previous = snapshot["components"]
+                expected = snapshot["digest"]
+                if not isinstance(previous, dict) or not isinstance(expected, str):
+                    raise ValueError("invalid snapshot")
+            except (ValueError, KeyError, TypeError) as error:
+                fail(kind, f"invalid begin snapshot ({error})")
+            current = {}
+            inputs = input_digest(kind, current)
+            if inputs != expected:
+                changed = sorted(k for k in previous.keys() | current.keys()
+                                 if previous.get(k) != current.get(k))
+                if changed:
+                    for name in changed:
+                        print(f"[layer] INPUT CHANGED: {name}: {previous.get(name, '<absent>')} -> {current.get(name, '<absent>')}", file=sys.stderr)
+                else:
+                    print("[layer] overall input digest changed without a component difference; check Git input enumeration", file=sys.stderr)
+                fail(kind, f"{len(changed)} input component(s) changed during build")
+        else:
+            inputs = input_digest(kind)
+            if inputs != prior:
+                fail(kind, "inputs changed during build")
         receipt = {"version": 1, "kind": kind, "inputs": inputs,
                    "output": output_digest(kind)}
         temporary = stamp.with_name(stamp.name + f".tmp.{os.getpid()}")
