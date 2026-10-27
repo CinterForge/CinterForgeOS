@@ -694,7 +694,7 @@ the client reconnects.
 `work/out/dist/FX-Steam-Launcher-<version>.dmg` (the app + a link to `/Applications`). A copy of the
 bundle without the `SteamacBuildOut` key (the path to this build tree) is re-signed with Developer ID,
 hardened runtime, and a secure timestamp: first all nested Mach-O files (`Frameworks/*.dylib`, helper
-programs in `Resources`), then the bundle with `steamac-vm.entitlements` (hypervisor,
+programs in `Resources`), then the bundle with `cfos-vm.entitlements` (hypervisor,
 disable-library-validation, and audio-input — without the latter, hardened runtime silently blocks the
 microphone). The app is notarized and stapled, then the DMG is signed, notarized, and stapled —
 Gatekeeper allows it through even offline (the usual “downloaded from the Internet” prompt still

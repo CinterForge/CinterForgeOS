@@ -109,9 +109,9 @@ for step in "${steps[@]}"; do
             # Require the correct importer source. An older script previously
             # finished successfully while silently installing Scribus's 16px
             # website favicon. Fail early rather than shipping incorrect art.
-            if ! grep -Fqx "IMPORTER_REVISION = 'v8'" "$REPO/scripts/import-creative-suite-icons.py"; then
-                echo '[icons] ERROR: outdated icon importer in active source checkout (Scribus needs v8).' >&2
-                echo "[icons] ERROR: replace $REPO/scripts/import-creative-suite-icons.py with the file from this patch." >&2
+            if ! grep -Fqx "IMPORTER_REVISION = 'v9'" "$REPO/scripts/import-creative-suite-icons.py"; then
+                echo '[icons] ERROR: outdated icon importer in active source checkout (Scribus needs v9).' >&2
+                echo "[icons] ERROR: check the CFOS-owned importer under scripts/." >&2
                 exit 1
             fi
             echo "[icons] CinterForgeOS layer: invoking $REPO/scripts/import-creative-suite-icons.py"

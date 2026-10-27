@@ -37,7 +37,7 @@ OUT="$STEAMAC_WORK_DIR/out"
 NAME="FX Steam Launcher"
 SRC="$OUT/$NAME.app"
 DIST="$OUT/dist"
-ENTITLEMENTS="$HERE/steamac-vm.entitlements"
+ENTITLEMENTS="$HERE/cfos-vm.entitlements"
 
 die() { echo "dist.sh: $*" >&2; exit 1; }
 

@@ -7,18 +7,30 @@ if [[ -z "${STEAMAC_SOURCE_ROOT:-}" ]]; then
   return 1
 fi
 _CINTER_WORKSPACE="$(cd "$STEAMAC_SOURCE_ROOT/.." && pwd -P)"
-_CINTER_COLIMA_HOME="$_CINTER_WORKSPACE/CFOS/Colima"
+# Use the same *physical*, short Colima home as build/setup.sh.
+# A /tmp symlink to the long path is not sufficient: Lima resolves symlinks
+# when constructing its Unix socket paths.
+_CINTER_COLIMA_HOME="$_CINTER_WORKSPACE/Builds/CFOS/Colima"
+_CINTER_COLIMA_VIEW="$_CINTER_WORKSPACE/Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/Colima"
 _CINTER_PROFILE='cinterforge-linux'
 _CINTER_SOCKET="$_CINTER_COLIMA_HOME/$_CINTER_PROFILE/docker.sock"
+if [[ ! -d "$_CINTER_COLIMA_HOME" ]]; then
+  echo "error: Managed Colima home missing: $_CINTER_COLIMA_HOME; run ./CFOS setup first." >&2
+  return 1
+fi
+if [[ ! -L "$_CINTER_COLIMA_VIEW" || "$(readlink "$_CINTER_COLIMA_VIEW")" != "$_CINTER_COLIMA_HOME" ]]; then
+  echo "error: Colima build-folder link is missing or incorrect: $_CINTER_COLIMA_VIEW; run ./CFOS setup first." >&2
+  return 1
+fi
 export COLIMA_HOME="$_CINTER_COLIMA_HOME"
 export LIMA_HOME="$_CINTER_COLIMA_HOME/_lima"
-export COLIMA_CACHE_HOME="$_CINTER_WORKSPACE/CFOS/Cache/Colima"
-export DOCKER_CONFIG="$_CINTER_WORKSPACE/CFOS/Docker"
+export COLIMA_CACHE_HOME="$_CINTER_WORKSPACE/Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/Cache/Colima"
+export DOCKER_CONFIG="$_CINTER_WORKSPACE/Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/Docker"
 export DOCKER_HOST="unix://$_CINTER_SOCKET"
 unset DOCKER_CONTEXT
 printf '[Xcode Docker] Managed profile: %s\n[Xcode Docker] Socket: %s\n' "$_CINTER_PROFILE" "$_CINTER_SOCKET"
-if [[ ! -d "$_CINTER_COLIMA_HOME" ]]; then
-  echo "error: Managed Colima home is missing: $_CINTER_COLIMA_HOME; provision it using CinterForge setup first." >&2
+if (( ${#_CINTER_COLIMA_HOME} + ${#_CINTER_PROFILE} + 36 >= 104 )); then
+  echo "error: Managed Colima home is too long for Lima sockets: $_CINTER_COLIMA_HOME" >&2
   return 1
 fi
 if ! command -v docker >/dev/null 2>&1 || ! command -v colima >/dev/null 2>&1; then
@@ -40,4 +52,4 @@ if ! docker info --format '[Xcode Docker] Docker server: {{.ServerVersion}}'; th
   echo "error: Docker daemon unavailable at $DOCKER_HOST" >&2
   return 1
 fi
-unset _CINTER_WORKSPACE _CINTER_COLIMA_HOME _CINTER_PROFILE _CINTER_SOCKET
+unset _CINTER_WORKSPACE _CINTER_COLIMA_HOME _CINTER_COLIMA_VIEW _CINTER_PROFILE _CINTER_SOCKET

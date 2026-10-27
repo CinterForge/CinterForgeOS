@@ -37,7 +37,7 @@ Important distinction: the project includes “Signed native dylibs” Copy File
 
 The phase order above follows PBXNativeTarget.buildPhases in the current project file; Xcode can schedule unrelated build tasks concurrently subject to dependency constraints. A check reporting “verified; no rebuild” is a receipt validation path, not evidence of an actual rebuild in that invocation.
 5. Guest build script call chain
-Xcode shell phases set STEAMAC_SOURCE_ROOT=$PROJECT_DIR and STEAMAC_WORK_DIR=$PROJECT_DIR/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work, then source scripts/xcode-docker-env.sh when Docker is needed. That helper selects the managed CFOS Colima profile/socket. scripts/build-image.sh is the main guest-image dispatcher. scripts/config.env and scripts/steps/lib.sh provide shared parameters/functions. scripts/builder/Dockerfile constructs the Linux builder image. The scripts/steps directory supplies the individual image stages.
+Xcode shell phases set STEAMAC_SOURCE_ROOT=$PROJECT_DIR and STEAMAC_WORK_DIR=$PROJECT_DIR/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work, then source scripts/xcode-docker-env.sh when Docker is needed. That helper selects the managed CFOS Colima profile/socket. scripts/build-image.sh is the main guest-image dispatcher. scripts/config.env and scripts/steps/lib.sh provide shared parameters/functions. scripts/builder/Dockerfile constructs the Linux builder image. The scripts/steps directory supplies the individual image stages.
 
 
 6. Native graphics and execution dataflow

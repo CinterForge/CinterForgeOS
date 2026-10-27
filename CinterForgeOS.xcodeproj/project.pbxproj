@@ -616,11 +616,11 @@
 		C5C610919135DD5CA117D997 /* DiskCreationFilesystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskCreationFilesystem.swift; sourceTree = "<group>"; };
 		C70313B3D6F40098A9E0970F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = resources/Info.plist; sourceTree = SOURCE_ROOT; };
 		CD63B8806A8842432656335E /* PillSelfTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PillSelfTest.swift; sourceTree = "<group>"; };
-		D10000000000000000000001 /* Image */ = {isa = PBXFileReference; lastKnownFileType = file; name = Image; path = "../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/Image"; sourceTree = SOURCE_ROOT; };
-		D10000000000000000000002 /* initramfs.cpio.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; name = initramfs.cpio.gz; path = "../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/initramfs.cpio.gz"; sourceTree = SOURCE_ROOT; };
-		D10000000000000000000003 /* steamac-layer.img */ = {isa = PBXFileReference; lastKnownFileType = file; name = "steamac-layer.img"; path = "../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/steamac-layer.img"; sourceTree = SOURCE_ROOT; };
-		D10000000000000000000004 /* gvproxy */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = gvproxy; path = "../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/bin/gvproxy"; sourceTree = SOURCE_ROOT; };
-		D10000000000000000000005 /* desync */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = desync; path = "../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/bin/desync"; sourceTree = SOURCE_ROOT; };
+		D10000000000000000000001 /* Image */ = {isa = PBXFileReference; lastKnownFileType = file; name = Image; path = "../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/Image"; sourceTree = SOURCE_ROOT; };
+		D10000000000000000000002 /* initramfs.cpio.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; name = initramfs.cpio.gz; path = "../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/initramfs.cpio.gz"; sourceTree = SOURCE_ROOT; };
+		D10000000000000000000003 /* steamac-layer.img */ = {isa = PBXFileReference; lastKnownFileType = file; name = "steamac-layer.img"; path = "../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/steamac-layer.img"; sourceTree = SOURCE_ROOT; };
+		D10000000000000000000004 /* gvproxy */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = gvproxy; path = "../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/bin/gvproxy"; sourceTree = SOURCE_ROOT; };
+		D10000000000000000000005 /* desync */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = desync; path = "../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/bin/desync"; sourceTree = SOURCE_ROOT; };
 		D10000000000000000000006 /* steamdeck-images.pem */ = {isa = PBXFileReference; lastKnownFileType = text; name = "steamdeck-images.pem"; path = "scripts/keys/steamdeck-images.pem"; sourceTree = SOURCE_ROOT; };
 		D10000000000000000000007 /* desktop-ready.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = "desktop-ready.sh"; path = "scripts/support/desktop-ready.sh"; sourceTree = SOURCE_ROOT; };
 		D1000000000000000000000A /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text; name = index.html; path = resources/html/splash/index.html; sourceTree = SOURCE_ROOT; };
@@ -2384,11 +2384,11 @@
 			);
 			name = "04 · Export KDE-ready automation hook to Built/Test";
 			outputPaths = (
-				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/Test/cinterforgeis_ready.sh",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/Test/cinterforgeis_ready.sh",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "set -euo pipefail\nsource_file=\"$PROJECT_DIR/scripts/support/cinterforgeis_ready.sh\"\ntest_dir=\"$PROJECT_DIR/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/Test\"\n[[ -s \"$source_file\" ]] || { echo \"error: Missing automation hook: $source_file\" >&2; exit 1; }\nmkdir -p \"$test_dir\"\ncp \"$source_file\" \"$test_dir/cinterforgeis_ready.sh\"\nchmod 0755 \"$test_dir/cinterforgeis_ready.sh\"\necho \"[Xcode] KDE-ready automation hook: $test_dir/cinterforgeis_ready.sh\"\n";
+			shellScript = "set -euo pipefail\nsource_file=\"$PROJECT_DIR/scripts/support/cinterforgeis_ready.sh\"\ntest_dir=\"$PROJECT_DIR/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/Test\"\n[[ -s \"$source_file\" ]] || { echo \"error: Missing automation hook: $source_file\" >&2; exit 1; }\nmkdir -p \"$test_dir\"\ncp \"$source_file\" \"$test_dir/cinterforgeis_ready.sh\"\nchmod 0755 \"$test_dir/cinterforgeis_ready.sh\"\necho \"[Xcode] KDE-ready automation hook: $test_dir/cinterforgeis_ready.sh\"\n";
 		};
 		F00000000000000000000012 /* Build guest kernel (ARM64) */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2405,12 +2405,12 @@
 			);
 			name = "Build guest kernel (ARM64)";
 			outputPaths = (
-				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/Image",
-				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/Image.inputs.json",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/Image",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/Image.inputs.json",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "set -euo pipefail\nrepo=\"$PROJECT_DIR\"\nexport STEAMAC_SOURCE_ROOT=\"$repo\"\nexport STEAMAC_WORK_DIR=\"$repo/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work\"\ncd \"$repo\"\nif python3 scripts/guest-artifacts.py check kernel >/dev/null 2>&1; then\n  echo \"[Xcode] kernel verified; no rebuild\"\n  exit 0\nfi\nexport PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\"\nsource \"$repo/scripts/xcode-docker-env.sh\"\nbash guest/kernel/build.sh\npython3 scripts/guest-artifacts.py check kernel\n";
+			shellScript = "set -euo pipefail\nrepo=\"$PROJECT_DIR\"\nexport STEAMAC_SOURCE_ROOT=\"$repo\"\nexport STEAMAC_WORK_DIR=\"$repo/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work\"\ncd \"$repo\"\nif python3 scripts/guest-artifacts.py check kernel >/dev/null 2>&1; then\n  echo \"[Xcode] kernel verified; no rebuild\"\n  exit 0\nfi\nexport PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\"\nsource \"$repo/scripts/xcode-docker-env.sh\"\nbash guest/kernel/build.sh\npython3 scripts/guest-artifacts.py check kernel\n";
 		};
 		F00000000000000000000013 /* Build guest initramfs */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2427,12 +2427,12 @@
 			);
 			name = "Build guest initramfs";
 			outputPaths = (
-				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/initramfs.cpio.gz",
-				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/initramfs.cpio.gz.inputs.json",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/initramfs.cpio.gz",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/initramfs.cpio.gz.inputs.json",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "set -euo pipefail\nrepo=\"$PROJECT_DIR\"\nexport STEAMAC_SOURCE_ROOT=\"$repo\"\nexport STEAMAC_WORK_DIR=\"$repo/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work\"\ncd \"$repo\"\nif python3 scripts/guest-artifacts.py check initramfs >/dev/null 2>&1; then\n  echo \"[Xcode] initramfs verified; no rebuild\"\n  exit 0\nfi\nexport PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\"\nsource \"$repo/scripts/xcode-docker-env.sh\"\nbash scripts/build-image.sh builder initramfs\npython3 scripts/guest-artifacts.py check initramfs\n";
+			shellScript = "set -euo pipefail\nrepo=\"$PROJECT_DIR\"\nexport STEAMAC_SOURCE_ROOT=\"$repo\"\nexport STEAMAC_WORK_DIR=\"$repo/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work\"\ncd \"$repo\"\nif python3 scripts/guest-artifacts.py check initramfs >/dev/null 2>&1; then\n  echo \"[Xcode] initramfs verified; no rebuild\"\n  exit 0\nfi\nexport PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\"\nsource \"$repo/scripts/xcode-docker-env.sh\"\nbash scripts/build-image.sh builder initramfs\npython3 scripts/guest-artifacts.py check initramfs\n";
 		};
 		F00000000000000000000014 /* Build Mesa Venus (ARM64) */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2449,11 +2449,11 @@
 			);
 			name = "Build Mesa Venus (ARM64)";
 			outputPaths = (
-				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/mesa-aarch64.inputs.json",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/mesa-aarch64.inputs.json",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "set -euo pipefail\nrepo=\"$PROJECT_DIR\"\nexport STEAMAC_SOURCE_ROOT=\"$repo\"\nexport STEAMAC_WORK_DIR=\"$repo/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work\"\ncd \"$repo\"\nif python3 scripts/guest-artifacts.py check mesa-aarch64 >/dev/null 2>&1; then echo \"[Xcode] Mesa ARM64 verified\"; exit 0; fi\nexport PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\"\nsource \"$repo/scripts/xcode-docker-env.sh\"\nbash scripts/build-image.sh builder rootfs\nbash guest/mesa/build.sh fetch aarch64\npython3 scripts/guest-artifacts.py check mesa-aarch64\n";
+			shellScript = "set -euo pipefail\nrepo=\"$PROJECT_DIR\"\nexport STEAMAC_SOURCE_ROOT=\"$repo\"\nexport STEAMAC_WORK_DIR=\"$repo/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work\"\ncd \"$repo\"\nif python3 scripts/guest-artifacts.py check mesa-aarch64 >/dev/null 2>&1; then echo \"[Xcode] Mesa ARM64 verified\"; exit 0; fi\nexport PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\"\nsource \"$repo/scripts/xcode-docker-env.sh\"\nbash scripts/build-image.sh builder rootfs\nbash guest/mesa/build.sh fetch aarch64\npython3 scripts/guest-artifacts.py check mesa-aarch64\n";
 		};
 		F00000000000000000000015 /* Build SteamOS guest layer */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2462,7 +2462,7 @@
 			files = (
 			);
 			inputPaths = (
-				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/mesa-venus.inputs.json",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/mesa-venus.inputs.json",
 				"$(PROJECT_DIR)/guest/layer/usr",
 				"$(PROJECT_DIR)/guest/progress-agent",
 				"$(PROJECT_DIR)/scripts/build-image.sh",
@@ -2474,12 +2474,12 @@
 			);
 			name = "Build SteamOS guest layer";
 			outputPaths = (
-				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/steamac-layer.img",
-				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/steamac-layer.img.inputs.json",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/steamac-layer.img",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/steamac-layer.img.inputs.json",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "set -euo pipefail\nrepo=\"$PROJECT_DIR\"\nexport STEAMAC_SOURCE_ROOT=\"$repo\"\nexport STEAMAC_WORK_DIR=\"$repo/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work\"\ncd \"$repo\"\nif python3 scripts/guest-artifacts.py check layer >/dev/null 2>&1; then\n  echo \"[Xcode] layer verified; no rebuild\"\n  exit 0\nfi\nexport PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\"\nsource \"$repo/scripts/xcode-docker-env.sh\"\npython3 scripts/guest-artifacts.py check mesa\nbash scripts/build-image.sh builder layer\npython3 scripts/guest-artifacts.py check layer\n";
+			shellScript = "set -euo pipefail\nrepo=\"$PROJECT_DIR\"\nexport STEAMAC_SOURCE_ROOT=\"$repo\"\nexport STEAMAC_WORK_DIR=\"$repo/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work\"\ncd \"$repo\"\nif python3 scripts/guest-artifacts.py check layer >/dev/null 2>&1; then\n  echo \"[Xcode] layer verified; no rebuild\"\n  exit 0\nfi\nexport PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\"\nsource \"$repo/scripts/xcode-docker-env.sh\"\npython3 scripts/guest-artifacts.py check mesa\nbash scripts/build-image.sh builder layer\npython3 scripts/guest-artifacts.py check layer\n";
 		};
 		F00000000000000000000016 /* Build Mesa Venus (x86_64 + i386) */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2496,11 +2496,11 @@
 			);
 			name = "Build Mesa Venus (x86_64 + i386)";
 			outputPaths = (
-				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/mesa-x86.inputs.json",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/mesa-x86.inputs.json",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "set -euo pipefail\nrepo=\"$PROJECT_DIR\"\nexport STEAMAC_SOURCE_ROOT=\"$repo\"\nexport STEAMAC_WORK_DIR=\"$repo/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work\"\ncd \"$repo\"\nif python3 scripts/guest-artifacts.py check mesa-x86 >/dev/null 2>&1; then echo \"[Xcode] Mesa x86 verified\"; exit 0; fi\nexport PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\"\nsource \"$repo/scripts/xcode-docker-env.sh\"\nbash scripts/build-image.sh builder rootfs\nbash guest/mesa/build.sh fetch x86\npython3 scripts/guest-artifacts.py check mesa-x86\n";
+			shellScript = "set -euo pipefail\nrepo=\"$PROJECT_DIR\"\nexport STEAMAC_SOURCE_ROOT=\"$repo\"\nexport STEAMAC_WORK_DIR=\"$repo/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work\"\ncd \"$repo\"\nif python3 scripts/guest-artifacts.py check mesa-x86 >/dev/null 2>&1; then echo \"[Xcode] Mesa x86 verified\"; exit 0; fi\nexport PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\"\nsource \"$repo/scripts/xcode-docker-env.sh\"\nbash scripts/build-image.sh builder rootfs\nbash guest/mesa/build.sh fetch x86\npython3 scripts/guest-artifacts.py check mesa-x86\n";
 		};
 		F00000000000000000000017 /* Verify guest Mesa Venus */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2508,8 +2508,8 @@
 			files = (
 			);
 			inputPaths = (
-				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/mesa-aarch64.inputs.json",
-				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/mesa-x86.inputs.json",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/mesa-aarch64.inputs.json",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/mesa-x86.inputs.json",
 				"$(PROJECT_DIR)/guest/mesa/build.sh",
 				"$(PROJECT_DIR)/guest/mesa/versions.env",
 				"$(PROJECT_DIR)/scripts/config.env",
@@ -2519,11 +2519,11 @@
 			);
 			name = "Verify guest Mesa Venus";
 			outputPaths = (
-				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/mesa-venus.inputs.json",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/mesa-venus.inputs.json",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "set -euo pipefail\nrepo=\"$PROJECT_DIR\"\nexport STEAMAC_SOURCE_ROOT=\"$repo\"\nexport STEAMAC_WORK_DIR=\"$repo/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work\"\ncd \"$repo\"\nif python3 scripts/guest-artifacts.py check mesa >/dev/null 2>&1; then echo \"[Xcode] Mesa already verified\"; exit 0; fi\nexport PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\"\nsource \"$repo/scripts/xcode-docker-env.sh\"\npython3 scripts/guest-artifacts.py check mesa-aarch64\npython3 scripts/guest-artifacts.py check mesa-x86\nbash guest/mesa/build.sh verify\npython3 scripts/guest-artifacts.py check mesa\n";
+			shellScript = "set -euo pipefail\nrepo=\"$PROJECT_DIR\"\nexport STEAMAC_SOURCE_ROOT=\"$repo\"\nexport STEAMAC_WORK_DIR=\"$repo/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work\"\ncd \"$repo\"\nif python3 scripts/guest-artifacts.py check mesa >/dev/null 2>&1; then echo \"[Xcode] Mesa already verified\"; exit 0; fi\nexport PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\"\nsource \"$repo/scripts/xcode-docker-env.sh\"\npython3 scripts/guest-artifacts.py check mesa-aarch64\npython3 scripts/guest-artifacts.py check mesa-x86\nbash guest/mesa/build.sh verify\npython3 scripts/guest-artifacts.py check mesa\n";
 		};
 		F00000000000000000000018 /* Prepare host tools (gvproxy, desync) */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2536,12 +2536,12 @@
 			);
 			name = "Prepare host tools (gvproxy, desync)";
 			outputPaths = (
-				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/bin/gvproxy",
-				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/bin/desync",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/bin/gvproxy",
+				"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/bin/desync",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "set -euo pipefail\nexport STEAMAC_SOURCE_ROOT=\"$PROJECT_DIR\"\nexport STEAMAC_WORK_DIR=\"$PROJECT_DIR/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work\"\nexport PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\"\nbash \"$PROJECT_DIR/resources/fetch-gvproxy.sh\"\nbash \"$PROJECT_DIR/resources/fetch-desync.sh\"\ntest -x \"$STEAMAC_WORK_DIR/out/host/bin/gvproxy\"\ntest -x \"$STEAMAC_WORK_DIR/out/host/bin/desync\"\n";
+			shellScript = "set -euo pipefail\nexport STEAMAC_SOURCE_ROOT=\"$PROJECT_DIR\"\nexport STEAMAC_WORK_DIR=\"$PROJECT_DIR/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work\"\nexport PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\"\nbash \"$PROJECT_DIR/resources/fetch-gvproxy.sh\"\nbash \"$PROJECT_DIR/resources/fetch-desync.sh\"\ntest -x \"$STEAMAC_WORK_DIR/out/host/bin/gvproxy\"\ntest -x \"$STEAMAC_WORK_DIR/out/host/bin/desync\"\n";
 		};
 		F00000000000000000000019 /* Build host libkrun (macOS arm64) */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2728,7 +2728,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGN_ENTITLEMENTS = "resources/steamac-vm.entitlements";
-				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/XcodeProduct/$(CONFIGURATION)";
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/XcodeProduct/$(CONFIGURATION)";
 				ENABLE_DEBUG_DYLIB = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				EXCLUDED_ARCHS = x86_64;
@@ -2736,12 +2736,12 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/source/CKrun",
-					"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/include",
+					"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/include",
 				);
 				INFOPLIST_FILE = resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/lib",
+					"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/lib",
 					"$(SDKROOT)/usr/lib/swift",
 				);
 				ONLY_ACTIVE_ARCH = YES;
@@ -2753,7 +2753,7 @@
 				PRODUCT_MODULE_NAME = steamac_vm;
 				PRODUCT_NAME = "CinterForge OS";
 				SDKROOT = macosx;
-				STEAMAC_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/lib";
+				STEAMAC_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/lib";
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/source/CKrun $(PROJECT_DIR)/source/CZstd";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -2782,7 +2782,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGN_ENTITLEMENTS = "resources/steamac-vm.entitlements";
-				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/XcodeProduct/$(CONFIGURATION)";
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/XcodeProduct/$(CONFIGURATION)";
 				ENABLE_DEBUG_DYLIB = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				EXCLUDED_ARCHS = x86_64;
@@ -2790,12 +2790,12 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/source/CKrun",
-					"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/include",
+					"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/include",
 				);
 				INFOPLIST_FILE = resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/lib",
+					"$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/lib",
 					"$(SDKROOT)/usr/lib/swift",
 				);
 				ONLY_ACTIVE_ARCH = YES;
@@ -2807,7 +2807,7 @@
 				PRODUCT_MODULE_NAME = steamac_vm;
 				PRODUCT_NAME = "CinterForge OS";
 				SDKROOT = macosx;
-				STEAMAC_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/lib";
+				STEAMAC_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/lib";
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/source/CKrun $(PROJECT_DIR)/source/CZstd";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -2822,7 +2822,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGN_ENTITLEMENTS = "resources/steamac-vm.entitlements";
-				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/XcodeProduct/$(CONFIGURATION)";
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/XcodeProduct/$(CONFIGURATION)";
 				DEFINES_MODULE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/source/CZstd/include",
@@ -2831,7 +2831,7 @@
 				MODULEMAP_FILE = "$(PROJECT_DIR)/source/CZstd/module.modulemap";
 				PRODUCT_NAME = CZstd;
 				SKIP_INSTALL = YES;
-				STEAMAC_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/lib";
+				STEAMAC_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/lib";
 			};
 			name = Debug;
 		};
@@ -2841,7 +2841,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGN_ENTITLEMENTS = "resources/steamac-vm.entitlements";
-				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/XcodeProduct/$(CONFIGURATION)";
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/XcodeProduct/$(CONFIGURATION)";
 				DEFINES_MODULE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/source/CZstd/include",
@@ -2850,7 +2850,7 @@
 				MODULEMAP_FILE = "$(PROJECT_DIR)/source/CZstd/module.modulemap";
 				PRODUCT_NAME = CZstd;
 				SKIP_INSTALL = YES;
-				STEAMAC_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/lib";
+				STEAMAC_NATIVE_LIB_DIR = "$(PROJECT_DIR)/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/lib";
 			};
 			name = Release;
 		};

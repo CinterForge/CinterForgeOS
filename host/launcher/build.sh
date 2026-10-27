@@ -98,7 +98,7 @@ if [[ "$ref" != @rpath/* ]]; then
     install_name_tool -change "$ref" "@rpath/$(basename "$ref")" "$tmp"
 fi
 
-codesign --force --sign - --entitlements "$HERE/steamac-vm.entitlements" "$tmp"
+codesign --force --sign - --entitlements "$HERE/cfos-vm.entitlements" "$tmp"
 mv -f "$tmp" "$OUT/steamac-vm"
 # Bundle.main of the bare dev binary resolves its .lproj directories next to it.
 for lproj in "$STEAMAC_SWIFT_BUILD_DIR/l10n"/*.lproj; do

@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# CFOS: public entry point for the CinterForgeOS lifecycle.
+#
+# Each lifecycle phase lives in one readable script under build/.
+# This file only parses arguments and supplies shared, small helpers.
+set -euo pipefail
+
+CFOS_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+CFOS_WORKSPACE="$(dirname "$CFOS_ROOT")"
+CFOS_BUILD_ROOT="$CFOS_WORKSPACE/Builds/CreativeSuite/Built/cinterforge-os/mac"
+CFOS_PRODUCT_ROOT="$CFOS_BUILD_ROOT/CFOS/work/out/XcodeProduct"
+CFOS_INSTALL_ROOT="${CFOS_INSTALL_ROOT:-$HOME/Library/Application Support/Steam/steamapps/common/CinterForge/Applications/macOS/CinterForgeOS}"
+
+usage() {
+  cat >&2 <<'USAGE'
+Usage: ./CFOS <setup|build|stage|test|all> cinterforge-os mac <Release|Debug|all> [--dry-run]
+
+Examples:
+  ./CFOS setup cinterforge-os mac Release
+  ./CFOS all cinterforge-os mac all
+  ./CFOS test cinterforge-os mac Debug --dry-run
+
+The fourth argument "all" means Debug and Release.
+The first argument "all" means Setup, Build, Stage, and Test (in that order).
+USAGE
+  exit 64
+}
+
+[[ $# -ge 4 ]] || usage
+CFOS_ACTION="$1"
+CFOS_APPLICATION="$2"
+CFOS_PLATFORM="$3"
+CFOS_CONFIGURATION="$4"
+shift 4
+
+case "$CFOS_ACTION" in setup|build|stage|test|all) ;; *) usage ;; esac
+[[ "$CFOS_APPLICATION" == 'cinterforge-os' && "$CFOS_PLATFORM" == 'mac' ]] || usage
+case "$CFOS_CONFIGURATION" in Release|Debug|all) ;; *) usage ;; esac
+CFOS_DRY_RUN=0
+if (( $# )); then
+  [[ $# -eq 1 && "$1" == '--dry-run' ]] || usage
+  CFOS_DRY_RUN=1
+fi
+
+# Print every command, including commands skipped by --dry-run.
+cfos_run() {
+  printf 'CFOS:'
+  printf ' %q' "$@"
+  printf '\n'
+  if (( ! CFOS_DRY_RUN )); then "$@"; fi
+}
+
+cfos_require_mac() {
+  if (( ! CFOS_DRY_RUN )); then
+    [[ "$(uname -s)" == Darwin && "$(uname -m)" == arm64 ]] || {
+      echo 'CFOS: Apple Silicon macOS (arm64) is required.' >&2
+      return 1
+    }
+  fi
+}
+
+cfos_configurations() {
+  if [[ "$CFOS_CONFIGURATION" == all ]]; then
+    printf 'Debug\nRelease\n'
+  else
+    printf '%s\n' "$CFOS_CONFIGURATION"
+  fi
+}
+
+cfos_built_app() {
+  printf '%s/%s/CinterForge OS.app\n' "$CFOS_PRODUCT_ROOT" "$1"
+}
+
+cfos_installed_app() {
+  case "$1" in
+    Release) printf '%s/2026/CinterForge OS.app\n' "$CFOS_INSTALL_ROOT" ;;
+    Debug) printf '%s/2026-Debug/CinterForge OS.app\n' "$CFOS_INSTALL_ROOT" ;;
+  esac
+}
+
+# This checks packaging identity, not full runtime/graphics functionality.
+cfos_validate_app() {
+  local app="$1"
+  [[ -d "$app" && -x "$app/Contents/MacOS/cfos-vm" ]] || {
+    echo "CFOS: missing native executable: $app/Contents/MacOS/cfos-vm" >&2
+    return 1
+  }
+  [[ -f "$app/Contents/Info.plist" ]] || {
+    echo "CFOS: missing Info.plist in $app" >&2
+    return 1
+  }
+}
+
+# Source phase definitions without running them. Their only public entry
+# points are cfos_setup, cfos_build, cfos_stage, and cfos_test.
+source "$CFOS_ROOT/build/setup.sh"
+source "$CFOS_ROOT/build/build.sh"
+source "$CFOS_ROOT/build/stage.sh"
+source "$CFOS_ROOT/build/test.sh"
+source "$CFOS_ROOT/build/all.sh"
+
+case "$CFOS_ACTION" in
+  setup) cfos_setup ;;
+  build) cfos_build ;;
+  stage) cfos_stage ;;
+  test)  cfos_test ;;
+  all)   cfos_all ;;
+esac

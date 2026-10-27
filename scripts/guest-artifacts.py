@@ -13,7 +13,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = Path(os.environ.get("STEAMAC_WORK_DIR", str(ROOT.parent / "Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work"))) / "out"
+OUT = Path(os.environ.get("STEAMAC_WORK_DIR", str(ROOT.parent / "Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work"))) / "out"
 MESA_INPUTS = (
     "guest/mesa/build.sh", "guest/mesa/versions.env", "guest/mesa/container",
     "scripts/config.env", "scripts/steps/10-rootfs.sh",

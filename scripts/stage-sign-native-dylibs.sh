@@ -7,7 +7,7 @@ set -euo pipefail
 : "${FULL_PRODUCT_NAME:?FULL_PRODUCT_NAME must be set by Xcode}"
 : "${PROJECT_DIR:?PROJECT_DIR must be set by Xcode}"
 
-host_lib_dir="${STEAMAC_NATIVE_LIB_DIR:-$PROJECT_DIR/../Builds/CreativeSuite/Built/cinterforge-os/mac/Steamac/work/out/host/lib}"
+host_lib_dir="${CFOS_NATIVE_LIB_DIR:-$PROJECT_DIR/../Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work/out/host/lib}"
 app="$TARGET_BUILD_DIR/$FULL_PRODUCT_NAME"
 frameworks="$app/Contents/Frameworks"
 

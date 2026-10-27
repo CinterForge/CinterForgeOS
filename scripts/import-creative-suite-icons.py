@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-"""Import original publisher icons from CinterForge's authoritative Creative Suite.csv.
+"""Import original publisher icons using CFOS-owned upstream artwork URLs.
 
 Run on the macOS host before building the SteamOS layer. The source URL is
 stored in PNG metadata; unchanged images are reused without a network call.
 No generic stand-in artwork and no separate manifest are produced.
 """
 import argparse
-import csv
 import io
 import os
 import sys
@@ -18,34 +17,27 @@ from pathlib import Path
 APPS = ('GIMP', 'Krita', 'Inkscape', 'Scribus', 'Blender', 'Kdenlive', 'Ardour', 'RapidRAW')
 ROOT = Path(__file__).resolve().parents[1]
 DEST = ROOT / 'guest/layer/usr/share/cinterforge/icons/launchers'
-REL_CSV = Path('CinterForge/CinterForgeServer/cinter/build_cinterforge/input/Creative Suite.csv')
+# This is CFOS-owned artwork metadata, not a copy of another repository's
+# build registry. A public CFOS checkout must work without a sibling project.
+# URLs are upstream project artwork sources or upstream site icon discovery.
+PUBLISHER_ICONS = {
+    'GIMP': 'https://www.google.com/s2/favicons?domain=www.gimp.org&sz=128',
+    'Krita': 'https://www.google.com/s2/favicons?domain=krita.org&sz=128',
+    'Inkscape': 'https://www.google.com/s2/favicons?domain=inkscape.org&sz=128',
+    'Scribus': 'https://www.google.com/s2/favicons?domain=www.scribus.net&sz=128',
+    'Blender': 'https://www.google.com/s2/favicons?domain=www.blender.org&sz=128',
+    'Kdenlive': 'https://www.google.com/s2/favicons?domain=kdenlive.org&sz=128',
+    'Ardour': 'https://www.google.com/s2/favicons?domain=ardour.org&sz=128',
+    'RapidRAW': 'https://getrapidraw.com/static/logo.png',
+}
 SCRIBUS_ARTWORK_URL = ('https://raw.githubusercontent.com/scribusproject/scribus/'
                        'master/resources/iconsets/artwork/icon_1024x1024.png')
-IMPORTER_REVISION = 'v8'
+IMPORTER_REVISION = 'v9'
 
 
-def locate_csv(explicit):
-    if explicit:
-        p = Path(explicit).expanduser()
-        if not p.is_file():
-            raise RuntimeError(f'Creative Suite CSV does not exist: {p}')
-        return p
-    # CinterForge and CinterForgeOS are independent sibling source checkouts.
-    candidates = [ROOT.parent / 'CinterForge' / REL_CSV,
-                  ROOT.parent / 'CinterForge' / 'CinterForgeServer/cinter/build_cinterforge/input/Creative Suite.csv']
-    for p in candidates:
-        if p.is_file():
-            return p
-    raise RuntimeError('Creative Suite.csv unavailable. Set CINTER_CREATIVE_SUITE_CSV to the authoritative CinterForge input CSV path. Checked: ' + ', '.join(map(str, candidates)))
-
-
-def get_rows(path):
-    with path.open(newline='', encoding='utf-8-sig') as f:
-        rows = {r['Name']: r for r in csv.DictReader(f) if r.get('Name') in APPS}
-    missing = set(APPS) - rows.keys()
-    if missing:
-        raise RuntimeError(f'Missing Creative Suite icon rows in {path}: {sorted(missing)}')
-    return rows
+def get_rows():
+    """Keep the renderer's row format without requiring an external catalog."""
+    return {name: {'Icon URL': PUBLISHER_ICONS[name]} for name in APPS}
 
 
 def up_to_date(path, url, kind):
@@ -223,13 +215,11 @@ def import_icons(rows, force=False):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('csv', nargs='?', help='optional Creative Suite.csv path')
     ap.add_argument('--force', action='store_true', help='refresh even cached publisher icons')
     args = ap.parse_args()
-    csv_path = locate_csv(args.csv or os.environ.get('CINTER_CREATIVE_SUITE_CSV'))
     print(f'[icons] IMPORTER {IMPORTER_REVISION} ACTIVE: {Path(__file__).resolve()}', flush=True)
-    print(f'[icons] authoritative catalog: {csv_path}', flush=True)
-    import_icons(get_rows(csv_path), args.force)
+    print('[icons] source: CFOS-owned publisher artwork URLs', flush=True)
+    import_icons(get_rows(), args.force)
     print(f'[icons] IMPORTER {IMPORTER_REVISION} COMPLETE: all 16 publisher icons ready', flush=True)
 
 

@@ -183,7 +183,7 @@ python3 "$ROOT/scripts/guest-artifacts.py" check-bundle "$TMP/Contents/Resources
 for f in "$FW"/*.dylib "$TMP/Contents/Resources/gvproxy" "$TMP/Contents/Resources/desync"; do
     codesign --force --sign - --timestamp=none "$f"
 done
-codesign --force --sign - --timestamp=none --entitlements "$HERE/steamac-vm.entitlements" "$TMP"
+codesign --force --sign - --timestamp=none --entitlements "$HERE/cfos-vm.entitlements" "$TMP"
 codesign --verify --deep --strict "$TMP"
 
 rm -rf "$APP"

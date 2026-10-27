@@ -20,7 +20,7 @@ CinterForge OS brings a SteamOS development environment to Apple Silicon. Keep t
 
 **Build on macOS. Debug where your applications run.**
 
-CinterForge OS is a native Apple Silicon macOS application that starts an ARM64 SteamOS virtual machine using libkrun and displays its KDE Plasma desktop. The development workflow is built around a familiar Mac toolchain: Xcode, VS Code, and the `CinterForge` build/stage/test lifecycle in the companion CinterForge repository.
+CinterForge OS is a native Apple Silicon macOS application that starts an ARM64 SteamOS virtual machine using libkrun and displays its KDE Plasma desktop. The development workflow is built around a familiar Mac toolchain: Xcode, VS Code, and the local `./CFOS` setup/build/stage/test lifecycle.
 
 For Linux x86-64 targets, CinterForge uses a separate headless Ubuntu AMD64 build/test environment and FEX to run x86-64 software on the SteamOS desktop. Windows applications can be exercised through Wine on FEX. These are **compatibility-backed development and testing paths**, not a claim that every Windows or Linux application runs perfectly or that the guest is an x86-64 virtual machine.
 
@@ -52,7 +52,7 @@ The next chapter is **CinterForge IDE**, an integrated development environment f
 
 ```text
 Apple Silicon Mac
-  ├── Xcode / VS Code / CinterForge (CinterForge repository)
+  ├── Xcode / VS Code / ./CFOS (this repository)
   │     └── Build → Stage → Test → Logs
   └── CinterForge OS.app (native macOS host)
         └── ARM64 SteamOS VM (libkrun)
@@ -62,13 +62,13 @@ Apple Silicon Mac
               └── Persistent Steam library (shared with macOS)
 ```
 
-The operating system supplies the desktop and boot/runtime integration. The application lifecycle and test scripts belong to the **CinterForge/CinterForge** repository, and installed apps live in persistent versioned directories. This separation is deliberate: changing an app or test script should not require rebuilding the guest OS.
+The operating system supplies the desktop and boot/runtime integration. The application lifecycle and test scripts belong to the **CinterForge** repository, and installed apps live in persistent versioned directories. This separation is deliberate: changing an app or test script should not require rebuilding the guest OS.
 
 ### Build it, run it, improve it
 
 CinterForge OS is for developers who enjoy getting close to the hardware and the software stack. Start with the architecture and Xcode project guide below. The [original steamac README](docs/technical/Steamac%20README.md) is also useful for its underlying virtualization technologies and build prerequisites.
 
-The native host application is built in **Xcode**. The CinterForge project's `CinterForge` command handles the application's broader **Build → Stage → Test** workflow and external test tooling. Guest image generation and dependencies are separate from the native Swift build; see the technical docs for the current procedure rather than treating a single Xcode click as a complete first-time setup.
+The native host application is built in **Xcode**. The CinterForge project's `./Cinter` command handles the application's broader **Build → Stage → Test** workflow and external test tooling. Guest image generation and dependencies are separate from the native Swift build; see the technical docs for the current procedure rather than treating a single Xcode click as a complete first-time setup.
 
 This project is evolving. Contributions that improve build reproducibility, graphics, input, app compatibility, diagnostics, documentation, and the developer experience are welcome.
 
@@ -83,7 +83,7 @@ This project is evolving. Contributions that improve build reproducibility, grap
 | [Graphics benchmarking](docs/technical/CinterForgeOS%20Graphics%20Benchmarking.md) | Linux Superposition and Windows Heaven showcase targets, proven controls, and verification criteria. |
 | [Original steamac README](docs/technical/Steamac%20README.md) | Upstream context, platform prerequisites, and technical foundations. |
 
-For operational commands used to install and test Linux/Windows applications, see the **CinterForge** repository's `creativeSuite/apps/cinterforge-os/external/` documentation. The `CinterForge` entry point inside SteamOS delegates to tools installed outside the guest image.
+For operational commands used to install and test Linux/Windows applications, see the **CinterForge** repository's `creativeSuite/apps/cinterforge-os/external/` documentation. The `/usr/bin/Hope` bridge inside SteamOS delegates to tools installed outside the guest image.
 
 ## Join in
 
@@ -94,3 +94,23 @@ If you build on a Mac and want to help make Linux and Windows development easier
 ---
 
 CinterForge OS is an independent CinterForge project. Steam, SteamOS, and related names are trademarks of Valve Corporation. Upstream components remain subject to their respective licenses; see [LICENSE](LICENSE), [NOTICE](NOTICE), and [LICENSES](LICENSES/).
+
+## Standalone CFOS command (initial integration)
+
+The repository now provides its own `./CFOS` entry point, without invoking
+`./Hope` or `./Cinter`:
+
+```bash
+./CFOS setup cinterforge-os mac Release
+./CFOS build cinterforge-os mac Release
+./CFOS stage cinterforge-os mac Release
+./CFOS test cinterforge-os mac Release
+./CFOS all cinterforge-os mac all
+```
+
+`all` as the **first** argument executes Setup → Build → Stage → Test.
+`all` as the **fourth** argument selects Debug and Release configurations.
+`--dry-run` previews actions without changing the filesystem. Stage installs
+versioned application bundles under the configured Steam library. Swift owns
+first-run SteamOS disk download/creation; this command never provisions a disk.
+
