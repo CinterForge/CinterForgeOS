@@ -121,8 +121,27 @@ final class VM {
                 let apps = URL(fileURLWithPath: devApplications).resolvingSymlinksInPath()
                 return apps.deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
             }
-            return selectedApplications?.deletingLastPathComponent().deletingLastPathComponent()
-                .deletingLastPathComponent()
+            if let selectedApplications {
+                return selectedApplications.deletingLastPathComponent().deletingLastPathComponent()
+                    .deletingLastPathComponent()
+            }
+            // An Xcode-built .app and its SteamOS disk live under Builds rather
+            // than steamapps. Discover the installed Steam library exactly as
+            // the disk picker does, without requiring an Xcode Run override.
+            // Never arbitrarily pick a library if several contain CinterForge:
+            // an explicit override is required in that case.
+            let candidates = AppBundle.steamLibraryCandidates()
+            if candidates.count == 1 {
+                let candidate = URL(fileURLWithPath: candidates[0]).resolvingSymlinksInPath()
+                log("development build: discovered Steam library " + candidate.path)
+                return candidate
+            }
+            if candidates.count > 1 {
+                log("development build: multiple CinterForge Steam libraries found; "
+                    + "set CINTER_STEAM_APPS_ROOT to choose one: "
+                    + candidates.joined(separator: ", "))
+            }
+            return nil
         }()
         if let steamapps = selectedSteamapps {
             let path = steamapps.path
@@ -184,7 +203,8 @@ final class VM {
             """
             try (report + "\n").write(toFile: boot + "/SteamappsMount.log", atomically: true, encoding: .utf8)
         } else {
-            log("steamapps VirtioFS unavailable: VM disk is outside a managed Steam installation; set CINTER_STEAM_APPS_ROOT for development")
+            log("steamapps VirtioFS unavailable: no unambiguous CinterForge Steam library found; "
+                + "set CINTER_STEAM_APPS_ROOT to the intended steamapps directory")
         }
         // virtio-snd → CoreAudio default output (and default input while the guest records).
         if o.sound {

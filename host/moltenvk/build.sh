@@ -103,6 +103,16 @@ if [ ! -f "$src/External/SPIRV-Cross/spirv.hpp" ]; then
     exit 1
 fi
 
+# Skip the costly Xcode build and GPU regressions if source and recipe are unchanged.
+cache=$work/.cfos-build-fingerprint
+cache_tool=$root/scripts/host-build-cache.py
+cache_output=$out/lib/libMoltenVK.dylib
+if python3 "$cache_tool" check "$cache" "$cache_output" "$src" "$here/build.sh" "$spvc/spirv.hpp"; then
+    echo "[Xcode] MoltenVK unchanged (source + dirty files + build script); skipping build and probes"
+    exit 0
+fi
+rm -f "$cache"
+
 # --- MoltenVK (Release, universal)
 (cd "$src" && env -i PATH="$PATH" HOME="$HOME" LANG="${LANG:-en_US.UTF-8}" make macos)
 
@@ -172,3 +182,5 @@ mv "$out/include/MoltenVK.tmp.$$" "$out/include/MoltenVK"
 
 echo ">> $lib"
 otool -L "$lib"
+
+python3 "$cache_tool" record "$cache" "$cache_output" "$src" "$here/build.sh" "$spvc/spirv.hpp"

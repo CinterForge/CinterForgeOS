@@ -20,6 +20,52 @@ install -d -m 0755 /etc/xdg/menus/applications-merged
 install -m 0644 /usr/share/cinterforge/kde/cinterforge-unforked.menu /etc/xdg/menus/applications-merged/cinterforge-unforked.menu
 desktop="$home/Desktop"
 install -d -m 0755 -o steamos -g steamos "$desktop"
+# Fresh SteamOS disks start with no KDE desktop metadata. Regenerate only
+# CinterForge-owned shortcuts on every SDDM initialization, including upgrades;
+# leave unrelated user documents and launchers untouched.
+install_folder_icon() {
+    folder=$1
+    label=$2
+    icon=$3
+    metadata="$folder/.directory"
+    if [ -e "$metadata" ] && ! grep -Fxq 'X-CinterForgeOS-Managed=true' "$metadata"; then
+        return 0
+    fi
+    cat > "$metadata" <<EOF_CFOS_FOLDER
+[Desktop Entry]
+Type=Directory
+Name=$label
+Icon=$icon
+X-CinterForgeOS-Managed=true
+EOF_CFOS_FOLDER
+    chmod 0644 "$metadata"
+    chown steamos:steamos "$metadata"
+}
+install_managed_launcher() {
+    src=$1
+    dst=$2
+    # Previously generated launchers may contain obsolete names or Exec paths.
+    # Replace only launchers that identify themselves as CinterForge's, or
+    # launchers that this script has already installed on earlier boots.
+    if [ -L "$dst" ]; then
+        case "$(readlink "$dst")" in
+          /usr/share/applications/cinterforge-*.desktop) rm -f "$dst" ;;
+          *) return 0 ;;
+        esac
+    fi
+    if [ -f "$dst" ] && ! grep -Eq '^(X-CinterForgeOS-Managed=true|Exec=(CinterForge|/usr/bin/CinterForge) (launch-|install-))' "$dst"; then
+        return 0
+    fi
+    # Preserve all authored application fields and mark our own copy for
+    # deterministic refresh after the next SteamOS disk install/update.
+    temp="${dst}.cfos-$$"
+    cat "$src" > "$temp"
+    printf '\nX-CinterForgeOS-Managed=true\n' >> "$temp"
+    chmod 0755 "$temp"
+    chown steamos:steamos "$temp"
+    mv -f "$temp" "$dst"
+}
+
 for platform in Linux Windows; do
     lower=$(printf '%s' "$platform" | tr '[:upper:]' '[:lower:]')
     for flavor in built unforked; do
@@ -29,6 +75,11 @@ for platform in Linux Windows; do
             group="$desktop/$platform Unforked"
         fi
         install -d -m 0755 -o steamos -g steamos "$group"
+        if [ "$flavor" = built ]; then
+            install_folder_icon "$group" "CinterForge $platform" /usr/share/cinterforge/icons/desktop.png
+        else
+            install_folder_icon "$group" "$platform Unforked" folder
+        fi
         for app in GIMP Krita Inkscape Scribus Blender Kdenlive Ardour RapidRAW; do
             slug=$(printf '%s' "$app" | tr '[:upper:]' '[:lower:]')
             src="/usr/share/applications/cinterforge-$flavor-$lower-$slug.desktop"
@@ -49,23 +100,7 @@ for platform in Linux Windows; do
                 dst="$group/$app.desktop"
             fi
             [ -f "$src" ] || { echo "Missing KDE launcher: $src" >&2; exit 1; }
-            # Replace ONLY the old CinterForge-generated launchers, not other
-            # user-created files. Existing old symlinks pointed at unforked.
-            if [ -L "$dst" ]; then
-                case "$(readlink "$dst")" in
-                  /usr/share/applications/cinterforge-*.desktop) rm -f "$dst" ;;
-                esac
-            fi
-            # An earlier CinterForge-generated shortcut may have an outdated
-            # Exec line. Match our exact managed command family and app identity,
-            # not just the new Exec text; never overwrite a user's own shortcut.
-            managed_exec="Exec=CinterForge launch-$([ "$flavor" = built ] && printf cinterforge || printf unforked) $platform $app"
-            if [ -f "$dst" ] && { grep -Fxq "$(grep '^Exec=' "$src")" "$dst" || \
-                    grep -Fxq "$managed_exec" "$dst"; }; then
-                install -m 0755 -o steamos -g steamos "$src" "$dst"
-            elif [ ! -e "$dst" ] && [ ! -L "$dst" ]; then
-                install -m 0755 -o steamos -g steamos "$src" "$dst"
-            fi
+            install_managed_launcher "$src" "$dst"
         done
     done
 done
@@ -74,18 +109,60 @@ for platform in Linux Windows; do
     lower=$(printf '%s' "$platform" | tr '[:upper:]' '[:lower:]')
     group="$desktop/$platform Install"
     install -d -m 0755 -o steamos -g steamos "$group"
+    install_folder_icon "$group" "$platform Install" folder-download
     for app in GIMP Krita Inkscape Scribus Blender Kdenlive Ardour RapidRAW; do
         slug=$(printf '%s' "$app" | tr '[:upper:]' '[:lower:]')
         src="/usr/share/applications/cinterforge-install-$lower-$slug.desktop"
         dst="$group/$app.desktop"
         [ -f "$src" ] || { echo "Missing KDE installer launcher: $src" >&2; exit 1; }
-        if [ -f "$dst" ] && grep -Fxq "$(grep '^Exec=' "$src")" "$dst"; then
-            install -m 0755 -o steamos -g steamos "$src" "$dst"
-        elif [ ! -e "$dst" ] && [ ! -L "$dst" ]; then
-            install -m 0755 -o steamos -g steamos "$src" "$dst"
-        fi
+        install_managed_launcher "$src" "$dst"
     done
 done
+# Retire the obsolete duplicate pair emitted by Support/desktop-ready.sh.
+# These names were CinterForgeOS-owned; do not touch arbitrary desktop files.
+for old in "CinterForgeOS Linux Heaven.desktop" "CinterForgeOS Windows Heaven.desktop"; do
+    path="$desktop/$old"
+    if [ -f "$path" ] && grep -Fq '.local/share/cinterforge/benchmark-launchers/' "$path"; then
+        rm -f -- "$path"
+    fi
+done
+# Built-in Heaven launchers live in the immutable OS layer, not in an
+# ephemeral Konsole session. Copy their scripts into persistent user space
+# on every boot so Xcode Build+Run provisions even a fresh SteamOS image.
+# Preserve user-owned replacements; only refresh our managed copies.
+demo_src=/usr/share/cinterforge/demo_launchers
+demo_scripts="$home/.local/share/cinterforge/demo-launchers"
+install -d -m 0755 -o steamos -g steamos "$demo_scripts"
+for platform in Linux Windows; do
+    lower=$(printf '%s' "$platform" | tr '[:upper:]' '[:lower:]')
+    script="$demo_scripts/$lower-heaven.sh"
+    source_script="$demo_src/$lower-heaven.sh"
+    [ -s "$source_script" ] || { echo "Missing Heaven script: $source_script" >&2; exit 1; }
+    if [ ! -e "$script" ] || grep -Fq '# X-CinterForgeOS-Managed=true' "$script"; then
+        tmp="${script}.cfos-$$"
+        cat "$source_script" > "$tmp"
+        printf '\n# X-CinterForgeOS-Managed=true\n' >> "$tmp"
+        chmod 0755 "$tmp"
+        chown steamos:steamos "$tmp"
+        mv -f "$tmp" "$script"
+    fi
+    source_entry="$demo_src/Heaven-$platform.desktop"
+    target="$desktop/Heaven-$platform.desktop"
+    [ -s "$source_entry" ] || { echo "Missing Heaven launcher: $source_entry" >&2; exit 1; }
+    # Refresh only entries we own. Older one-off demo installer copies
+    # have our script destination but no marker; detect them without
+    # appending markers in-place on every boot.
+    if [ -f "$target" ] && grep -Fq '/demo-launchers/' "$target"; then
+        rm -f -- "$target"
+    fi
+    install_managed_launcher "$source_entry" "$target"
+done
+# The Plasma directory-view uses the icon declared in .directory; verify the
+# branded artwork exists rather than silently shipping generic folders.
+[ -s /usr/share/cinterforge/icons/desktop.png ] || {
+    echo 'Missing CinterForge KDE folder icon' >&2
+    exit 1
+}
 # Migrate old persistent Dolphin bookmarks without disturbing user-defined places.
 if [ -f "$places" ]; then
     tmp=$(mktemp "${places}.cinterforge.XXXXXX")

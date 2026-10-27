@@ -185,6 +185,20 @@ grep -Fq 'substr($0, 1, 1) == "["' "$ST/usr/lib/cinterforge/select-kde-desktop-s
 install -D -m 0755 "$CFG/select-kde-wallpaper" "$ST/usr/lib/cinterforge/select-kde-wallpaper"
 install -D -m 0755 "$CFG/verify-virtiofs-mounts" "$ST/usr/lib/cinterforge/verify-virtiofs-mounts"
 install -D -m 0755 "$CFG/install-kde-places" "$ST/usr/lib/cinterforge/install-kde-places"
+sh -n "$ST/usr/lib/cinterforge/install-kde-places"
+[[ -s "$ST/usr/share/cinterforge/icons/desktop.png" ]] || {
+    echo '[layer] missing branded KDE desktop folder artwork' >&2; exit 1;
+}
+# Heaven FEX/Proton launchers are authored source files, bundled during
+# Build and copied onto the live KDE desktop by install-kde-places at boot.
+for platform in Linux Windows; do
+    lower="${platform,,}"
+    for entry in "Heaven-$platform.desktop" "$lower-heaven.sh"; do
+        file="$ST/usr/share/cinterforge/demo_launchers/$entry"
+        [[ -s "$file" ]] || { echo "[layer] missing authored Heaven launcher: $file" >&2; exit 1; }
+        case "$entry" in *.sh) bash -n "$file" ;; esac
+    done
+done
 install -D -m 0644 "$CFG/user-places.xbel" "$ST/usr/share/cinterforge/kde/user-places.xbel"
 install -D -m 0644 "$CFG/sddm-desktop.conf" "$ST/usr/lib/systemd/system/sddm.service.d/90-cinterforgeos-desktop.conf"
 install -D -m 0644 "$CFG/cinterforge-kde-prepare.service" "$ST/usr/lib/systemd/system/cinterforge-kde-prepare.service"

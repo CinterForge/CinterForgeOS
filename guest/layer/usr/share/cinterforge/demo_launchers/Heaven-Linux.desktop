@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Heaven (Linux - FEX)
+Comment=Run Unigine Heaven Linux x86-64 through FEX
+Exec=/home/steamos/.local/share/cinterforge/demo-launchers/linux-heaven.sh
+Icon=applications-games
+Terminal=true
+Categories=Game;Graphics;
+StartupNotify=false
+X-CinterForgeOS-Managed=true

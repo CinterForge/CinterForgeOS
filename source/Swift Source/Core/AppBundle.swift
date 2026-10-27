@@ -30,7 +30,7 @@ enum AppBundle {
     /// Steam is the authority for the CinterForge installation, regardless of which
     /// volume the user selected for the Steam library. This also works when Xcode
     /// launches a disposable Debug .app outside that installed version directory.
-    private static func steamLibraryCandidates() -> [String] {
+    static func steamLibraryCandidates() -> [String] {
         let env = ProcessInfo.processInfo.environment
         let primary = NSHomeDirectory() + "/Library/Application Support/Steam/steamapps"
         var roots = [String]()

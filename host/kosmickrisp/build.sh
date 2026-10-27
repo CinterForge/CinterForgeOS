@@ -279,6 +279,16 @@ echo ">> KosmicKrisp: building directly from $src"
 MESA_COMMIT=$(git -C "$src" rev-parse HEAD)
 patch_rev=$(printf '%s' "$MESA_COMMIT" | shasum -a 256 | cut -c1-8)
 
+# Reuse the validated host driver when its source and build recipe are unchanged.
+cache=$work/.cfos-build-fingerprint
+cache_tool=$root/scripts/host-build-cache.py
+cache_output=$out/lib/libvulkan_kosmickrisp.dylib
+if python3 "$cache_tool" check "$cache" "$cache_output" "$src" "$here/build.sh"; then
+    echo "[Xcode] KosmicKrisp unchanged (source + dirty files + build script); skipping build and probes"
+    exit 0
+fi
+rm -f "$cache"
+
 # --- build-time python (Mesa needs Mako, PyYAML, packaging)
 if [ ! -x "$work/venv/bin/python3" ] || ! "$work/venv/bin/python3" -c 'import sys; sys.exit(sys.version_info < (3, 10))'; then
 	rm -rf "$work/venv"
@@ -398,3 +408,5 @@ mv -f "$out/KOSMICKRISP.txt.tmp.$$" "$out/KOSMICKRISP.txt"
 
 echo ">> $lib"
 otool -L "$lib"
+
+python3 "$cache_tool" record "$cache" "$cache_output" "$src" "$here/build.sh"
