@@ -83,7 +83,7 @@ This project is evolving. Contributions that improve build reproducibility, grap
 | [Graphics benchmarking](docs/technical/CinterForgeOS%20Graphics%20Benchmarking.md) | Linux Superposition and Windows Heaven showcase targets, proven controls, and verification criteria. |
 | [Original steamac README](docs/technical/Steamac%20README.md) | Upstream context, platform prerequisites, and technical foundations. |
 
-For operational commands used to install and test Linux/Windows applications, see the **CinterForge** repository's `creativeSuite/apps/cinterforge-os/external/` documentation. The `/usr/bin/Hope` bridge inside SteamOS delegates to tools installed outside the guest image.
+For operational commands used to install and test Linux/Windows applications, see the **CinterForge** repository's `creativeSuite/apps/cinterforge-os/external/` documentation. The `/usr/bin/CinterForge` bridge inside SteamOS delegates to tools installed outside the guest image.
 
 ## Join in
 

@@ -97,22 +97,22 @@ ln -sfn ../run-steamapps.automount "$ST/usr/lib/systemd/system/multi-user.target
   || { echo '[layer] steamapps units failed to stage' >&2; exit 1; }
 # Install the guest CinterForge entry point with executable permissions.
 # Source archive permissions are not reliable, so set the mode explicitly.
-guest_hope_source="/src/guest/layer/usr/bin/CinterForge"
-guest_hope_destination="$ST/usr/bin/CinterForge"
+guest_bridge_source="/src/guest/layer/usr/bin/CinterForge"
+guest_bridge_destination="$ST/usr/bin/CinterForge"
 
-if [[ ! -f "$guest_hope_source" ]]; then
-    echo "[layer] guest CinterForge source file missing: $guest_hope_source" >&2
+if [[ ! -f "$guest_bridge_source" ]]; then
+    echo "[layer] guest CinterForge source file missing: $guest_bridge_source" >&2
     exit 1
 fi
 
-install -D -m 0755 "$guest_hope_source" "$guest_hope_destination"
+install -D -m 0755 "$guest_bridge_source" "$guest_bridge_destination"
 
-if [[ ! -x "$guest_hope_destination" ]]; then
-    echo "[layer] guest CinterForge entry point is not executable: $guest_hope_destination" >&2
+if [[ ! -x "$guest_bridge_destination" ]]; then
+    echo "[layer] guest CinterForge entry point is not executable: $guest_bridge_destination" >&2
     exit 1
 fi
 
-sh -n "$guest_hope_destination"
+sh -n "$guest_bridge_destination"
 # Standalone FEX is a required ARM64 runtime, not the bundled FEXBash stub.
 [[ -x "$FEX/usr/bin/FEX" ]] || {
     echo "[layer] FEX ARM64 runtime missing: run scripts/build-image.sh fex" >&2; exit 1;
