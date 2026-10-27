@@ -2,7 +2,7 @@
 Type=Application
 Name=Install Krita (Original Linux)
 Comment=Install or inspect original publisher distribution for Krita on Linux
-Exec=konsole --hold -e Hope install-unforked Linux Krita
+Exec=konsole --hold -e CinterForge install-unforked Linux Krita
 Terminal=false
 Icon=/usr/share/cinterforge/icons/launchers/install-krita.png
 Categories=LinuxInstall;System;

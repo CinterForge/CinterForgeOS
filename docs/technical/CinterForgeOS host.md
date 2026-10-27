@@ -4,7 +4,7 @@
 
 ## Purpose and boundary
 
-The **host** is the native **Apple Silicon macOS** side of CinterForgeOS. It creates and runs a libkrun VM, opens the app UI, presents the guest display using the host graphics pipeline, passes input/audio/network/clipboard between macOS and SteamOS, and manages disks and diagnostics. It is distinct from the guest ARM64 Linux image. Host native components are built for macOS and belong in the signed app; guest applications and external Hope automation are not host application code.
+The **host** is the native **Apple Silicon macOS** side of CinterForgeOS. It creates and runs a libkrun VM, opens the app UI, presents the guest display using the host graphics pipeline, passes input/audio/network/clipboard between macOS and SteamOS, and manages disks and diagnostics. It is distinct from the guest ARM64 Linux image. Host native components are built for macOS and belong in the signed app; guest applications and external CinterForge automation are not host application code.
 
 ## `host/` directory inventory
 
@@ -33,15 +33,15 @@ This repo also contains an Xcode-oriented tree at **`source/Swift Source/`**, or
 4. **App startup.** `Core/main.swift` (active Xcode-oriented tree per project documentation) starts the app; UI and options load. Disk-preparation and provisioning code prepare SteamOS images and required runtime assets.
 5. **VM creation.** `Core/VM.swift` configures libkrun VM sizing, kernel/initramfs, disks, virtio GPU/input/sound/network/console integration, and the Steam library share where configured. The VM starts and boots the guest; the guest's initramfs takes over boot and later starts KDE.
 6. **Interaction.** Host Swift displays guest frames through the macOS UI/graphics backend; input/clipboard/sound are bridged to guest devices and agents. Host-side reporting handles failures.
-7. **Stage and installed runtime.** The existing Hope lifecycle stages the Xcode-built app and operational scripts; persistent CinterForge apps and tests remain outside the disposable guest OS. Source-stage responsibilities live in Hope/CinterForge, not in `host/`.
+7. **Stage and installed runtime.** The existing CinterForge lifecycle stages the Xcode-built app and operational scripts; persistent CinterForge apps and tests remain outside the disposable guest OS. Source-stage responsibilities live in CinterForge/CinterForge, not in `host/`.
 
 ## Key host/guest interface contracts
 
 - **Native runtime:** `cfos-vm` + macOS frameworks and patched libkrun, virglrenderer, libepoxy, MoltenVK/KosmicKrisp where selected.
 - **Boot payload:** kernel, initramfs, guest disk, and read-only layer built from `guest/`/`scripts/steps/`; changes to these artifacts require the corresponding image/native build, not merely script Stage.
 - **Steam library share:** Xcode-oriented `Core/VM.swift` binds a `steamapps` VirtioFS tag to host Steam installation and guest `/run/steamapps`. Guest unit `run-steamapps.mount` expects this exact tag.
-- **Hope commands:** host terminal uses `./Hope` in the `~/Source/Hope` root; guest Konsole uses `Hope` anywhere. The guest bridge forwards to an external dispatcher on the persistent share. Updating that dispatcher and test/installer scripts should be Stage-only.
-- **Debug/release distinction:** compiling in Xcode updates the *native app*, not necessarily the complete Hope Stage payload. `./Hope stage cinterforge-os mac Release` must locate the built app and install staged external tools using the existing system.
+- **CinterForge commands:** host terminal uses `./CinterForge` in the `~/Source/CinterForge` root; guest Konsole uses `CinterForge` anywhere. The guest bridge forwards to an external dispatcher on the persistent share. Updating that dispatcher and test/installer scripts should be Stage-only.
+- **Debug/release distinction:** compiling in Xcode updates the *native app*, not necessarily the complete CinterForge Stage payload. `./CinterForge stage cinterforge-os mac Release` must locate the built app and install staged external tools using the existing system.
 
 ## Audit observations
 
@@ -53,4 +53,4 @@ This repo also contains an Xcode-oriented tree at **`source/Swift Source/`**, or
 
 ## Engineer orientation: what to edit
 
-Host Swift behavior: use **`source/Swift Source/` and its active Xcode project membership** (check before editing). Virtualization device/library defects: use relevant `host/libkrun/`, `host/virglrenderer/`, `host/moltenvk/`, `host/kosmickrisp/` recipes and patches. Guest boot/session: use `guest/` and the existing image build. App install, baseline inventory, external dispatcher, per-app tests: use the **Hope/CinterForge operational scripts**, then **Stage**, with no guest reboot. Do not create a parallel staging or activation tool.
+Host Swift behavior: use **`source/Swift Source/` and its active Xcode project membership** (check before editing). Virtualization device/library defects: use relevant `host/libkrun/`, `host/virglrenderer/`, `host/moltenvk/`, `host/kosmickrisp/` recipes and patches. Guest boot/session: use `guest/` and the existing image build. App install, baseline inventory, external dispatcher, per-app tests: use the **CinterForge/CinterForge operational scripts**, then **Stage**, with no guest reboot. Do not create a parallel staging or activation tool.

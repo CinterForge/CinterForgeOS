@@ -2,7 +2,7 @@
 Type=Application
 Name=Ardour (Unforked Windows)
 Comment=Launch original upstream Ardour through CinterForgeOS Windows reference environment
-Exec=Hope launch-unforked Windows Ardour
+Exec=CinterForge launch-unforked Windows Ardour
 Terminal=false
 Icon=/usr/share/cinterforge/icons/launchers/unforked-ardour.png
 Categories=WindowsUnforked;Graphics;

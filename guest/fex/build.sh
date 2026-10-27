@@ -20,7 +20,7 @@ FEX_SOURCE_ID="$STEAMAC_WORK_DIR/DependencySources/FEX.selected-commit"
 FEX_BUILD_ID="$STEAMAC_WORK_DIR/out/fex.source-commit"
 resolve_fex_commit() {
   [[ -d "$FEX_FORK_CHECKOUT/.git" ]] || {
-    echo "[FEX] CinterForge fork missing: $FEX_FORK_CHECKOUT (run ./Hope clone FEX)" >&2; exit 1;
+    echo "[FEX] CinterForge fork missing: $FEX_FORK_CHECKOUT (run ./CinterForge clone FEX)" >&2; exit 1;
   }
   local branch origin_url sha
   branch=$(git -C "$FEX_FORK_CHECKOUT" symbolic-ref --quiet --short HEAD) || {
@@ -57,8 +57,8 @@ case "${1:-}" in
     echo "[FEX] setup selected CinterForge/FEX cinterforge commit $actual"
     ;;
   build)
-    [[ -d "$SOURCE/.git" ]] || { echo '[FEX] Setup incomplete: external source checkout missing. Run ./Hope setup cinterforge-os mac' >&2; exit 1; }
-    [[ -s "$FEX_SOURCE_ID" ]] || { echo '[FEX] Setup incomplete: selected source commit missing. Run ./Hope setup cinterforge-os mac' >&2; exit 1; }
+    [[ -d "$SOURCE/.git" ]] || { echo '[FEX] Setup incomplete: external source checkout missing. Run ./CinterForge setup cinterforge-os mac' >&2; exit 1; }
+    [[ -s "$FEX_SOURCE_ID" ]] || { echo '[FEX] Setup incomplete: selected source commit missing. Run ./CinterForge setup cinterforge-os mac' >&2; exit 1; }
     selected=$(cat "$FEX_SOURCE_ID")
     [[ "$(git -C "$SOURCE" rev-parse HEAD)" == "$selected" ]] || { echo '[FEX] source differs from Setup-selected commit' >&2; exit 1; }
     [[ -z "$(git -C "$SOURCE" status --porcelain --untracked-files=normal)" ]] || { echo '[FEX] build source is dirty' >&2; exit 1; }

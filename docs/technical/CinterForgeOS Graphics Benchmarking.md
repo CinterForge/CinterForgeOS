@@ -78,6 +78,6 @@ Superposition remains a target, but its OpenGL 4.5 requirement exceeds the prese
 
 These two demonstrations are a showcase for the broader CinterForgeOS goal: **build on a Mac, run on a real desktop, diagnose from evidence, and turn findings into reusable application recipes**. The same infrastructure should support applications across the CinterForge Creative Suite—not merely these two hand-picked benchmark titles.
 
-For the implementation details, see [Architecture](CinterForgeOS%20Architecture.md), [Guest](CinterForgeOS%20guest.md), [Host](CinterForgeOS%20host.md), and the [Xcode project](CinterForgeOS%20XCode%20Project.md). The **Hope/CinterForge** repository owns the application build, staging, inspection, runtime launch, and testing logic.
+For the implementation details, see [Architecture](CinterForgeOS%20Architecture.md), [Guest](CinterForgeOS%20guest.md), [Host](CinterForgeOS%20host.md), and the [Xcode project](CinterForgeOS%20XCode%20Project.md). The **CinterForge/CinterForge** repository owns the application build, staging, inspection, runtime launch, and testing logic.
 
 **SteamOS on the inside. Steam applications on the outside. Create. Play. Build. Belong.**

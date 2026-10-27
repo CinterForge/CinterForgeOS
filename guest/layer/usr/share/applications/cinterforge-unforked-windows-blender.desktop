@@ -2,7 +2,7 @@
 Type=Application
 Name=Blender (Unforked Windows)
 Comment=Launch original upstream Blender through CinterForgeOS Windows reference environment
-Exec=Hope launch-unforked Windows Blender
+Exec=CinterForge launch-unforked Windows Blender
 Terminal=false
 Icon=/usr/share/cinterforge/icons/launchers/unforked-blender.png
 Categories=WindowsUnforked;Graphics;

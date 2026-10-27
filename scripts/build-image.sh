@@ -83,7 +83,7 @@ for step in "${steps[@]}"; do
         fex)      "$REPO/guest/fex/build.sh" build ;;
         userspace) bash "$REPO/guest/fex/runtime.sh" build ;;
         layer)
-            # Fetch the publisher artwork referenced by Hope's authoritative CSV.
+            # Fetch the publisher artwork referenced by CinterForge's authoritative CSV.
             # The 16 original/installer PNGs become normal fingerprinted layer inputs.
             # Never package generic placeholder icons when acquisition fails.
             # Publisher-icon conversion requires Pillow. Xcode's system Python
@@ -146,7 +146,7 @@ for step in "${steps[@]}"; do
             # The Xcode target invokes `builder layer` directly. The layer
             # requires standalone FEX and its x86-64 RootFS/Wine inputs, so
             # prepare missing inputs before the layer receipt is calculated.
-            # Build only: source/archive acquisition remains Hope Setup's job.
+            # Build only: source/archive acquisition remains CinterForge Setup's job.
             # Xcode normally invokes only `builder layer`, not the explicit
             # `fex` step. Check the COMPLETE required FEX output before using
             # a cached build: a pre-thunk FEX binary is not a valid input.

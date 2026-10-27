@@ -1,13 +1,13 @@
 #!/bin/sh
-# CinterForgeOS guest Hope executes the persistent, user-owned dispatcher.
+# CinterForgeOS guest CinterForge executes the persistent, user-owned dispatcher.
 # Only host Build -> ZIP -> Stage may provision it; boot never modifies it.
 set -eu
 
-dispatcher=/run/steamapps/common/CinterForge/Applications/Test/Dispatcher/Hope
+dispatcher=/run/steamapps/common/CinterForge/Applications/Test/Dispatcher/CinterForge
 
 if [ ! -f "$dispatcher" ] || [ ! -r "$dispatcher" ]; then
-    echo "[Hope] Dispatcher missing/unreadable: $dispatcher" >&2
-    echo '[Hope] Build and Stage CinterForgeOS to install it; guest launch never creates user data.' >&2
+    echo "[CinterForge] Dispatcher missing/unreadable: $dispatcher" >&2
+    echo '[CinterForge] Build and Stage CinterForgeOS to install it; guest launch never creates user data.' >&2
     exit 1
 fi
 

@@ -2,7 +2,7 @@
 Type=Application
 Name=Install GIMP (Original Linux)
 Comment=Install or inspect original publisher distribution for GIMP on Linux
-Exec=konsole --hold -e Hope install-unforked Linux GIMP
+Exec=konsole --hold -e CinterForge install-unforked Linux GIMP
 Terminal=false
 Icon=/usr/share/cinterforge/icons/launchers/install-gimp.png
 Categories=LinuxInstall;System;

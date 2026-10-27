@@ -2,7 +2,7 @@
 Type=Application
 Name=GIMP (Unforked Windows)
 Comment=Launch original upstream GIMP through CinterForgeOS Windows reference environment
-Exec=Hope launch-unforked Windows GIMP
+Exec=CinterForge launch-unforked Windows GIMP
 Terminal=false
 Icon=/usr/share/cinterforge/icons/launchers/unforked-gimp.png
 Categories=WindowsUnforked;Graphics;

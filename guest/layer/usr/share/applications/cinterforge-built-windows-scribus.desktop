@@ -2,7 +2,7 @@
 Type=Application
 Name=CinterForge Document
 Comment=Launch source-built CinterForge Document for Windows
-Exec=Hope launch-cinterforge Windows Scribus
+Exec=CinterForge launch-cinterforge Windows Scribus
 Terminal=true
 Icon=/usr/share/cinterforge/icons/launchers/built-scribus.png
 Categories=CinterForgeWindows;Graphics;

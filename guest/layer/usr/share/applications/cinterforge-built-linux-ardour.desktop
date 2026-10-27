@@ -2,7 +2,7 @@
 Type=Application
 Name=CinterForge Audio
 Comment=Launch source-built CinterForge Audio for Linux
-Exec=Hope launch-cinterforge Linux Ardour
+Exec=CinterForge launch-cinterforge Linux Ardour
 Terminal=true
 Icon=/usr/share/cinterforge/icons/launchers/built-ardour.png
 Categories=CinterForgeLinux;Graphics;

@@ -2,7 +2,7 @@
 Type=Application
 Name=RapidRAW (Unforked Windows)
 Comment=Launch original upstream RapidRAW through CinterForgeOS Windows reference environment
-Exec=Hope launch-unforked Windows RapidRAW
+Exec=CinterForge launch-unforked Windows RapidRAW
 Terminal=false
 Icon=/usr/share/cinterforge/icons/launchers/unforked-rapidraw.png
 Categories=WindowsUnforked;Graphics;

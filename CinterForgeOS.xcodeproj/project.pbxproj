@@ -545,6 +545,9 @@
 		4D45DBB0308A6EF700725112 /* cinterforge-virglrenderer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-virglrenderer.xcodeproj"; sourceTree = "<group>"; };
 		4D45FCF3308A6EF700725112 /* cinterforge-spirv-cross.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-spirv-cross.xcodeproj"; sourceTree = "<group>"; };
 		4DA722A4308D1DF8001FA0CE /* CinterForge.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; name = CinterForge.icon; path = resources/CinterForge.icon; sourceTree = "<group>"; };
+		4DA7293E3090C93C001FA0CE /* cinterforge-libkrun.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-libkrun.xcodeproj"; sourceTree = "<group>"; };
+		4DA72B8E3090C93C001FA0CE /* cinterforge-virglrenderer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-virglrenderer.xcodeproj"; sourceTree = "<group>"; };
+		4DA73F543090C93C001FA0CE /* cinterforge-spirv-cross.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-spirv-cross.xcodeproj"; sourceTree = "<group>"; };
 		4DA7A336308AF76B001FA0CE /* cinterforge-libkrun.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-libkrun.xcodeproj"; sourceTree = "<group>"; };
 		4DA7A586308AF76B001FA0CE /* cinterforge-virglrenderer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-virglrenderer.xcodeproj"; sourceTree = "<group>"; };
 		4DA7A6C4308DAE55001FA0CE /* cinterforge-libkrun.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "cinterforge-libkrun.xcodeproj"; sourceTree = "<group>"; };
@@ -1403,6 +1406,27 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		4DA729453090C93C001FA0CE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DA72B943090C93C001FA0CE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DA73F7D3090C93C001FA0CE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		4DA7A33D308AF76B001FA0CE /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -1981,6 +2005,10 @@
 					ProjectRef = 4D050AE1308A8C7300C9965C /* cinterforge-libkrun.xcodeproj */;
 				},
 				{
+					ProductGroup = 4DA729453090C93C001FA0CE /* Products */;
+					ProjectRef = 4DA7293E3090C93C001FA0CE /* cinterforge-libkrun.xcodeproj */;
+				},
+				{
 					ProductGroup = 4DF9B21C308A88B400E4BDBE /* Products */;
 					ProjectRef = 4DF9B215308A88B400E4BDBE /* cinterforge-libkrun.xcodeproj */;
 				},
@@ -2021,6 +2049,10 @@
 					ProjectRef = 4DA7BCDA308DAE55001FA0CE /* cinterforge-spirv-cross.xcodeproj */;
 				},
 				{
+					ProductGroup = 4DA73F7D3090C93C001FA0CE /* Products */;
+					ProjectRef = 4DA73F543090C93C001FA0CE /* cinterforge-spirv-cross.xcodeproj */;
+				},
+				{
 					ProductGroup = 4D052120308A8C7400C9965C /* Products */;
 					ProjectRef = 4D0520F7308A8C7400C9965C /* cinterforge-spirv-cross.xcodeproj */;
 				},
@@ -2055,6 +2087,10 @@
 				{
 					ProductGroup = 4DA7A91A308DAE55001FA0CE /* Products */;
 					ProjectRef = 4DA7A914308DAE55001FA0CE /* cinterforge-virglrenderer.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DA72B943090C93C001FA0CE /* Products */;
+					ProjectRef = 4DA72B8E3090C93C001FA0CE /* cinterforge-virglrenderer.xcodeproj */;
 				},
 				{
 					ProductGroup = 4D45DBB6308A6EF700725112 /* Products */;

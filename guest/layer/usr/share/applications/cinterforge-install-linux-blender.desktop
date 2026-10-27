@@ -2,7 +2,7 @@
 Type=Application
 Name=Install Blender (Original Linux)
 Comment=Install or inspect original publisher distribution for Blender on Linux
-Exec=konsole --hold -e Hope install-unforked Linux Blender
+Exec=konsole --hold -e CinterForge install-unforked Linux Blender
 Terminal=false
 Icon=/usr/share/cinterforge/icons/launchers/install-blender.png
 Categories=LinuxInstall;System;

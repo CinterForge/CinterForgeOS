@@ -2,7 +2,7 @@
 Type=Application
 Name=CinterForge Paint
 Comment=Launch source-built CinterForge Paint for Windows
-Exec=Hope launch-cinterforge Windows Krita
+Exec=CinterForge launch-cinterforge Windows Krita
 Terminal=true
 Icon=/usr/share/cinterforge/icons/launchers/built-krita.png
 Categories=CinterForgeWindows;Graphics;

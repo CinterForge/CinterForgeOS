@@ -7,9 +7,9 @@ Xcode owns Swift/C compilation, icon and localization compilation, declared
 and macOS application signing. Do not run `bundle.sh` or use SwiftPM output
 as the distributable app.
 
-`./Hope setup cinterforge-os mac` provisions the build tools/native dependencies.
+`./CinterForge setup cinterforge-os mac` provisions the build tools/native dependencies.
 Guest image generation is separate because Xcode cannot natively produce the
-SteamOS EROFS artifacts. `./Hope build cinterforge-os mac Release` invokes
+SteamOS EROFS artifacts. `./CinterForge build cinterforge-os mac Release` invokes
 native `xcodebuild` after guest preparation and copies the *unchanged* completed
 signed app to the versioned Build Output. Stage must not modify the .app.
 

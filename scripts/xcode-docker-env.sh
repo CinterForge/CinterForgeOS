@@ -18,7 +18,7 @@ export DOCKER_HOST="unix://$_CINTER_SOCKET"
 unset DOCKER_CONTEXT
 printf '[Xcode Docker] Managed profile: %s\n[Xcode Docker] Socket: %s\n' "$_CINTER_PROFILE" "$_CINTER_SOCKET"
 if [[ ! -d "$_CINTER_COLIMA_HOME" ]]; then
-  echo "error: Managed Colima home is missing: $_CINTER_COLIMA_HOME; provision it using Hope setup first." >&2
+  echo "error: Managed Colima home is missing: $_CINTER_COLIMA_HOME; provision it using CinterForge setup first." >&2
   return 1
 fi
 if ! command -v docker >/dev/null 2>&1 || ! command -v colima >/dev/null 2>&1; then

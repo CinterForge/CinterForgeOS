@@ -2,7 +2,7 @@
 Type=Application
 Name=CinterForge 3D
 Comment=Launch source-built CinterForge 3D for Windows
-Exec=Hope launch-cinterforge Windows Blender
+Exec=CinterForge launch-cinterforge Windows Blender
 Terminal=true
 Icon=/usr/share/cinterforge/icons/launchers/built-blender.png
 Categories=CinterForgeWindows;Graphics;

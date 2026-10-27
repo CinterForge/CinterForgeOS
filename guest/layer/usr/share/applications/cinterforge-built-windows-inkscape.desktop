@@ -2,7 +2,7 @@
 Type=Application
 Name=CinterForge Vector
 Comment=Launch source-built CinterForge Vector for Windows
-Exec=Hope launch-cinterforge Windows Inkscape
+Exec=CinterForge launch-cinterforge Windows Inkscape
 Terminal=true
 Icon=/usr/share/cinterforge/icons/launchers/built-inkscape.png
 Categories=CinterForgeWindows;Graphics;

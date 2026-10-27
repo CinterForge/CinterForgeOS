@@ -2,7 +2,7 @@
 Type=Application
 Name=CinterForge Video
 Comment=Launch source-built CinterForge Video for Windows
-Exec=Hope launch-cinterforge Windows Kdenlive
+Exec=CinterForge launch-cinterforge Windows Kdenlive
 Terminal=true
 Icon=/usr/share/cinterforge/icons/launchers/built-kdenlive.png
 Categories=CinterForgeWindows;Graphics;

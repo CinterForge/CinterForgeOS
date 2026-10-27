@@ -2,7 +2,7 @@
 Type=Application
 Name=Inkscape (Unforked Linux)
 Comment=Launch original upstream Inkscape through CinterForgeOS Linux reference environment
-Exec=Hope launch-unforked Linux Inkscape
+Exec=CinterForge launch-unforked Linux Inkscape
 Terminal=false
 Icon=/usr/share/cinterforge/icons/launchers/unforked-inkscape.png
 Categories=LinuxUnforked;Graphics;

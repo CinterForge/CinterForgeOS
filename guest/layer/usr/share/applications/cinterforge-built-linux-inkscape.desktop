@@ -2,7 +2,7 @@
 Type=Application
 Name=CinterForge Vector
 Comment=Launch source-built CinterForge Vector for Linux
-Exec=Hope launch-cinterforge Linux Inkscape
+Exec=CinterForge launch-cinterforge Linux Inkscape
 Terminal=true
 Icon=/usr/share/cinterforge/icons/launchers/built-inkscape.png
 Categories=CinterForgeLinux;Graphics;

@@ -1,17 +1,17 @@
 #!/bin/sh
 set -eu
 home=/home/steamos
-# Hope's live dispatcher is persistent user data in the Steam library.
+# CinterForge's live dispatcher is persistent user data in the Steam library.
 # It is installed by the host Build -> Stage lifecycle, never during guest boot.
 # This KDE preparation script must not create, modify, or replace that file.
 places="$home/.local/share/user-places.xbel"
 seed=/usr/share/cinterforge/kde/user-places.xbel
 install -d -m 0755 -o steamos -g steamos "$home/.local/share"
-# Install only the missing local entry point so Konsole users can type ./Hope.
-# Never overwrite a user's existing ~/Hope file or link.
-if [ ! -e "$home/Hope" ] && [ ! -L "$home/Hope" ]; then
-    ln -s /usr/bin/Hope "$home/Hope"
-    chown -h steamos:steamos "$home/Hope"
+# Install only the missing local entry point so Konsole users can type ./CinterForge.
+# Never overwrite a user's existing ~/CinterForge file or link.
+if [ ! -e "$home/CinterForge" ] && [ ! -L "$home/CinterForge" ]; then
+    ln -s /usr/bin/CinterForge "$home/CinterForge"
+    chown -h steamos:steamos "$home/CinterForge"
 fi
 # The sole host filesystem share is /run/steamapps. Do not create shadow shares.
 # Four separate groups: staged CinterForge applications vs original publishers.
@@ -41,7 +41,7 @@ for platform in Linux Windows; do
                 esac
                 # Remove only shortcuts previously produced under upstream names.
                 legacy="$group/$app.desktop"
-                if [ -f "$legacy" ] && grep -Fq "Exec=Hope launch-cinterforge $platform $app" "$legacy"; then
+                if [ -f "$legacy" ] && grep -Fq "Exec=CinterForge launch-cinterforge $platform $app" "$legacy"; then
                     rm -f -- "$legacy"
                 fi
                 dst="$group/$product.desktop"
@@ -56,8 +56,12 @@ for platform in Linux Windows; do
                   /usr/share/applications/cinterforge-*.desktop) rm -f "$dst" ;;
                 esac
             fi
-            if [ -f "$dst" ] && grep -Fxq "$(grep '^Exec=' "$src")" "$dst"; then
-                # Our launcher: refresh branding and icon even on persistent KDE homes.
+            # An earlier CinterForge-generated shortcut may have an outdated
+            # Exec line. Match our exact managed command family and app identity,
+            # not just the new Exec text; never overwrite a user's own shortcut.
+            managed_exec="Exec=CinterForge launch-$([ "$flavor" = built ] && printf cinterforge || printf unforked) $platform $app"
+            if [ -f "$dst" ] && { grep -Fxq "$(grep '^Exec=' "$src")" "$dst" || \
+                    grep -Fxq "$managed_exec" "$dst"; }; then
                 install -m 0755 -o steamos -g steamos "$src" "$dst"
             elif [ ! -e "$dst" ] && [ ! -L "$dst" ]; then
                 install -m 0755 -o steamos -g steamos "$src" "$dst"

@@ -2,7 +2,7 @@
 Type=Application
 Name=Install Kdenlive (Original Linux)
 Comment=Install or inspect original publisher distribution for Kdenlive on Linux
-Exec=konsole --hold -e Hope install-unforked Linux Kdenlive
+Exec=konsole --hold -e CinterForge install-unforked Linux Kdenlive
 Terminal=false
 Icon=/usr/share/cinterforge/icons/launchers/install-kdenlive.png
 Categories=LinuxInstall;System;

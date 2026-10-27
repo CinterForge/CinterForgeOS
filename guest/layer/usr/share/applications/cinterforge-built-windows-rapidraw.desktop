@@ -2,7 +2,7 @@
 Type=Application
 Name=CinterForge Photo
 Comment=Launch source-built CinterForge Photo for Windows
-Exec=Hope launch-cinterforge Windows RapidRAW
+Exec=CinterForge launch-cinterforge Windows RapidRAW
 Terminal=true
 Icon=/usr/share/cinterforge/icons/launchers/built-rapidraw.png
 Categories=CinterForgeWindows;Graphics;

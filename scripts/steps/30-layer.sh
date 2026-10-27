@@ -95,20 +95,20 @@ done
 ln -sfn ../run-steamapps.automount "$ST/usr/lib/systemd/system/multi-user.target.wants/run-steamapps.automount"
 [[ -f "$ST/usr/lib/systemd/system/run-steamapps.mount" && -f "$ST/usr/lib/systemd/system/run-steamapps.automount" ]] \
   || { echo '[layer] steamapps units failed to stage' >&2; exit 1; }
-# Install the guest Hope entry point with executable permissions.
+# Install the guest CinterForge entry point with executable permissions.
 # Source archive permissions are not reliable, so set the mode explicitly.
-guest_hope_source="/src/guest/layer/usr/bin/Hope"
-guest_hope_destination="$ST/usr/bin/Hope"
+guest_hope_source="/src/guest/layer/usr/bin/CinterForge"
+guest_hope_destination="$ST/usr/bin/CinterForge"
 
 if [[ ! -f "$guest_hope_source" ]]; then
-    echo "[layer] guest Hope source file missing: $guest_hope_source" >&2
+    echo "[layer] guest CinterForge source file missing: $guest_hope_source" >&2
     exit 1
 fi
 
 install -D -m 0755 "$guest_hope_source" "$guest_hope_destination"
 
 if [[ ! -x "$guest_hope_destination" ]]; then
-    echo "[layer] guest Hope entry point is not executable: $guest_hope_destination" >&2
+    echo "[layer] guest CinterForge entry point is not executable: $guest_hope_destination" >&2
     exit 1
 fi
 
@@ -171,7 +171,7 @@ FEX_CONFIG
 # Steam/Proton's own Wine and pressure-vessel environment entirely untouched.
 
 # Authored CinterForgeOS guest configuration: package the actual KDE/systemd
-# paths from guest_config, never generate/inject shell scripts from Hope.
+# paths from guest_config, never generate/inject shell scripts from CinterForge.
 CFG=/src/guest/layer/usr/share/cinterforge/guest_config
 install -D -m 0755 "$CFG/select-kde-desktop-session" "$ST/usr/lib/cinterforge/select-kde-desktop-session"
 # Fail the build if an obsolete guest login script is accidentally staged.
@@ -258,7 +258,7 @@ for f in usr/bin/splctl usr/lib/rauc/post-install.sh usr/lib/steamac/kernelsetup
          usr/lib/steamac/nested-desktop usr/lib/steamac/desktop-bin/kwin_wayland_wrapper \
          usr/lib/steamac/desktop-bin/steamosctl usr/lib/steamos/gamescope-session; do
     # Source archives may lose executable mode. Install the required OS startup
-    # commands explicitly, just as we do the guest Hope bridge above.
+    # commands explicitly, just as we do the guest CinterForge bridge above.
     source_command="/src/guest/layer/$f"
     if [[ ! -f "$source_command" ]]; then
         echo "[layer] required OS command missing: $source_command" >&2

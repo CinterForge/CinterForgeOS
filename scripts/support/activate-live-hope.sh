@@ -2,11 +2,11 @@
 # One-time migration of an existing CFOS installation to string-based commands.
 # Run on macOS while CFOS remains running.
 #
-# Normal invocation from ~/Source/Hope:
+# Normal invocation from ~/Source/CinterForge:
 #   ./scripts/support/activate-live-hope.sh
-# The Hope-root wrapper supplies the known Steam library path.
+# The CinterForge-root wrapper supplies the known Steam library path.
 #
-# This is an explicit user action: Stage and guest boot NEVER replace Hope.
+# This is an explicit user action: Stage and guest boot NEVER replace CinterForge.
 
 set -eu
 
@@ -26,7 +26,7 @@ script_directory=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 repo_directory=$(CDPATH= cd -- "$script_directory/../.." && pwd)
 source_directory="$repo_directory/guest/layer/usr/lib/cinterforge"
 installation_directory="$steamapps_directory/common/CinterForge/Applications/Test"
-dispatcher_file="$installation_directory/Dispatcher/Hope"
+dispatcher_file="$installation_directory/Dispatcher/CinterForge"
 external_scripts_directory="$installation_directory/Scripts"
 
 if [ ! -f "$dispatcher_file" ]; then
@@ -46,7 +46,7 @@ fi
 for script_name in $required_scripts; do
     if [ ! -f "$external_scripts_directory/$script_name" ] && [ ! -f "$source_directory/$script_name" ]; then
         echo "Required command source missing: $source_directory/$script_name" >&2
-        echo 'Apply the complete CFOS source patch before activating live Hope.' >&2
+        echo 'Apply the complete CFOS source patch before activating live CinterForge.' >&2
         exit 1
     fi
 done
@@ -84,4 +84,4 @@ chmod 755 "$dispatcher_file"
 
 echo "Installed string-based dispatcher: $dispatcher_file"
 echo "Original dispatcher preserved: $backup_file"
-echo 'CFOS can remain running. Run: Hope help, then Hope baseline all.'
+echo 'CFOS can remain running. Run: CinterForge help, then CinterForge baseline all.'

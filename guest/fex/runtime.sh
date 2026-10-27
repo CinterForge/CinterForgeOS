@@ -108,7 +108,7 @@ case "${1:-}" in
     echo '[FEX userspace] Verified Wine archive; amd64 RootFS image is prepared during Build'
     ;;
   build)
-    test -f "$ARCHIVE" && sha_check || { echo '[FEX userspace] Wine not acquired; rerun Hope setup' >&2; exit 1; }
+    test -f "$ARCHIVE" && sha_check || { echo '[FEX userspace] Wine not acquired; rerun CinterForge setup' >&2; exit 1; }
     # Build uses the same managed Colima daemon as the existing Mesa/SteamOS
     # image pipeline; never fall back to the user's default Docker context.
     . "$REPO/scripts/xcode-docker-env.sh"

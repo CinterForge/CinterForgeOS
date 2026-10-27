@@ -49,23 +49,6 @@
             ReferencedContainer = "container:CinterForgeOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <EnvironmentVariables>
-         <EnvironmentVariable
-            key = "KK_NIR_TRACE_LINK_PASSES"
-            value = "0"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "KK_NIR_SKIP_LINK_DCE"
-            value = "0"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "KK_TRACE_RENDER_BARRIERS"
-            value = "1"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

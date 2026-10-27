@@ -2,7 +2,7 @@
 Type=Application
 Name=CinterForge Audio
 Comment=Launch source-built CinterForge Audio for Windows
-Exec=Hope launch-cinterforge Windows Ardour
+Exec=CinterForge launch-cinterforge Windows Ardour
 Terminal=true
 Icon=/usr/share/cinterforge/icons/launchers/built-ardour.png
 Categories=CinterForgeWindows;Graphics;

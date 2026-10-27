@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Import original publisher icons from Hope's authoritative Creative Suite.csv.
+"""Import original publisher icons from CinterForge's authoritative Creative Suite.csv.
 
 Run on the macOS host before building the SteamOS layer. The source URL is
 stored in PNG metadata; unchanged images are reused without a network call.
@@ -30,13 +30,13 @@ def locate_csv(explicit):
         if not p.is_file():
             raise RuntimeError(f'Creative Suite CSV does not exist: {p}')
         return p
-    # Hope and CinterForgeOS are independent sibling source checkouts.
-    candidates = [ROOT.parent / 'Hope' / REL_CSV,
+    # CinterForge and CinterForgeOS are independent sibling source checkouts.
+    candidates = [ROOT.parent / 'CinterForge' / REL_CSV,
                   ROOT.parent / 'CinterForge' / 'CinterForgeServer/cinter/build_cinterforge/input/Creative Suite.csv']
     for p in candidates:
         if p.is_file():
             return p
-    raise RuntimeError('Creative Suite.csv unavailable. Set CINTER_CREATIVE_SUITE_CSV to the authoritative Hope input CSV path. Checked: ' + ', '.join(map(str, candidates)))
+    raise RuntimeError('Creative Suite.csv unavailable. Set CINTER_CREATIVE_SUITE_CSV to the authoritative CinterForge input CSV path. Checked: ' + ', '.join(map(str, candidates)))
 
 
 def get_rows(path):

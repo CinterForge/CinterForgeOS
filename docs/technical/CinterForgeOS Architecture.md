@@ -13,7 +13,7 @@ Think of the system as four cooperating layers:
 1. **Host application (macOS):** a signed `.app` with Swift/AppKit, libkrun, graphics, networking, input, sound, lifecycle management and disk creation.
 2. **Guest OS (ARM64 Linux/SteamOS):** kernel, initramfs, SteamOS partitions, read-only integration layer, systemd, KDE/SDDM, graphics and compatibility services.
 3. **Persistent Steam library:** a host-owned `steamapps` tree exposed read/write to the guest as **one** VirtioFS share at `/run/steamapps`. Installed applications, mutable scripts, logs and test artifacts live here.
-4. **Hope / CinterForge lifecycle:** the developer-facing Build → Stage → Test operations and the external guest command dispatcher. OS-internal startup code establishes the environment; **operational commands execute outside the guest OS image**.
+4. **CinterForge / CinterForge lifecycle:** the developer-facing Build → Stage → Test operations and the external guest command dispatcher. OS-internal startup code establishes the environment; **operational commands execute outside the guest OS image**.
 
 These layers have separate responsibilities and different update costs. A baseline collector fix is not a reason to rebuild SteamOS; a kernel or early-boot change is.
 
@@ -21,7 +21,7 @@ These layers have separate responsibilities and different update costs. A baseli
 
 ![CinterForge OS development: Xcode, Finder, and the macOS application](../dev-environment/Architecture.png)
 
-**Critical distinction:** `Hope` inside Konsole is *not* the macOS `./Hope` launcher. They present a consistent command interface in their respective environments. The guest `/usr/bin/Hope` is a small forwarding bridge, not an embedded test framework.
+**Critical distinction:** `CinterForge` inside Konsole is *not* the macOS `./CinterForge` launcher. They present a consistent command interface in their respective environments. The guest `/usr/bin/CinterForge` is a small forwarding bridge, not an embedded test framework.
 
 ## 3. Repository map and ownership
 
@@ -39,7 +39,7 @@ These layers have separate responsibilities and different update costs. A baseli
 | `host/libkrun/`, `host/virglrenderer/`, `host/moltenvk/`, `host/kosmickrisp/`, `host/libepoxy/` | Patched host-native virtualization/graphics dependencies | Built as host prerequisites; libraries staged into app |
 | `guest/kernel/` | ARM64 kernel and build inputs | Guest image build, then every boot |
 | `guest/initramfs/` | Early userspace and boot/provision logic | PID 1 before systemd |
-| `guest/layer/` | OS integration overlay: units, helpers, KDE entries, guest Hope bridge | Image build; applied to guest `/usr` |
+| `guest/layer/` | OS integration overlay: units, helpers, KDE entries, guest CinterForge bridge | Image build; applied to guest `/usr` |
 | `guest/mesa/` | Guest Vulkan/Mesa Venus variants | Graphics build and runtime |
 | `guest/fex/` | x86-64 compatibility runtime/user-space acquisition | Guest compatibility image inputs |
 | `guest/progress-agent/` | Rust guest/host progress and control agent | Image build; guest services at runtime |
@@ -98,26 +98,26 @@ The guest is not launched by `ssh`ing into another OS. It boots as a separate AR
 
 `guest/initramfs/init` finds the expected disk partitions, manages Valve-style A/B boot state and attempt bookkeeping, and assembles filesystem mounts before handing off to systemd. Guest additions are carried in a separately built, read-only EROFS integration layer applied above the underlying SteamOS `/usr` rather than by casually mutating Valve's rootfs. That separation helps preserve base SteamOS and its update/rollback model.
 
-`guest/layer/usr/` includes system units and desktop files, SteamOS compatibility helpers, KDE configuration and `/usr/bin/Hope`. Early mount configuration includes the **VirtioFS `steamapps` share**: host tag `steamapps`, guest location `/run/steamapps`, read/write. A missing mount is a host/guest contract failure, not a request to introduce additional parallel shared folders.
+`guest/layer/usr/` includes system units and desktop files, SteamOS compatibility helpers, KDE configuration and `/usr/bin/CinterForge`. Early mount configuration includes the **VirtioFS `steamapps` share**: host tag `steamapps`, guest location `/run/steamapps`, read/write. A missing mount is a host/guest contract failure, not a request to introduce additional parallel shared folders.
 
 Some guest helpers properly remain internal: filesystem initialization/verification, systemd and SDDM/KDE startup, compatibility code that runs before the share exists, Steam client/session integration and update safety hooks. **Day-to-day installer and testing algorithms do not belong in the guest image.** See **CinterForgeOS guest.md** for the exact guest directory and unit inventory.
 
-## 6. Hope: the operational boundary
+## 6. CinterForge: the operational boundary
 
-Hope is the single public interface for developers and the guest desktop:
+CinterForge is the single public interface for developers and the guest desktop:
 
-- From the **macOS Hope repository root**, use `./Hope ...` for lifecycle operations.
-- From **Konsole's default prompt**, use `Hope ...` for guest operations.
+- From the **macOS CinterForge repository root**, use `./CinterForge ...` for lifecycle operations.
+- From **Konsole's default prompt**, use `CinterForge ...` for guest operations.
 
-The checked-in guest `/usr/bin/Hope` bridge is intentionally tiny: it validates that `/run/steamapps/common/CinterForge/Applications/Test/Dispatcher/Hope` exists/readable and then executes `/bin/sh "$dispatcher" "$@"`. It does **not** implement command-specific logic or import Python modules such as `filesystem_inventory`.
+The checked-in guest `/usr/bin/CinterForge` bridge is intentionally tiny: it validates that `/run/steamapps/common/CinterForge/Applications/Test/Dispatcher/CinterForge` exists/readable and then executes `/bin/sh "$dispatcher" "$@"`. It does **not** implement command-specific logic or import Python modules such as `filesystem_inventory`.
 
-The external dispatcher routes command names to persistent implementations under `Applications/Test/Scripts/`. This allows scripts such as baseline generation, FEX/Wine inspection, installers, diagnostic utilities and application launch commands to be edited in the **CinterForge** source and deployed by the **existing Hope Stage**, rather than rebuilt into the guest. Individual applications retain their own persistent installed versions, test programs and test results.
+The external dispatcher routes command names to persistent implementations under `Applications/Test/Scripts/`. This allows scripts such as baseline generation, FEX/Wine inspection, installers, diagnostic utilities and application launch commands to be edited in the **CinterForge** source and deployed by the **existing CinterForge Stage**, rather than rebuilt into the guest. Individual applications retain their own persistent installed versions, test programs and test results.
 
 **Ownership rule:** internal scripts must be justified by boot, essential device/mount initialization or OS session operation. An implementation that can run once `/run/steamapps` is mounted should generally be external. Changing an external script should not require Xcode, an OS image rebuild, a guest reboot or a separate activation script.
 
 ## 7. Application and compatibility execution paths
 
-A KDE launcher is primarily a *declarative UI entry*. For example, source entries use `Exec=Hope launch-cinterforge Linux Krita` or `Exec=konsole --hold -e Hope install-unforked Windows Krita`. Their substantial implementation must reside in externally staged command scripts; `.desktop` definitions themselves are OS UI assets and can be part of the read-only layer.
+A KDE launcher is primarily a *declarative UI entry*. For example, source entries use `Exec=CinterForge launch-cinterforge Linux Krita` or `Exec=konsole --hold -e CinterForge install-unforked Windows Krita`. Their substantial implementation must reside in externally staged command scripts; `.desktop` definitions themselves are OS UI assets and can be part of the read-only layer.
 
 There are distinct execution environments:
 
@@ -185,18 +185,18 @@ Treat Vulkan device *enumeration*, OpenGL *software rendering*, Qt *window creat
 
 **Guest artifact build:** `scripts/build-image.sh` calls existing steps for builder, rootfs, initramfs, FEX/userspace, layer, disk and checks; `scripts/steps/30-layer.sh` installs the declared guest `usr/` inputs and creates an EROFS layer. The layer builder is correct to install the files it is handed: **remove inappropriate operational sources from guest image inputs rather than inventing another image-install mechanism**. `scripts/guest-artifacts.py` verifies/caches some outputs through input/output receipts; a verified receipt is not proof that Xcode built everything in the current invocation.
 
-**Stage:** From the Hope root, `./Hope stage cinterforge-os mac Release` consumes the Xcode-built native application and uses Hope's established lifecycle to install it and provision/update the external dispatcher and scripts under persistent `steamapps`. **Stage should not modify the signed `.app`** or rebuild the OS merely to refresh external tools. It preserves persistent SteamOS state and application versions according to the existing installation layout. The supplied logs from this conversation demonstrate successful Stage installs and one migration of a retired dispatcher; a successful Stage log is not by itself a guest runtime test.
+**Stage:** From the CinterForge root, `./CinterForge stage cinterforge-os mac Release` consumes the Xcode-built native application and uses CinterForge's established lifecycle to install it and provision/update the external dispatcher and scripts under persistent `steamapps`. **Stage should not modify the signed `.app`** or rebuild the OS merely to refresh external tools. It preserves persistent SteamOS state and application versions according to the existing installation layout. The supplied logs from this conversation demonstrate successful Stage installs and one migration of a retired dispatcher; a successful Stage log is not by itself a guest runtime test.
 
-**Test:** On the macOS side, `./Hope test ...` follows the Creative Suite test lifecycle. Inside the guest, `Hope ...` runs the external command scripts and per-app test logic from their persistent homes. There is **no separate ad-hoc activation/staging path**.
+**Test:** On the macOS side, `./CinterForge test ...` follows the Creative Suite test lifecycle. Inside the guest, `CinterForge ...` runs the external command scripts and per-app test logic from their persistent homes. There is **no separate ad-hoc activation/staging path**.
 
 ### Update-cost table
 
 | Change | Correct route | Requires guest image rebuild? |
 |---|---|---|
-| Baseline logic / Python inventory / installer diagnostics | Modify CinterForge external source; Hope Stage | **No** |
-| External dispatcher / app launch command | Modify CinterForge external source; Hope Stage | **No** |
+| Baseline logic / Python inventory / installer diagnostics | Modify CinterForge external source; CinterForge Stage | **No** |
+| External dispatcher / app launch command | Modify CinterForge external source; CinterForge Stage | **No** |
 | Installed app version or its local tests | Existing app Build/Stage/Test | Normally **no** |
-| macOS Swift VM or AppKit behavior | Xcode native Build, then Hope Stage | Not inherently, unless guest contract changes |
+| macOS Swift VM or AppKit behavior | Xcode native Build, then CinterForge Stage | Not inherently, unless guest contract changes |
 | Kernel, initramfs, image-baked services, KDE `.desktop` entries, guest graphics runtime | Existing guest image Build, then Stage | **Yes**, for changed image content |
 | Host Vulkan/libkrun binary changes | Rebuild/sign native dependencies/app, then Stage | Not inherently |
 
@@ -205,9 +205,9 @@ Treat Vulkan device *enumeration*, OpenGL *software rendering*, Qt *window creat
 | Contract | Owner and check |
 |---|---|
 | **Single share:** host Steam library → virtiofs tag `steamapps` → `/run/steamapps` | `Core/VM.swift` and guest mount units must agree |
-| **Guest command bridge:** `/usr/bin/Hope` → persistent dispatcher | Guest bridge remains generic; Stage supplies dispatcher |
+| **Guest command bridge:** `/usr/bin/CinterForge` → persistent dispatcher | Guest bridge remains generic; Stage supplies dispatcher |
 | **External commands:** dispatcher → persistent `Test/Scripts/` | CinterForge source owns implementations, not `guest/layer` |
-| **Disk preservation:** mutable guest disk separate from signed app | `Storage/`, supervisor and Hope Stage |
+| **Disk preservation:** mutable guest disk separate from signed app | `Storage/`, supervisor and CinterForge Stage |
 | **Guest boot assets:** kernel + initramfs + disk + EROFS layer | Xcode's artifact phases and guest image scripts |
 | **Virtio communication:** named ports for progress, clock, sleep, pad, clipboard | `Core/VM.swift` + guest `fx-progress-agent` services |
 | **Graphics:** Venus/virglrenderer and selected host Vulkan-on-Metal stack | Guest Mesa and patched host graphic dependency sources |
@@ -222,7 +222,7 @@ Avoid reintroducing old `/run/Applications` or `/run/DeveloperTests` mounts. Do 
 | VM exits or reboots unexpectedly | supervisor child exit/reboot marker; `Core/VM.swift`; kernel/initramfs console | host VM lifecycle / guest boot |
 | KDE does not appear | guest systemd/SDDM units, session helper scripts, progress agent | guest startup |
 | `/run/steamapps` absent or not writable | host `krun_add_virtiofs4` selection/semantics; guest mount unit | single-share contract |
-| `Hope baseline all` calls `/usr/lib/cinterforge/...` | installed external `Test/Dispatcher/Hope`, **not** Xcode | stale external dispatcher |
+| `CinterForge baseline all` calls `/usr/lib/cinterforge/...` | installed external `Test/Dispatcher/CinterForge`, **not** Xcode | stale external dispatcher |
 | Python helper import fails after dispatch | external `Test/Scripts` deployment and import path | external script packaging |
 | x86-64 Linux app fails | FEX and x86-64 rootfs; external runtime command | compatibility userspace |
 | Windows app fails | Wine prefix/runtime; external installer/inspection command | Windows compatibility |
@@ -233,11 +233,11 @@ Avoid reintroducing old `/run/Applications` or `/run/DeveloperTests` mounts. Do 
 
 Start by deciding which side owns the behavior. To understand **guest boot**, read **CinterForgeOS guest.md**, `guest/initramfs/init`, the units in `guest/layer` and `scripts/steps/30-layer.sh`. To understand **host internals**, read **CinterForgeOS host.md**, `Core/VM.swift`, `Core/Supervisor.swift`, `Core/main.swift` and the graphics/network/device modules. For **Xcode phases and build products**, read **CinterForgeOS XCode Project.md** and the **actual** `project.pbxproj`; source documents sometimes describe earlier arrangements. The extensive **Steamac README.md** is valuable for ancestry, technical details and graphics patches, but some paths and workflows are historical.
 
-For ordinary project operations use the existing Hope interfaces, from their default working directories. A code change should be local to its owner, preserve the guest/host contract, and produce a changed-files-only patch. Do not “fix” a missing external operational script by embedding it in the OS. Do not make the developer rebuild the VM to iterate on a test algorithm.
+For ordinary project operations use the existing CinterForge interfaces, from their default working directories. A code change should be local to its owner, preserve the guest/host contract, and produce a changed-files-only patch. Do not “fix” a missing external operational script by embedding it in the OS. Do not make the developer rebuild the VM to iterate on a test algorithm.
 
 ## 13. Verified scope, historical material, and open questions
 
-The following points are **directly visible in the inspected source**: the Xcode target's declared build phases; the supervisor/VM child separation; the `steamapps` share in the active `source/Swift Source/Core/VM.swift`; the minimal `/usr/bin/Hope` forwarding implementation; the guest layer construction scripts; and the guest directory ownership boundaries. The source also shows legacy host launcher content remaining in the examined snapshot; the user has declared it retired. This document treats the **Xcode Swift tree as authoritative**.
+The following points are **directly visible in the inspected source**: the Xcode target's declared build phases; the supervisor/VM child separation; the `steamapps` share in the active `source/Swift Source/Core/VM.swift`; the minimal `/usr/bin/CinterForge` forwarding implementation; the guest layer construction scripts; and the guest directory ownership boundaries. The source also shows legacy host launcher content remaining in the examined snapshot; the user has declared it retired. This document treats the **Xcode Swift tree as authoritative**.
 
 The attached documents differ in age and sometimes in stated phase order. In particular **CinterForgeOS XCode Project.md** identifies several guest artifact phases, while a short introductory section describes only one retained application script phase. The *checked-in Xcode project* is the authority for the actual native build graph. Do not use an older narrative statement to delete active phases.
 

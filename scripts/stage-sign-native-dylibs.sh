@@ -140,7 +140,7 @@ for lib in "${libraries[@]}"; do
 done
 
 # Validate the finished Xcode application payload *inside Xcode*, before its
-# final app-bundle CodeSign step. The Hope Build packaging validator checks
+# final app-bundle CodeSign step. The CinterForge Build packaging validator checks
 # the same product later, but direct Xcode builds must fail on missing assets.
 resources="$app/Contents/Resources"
 required_resources=(
