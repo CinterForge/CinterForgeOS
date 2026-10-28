@@ -4,3 +4,4 @@
 /host/launcher/Sources/CZstd/zstd/
 DerivedData/*
 .derived*
+*.xcuserstate
