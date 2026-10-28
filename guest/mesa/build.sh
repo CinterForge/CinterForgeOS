@@ -49,9 +49,67 @@ artifacts() { python3 "$REPO/scripts/guest-artifacts.py" "$@"; }
 # Keep successful receipts until their inputs or outputs actually change.
 # In particular, editing a guest-layer script must not rebuild Mesa.
 receipt_ok() { artifacts check "$1" >/dev/null 2>&1; }
+# Docker Desktop/Colima may not expose external macOS volumes to its daemon.
+# Keep the normal bind-mount path when available, otherwise transfer the
+# authored scripts and build outputs through Docker's copy API.
+mesa_docker() {
+    local -a args=("$@") create_args=() copies=()
+    local arg host dest mode cid status=0 copy_status=0
+    local i=0 needs_copy=0
+    # Probe the actual guest-mesa scripts mount, rather than trusting docker run.
+    if ! docker run --rm --platform linux/arm64 \
+        -v "$HERE/container:/scripts:ro" --entrypoint /bin/sh "$TOOLS_IMAGE" \
+        -c 'test -f /scripts/fetch-mesa.sh' >/dev/null 2>&1; then
+        needs_copy=1
+    fi
+    if (( ! needs_copy )); then
+        docker run "${args[@]}"
+        return
+    fi
+    while (( i < ${#args[@]} )); do
+        arg=${args[i]}
+        if [[ $arg == -v ]]; then
+            (( i += 1 ))
+            arg=${args[i]}
+            host=${arg%%:*}
+            dest=${arg#*:}; dest=${dest%%:*}
+            if [[ $host == /* ]]; then
+                copies+=("$host" "$dest")
+            else
+                create_args+=(-v "$arg")
+            fi
+        elif [[ $arg != --rm ]]; then
+            create_args+=("$arg")
+        fi
+        (( i += 1 ))
+    done
+    cid=$(docker create "${create_args[@]}") || return 1
+    echo '[mesa] Docker daemon cannot see external source; copying inputs into container' >&2
+    for (( i=0; i<${#copies[@]}; i+=2 )); do
+        host=${copies[i]}; dest=${copies[i+1]}
+        if [[ -d $host ]]; then
+            docker cp "$host/." "$cid:$dest/" || status=1
+        else
+            docker cp "$host" "$cid:$dest" || status=1
+        fi
+    done
+    if (( ! status )); then docker start -a "$cid" || status=$?; fi
+    # Preserve generated build products even when the command fails.
+    for (( i=0; i<${#copies[@]}; i+=2 )); do
+        host=${copies[i]}; dest=${copies[i+1]}
+        if [[ $dest == /out || $dest == /work ]]; then
+            mkdir -p "$host"
+            docker cp "$cid:$dest/." "$host/" || copy_status=1
+        fi
+    done
+    docker rm -f "$cid" >/dev/null 2>&1 || true
+    (( copy_status == 0 )) || return 1
+    return "$status"
+}
+
 fetched=0
 fetch_sources() {
-    docker run --rm --platform linux/arm64 \
+    mesa_docker --rm --platform linux/arm64 \
         -e MESA_URL -e MESA_COMMIT -e VENUS_PROTOCOL_URL -e VENUS_PROTOCOL_COMMIT \
         -v "$SRC_VOLUME:/src" -v "$HERE/container:/scripts:ro" \
         "$TOOLS_IMAGE" sh /scripts/fetch-mesa.sh
@@ -80,7 +138,7 @@ for step in "${steps[@]}"; do
         inputs=$(artifacts begin mesa-aarch64)
         [[ $fetched == 1 ]] || fetch_sources
         rm -rf "$OUT/usr/lib/libvulkan_virtio.so" "$OUT/usr/share/vulkan"
-        docker run --rm --platform linux/arm64 \
+        mesa_docker --rm --platform linux/arm64 \
             -v "$SRC_VOLUME:/src:ro" -v "$HERE/container:/scripts:ro" -v "$OUT:/out" -v "$WORK:/work" \
             "$AARCH64_IMAGE" bash /scripts/build-aarch64.sh 2>&1 | tee "$WORK/build-aarch64.log"
         artifacts finish mesa-aarch64 "$inputs"
@@ -95,7 +153,7 @@ for step in "${steps[@]}"; do
         inputs=$(artifacts begin mesa-x86)
         [[ $fetched == 1 ]] || fetch_sources
         rm -rf "$OUT/usr/share/guestos" "$OUT/usr/lib/steamac"
-        docker run --rm --platform linux/amd64 \
+        mesa_docker --rm --platform linux/amd64 \
             -e STEAMOS_X86_MIRROR -e STEAMOS_X86_BRANCH -e FEX_PROVIDER -e HOLO_KEYRING_PKG -e HOLO_KEYRING_SHA256 \
             -e LIBDISPLAY_INFO_PKG -e LIBDISPLAY_INFO_SHA256 \
             -e LIB32_LIBDISPLAY_INFO_PKG -e LIB32_LIBDISPLAY_INFO_SHA256 \
@@ -115,7 +173,7 @@ for step in "${steps[@]}"; do
         # receipt for a different rootfs than the one pinned in config.env.
         rootfs_sha=$(. "$REPO/scripts/config.env" && echo "$STEAMOS_ROOTFS_SHA256")
         echo "$rootfs_sha  $ROOTFS_IMG" | shasum -a 256 -c -
-        docker run --rm --platform linux/arm64 --privileged \
+        mesa_docker --rm --platform linux/arm64 --privileged \
             -e MESA_URL -e MESA_COMMIT -e VENUS_PROTOCOL_COMMIT -e AARCH64_IMAGE -e X86_IMAGE \
             -e STEAMOS_X86_MIRROR -e STEAMOS_X86_BRANCH -e FEX_PROVIDER \
             -v "$ROOTFS_IMG:/rootfs.img:ro" -v "$HERE/container:/scripts:ro" -v "$OUT:/out" -v "$WORK:/work" \

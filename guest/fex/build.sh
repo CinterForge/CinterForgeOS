@@ -60,6 +60,12 @@ case "${1:-}" in
     [[ -d "$SOURCE/.git" ]] || { echo '[FEX] Setup incomplete: external source checkout missing. Run ./CFOS setup cinterforge-os mac' >&2; exit 1; }
     [[ -s "$FEX_SOURCE_ID" ]] || { echo '[FEX] Setup incomplete: selected source commit missing. Run ./CFOS setup cinterforge-os mac' >&2; exit 1; }
     selected=$(cat "$FEX_SOURCE_ID")
+    # Fail before Docker if Setup selected a checkout without the FEX build root.
+    [[ -f "$SOURCE/CMakeLists.txt" ]] || {
+      echo "[FEX] ERROR: Setup source has no root CMakeLists.txt: $SOURCE" >&2
+      echo '[FEX] Rerun CFOS Setup to populate the complete FEX fork checkout.' >&2
+      exit 1
+    }
     [[ "$(git -C "$SOURCE" rev-parse HEAD)" == "$selected" ]] || { echo '[FEX] source differs from Setup-selected commit' >&2; exit 1; }
     [[ -z "$(git -C "$SOURCE" status --porcelain --untracked-files=normal)" ]] || { echo '[FEX] build source is dirty' >&2; exit 1; }
     git -C "$SOURCE" submodule status --recursive | awk '$1 ~ /^[-+U]/ {bad=1; print "FEX invalid submodule: " $0} END {exit bad}'
@@ -73,9 +79,13 @@ case "${1:-}" in
     rm -rf "$staging"
     mkdir -p "$staging"
     # /src read-only, /work and /dest writable; DESTDIR is absolute as required by FEX.
-    docker run --rm --platform linux/arm64 \
-      -v "$SOURCE:/src:ro" -v "$BUILD:/work" -v "$staging:/dest" \
-      "$IMAGE" /bin/bash -euc '
+    # Colima's daemon cannot always bind-mount external macOS volumes.
+    # Probe the actual FEX source, not merely whether Docker itself works.
+    if docker run --rm --platform linux/arm64 --mount "type=bind,source=$SOURCE,target=/src,readonly" \
+        "$IMAGE" /bin/bash -c 'test -f /src/CMakeLists.txt' >/dev/null 2>&1; then
+      docker run --rm --platform linux/arm64 \
+        --mount "type=bind,source=$SOURCE,target=/src,readonly" --mount "type=bind,source=$BUILD,target=/work" --mount "type=bind,source=$staging,target=/dest" \
+        "$IMAGE" /bin/bash -euc '
         export CC=clang CXX=clang++
         cmake -S /src -B /work -G Ninja -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_INSTALL_PREFIX=/usr -DUSE_LINKER=lld -DENABLE_LTO=ON \
@@ -110,6 +120,70 @@ case "${1:-}" in
           }
         done
       ' 2>&1 | tee "$LOGS/build.log"
+    else
+      echo '[FEX] Docker daemon cannot see external source; copying FEX inputs into container'
+      cid=$(docker create --platform linux/arm64 "$IMAGE" /bin/bash -euc '
+        export CC=clang CXX=clang++
+        cmake -S /src -B /work -G Ninja -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=/usr -DUSE_LINKER=lld -DENABLE_LTO=ON \
+          -DBUILD_THUNKS=ON
+        cmake --build /work --parallel "$(nproc)"
+        DESTDIR=/dest cmake --install /work
+        test -x /dest/usr/bin/FEX
+        file /dest/usr/bin/FEX
+        readelf -h /dest/usr/bin/FEX | grep -q "AArch64"
+        # FEX installs host and guest thunk libraries in different canonical
+        # directories; the JSON database is not a substitute for either.
+        host=/dest/usr/lib/aarch64-linux-gnu/fex-emu/HostThunks
+        guest=/dest/usr/share/fex-emu/GuestThunks
+        for library in libGL-host.so libvulkan-host.so; do
+          test -s "$host/$library" || {
+            echo "[FEX] required ARM64 host thunk missing: $host/$library" >&2
+            exit 1
+          }
+          readelf -h "$host/$library" | grep -q "AArch64" || {
+            echo "[FEX] wrong architecture for host thunk: $host/$library" >&2
+            exit 1
+          }
+        done
+        for library in libGL-guest.so libvulkan-guest.so; do
+          test -s "$guest/$library" || {
+            echo "[FEX] required AMD64 guest thunk missing: $guest/$library" >&2
+            exit 1
+          }
+          readelf -h "$guest/$library" | grep -q "Advanced Micro Devices X86-64" || {
+            echo "[FEX] wrong architecture for guest thunk: $guest/$library" >&2
+            exit 1
+          }
+        done
+      ')
+      # docker cp into an absent destination can nest the checkout under /src.
+      # Explicitly create the three mount-equivalent directories first.
+      # Copy into explicit container paths, then verify the CMake root before build.
+      if ! docker cp "$SOURCE/." "$cid:/src" ||
+         ! docker cp "$BUILD/." "$cid:/work"; then
+        docker rm -f "$cid" >/dev/null 2>&1 || true
+        echo '[FEX] failed to transfer source/build inputs to Docker' >&2
+        exit 1
+      fi
+      # Confirm copied files are at the path CMake will use.
+      if ! docker cp "$cid:/src/CMakeLists.txt" "$LOGS/FEX-CMakeLists.probe" >/dev/null 2>&1; then
+        docker rm -f "$cid" >/dev/null 2>&1 || true
+        echo '[FEX] ERROR: Docker copy did not place CMakeLists.txt at /src/CMakeLists.txt' >&2
+        exit 1
+      fi
+      rm -f "$LOGS/FEX-CMakeLists.probe"
+      set +e
+      docker start -a "$cid" 2>&1 | tee "$LOGS/build.log"
+      status=${PIPESTATUS[0]}
+      set -e
+      if (( status == 0 )); then
+        docker cp "$cid:/work/." "$BUILD/" || status=1
+        docker cp "$cid:/dest/." "$staging/" || status=1
+      fi
+      docker rm -f "$cid" >/dev/null 2>&1 || true
+      (( status == 0 )) || { echo "[FEX] container build failed (exit=$status)" >&2; exit 1; }
+    fi
     rm -rf "$DEST"
     mv "$staging" "$DEST"
     printf '%s\n' "$selected" > "$FEX_BUILD_ID"

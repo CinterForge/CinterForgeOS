@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-app='/run/steamapps/common/CinterForge/Applications/Linux/Superposition/2026/Unigine_Heaven-4.0'
+app='/run/steamapps/common/CinterForge/Applications/Linux/Heaven'
 if [[ ! -f "$app/heaven" ]]; then
   echo "Linux Heaven executable missing: $app/heaven" >&2
   exit 1

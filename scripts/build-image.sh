@@ -54,12 +54,49 @@ ensure_builder() {
         || { echo "[steamac] ERROR: builder image lacks required tools" >&2; exit 1; }
 }
 
+# Docker's daemon may run in a separate Colima VM. A successful host-side
+# test -f says nothing about what the container actually sees. Validate both
+# bindings before any expensive guest step; never let Docker silently create
+# an empty host directory for a misspelled bind source.
+verify_builder_mounts() {
+    [[ -f "$REPO/scripts/steps/20-initramfs.sh" && -f "$REPO/scripts/steps/30-layer.sh" ]] || {
+        echo "[steamac] ERROR: incomplete host source checkout: $REPO" >&2; exit 1;
+    }
+    [[ -d "$WORK" && -w "$WORK" ]] || {
+        echo "[steamac] ERROR: external work directory is not writable: $WORK" >&2; exit 1;
+    }
+    local marker="CFOS-MountProbe-$$"
+    printf 'cfos-mount-probe\n' > "$WORK/$marker"
+    if ! docker run --rm --platform linux/arm64 --entrypoint /bin/bash \
+        --mount "type=bind,source=$REPO,target=/src,readonly" \
+        --mount "type=bind,source=$WORK,target=/work" \
+        "$BUILDER_IMAGE" -euc '
+          test -s /src/scripts/steps/20-initramfs.sh
+          test -s /src/scripts/steps/30-layer.sh
+          test "$(cat "/work/'"$marker"'")" = cfos-mount-probe
+          printf cfos-container-write > /work/CFOS-MountWriteProbe
+        '; then
+        rm -f "$WORK/$marker" "$WORK/CFOS-MountWriteProbe"
+        echo "[steamac] ERROR: Colima cannot access the host source/work bindings." >&2
+        echo "[steamac] Source: $REPO" >&2
+        echo "[steamac] Work:   $WORK" >&2
+        echo '[steamac] Run ./CFOS setup to repair the existing managed Colima workspace mount; do not patch /src paths.' >&2
+        exit 1
+    fi
+    [[ "$(cat "$WORK/CFOS-MountWriteProbe" 2>/dev/null)" == cfos-container-write ]] || {
+        echo "[steamac] ERROR: Docker work bind did not write to host: $WORK" >&2; exit 1;
+    }
+    rm -f "$WORK/$marker" "$WORK/CFOS-MountWriteProbe"
+}
+
 run_in_builder() {
     ensure_builder
     # /src: repo (read-only), /work: work dir. --privileged for loop devices.
+    verify_builder_mounts
     docker run --rm --privileged --platform linux/arm64 \
         -e HOME_SIZE_GIB -e STEAMOS_PASSWORD -e FORCE_DISK -e ALLOW_NO_VENUS -e SOURCE_DATE_EPOCH \
-        -v "$REPO:/src:ro" -v "$WORK:/work" \
+        --mount "type=bind,source=$REPO,target=/src,readonly" \
+        --mount "type=bind,source=$WORK,target=/work" \
         "$BUILDER_IMAGE" /bin/bash "$@"
 }
 
@@ -80,7 +117,7 @@ for step in "${steps[@]}"; do
             run_in_builder /src/scripts/steps/20-initramfs.sh
             artifacts finish initramfs "$inputs"
             ;;
-        fex)      "$REPO/guest/fex/build.sh" build ;;
+        fex)      bash "$REPO/guest/fex/build.sh" build ;;
         userspace) bash "$REPO/guest/fex/runtime.sh" build ;;
         layer)
             # Fetch the publisher artwork referenced by CinterForge's authoritative CSV.
@@ -168,7 +205,7 @@ for step in "${steps[@]}"; do
             fi
             if (( fex_incomplete )); then
                 echo "[steamac] FEX absent or source commit changed: rebuilding complete FEX artifact"
-                "$REPO/guest/fex/build.sh" build
+                bash "$REPO/guest/fex/build.sh" build
             fi
             # Likewise, old userspace outputs lack the Qt/X11 and AMD64
             # graphics diagnostics added to the rootfs preparation recipe.
@@ -208,9 +245,12 @@ for step in "${steps[@]}"; do
             fi
             # guest/progress-agent (Rust, static musl) in the pinned rust container,
             # then the erofs layer (which installs the binary).
+            ensure_builder
+            verify_builder_mounts
             docker run --rm --platform linux/arm64 \
                 -e SOURCE_DATE_EPOCH \
-                -v "$REPO:/src:ro" -v "$WORK:/work" \
+                --mount "type=bind,source=$REPO,target=/src,readonly" \
+        --mount "type=bind,source=$WORK,target=/work" \
                 "$RUST_IMAGE" /bin/sh /src/scripts/steps/25-progress-agent.sh
             run_in_builder /src/scripts/steps/30-layer.sh
             if [[ ${ALLOW_NO_VENUS:-} != 1 ]]; then

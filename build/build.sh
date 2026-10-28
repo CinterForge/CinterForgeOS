@@ -3,6 +3,12 @@
 # Sourced by ../CFOS.
 cfos_build() {
   cfos_require_mac
+  if (( CFOS_DRY_RUN )); then
+    cfos_run colima start --profile cinterforge-linux --activate=false
+  else
+    source "$CFOS_ROOT/scripts/colima-runtime.sh"
+    cfos_colima_activate || return 1
+  fi
   local configuration
   while IFS= read -r configuration; do
     cfos_run xcodebuild \

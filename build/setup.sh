@@ -116,49 +116,60 @@ cfos_setup() {
     done
   fi
 
-  # Lima's socket paths have a hard macOS length limit.  A symlink from
-  # /tmp to a deep directory does NOT solve this: Lima resolves it to the
-  # physical path.  The Colima home must itself have a short physical path.
-  #
-  # Keep persistent VM data in Builds/CFOS/Colima.  Expose that same directory
-  # in the per-application build tree with a symlink for Finder convenience.
-  # There is one authoritative Colima home, not a chain of fallback paths.
-  local state_root="$CFOS_BUILD_ROOT/CFOS"
-  local colima_home="$CFOS_WORKSPACE/Builds/CFOS/Colima"
-  local colima_view="$state_root/Colima"
+  # Setup owns the reproducible managed Colima environment. The profile is
+  # disposable build infrastructure, not user data. Never migrate it via
+  # symlinks or reuse a half-configured instance after a failed startup.
+  source "$CFOS_ROOT/scripts/colima-runtime.sh"
+  cfos_colima_environment || return 1
+  local colima_home="$COLIMA_HOME"
   local colima_profile='cinterforge-linux'
+  local docker_socket="$COLIMA_HOME/$colima_profile/docker.sock"
+  local mount_root="$CFOS_WORKSPACE"
+  local mount_work="$CFOS_BUILD_ROOT/CFOS/work"
 
-  # Fail visibly if an older *real* directory still occupies the intended
-  # display path.  Its VM may contain user data; never overwrite or merge it.
-  if [[ -e "$colima_view" && ! -L "$colima_view" ]]; then
-    echo "CFOS: Colima must be moved out of: $colima_view" >&2
-    echo "CFOS: Move it to: $colima_home" >&2
-    echo 'CFOS: Stop Colima before moving its files. Setup will create the link.' >&2
-    return 1
-  fi
-  if [[ -L "$colima_view" && "$(readlink "$colima_view")" != "$colima_home" ]]; then
-    echo "CFOS: Colima view points to the wrong location: $colima_view" >&2
-    return 1
-  fi
+  # Verify the *actual* host-to-guest mounts, not just the existence of a
+  # Docker socket. Bind mount the common parent so both Source and Builds
+  # work on DEV (/Users/.../Source) and BUILDER (/Volumes/.../Source).
+  cfos_colima_healthy() {
+    [[ -S "$docker_socket" ]] || return 1
+    docker info >/dev/null 2>&1 || return 1
+    local probe="CFOS-SetupMountProbe-$$"
+    mkdir -p "$mount_work"
+    docker run --rm \
+      --mount "type=bind,source=$CFOS_ROOT,target=/cfos-source,readonly" \
+      --mount "type=bind,source=$mount_work,target=/cfos-work" \
+      --entrypoint /bin/sh alpine:3.20 -ec \
+      "test -f /cfos-source/scripts/build-image.sh && touch /cfos-work/$probe" >/dev/null || return 1
+    [[ -f "$mount_work/$probe" ]] || return 1
+    rm -f "$mount_work/$probe"
+  }
 
-  cfos_run mkdir -p "$state_root" "$colima_home"
-  if [[ ! -L "$colima_view" ]]; then
-    cfos_run ln -s "$colima_home" "$colima_view"
-  fi
-
-  # Check the *real* Lima socket path before trying to create a VM.
-  # Avoid accidentally generating another unstartable Lima configuration.
-  local host_agent="$colima_home/_lima/colima-$colima_profile/ha.sock"
-  if (( ${#host_agent} >= 104 )); then
-    echo "CFOS: Lima host-agent socket path is too long: $host_agent" >&2
-    return 1
-  fi
-  export COLIMA_HOME="$colima_home"
-  export LIMA_HOME="$colima_home/_lima"
-  export COLIMA_CACHE_HOME="$state_root/Cache/Colima"
-  export DOCKER_CONFIG="$state_root/Docker"
-  if (( CFOS_DRY_RUN )) || ! colima status --profile "$colima_profile" >/dev/null 2>&1; then
-    cfos_run colima start --profile "$colima_profile" --arch aarch64 --vm-type vz --activate=false
+  if (( CFOS_DRY_RUN )); then
+    cfos_run mkdir -p "$colima_home" "$mount_work" "$COLIMA_CACHE_HOME" "$DOCKER_CONFIG"
+    cfos_run colima start --profile "$colima_profile" --arch aarch64 --vm-type vz --activate=false --mount "$mount_root:w"
+  else
+    mkdir -p "$colima_home" "$mount_work" "$COLIMA_CACHE_HOME" "$DOCKER_CONFIG"
+    # Never let a symlink redirect VM storage to an obsolete location.
+    [[ ! -L "$colima_home" && ! -L "$LIMA_HOME" ]] || {
+      echo "CFOS: managed Colima home is a symlink; refusing to follow it: $colima_home" >&2
+      return 1
+    }
+    if ! cfos_colima_healthy; then
+      echo 'CFOS: managed Docker unavailable or mounts incorrect; provisioning the managed profile.'
+      # Existing profiles are started without changing their configuration.
+      # --mount is a provisioning option, not a runtime activation option.
+      if [[ -d "$COLIMA_HOME/$colima_profile" ]]; then
+        cfos_colima_start || return 1
+      else
+        cfos_colima_start --arch aarch64 --vm-type vz \
+          --mount "$mount_root:w" || return 1
+      fi
+      cfos_colima_healthy || {
+        echo 'CFOS: Docker started but required source/Builds mounts failed validation; refusing to delete VM or disk.' >&2
+        return 1
+      }
+    fi
+    echo "CFOS: managed Colima ready: $docker_socket"
   fi
 
   # Required maintained forks live beside CinterForgeOS, regardless of drive.
