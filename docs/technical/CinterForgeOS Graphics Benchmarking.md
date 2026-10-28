@@ -43,7 +43,7 @@ Observed performance:
 
 This establishes an important CinterForgeOS milestone: Windows x86 applications can execute within the SteamOS/KDE environment and achieve high-performance hardware-accelerated 3D rendering on Apple Silicon.
 
-Future Work: Ambient Occlusion (AO) and DirectX 11.
+Future Work: DirectX 11, OpenGL
 
 *The Heaven screenshots and QuickTime videos above are actual CinterForgeOS captures. The Superposition and Windows Heaven images are promotional reference images, not proof of completed runs.*
 
