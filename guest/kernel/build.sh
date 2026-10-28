@@ -53,7 +53,17 @@ KSHA256=b4c5dfbe51a364a6c7f03869200f88c8e1f77403539005f14b7fc6bc91b8d8ba
 KURL=https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-$KVER.tar.xz
 IMAGE=steamac-kernel-builder:trixie
 VOLUME=steamac-kernel-build
-JOBS=${JOBS:-16}
+# The kernel runs inside the memory-limited Colima VM, not directly on the
+# Mac.  -j16 caused cc1 processes to be OOM-killed during the 7.2.9 build.
+# Default conservatively; allow an explicit JOBS override on larger builders.
+JOBS=${JOBS:-2}
+case "$JOBS" in
+    ''|*[!0-9]*) echo "CFOS: JOBS must be a positive integer" >&2; exit 1 ;;
+esac
+if [ "$JOBS" -lt 1 ]; then
+    echo "CFOS: JOBS must be at least 1" >&2
+    exit 1
+fi
 
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../.." && pwd)
