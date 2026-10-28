@@ -15,6 +15,7 @@ cfos_build() {
       -project "$CFOS_ROOT/CinterForgeOS.xcodeproj" \
       -scheme CinterForgeOS \
       -configuration "$configuration" \
+      -derivedDataPath "$CFOS_BUILD_ROOT/DerivedData" \
       build
     # Build success alone does not guarantee the expected product location.
     if (( ! CFOS_DRY_RUN )); then

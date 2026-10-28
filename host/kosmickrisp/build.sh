@@ -238,7 +238,7 @@ if [ "${1:-}" = test ]; then
     repro_log=$work/repro.log
     mkdir -p "$work"
     echo ">> KosmicKrisp regression suite: $staged"
-    if REPRO_DRIVER=kosmickrisp "$root/host/moltenvk/repro/run.sh" "$staged" > "$repro_log" 2>&1; then
+    if REPRO_DRIVER=kosmickrisp /bin/sh "$root/host/moltenvk/repro/run.sh" "$staged" > "$repro_log" 2>&1; then
         grep -v '^	' "$repro_log" | grep -v 'Metal API Validation Enabled' || true
         echo ">> KosmicKrisp regression tests passed"
     else
@@ -339,7 +339,7 @@ printf '{"file_format_version": "1.0.1", "ICD": {"library_path": "%s", "api_vers
 	"$staged" > "$icd"
 loader=$(brew --prefix vulkan-loader)/lib
 probe=$work/probe
-xcrun clang -std=c11 -Wall -Werror -O1 -I"$root/../cinterforge-moltenvk/Package/Release/MoltenVK/include" \
+xcrun clang -std=c11 -Wall -Werror -O1 -I"$STEAMAC_WORK_DIR/build/host-moltenvk/src/Package/Release/MoltenVK/include" \
 	"$root/host/moltenvk/probe/probe.c" -L"$loader" -lvulkan -Wl,-rpath,"$loader" -o "$probe"
 echo ">> probe: $staged"
 VK_DRIVER_FILES=$icd "$probe"

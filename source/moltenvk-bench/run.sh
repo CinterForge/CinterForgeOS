@@ -15,7 +15,7 @@ root=$(cd "$here/../../.." && pwd)
 STEAMAC_SOURCE_ROOT="$root"
 . "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
 work=$STEAMAC_WORK_DIR/build/host-moltenvk/bench
-inc=$STEAMAC_SOURCE_ROOT/../cinterforge-moltenvk/Package/Release/MoltenVK/include
+inc=$STEAMAC_WORK_DIR/build/host-moltenvk/src/Package/Release/MoltenVK/include
 rounds=${ROUNDS:-5}
 [ $# -ge 1 ] || { echo "usage: $0 <libdir> [<libdir> ...]" >&2; exit 2; }
 

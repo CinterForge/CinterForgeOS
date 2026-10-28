@@ -4,7 +4,7 @@
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
 export STEAMAC_ROOT="$root"
-"$root/host/moltenvk/build.sh"
+/bin/sh "$root/host/moltenvk/build.sh"
 source "$root/scripts/paths.sh"
 lib="$STEAMAC_WORK_DIR/out/host/lib/libMoltenVK.dylib"
 [[ -s "$lib" ]] || { echo "error: MoltenVK build completed without required $lib" >&2; exit 1; }

@@ -170,7 +170,7 @@ here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../../.." && pwd)
 STEAMAC_SOURCE_ROOT="$root"
 . "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
-inc=$STEAMAC_SOURCE_ROOT/../cinterforge-moltenvk/Package/Release/MoltenVK/include
+inc=$STEAMAC_WORK_DIR/build/host-moltenvk/src/Package/Release/MoltenVK/include
 driver=${REPRO_DRIVER:-moltenvk}
 case $driver in
 moltenvk)

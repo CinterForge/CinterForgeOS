@@ -65,28 +65,33 @@ verify_builder_mounts() {
     [[ -d "$WORK" && -w "$WORK" ]] || {
         echo "[steamac] ERROR: external work directory is not writable: $WORK" >&2; exit 1;
     }
-    local marker="CFOS-MountProbe-$$"
+    # Unique per invocation: Xcode may run parallel phases against the same work tree.
+    local marker="CFOS-MountProbe-$$-${RANDOM}" reply="CFOS-MountReply-$$-${RANDOM}"
     printf 'cfos-mount-probe\n' > "$WORK/$marker"
+    rm -f "$WORK/$reply"
     if ! docker run --rm --platform linux/arm64 --entrypoint /bin/bash \
         --mount "type=bind,source=$REPO,target=/src,readonly" \
         --mount "type=bind,source=$WORK,target=/work" \
+        -e "CFOS_PROBE_IN=$marker" -e "CFOS_PROBE_OUT=$reply" \
         "$BUILDER_IMAGE" -euc '
-          test -s /src/scripts/steps/20-initramfs.sh
-          test -s /src/scripts/steps/30-layer.sh
-          test "$(cat "/work/'"$marker"'")" = cfos-mount-probe
-          printf cfos-container-write > /work/CFOS-MountWriteProbe
+          test -s /src/scripts/steps/20-initramfs.sh || { echo "ERROR: /src source mount missing initramfs" >&2; exit 10; }
+          test -s /src/scripts/steps/30-layer.sh || { echo "ERROR: /src source mount missing layer" >&2; exit 11; }
+          test "$(cat "/work/$CFOS_PROBE_IN")" = cfos-mount-probe || { echo "ERROR: /work host probe invisible" >&2; exit 12; }
+          printf cfos-container-write > "/work/$CFOS_PROBE_OUT" || { echo "ERROR: /work not writable in container" >&2; exit 13; }
         '; then
-        rm -f "$WORK/$marker" "$WORK/CFOS-MountWriteProbe"
+        rm -f "$WORK/$marker" "$WORK/$reply"
         echo "[steamac] ERROR: Colima cannot access the host source/work bindings." >&2
         echo "[steamac] Source: $REPO" >&2
         echo "[steamac] Work:   $WORK" >&2
-        echo '[steamac] Run ./CFOS setup to repair the existing managed Colima workspace mount; do not patch /src paths.' >&2
+        echo '[steamac] Run ./CFOS setup to repair the managed Colima workspace mount.' >&2
         exit 1
     fi
-    [[ "$(cat "$WORK/CFOS-MountWriteProbe" 2>/dev/null)" == cfos-container-write ]] || {
-        echo "[steamac] ERROR: Docker work bind did not write to host: $WORK" >&2; exit 1;
-    }
-    rm -f "$WORK/$marker" "$WORK/CFOS-MountWriteProbe"
+    if [[ "$(cat "$WORK/$reply" 2>/dev/null)" != cfos-container-write ]]; then
+        rm -f "$WORK/$marker" "$WORK/$reply"
+        echo "[steamac] ERROR: Docker work bind did not write back to host: $WORK" >&2
+        exit 1
+    fi
+    rm -f "$WORK/$marker" "$WORK/$reply"
 }
 
 run_in_builder() {

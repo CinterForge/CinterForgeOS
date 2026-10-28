@@ -4,8 +4,8 @@
 #   host/moltenvk/build.sh        build/refresh work/out/host (MoltenVK dylib, ICD json, headers)
 #   host/moltenvk/build.sh clean  drop the source/build tree (next build is from scratch)
 #
-# Inputs: committed HEAD of ~/Source/cinterforge-moltenvk and
-# ~/Source/cinterforge-spirv-cross. Neither fork is modified.
+# Inputs: sibling cinterforge-moltenvk and cinterforge-spirv-cross forks.
+# Both remain read-only; all generated build data stays under external Builds.
 # The forks carry our changes; patch archives are not used.
 # External dependency retrieval by MoltenVK remains supported.
 #
@@ -44,7 +44,8 @@ root=$(cd "$here/../.." && pwd)
 STEAMAC_SOURCE_ROOT="$root"
 . "$STEAMAC_SOURCE_ROOT/scripts/work-path.sh"
 work=$STEAMAC_WORK_DIR/build/host-moltenvk
-src=$root/../cinterforge-moltenvk
+fork=$root/../cinterforge-moltenvk
+src=$work/src
 spvc=$root/../cinterforge-spirv-cross
 out=$STEAMAC_WORK_DIR/out/host
 
@@ -58,23 +59,39 @@ xcrun --find metal > /dev/null
 mkdir -p "$work"
 
 # Forks already contain the previous Steamac patch series. No patch application.
-[ -f "$src/fetchDependencies" ] || { echo "Missing local MoltenVK source: $src" >&2; exit 1; }
+[ -f "$fork/fetchDependencies" ] || { echo "Missing local MoltenVK source: $fork" >&2; exit 1; }
 [ -f "$spvc/spirv.hpp" ] || { echo "Missing local SPIRV-Cross source: $spvc" >&2; exit 1; }
-echo ">> MoltenVK: building directly from $src"
-MVK_COMMIT=$(git -C "$src" rev-parse HEAD)
+echo ">> MoltenVK: building an isolated copy of $fork under Builds"
+MVK_COMMIT=$(git -C "$fork" rev-parse HEAD)
 SPVC_COMMIT=$(git -C "$spvc" rev-parse HEAD)
 MVK_REPO="$root/../cinterforge-moltenvk"
 SPVC_REPO="$root/../cinterforge-spirv-cross"
 # Use fork commits to identify dependencies and provenance, not deleted patch files.
 patch_rev=$(printf '%s\n%s\n' "$MVK_COMMIT" "$SPVC_COMMIT" | shasum -a 256 | cut -c1-8)
-# MoltenVK source may still use this generated header for shader cache separation.
+# Cache against the actual fork, never against generated files in the build copy.
+cache=$work/.cfos-build-fingerprint
+cache_tool=$root/scripts/host-build-cache.py
+cache_output=$out/lib/libMoltenVK.dylib
+if python3 "$cache_tool" check "$cache" "$cache_output" "$fork" "$here/build.sh" "$spvc/spirv.hpp"; then
+    echo "[Xcode] MoltenVK unchanged; skipping build and probes"
+    exit 0
+fi
+rm -f "$cache"
+
+# Recreate the working copy from authored fork sources, without copying generated
+# dependencies or package outputs. The source checkout is never a build directory.
+mkdir -p "$src"
+rsync -a --delete --exclude='/.git/' --exclude='/External/' --exclude='/Package/' \
+    --exclude='/build/' --exclude='/DerivedData/' --exclude='/.build/' \
+    "$fork/" "$src/"
+# MoltenVK uses this generated header for shader cache separation.
 if [ -f "$src/MoltenVK/MoltenVK/GPUObjects/MVKPatchRevision.h" ]; then
   printf '// Generated from local fork commits\n#define MVK_PATCH_REVISION 0x%s\n' "$patch_rev" > "$src/MoltenVK/MoltenVK/GPUObjects/MVKPatchRevision.h"
 fi
 
 # --- external dependencies (SPIRV-Cross, SPIRV-Tools, Vulkan-Headers, ... -> xcframeworks)
 deps_key=$(printf '%s\n%s\n' "$MVK_COMMIT" "$SPVC_COMMIT" | shasum -a 256 | cut -d' ' -f1)
-deps_stamp=$src/External/.steamac-deps
+deps_stamp=$work/dependencies.stamp
 if [ "$(cat "$deps_stamp" 2> /dev/null)" != "$deps_key" ]; then
 	rm -f "$deps_stamp"
 	# Same environment scrub as UTM (env -i): no Homebrew/SDK variables leak into xcodebuild.
@@ -102,16 +119,6 @@ if [ ! -f "$src/External/SPIRV-Cross/spirv.hpp" ]; then
     echo "FAIL: SPIRV-Cross dependency is not visible to the MoltenVK Xcode project" >&2
     exit 1
 fi
-
-# Skip the costly Xcode build and GPU regressions if source and recipe are unchanged.
-cache=$work/.cfos-build-fingerprint
-cache_tool=$root/scripts/host-build-cache.py
-cache_output=$out/lib/libMoltenVK.dylib
-if python3 "$cache_tool" check "$cache" "$cache_output" "$src" "$here/build.sh" "$spvc/spirv.hpp"; then
-    echo "[Xcode] MoltenVK unchanged (source + dirty files + build script); skipping build and probes"
-    exit 0
-fi
-rm -f "$cache"
 
 # --- MoltenVK (Release, universal)
 (cd "$src" && env -i PATH="$PATH" HOME="$HOME" LANG="${LANG:-en_US.UTF-8}" make macos)
@@ -146,7 +153,7 @@ fi
 # --- repros: gamescope compute pipelines, geometry shaders, null pipeline binds
 echo ">> repro: gamescope compute pipelines, geometry shaders, null pipeline binds"
 repro_log=$work/repro.log
-"$here/repro/run.sh" "$stage/lib" > "$repro_log" 2>&1 || { cat "$repro_log"; exit 1; }
+/bin/sh "$here/repro/run.sh" "$stage/lib" > "$repro_log" 2>&1 || { cat "$repro_log"; exit 1; }
 grep -v '^\[mvk-info\]\|^	' "$repro_log"
 
 # --- install (temp + rename, never rewrite a mapped dylib in place)
@@ -170,6 +177,7 @@ mv "$out/include/MoltenVK.tmp.$$" "$out/include/MoltenVK"
 {
   echo 'MoltenVK for CinterForgeOS (local source forks, no build-time patches)'
   echo "MoltenVK source: $MVK_REPO @ $MVK_COMMIT"
+  echo "Build copy: $src"
   echo "SPIRV-Cross source: $SPVC_REPO @ $SPVC_COMMIT"
   echo "dependency key: $deps_key"
   echo "Xcode: $(xcodebuild -version | tr '\n' ' ')"
@@ -183,4 +191,4 @@ mv "$out/include/MoltenVK.tmp.$$" "$out/include/MoltenVK"
 echo ">> $lib"
 otool -L "$lib"
 
-python3 "$cache_tool" record "$cache" "$cache_output" "$src" "$here/build.sh" "$spvc/spirv.hpp"
+python3 "$cache_tool" record "$cache" "$cache_output" "$fork" "$here/build.sh" "$spvc/spirv.hpp"

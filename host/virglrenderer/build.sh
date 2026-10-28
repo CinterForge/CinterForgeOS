@@ -70,7 +70,7 @@ fi
 export PKG_CONFIG_PATH="$out/lib/pkgconfig"
 export PKG_CONFIG_LIBDIR="$out/lib/pkgconfig" # native dependencies come from our source builds
 if [ ! -f "$mvk_lib" ]; then
-	"$root/host/moltenvk/build.sh"
+	/bin/sh "$root/host/moltenvk/build.sh"
 fi
 
 mkdir -p "$work" "$out"
