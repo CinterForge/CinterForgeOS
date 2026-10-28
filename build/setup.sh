@@ -127,20 +127,26 @@ cfos_setup() {
   local mount_root="$CFOS_WORKSPACE"
   local mount_work="$CFOS_BUILD_ROOT/CFOS/work"
 
-  # Verify the *actual* host-to-guest mounts, not just the existence of a
-  # Docker socket. Bind mount the common parent so both Source and Builds
-  # work on DEV (/Users/.../Source) and BUILDER (/Volumes/.../Source).
+  # The one shared Builds directory is a sibling of this checkout.
+  # Colima must mount the workspace containing BOTH source repositories and Builds.
+  # A running VM with stale mounts cannot be repaired by calling `colima start`.
   cfos_colima_healthy() {
-    [[ -S "$docker_socket" ]] || return 1
     docker info >/dev/null 2>&1 || return 1
     local probe="CFOS-SetupMountProbe-$$"
     mkdir -p "$mount_work"
-    docker run --rm \
+    rm -f "$mount_work/$probe"
+    if ! docker run --rm \
       --mount "type=bind,source=$CFOS_ROOT,target=/cfos-source,readonly" \
       --mount "type=bind,source=$mount_work,target=/cfos-work" \
       --entrypoint /bin/sh alpine:3.20 -ec \
-      "test -f /cfos-source/scripts/build-image.sh && touch /cfos-work/$probe" >/dev/null || return 1
-    [[ -f "$mount_work/$probe" ]] || return 1
+      "test -f /cfos-source/scripts/build-image.sh && touch /cfos-work/$probe"; then
+      echo "CFOS: Docker mount probe failed: source=$CFOS_ROOT builds=$mount_work" >&2
+      return 1
+    fi
+    if [[ ! -f "$mount_work/$probe" ]]; then
+      echo "CFOS: Docker did not write to Builds: $mount_work/$probe" >&2
+      return 1
+    fi
     rm -f "$mount_work/$probe"
   }
 
@@ -149,23 +155,29 @@ cfos_setup() {
     cfos_run colima start --profile "$colima_profile" --arch aarch64 --vm-type vz --activate=false --mount "$mount_root:w"
   else
     mkdir -p "$colima_home" "$mount_work" "$COLIMA_CACHE_HOME" "$DOCKER_CONFIG"
-    # Never let a symlink redirect VM storage to an obsolete location.
     [[ ! -L "$colima_home" && ! -L "$LIMA_HOME" ]] || {
-      echo "CFOS: managed Colima home is a symlink; refusing to follow it: $colima_home" >&2
+      echo "CFOS: Colima state must not be symlinked: $colima_home" >&2
       return 1
     }
-    if ! cfos_colima_healthy; then
-      echo 'CFOS: managed Docker unavailable or mounts incorrect; provisioning the managed profile.'
-      # Existing profiles are started without changing their configuration.
-      # --mount is a provisioning option, not a runtime activation option.
-      if [[ -d "$COLIMA_HOME/$colima_profile" ]]; then
+    # First activate the existing profile without modifying its configuration.
+    # A failed boot is NOT evidence of a bad disk or a bad mount.
+    if ! docker info >/dev/null 2>&1; then
+      if [[ -d "$LIMA_HOME/colima-$colima_profile" ]]; then
         cfos_colima_start || return 1
-      else
-        cfos_colima_start --arch aarch64 --vm-type vz \
-          --mount "$mount_root:w" || return 1
+      elif ! cfos_colima_start --arch aarch64 --vm-type vz --mount "$mount_root:w"; then
+        echo "CFOS: managed VM failed to start; see $LIMA_HOME/colima-$colima_profile/ha.stderr.log" >&2
+        return 1
       fi
+    fi
+    if ! cfos_colima_healthy; then
+      echo "CFOS: managed profile has incorrect mounts; recreating only $colima_profile for workspace $mount_root" >&2
+      # Colima owns the profile and its Lima disk lifecycle. Do not manually
+      # remove Lima internals or introduce symlinks to a previous workspace.
+      colima stop --profile "$colima_profile" || return 1
+      colima delete --profile "$colima_profile" --force || return 1
+      cfos_colima_start --arch aarch64 --vm-type vz --mount "$mount_root:w" || return 1
       cfos_colima_healthy || {
-        echo 'CFOS: Docker started but required source/Builds mounts failed validation; refusing to delete VM or disk.' >&2
+        echo "CFOS: fresh managed VM cannot mount source=$CFOS_ROOT and Builds=$mount_work" >&2
         return 1
       }
     fi

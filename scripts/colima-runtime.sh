@@ -6,15 +6,16 @@ cfos_colima_environment() {
   [[ -n "$root" ]] || { echo 'CFOS: source root not set' >&2; return 1; }
   root="$(cd "$root" && pwd -P)" || return 1
   local workspace="$(dirname "$root")"
-  export COLIMA_HOME="$workspace/Builds/CFOS/Colima"
+  export CFOS_SHARED_BUILDS="$workspace/Builds"
+  export COLIMA_HOME="$CFOS_SHARED_BUILDS/CFOS/Colima"
   export LIMA_HOME="$COLIMA_HOME/_lima"
   local agent_socket="$LIMA_HOME/colima-cinterforge-linux/ha.sock"
   if (( ${#agent_socket} >= 104 )); then
     echo "CFOS: Lima host-agent socket path too long: $agent_socket" >&2
     return 1
   fi
-  export COLIMA_CACHE_HOME="$workspace/Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/Cache/Colima"
-  export DOCKER_CONFIG="$workspace/Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/Docker"
+  export COLIMA_CACHE_HOME="$CFOS_SHARED_BUILDS/CreativeSuite/Built/cinterforge-os/mac/CFOS/Cache/Colima"
+  export DOCKER_CONFIG="$CFOS_SHARED_BUILDS/CreativeSuite/Built/cinterforge-os/mac/CFOS/Docker"
   export DOCKER_HOST="unix://$COLIMA_HOME/cinterforge-linux/docker.sock"
   unset DOCKER_CONTEXT
 }
@@ -26,13 +27,8 @@ cfos_colima_start() {
   local profile=cinterforge-linux
   local disk="colima-$profile"
   local log="$LIMA_HOME/colima-$profile/ha.stderr.log"
-  local start_output
-  # Lima may append to, truncate, or replace its stderr log at startup.
-  # Keep the previous log separately so only THIS attempt can authorize
-  # clearing a stale self-attachment (never infer it from historical errors).
-  if [[ -f "$log" ]]; then
-    mv -- "$log" "$log.cfos-previous" || return 1
-  fi
+  local start_output log_bytes=0
+  [[ ! -f "$log" ]] || log_bytes=$(wc -c < "$log")
   start_output="$(mktemp)" || return 1
   if colima start --profile "$profile" --activate=false "$@" >"$start_output" 2>&1; then
     cat "$start_output"
@@ -42,7 +38,7 @@ cfos_colima_start() {
   cat "$start_output" >&2
   rm -f "$start_output"
   if [[ -f "$log" ]] &&
-     grep -Fq "failed to attach disk \`$disk\`: in use by instance \`colima-$profile\`" "$log" &&
+     tail -c "+$((log_bytes + 1))" "$log" | grep -Fq "failed to attach disk \`$disk\`: in use by instance \`colima-$profile\`" &&
      ! colima status --profile "$profile" >/dev/null 2>&1; then
     echo "CFOS: Lima reports a stale self-attachment for stopped $profile; releasing its disk ownership" >&2
     if ! command -v limactl >/dev/null 2>&1; then
