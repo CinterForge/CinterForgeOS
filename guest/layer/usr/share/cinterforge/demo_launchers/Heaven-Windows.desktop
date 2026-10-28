@@ -1,11 +1,12 @@
 [Desktop Entry]
 Type=Application
 Version=1.0
-Name=Heaven (Windows - Proton)
+Name=Heaven Windows (Proton)
+Name[en_US]=Heaven Windows (Proton)
 Comment=Run Unigine Heaven Windows through Proton
-Exec=/home/steamos/.local/share/cinterforge/demo-launchers/windows-heaven.sh
+Exec=konsole --hold -e /home/steamos/.local/share/cinterforge/demo-launchers/windows-heaven.sh
 Icon=applications-games
-Terminal=true
+Terminal=false
 Categories=Game;Graphics;
 StartupNotify=false
 X-CinterForgeOS-Managed=true

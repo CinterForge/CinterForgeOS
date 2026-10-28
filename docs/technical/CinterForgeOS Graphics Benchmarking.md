@@ -20,10 +20,10 @@ Heaven is the Windows showcase running through **Proton 11 ARM64 / Wine / FEX** 
 
 ### Windows x64 — UNIGINE Heaven
 
-![Actual CinterForgeOS Windows DX9 Heaven 4.0 benchmark rendering at approximately 120 FPS](../dev-environment/Windows%20Heaven%20DX9%20-%20AO%20Off.png)
-**Actual capture from CinterForgeOS, October 25, 2026.** The on-screen benchmark HUD shows **131 FPS** at the captured instant, with minimum **70 FPS** and maximum **160 FPS** reported during the run. The broader observed run was approximately **120 FPS**; these are live frame-rate observations, **not a completed benchmark score**.
+![Actual CinterForgeOS Windows DX9 Heaven 4.0 benchmark rendering at approximately 120 FPS](../dev-environment/Windows%20Heaven%20DX9%20-%20AO%20Working.png)
+**Actual capture from CinterForgeOS, October 27, 2026.** The on-screen benchmark HUD shows **131 FPS** at the captured instant, with minimum **84 FPS** and maximum **160 FPS** reported during the run. The broader observed run was approximately **120 FPS**; these are live frame-rate observations, **not a completed benchmark score**.
 
-**[Watch the Windows DX9 ~120 FPS QuickTime recording](https://cdndev.ucreg.io/WIN%20DX9%20NO%20AO.mov)** (`.mov`, captured in the actual CFOS desktop).
+**[Watch the Windows DX9 ~120 FPS QuickTime recording](https://cdndev.ucreg.io/WIN%20DX9%20AO%20Working%201080.mov)** (`.mov`, captured in the actual CFOS desktop).
 
 **Successful GPU Acceleration Demonstrated — Windows DirectX 9**
 

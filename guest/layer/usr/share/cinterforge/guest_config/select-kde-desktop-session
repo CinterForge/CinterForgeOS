@@ -86,6 +86,19 @@ install -d -m 0700 -o steamos -g steamos "$home/.config"
 # installers. Confine corrective ownership to the user configuration tree.
 chown -R steamos:steamos "$home/.config"
 chmod u+rwx "$home/.config"
+# Steam client bootstrap runs as steamos.  Earlier guest setup can leave
+# ~/.local/share/cinterforge owned by root; repair only system-owned paths,
+# never recursively chown user Steam data or the host Steam library.
+for subdir in "$home/.local" "$home/.local/share" "$home/.local/state" "$home/.local/state/cinterforge" "$home/.local/share/Steam"; do
+    install -d -m 0755 -o steamos -g steamos "$subdir"
+done
+if [ -d "$home/.local/share/cinterforge" ] && [ "$(stat -c %u "$home/.local/share/cinterforge")" = 0 ]; then
+    chown steamos:steamos "$home/.local/share/cinterforge"
+fi
+if ! runuser -u steamos -- sh -c 'test -w "$1/.local/state" && test -w "$1/.local/share/Steam"' sh "$home"; then
+    echo '[CinterForgeOS] ERROR: Steam persistent directories unwritable' >&2
+    exit 1
+fi
 if ! runuser -u steamos -- sh -c 'test -w "$1" && test -w "$1/.config" && : > "$1/.config/.cinterforge-write-probe" && rm "$1/.config/.cinterforge-write-probe"' sh "$home"; then
     echo "[CinterForgeOS] ERROR: KDE home remains unwritable for steamos" >&2
     exit 1
@@ -127,20 +140,19 @@ fi
 autostart="$home/.config/autostart"
 install -d -m 0755 -o steamos -g steamos "$autostart"
 rm -f "$autostart/cinterforge-installed-test.desktop"
-# Steam must not start automatically in the native KDE session. On SteamOS,
-# the Deck client can initiate a Gamescope/Gaming Mode session transition;
-# that terminates the SDDM Plasma login and makes the desktop disappear.
-# Remove the autostart entry installed by earlier CinterForgeOS layers from
-# persistent /home, but preserve the Steam client and all account data.
+# Disable Steam autostart in the persistent home. Starting Steam during
+# Plasma session establishment can replace the desktop or produce black frames.
+# The separate application-menu and desktop launchers below remain available;
+# Heaven's launcher provisions Steam/Proton on demand.
+autostart="$home/.config/autostart"
+install -d -m 0755 -o steamos -g steamos "$autostart"
 rm -f "$autostart/cinterforge-steam.desktop"
-# Shadow both SteamOS global and earlier layer-provided Steam XDG autostarts.
-# Hidden=true disables matching system entries without removing the Steam app.
-cat > "$autostart/steam.desktop" <<'CFOS_DISABLE_STEAM_AUTOSTART'
+cat > "$autostart/steam.desktop" <<'CFOS_STEAM_AUTOSTART'
 [Desktop Entry]
 Type=Application
 Name=Steam
 Hidden=true
-CFOS_DISABLE_STEAM_AUTOSTART
+CFOS_STEAM_AUTOSTART
 chmod 0644 "$autostart/steam.desktop"
 chown steamos:steamos "$autostart/steam.desktop"
 # Provide an explicit, user-launchable Steam entry instead of starting it
@@ -152,13 +164,33 @@ cat > "$applications/cinterforge-steam.desktop" <<'CFOS_STEAM_LAUNCHER'
 Type=Application
 Name=Steam (CinterForgeOS)
 Comment=Launch the native Steam client from KDE
-Exec=/usr/lib/steamac/steam-kde-login
+Exec=/usr/lib/steamac/ensure-steam-proton --launch-steam
 Icon=steam
 Terminal=false
 Categories=Game;
 CFOS_STEAM_LAUNCHER
 chown steamos:steamos "$applications/cinterforge-steam.desktop"
 chmod 0644 "$applications/cinterforge-steam.desktop"
+# Override SteamOS's generic Steam desktop entry, which calls /usr/bin/steam
+# and fails on fresh ARM64 installations (missing /steamrtarm64/steam).
+cat > "$applications/steam.desktop" <<'CFOS_STEAM_APPLICATION'
+[Desktop Entry]
+Type=Application
+Name=Steam
+Comment=Start Steam and install the native ARM64 client when missing
+Exec=/usr/lib/steamac/ensure-steam-proton --launch-steam
+Icon=steam
+Terminal=false
+Categories=Game;
+CFOS_STEAM_APPLICATION
+chown steamos:steamos "$applications/steam.desktop"
+chmod 0644 "$applications/steam.desktop"
+# SteamOS may retain ~/Desktop/steam.desktop as a read-only file or as a
+# symlink into its immutable root filesystem. Do not overwrite, chmod, or
+# chown it during SDDM startup: the Steam menu entry above is the supported
+# on-demand launcher and desktop shortcut migration is not a boot prerequisite.
+# Keep user desktop files (including SteamOS-owned shortcuts) untouched.
+
 # Legacy standalone Ardour desktop launchers are superseded by the branded
 # CinterForge Audio entries in the Linux and Windows desktop folders.
 desktop="$home/Desktop"
@@ -170,5 +202,5 @@ for legacy in cinterforge-audio-linux.desktop cinterforge-audio-windows.desktop;
         rm -f -- "$applications/$legacy"
     fi
 done
-echo '[CinterForgeOS] Native Steam launcher available; Steam autostart disabled to protect KDE session'
+echo '[CinterForgeOS] Native Steam launcher available on demand; Steam autostart disabled'
 echo '[CinterForgeOS] SDDM autologin selected explicit CinterForgeOS Plasma Desktop Mode (not Steam Gaming Mode)'

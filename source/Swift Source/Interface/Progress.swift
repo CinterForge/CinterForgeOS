@@ -136,7 +136,7 @@ final class BootProgress {
             okLines = 0
             set(stage: "systemd", title: "Starting SteamOS services…", localizedTitle: String(localized: "Starting SteamOS services…"), percent: 0)
         } else if line.contains("Reached target Graphical Interface") {
-            set(stage: "graphical", title: "Starting Steam session…", localizedTitle: String(localized: "Starting Steam session…"), percent: 0, indeterminate: true)
+            set(stage: "graphical", title: "Starting KDE desktop…", localizedTitle: String(localized: "Starting KDE desktop…"), percent: 0, indeterminate: true)
         } else if state.stageId == "systemd", let text = BootProgress.okText(line) {
             okLines += 1
             // ~120 [ OK ] lines on a SteamOS boot; approach 95% of the stage asymptotically.

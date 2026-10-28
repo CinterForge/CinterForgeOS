@@ -11,7 +11,7 @@
 #     steamos-manager runs (the desktop's "Return to Gaming Mode" runs
 #     `steamosctl switch-to-game-mode`);
 #   - /usr/lib/steamac/desktop-xdg comes first in XDG_CONFIG_DIRS: its
-#     autostart/steam.desktop starts Steam with the client the launcher selected.
+#     autostart/steam.desktop disables Steam auto-launch during Plasma login.
 set -euo pipefail
 
 # The performance overlay preload and the gamescope-only portal directory are

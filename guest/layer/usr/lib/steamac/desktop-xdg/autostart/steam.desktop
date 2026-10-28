@@ -1,7 +1,6 @@
 [Desktop Entry]
-Name=Steam
-Exec=/usr/lib/steamac/steam-kde-login
-Icon=steam
-Terminal=false
 Type=Application
-OnlyShowIn=KDE
+Name=Steam
+# Desktop Mode starts Plasma, not Steam. Shadow stock system XDG autostart;
+# Steam/Proton are launched on demand from KDE or the Heaven launcher.
+Hidden=true

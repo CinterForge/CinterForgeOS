@@ -29,6 +29,7 @@ install_folder_icon() {
     icon=$3
     metadata="$folder/.directory"
     if [ -e "$metadata" ] && ! grep -Fxq 'X-CinterForgeOS-Managed=true' "$metadata"; then
+        # Respect user-authored folder metadata; no replacement.
         return 0
     fi
     cat > "$metadata" <<EOF_CFOS_FOLDER
@@ -40,6 +41,9 @@ X-CinterForgeOS-Managed=true
 EOF_CFOS_FOLDER
     chmod 0644 "$metadata"
     chown steamos:steamos "$metadata"
+    # Plasma desktop-folder label comes from the directory filename; the
+    # .directory file supplies the matching KDE metadata. Keep both explicit.
+    chmod 0755 "$folder"
 }
 install_managed_launcher() {
     src=$1
@@ -147,12 +151,22 @@ for platform in Linux Windows; do
         mv -f "$tmp" "$script"
     fi
     source_entry="$demo_src/Heaven-$platform.desktop"
-    target="$desktop/Heaven-$platform.desktop"
+    # Use a new canonical basename for Windows to invalidate KDE's cached,
+    # blank-label desktop item. Keep Linux Heaven's known-working shortcut.
+    if [ "$platform" = Windows ]; then
+        target="$desktop/Heaven Windows (Proton).desktop"
+        legacy="$desktop/Heaven-Windows.desktop"
+        if [ -f "$legacy" ] && grep -Eq '(X-CinterForgeOS-Managed=true|demo-launchers/windows-heaven.sh)' "$legacy"; then
+            rm -f -- "$legacy"
+        fi
+    else
+        target="$desktop/Heaven-$platform.desktop"
+    fi
     [ -s "$source_entry" ] || { echo "Missing Heaven launcher: $source_entry" >&2; exit 1; }
     # Refresh only entries we own. Older one-off demo installer copies
     # have our script destination but no marker; detect them without
     # appending markers in-place on every boot.
-    if [ -f "$target" ] && grep -Fq '/demo-launchers/' "$target"; then
+    if [ -f "$target" ] && grep -Eq '(demo-launchers/|X-CinterForgeOS-Managed=true)' "$target"; then
         rm -f -- "$target"
     fi
     install_managed_launcher "$source_entry" "$target"

@@ -239,14 +239,30 @@ for target in gamescope-session.target plasma-session.target; do
     [[ -L $ST/usr/lib/systemd/user/$target.wants/fx-clipboard-agent.service ]] \
         || { echo "[layer] fx-clipboard-agent.service is not wanted by $target" >&2; exit 1; }
 done
-# Desktop Mode: our plasma-session.target replaces the Frame's VR desktop target
-# (SteamVR units are masked); gamescope-session runs the nested desktop, whose
-# Steam autostart keeps the selected client.
-[[ -f $ST/usr/lib/systemd/user/plasma-session.target && -f $ST/usr/lib/systemd/user/steamac-nested-desktop.service ]] \
-    && ! grep -q '^Wants=.*steamvr' "$ST/usr/lib/systemd/user/plasma-session.target" \
-    && grep -q 'steamac-nested-desktop.service' "$ST/usr/lib/steamos/gamescope-session" \
-    && grep -q '^Exec=/usr/lib/steamac/steam-kde-login' "$ST/usr/lib/steamac/desktop-xdg/autostart/steam.desktop" \
-    || { echo "[layer] Desktop Mode units (plasma-session.target, steamac-nested-desktop.service, Steam autostart) missing" >&2; exit 1; }
+# Desktop Mode boots into Plasma (nested inside gamescope), never Steam.
+# Validate the actual shipped session, its service, and the system-level XDG
+# override. Steam remains available via explicit app/Heaven launchers only.
+[[ -f "$ST/usr/lib/systemd/user/plasma-session.target" ]] \
+    || { echo '[layer] missing Plasma desktop session target' >&2; exit 1; }
+[[ -f "$ST/usr/lib/systemd/user/steamac-nested-desktop.service" ]] \
+    || { echo '[layer] missing nested Plasma desktop service' >&2; exit 1; }
+! grep -q '^Wants=.*steamvr' "$ST/usr/lib/systemd/user/plasma-session.target" \
+    || { echo '[layer] Plasma session incorrectly requires SteamVR' >&2; exit 1; }
+grep -Fq 'WATCH_SERVICE=steamac-nested-desktop.service' "$ST/usr/lib/steamos/gamescope-session" \
+    || { echo '[layer] Plasma service is not the desktop session client' >&2; exit 1; }
+steam_autostart="$ST/usr/lib/steamac/desktop-xdg/autostart/steam.desktop"
+[[ -f "$steam_autostart" ]] && grep -Eq '^Hidden[[:space:]]*=[[:space:]]*true[[:space:]]*$' "$steam_autostart" \
+    || { echo '[layer] Desktop Mode must disable Steam XDG autostart' >&2; exit 1; }
+! grep -Eq '^[[:space:]]*Exec[[:space:]]*=' "$steam_autostart" \
+    || { echo '[layer] Steam XDG autostart still contains an executable' >&2; exit 1; }
+grep -Fq 'export XDG_CONFIG_DIRS=/usr/lib/steamac/desktop-xdg:' "$ST/usr/lib/steamac/nested-desktop" \
+    || { echo '[layer] nested Plasma does not use the Steam-autostart override' >&2; exit 1; }
+sh -n "$ST/usr/lib/cinterforge/select-kde-desktop-session"
+# SteamOS can keep a read-only Desktop/steam.desktop from its immutable root;
+# the SDDM preflight must never try to update that icon and block KDE login.
+! grep -Eq '^[[:space:]]*(cp|install|chmod|chown)[[:space:]].*\$home/Desktop/steam\.desktop' "$ST/usr/lib/cinterforge/select-kde-desktop-session" \
+    || { echo '[layer] KDE preflight must not rewrite immutable Steam desktop icon' >&2; exit 1; }
+echo '[layer] verified Plasma Desktop Mode (Steam autostart disabled)'
 # Same binary, root mode: started by udev for the launcher's fx.clock port.
 grep -q 'fx-progress-agent clock-sync' "$ST/usr/lib/systemd/system/fx-clock-sync.service" \
     && grep -q 'fx-clock-sync.service' "$ST/usr/lib/udev/rules.d/70-fx-progress.rules" \

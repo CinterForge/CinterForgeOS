@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# Native SteamOS ARM64 client + Valve-managed ARM64 compatibility tools.
+# Never fetch third-party Proton builds or modify the host's Steam library.
+set -uo pipefail
+home="${HOME:-/home/steamos}"
+root="$home/.local/share/Steam"
+client="$root/steamrtarm64/steam"
+proton="$root/steamapps/common/Proton 11.0 (ARM64)/proton"
+runtime="$root/steamapps/common/SteamLinuxRuntime_4-arm64"
+state="$home/.local/state/cinterforge"
+mkdir -p "$state" || { echo "Steam home is not writable: $state" >&2; exit 1; }
+log="$state/steam-provision.log"
+exec > >(tee -a "$log") 2>&1
+printf '\n[%s] Steam/Proton provisioning (%s)\n' "$(date -Is)" "${1:---ensure}"
+if [[ "$(id -un)" != steamos || "$(uname -m)" != aarch64 ]]; then
+  echo 'ERROR: requires native SteamOS aarch64 user steamos' >&2; exit 1
+fi
+# Client install/login may be interactive. Always use the existing native
+# CinterForge launcher; /usr/bin/steam is a broken wrapper on fresh installs.
+if [[ ! -x "$client" ]]; then
+  echo 'Steam ARM64 missing: starting official Valve bootstrap/login'
+  nohup /usr/lib/steamac/steam-kde-login >>"$log" 2>&1 </dev/null &
+fi
+if [[ "${1:-}" == --launch-steam ]]; then
+  if [[ -x "$client" ]]; then
+    # Steam itself handles a duplicate launch by activating its existing UI.
+    nohup /usr/lib/steamac/steam-kde-login >>"$log" 2>&1 </dev/null &
+  fi
+fi
+# This mode is also used by XDG autostart; never block KDE initialization.
+if [[ "${1:-}" == --launch-steam ]]; then exit 0; fi
+if [[ -f "$proton" && -d "$runtime" ]]; then
+  echo "READY: $proton"; exit 0
+fi
+# A first-run client download or interactive login can take time.
+for ((i=0;i<60;i++)); do
+  [[ -x "$client" ]] && break
+  sleep 2
+done
+if [[ ! -x "$client" ]]; then
+  echo 'ERROR: Steam ARM64 client not ready; open Steam and complete login' >&2
+  exit 1
+fi
+# Ask the running Valve client to install its OWN compatibility depots.
+# 4628740: Proton 11.0 ARM64; 4185400: Steam Linux Runtime 4 ARM64.
+if [[ ! -d "$runtime" ]]; then
+  echo 'Requesting Steam Linux Runtime 4.0 ARM64 (4185400) from Steam'
+  "$client" 'steam://install/4185400' || true
+fi
+if [[ ! -f "$proton" ]]; then
+  echo 'Requesting Proton 11.0 ARM64 (4628740) from Steam'
+  "$client" 'steam://install/4628740' || true
+fi
+echo 'Checking Valve-managed installations (Steam login/download may be required)'
+for ((i=0;i<180;i++)); do
+  if [[ -f "$proton" && -d "$runtime" ]]; then
+    echo "READY: $proton"; exit 0
+  fi
+  sleep 2
+done
+echo "ERROR: Steam has not finished installing Proton 11.0 ARM64 or Steam Linux Runtime 4.0 ARM64." >&2
+echo 'Open Steam, sign in if prompted, and allow the two tool downloads to finish.' >&2
+echo "Diagnostic log: $log" >&2
+exit 1
