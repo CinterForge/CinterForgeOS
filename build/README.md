@@ -1,15 +1,15 @@
 # Building CinterForgeOS
 
-This directory is the **public, human-readable entry point** for the CinterForgeOS
-build lifecycle. The repository-root [`CFOS`](../CFOS) launcher parses the command,
-configures paths, then calls exactly one phase function from this directory.
+## Prerequisites
+- macOS 26 or higher
+- M2 or higher
+- An activated Steam account with Steam installed and working on the machine
+- The setup script _should_ install any prerequisites and ask permission as it does - needs testing
+- After running setup, you can either run build, stage and test or you can launch the XCode workspace and Build and Run
 
-The goal is to let contributors understand **what runs, in what order, where
-outputs go, and what remains to be made reproducible**. These scripts are intentionally
-small. They reuse the project's existing Xcode, guest, and graphics build scripts;
-they do not implement a second build system.
+It should be as simple Clone, Setup, Build and Run.  If it is not, that is a bug in the build system.
 
-## At a glance
+## Build scripts a glance
 
 ```text
 CinterForgeOS/
@@ -139,22 +139,6 @@ Other environment variables used inside existing guest/host scripts retain
 their own documented meanings. This command does not rewrite Git sources,
 change the Xcode project, or create another artifact manifest.
 
-## Build independence: current limitations
-
-**This is not yet a complete clone-and-build guarantee.** Known open items:
-
-1. The maintained FEX checkout is required outside this repository.
-2. Native and host graphics dependencies (including the maintained libkrun
-   fork) still need a verified clean-clone acquisition path.
-3. Original publisher launcher icons use CFOS-owned URLs in
-   `scripts/import-creative-suite-icons.py` (no sibling CSV or scripts).
-4. The precise Xcode output path, native launch, app signing, and full
-   SteamOS/GL/DX9 smoke tests need validation on Apple Silicon hardware.
-5. The initial `test.sh` hook does not exercise the full graphics stack.
-
-Please treat **syntax checks and dry-run checks as limited checks**, not proof
-of a successful build, installation, or boot.
-
 ## Security and distribution
 
 CinterForgeOS is a public repository. Do not commit Steam publisher secrets, API credentials, signed-in user state, disk, images, or proprietary cached dependencies. Public users should be able to build without access to Hope's private credentials. Publishing and privileged authentication belong outside this public lifecycle.
@@ -163,16 +147,6 @@ When contributing build changes, keep phase ownership obvious: Setup prepares,
 Build compiles, Stage installs, Test verifies, and the Swift launcher handles
 SteamOS user-disk consent and creation. Keep detailed functionality in its
 existing implementation rather than adding new framework layers.
-
-### Repository boundary
-
-All CFOS lifecycle commands and icon generation use scripts within this
-repository. No CFOS build script invokes `Cinter` or any lifecycle script
-from the sibling CinterForge checkout. The external FEX source is an upstream
-code dependency, not a command dependency on the CinterForge application.
-The guest-side compatibility bridge uses scripts installed in the persistent
-Steam library; those runtime scripts are independent of the host source-tree
-location.
 
 ### macOS Colima socket path limit
 

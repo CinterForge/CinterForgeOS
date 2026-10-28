@@ -76,6 +76,7 @@ This project is evolving. Contributions that improve build reproducibility, grap
 
 | Guide | What's inside |
 | --- | --- |
+| [Building CinterForgeOS](build/README.md) | Build it yourself! |
 | [Architecture](docs/technical/CinterForgeOS%20Architecture.md) | The complete host/guest/shared-library design and boot-to-test lifecycle. |
 | [Guest](docs/technical/CinterForgeOS%20guest.md) | SteamOS image, boot, overlays, mounts, KDE, and guest integration. |
 | [Host](docs/technical/CinterForgeOS%20host.md) | Native macOS host, VM lifecycle, graphics, input, storage, and diagnostics. |
