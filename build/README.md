@@ -78,9 +78,9 @@ guest/fex/build.sh fetch
 guest/fex/runtime.sh fetch
 ```
 
-The FEX source checkout defaults to `~/Source/FEX` (override with
+The FEX source checkout defaults to `../FEX` (sibling of `CinterForgeOS`, on the same workspace drive) (override with
 `FEX_FORK_CHECKOUT`). **This is an unresolved fresh-clone dependency**: Setup
-currently expects the CinterForge-maintained `cinterforge` branch to have been
+currently expects the CinterForge-maintained `cinterforge/cinterforge` branch to have been
 cloned already. The complete native, graphics, guest, and toolchain dependency
 closure has not yet been demonstrated from a clean clone.
 
@@ -132,7 +132,7 @@ Optional environment variables:
 
 | Name | Purpose |
 | --- | --- |
-| `FEX_FORK_CHECKOUT` | Local maintained FEX checkout, defaults to `~/Source/FEX`. |
+| `FEX_FORK_CHECKOUT` | Local maintained FEX checkout, defaults to `../FEX` (sibling of `CinterForgeOS`, on the same workspace drive). |
 | `CFOS_INSTALL_ROOT` | Installed CinterForgeOS version-container root. |
 
 Other environment variables used inside existing guest/host scripts retain

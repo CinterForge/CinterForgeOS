@@ -30,7 +30,7 @@ cfos_setup() {
   local formulae=(
     dtc xz lld pkgconf libepoxy meson ninja llvm
     spirv-llvm-translator spirv-tools spirv-headers spirv-cross
-    vulkan-loader glslang python cmake go rustup-init colima docker
+    vulkan-loader glslang python cmake go rustup colima docker
   )
   for formula in "${formulae[@]}"; do
     if (( CFOS_DRY_RUN )) || ! brew list --versions "$formula" >/dev/null 2>&1; then
@@ -49,6 +49,30 @@ cfos_setup() {
         return 1
       fi
     done
+  fi
+
+  # Homebrew's rustup formula provides the rustup executable directly.
+  # Do not assume a rustup-init binary exists in the formula keg.
+  # Provision the pinned toolchain in Setup, not during Xcode builds.
+  if (( ! CFOS_DRY_RUN )); then
+    local rustup_bin pinned_cargo pinned_rustc
+    rustup_bin="$(brew --prefix)/bin/rustup"
+    [[ -x "$rustup_bin" ]] || {
+      echo "CFOS: rustup executable missing: $rustup_bin" >&2
+      return 1
+    }
+    export PATH="$(brew --prefix)/bin:$HOME/.cargo/bin:$PATH"
+    "$rustup_bin" toolchain install 1.90.0 --profile minimal || return 1
+    "$rustup_bin" default 1.90.0 || return 1
+    pinned_cargo="$("$rustup_bin" which --toolchain 1.90.0 cargo)" || return 1
+    pinned_rustc="$("$rustup_bin" which --toolchain 1.90.0 rustc)" || return 1
+    [[ -x "$pinned_cargo" && -x "$pinned_rustc" ]] || {
+      echo 'CFOS: pinned Rust 1.90.0 cargo/rustc binaries unavailable' >&2
+      return 1
+    }
+    export PATH="$(dirname "$pinned_cargo"):$PATH"
+  else
+    cfos_run rustup toolchain install 1.90.0 --profile minimal
   fi
 
   # Validate binaries, not just Homebrew package metadata.
@@ -107,14 +131,75 @@ cfos_setup() {
     cfos_run colima start --profile "$colima_profile" --arch aarch64 --vm-type vz --activate=false
   fi
 
-  # Current limitation: the maintained FEX fork must already be checked out.
-  # Do not silently switch to upstream or an unrelated checkout.
-  local fex_checkout="${FEX_FORK_CHECKOUT:-$HOME/Source/FEX}"
-  if (( ! CFOS_DRY_RUN )) && [[ ! -d "$fex_checkout/.git" ]]; then
-    echo "CFOS: maintained FEX fork missing at $fex_checkout" >&2
-    echo 'Clone the CinterForge/FEX cinterforge branch or set FEX_FORK_CHECKOUT.' >&2
-    return 1
-  fi
+  # Required maintained forks live beside CinterForgeOS, regardless of drive.
+  # Never replace an existing checkout or silently accept an unrelated origin.
+  local repo_name checkout remote answer branch
+  local required_repos=(
+    FEX
+    cinterforge-kosmickrisp-mesa
+    cinterforge-libkrun
+    cinterforge-moltenvk
+    cinterforge-spirv-cross
+    cinterforge-virglrenderer
+  )
+  for repo_name in "${required_repos[@]}"; do
+    if [[ "$repo_name" == FEX ]]; then
+      checkout="${FEX_FORK_CHECKOUT:-$CFOS_WORKSPACE/FEX}"
+      remote='https://github.com/CinterForge/FEX.git'
+      branch='cinterforge/cinterforge'
+    else
+      checkout="$CFOS_WORKSPACE/$repo_name"
+      remote="https://github.com/CinterForge/$repo_name.git"
+      branch=''
+    fi
+    if [[ ! -d "$checkout/.git" ]]; then
+      if [[ -e "$checkout" ]]; then
+        echo "CFOS: required repository path exists but is not a Git checkout: $checkout" >&2
+        return 1
+      fi
+      echo "CFOS: required repository missing: $checkout" >&2
+      echo "CFOS: clone $remote${branch:+ (branch $branch)}?" >&2
+      if (( CFOS_DRY_RUN )); then
+        cfos_run git clone ${branch:+--branch "$branch"} "$remote" "$checkout"
+        continue
+      fi
+      # Setup may be invoked by a wrapper that redirects stdin. Prefer the
+      # controlling terminal so an interactive user can still approve cloning.
+      # Never assume consent in unattended runs.
+      if [[ -r /dev/tty && -w /dev/tty ]]; then
+        printf 'Clone repository and continue? [y/N]: ' > /dev/tty
+        IFS= read -r answer < /dev/tty || return 1
+      elif [[ -t 0 ]]; then
+        read -r -p 'Clone repository and continue? [y/N]: ' answer || return 1
+      else
+        echo 'CFOS: no interactive terminal available; stopping without cloning.' >&2
+        return 1
+      fi
+      case "$answer" in
+        y|Y|yes|YES|Yes) ;;
+        *) echo 'CFOS: repository clone declined; stopping Setup.' >&2; return 1 ;;
+      esac
+      if [[ -n "$branch" ]]; then
+        cfos_run git clone --recurse-submodules --branch "$branch" "$remote" "$checkout" || return 1
+      else
+        cfos_run git clone --recurse-submodules "$remote" "$checkout" || return 1
+      fi
+    fi
+    if (( ! CFOS_DRY_RUN )); then
+      [[ -d "$checkout/.git" ]] || { echo "CFOS: invalid checkout: $checkout" >&2; return 1; }
+      local actual_origin
+      actual_origin="$(git -C "$checkout" remote get-url origin)" || return 1
+      case "$actual_origin" in
+        "https://github.com/CinterForge/$repo_name"|"https://github.com/CinterForge/$repo_name.git"|"git@github.com:CinterForge/$repo_name.git") ;;
+        *) echo "CFOS: unexpected origin for $repo_name: $actual_origin" >&2; return 1 ;;
+      esac
+      if [[ -n "$branch" ]]; then
+        [[ "$(git -C "$checkout" symbolic-ref --quiet --short HEAD)" == "$branch" ]] || {
+          echo "CFOS: $repo_name must be on branch $branch" >&2; return 1;
+        }
+      fi
+    fi
+  done
   cfos_run bash "$CFOS_ROOT/guest/fex/build.sh" fetch
   cfos_run bash "$CFOS_ROOT/guest/fex/runtime.sh" fetch
   echo 'CFOS: Setup prepared source prerequisites; the build phase compiles the application.'

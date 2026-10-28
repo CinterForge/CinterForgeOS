@@ -15,19 +15,19 @@ mkdir -p "$(dirname "$SOURCE")" "$BUILD" "$LOGS" "$STEAMAC_WORK_DIR/out"
 # CinterForge's editable fork is the authored source. Setup selects a commit;
 # Build consumes that same commit from the external, visible dependency checkout.
 # A changing branch cannot silently change a release between Setup and Build.
-FEX_FORK_CHECKOUT="${FEX_FORK_CHECKOUT:-$HOME/Source/FEX}"
+FEX_FORK_CHECKOUT="${FEX_FORK_CHECKOUT:-$(dirname "$REPO")/FEX}"
 FEX_SOURCE_ID="$STEAMAC_WORK_DIR/DependencySources/FEX.selected-commit"
 FEX_BUILD_ID="$STEAMAC_WORK_DIR/out/fex.source-commit"
 resolve_fex_commit() {
   [[ -d "$FEX_FORK_CHECKOUT/.git" ]] || {
-    echo "[FEX] CinterForge fork missing: $FEX_FORK_CHECKOUT (clone the public CinterForge/FEX cinterforge branch)" >&2; exit 1;
+    echo "[FEX] CinterForge fork missing: $FEX_FORK_CHECKOUT (clone the public CinterForge/FEX cinterforge/cinterforge branch)" >&2; exit 1;
   }
   local branch origin_url sha
   branch=$(git -C "$FEX_FORK_CHECKOUT" symbolic-ref --quiet --short HEAD) || {
-    echo '[FEX] fork checkout must be on cinterforge branch' >&2; exit 1;
+    echo '[FEX] fork checkout must be on cinterforge/cinterforge branch' >&2; exit 1;
   }
-  [[ "$branch" == cinterforge ]] || {
-    echo "[FEX] unexpected branch $branch (expected cinterforge)" >&2; exit 1;
+  [[ "$branch" == cinterforge/cinterforge ]] || {
+    echo "[FEX] unexpected branch $branch (expected cinterforge/cinterforge)" >&2; exit 1;
   }
   [[ -z "$(git -C "$FEX_FORK_CHECKOUT" status --porcelain --untracked-files=normal)" ]] || {
     echo '[FEX] fork has uncommitted/untracked files; commit the FEX fix first' >&2; exit 1;
@@ -54,7 +54,7 @@ case "${1:-}" in
     actual=$(git -C "$SOURCE" rev-parse HEAD)
     [[ "$actual" == "$selected" ]] || { echo "FEX source mismatch: $actual" >&2; exit 1; }
     printf '%s\n' "$actual" > "$FEX_SOURCE_ID"
-    echo "[FEX] setup selected CinterForge/FEX cinterforge commit $actual"
+    echo "[FEX] setup selected CinterForge/FEX cinterforge/cinterforge commit $actual"
     ;;
   build)
     [[ -d "$SOURCE/.git" ]] || { echo '[FEX] Setup incomplete: external source checkout missing. Run ./CFOS setup cinterforge-os mac' >&2; exit 1; }
