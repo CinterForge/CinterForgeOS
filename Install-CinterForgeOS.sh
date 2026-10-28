@@ -8,7 +8,8 @@ for phase in setup build stage; do
   printf '\n===== CinterForgeOS %s (Release) =====\n' "$phase"
   /bin/bash ./CFOS "$phase" cinterforge-os mac Release
 done
-installed="$HOME/Library/Application Support/Steam/steamapps/common/CinterForge/Applications/macOS/CinterForgeOS/2026/CinterForge OS.app"
+steamapps="$(/usr/bin/python3 "$ROOT/scripts/resolve-steamapps.py")"
+installed="${CFOS_INSTALL_ROOT:-$steamapps/common/CinterForge/Applications/macOS/CinterForgeOS}/2026/CinterForge OS.app"
 [[ -d "$installed" ]] || { echo "Staged application missing: $installed" >&2; exit 1; }
 printf '\nCinterForgeOS staged successfully: %s\n' "$installed"
 printf '\nSteam integration: Steam officially supports Add a Non-Steam Game.\n'

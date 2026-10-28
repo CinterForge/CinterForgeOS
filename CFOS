@@ -9,7 +9,10 @@ CFOS_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 CFOS_WORKSPACE="$(dirname "$CFOS_ROOT")"
 CFOS_BUILD_ROOT="$CFOS_WORKSPACE/Builds/CreativeSuite/Built/cinterforge-os/mac"
 CFOS_PRODUCT_ROOT="$CFOS_BUILD_ROOT/CFOS/work/out/XcodeProduct"
-CFOS_INSTALL_ROOT="${CFOS_INSTALL_ROOT:-$HOME/Library/Application Support/Steam/steamapps/common/CinterForge/Applications/macOS/CinterForgeOS}"
+if [[ -z "${CFOS_INSTALL_ROOT:-}" ]]; then
+  CFOS_STEAMAPPS="$(/usr/bin/python3 "$CFOS_ROOT/scripts/resolve-steamapps.py")" || exit 1
+  CFOS_INSTALL_ROOT="$CFOS_STEAMAPPS/common/CinterForge/Applications/macOS/CinterForgeOS"
+fi
 
 usage() {
   cat >&2 <<'USAGE'
