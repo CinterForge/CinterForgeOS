@@ -38,7 +38,7 @@ Observed performance:
 * Host GPU: Apple M4 Max
 * Graphics backend: KosmicKrisp / Metal
 * Observed frame rate: Approximately 118 FPS
-* Rendering: Successful with Ambient Occlusion disabled
+* Rendering: Successful with Ambient Occlusion enabled
 * Status: GPU-accelerated Windows 3D rendering successfully demonstrated
 
 This establishes an important CinterForgeOS milestone: Windows x86 applications can execute within the SteamOS/KDE environment and achieve high-performance hardware-accelerated 3D rendering on Apple Silicon.
