@@ -5,3 +5,10 @@ RUN apt-get update \
       bc bison build-essential ca-certificates cpio dwarves file flex git kmod \
       libelf-dev libssl-dev patch python3 rsync xz-utils zstd \
  && rm -rf /var/lib/apt/lists/*
+
+# Bake kernel build scripts/configuration into the image. Docker daemon may run
+# inside Colima and cannot bind-mount host paths on external volumes.
+COPY container-build.sh check-config.sh /steamac/
+COPY config/ /steamac/config/
+COPY patches/ /steamac/patches/
+RUN mkdir -p /cache /out

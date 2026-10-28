@@ -30,13 +30,43 @@ cfos_setup() {
   local formulae=(
     dtc xz lld pkgconf libepoxy meson ninja llvm
     spirv-llvm-translator spirv-tools spirv-headers spirv-cross
-    vulkan-loader glslang python cmake go rustup colima docker
+    vulkan-loader glslang cmake go rustup colima docker
   )
   for formula in "${formulae[@]}"; do
     if (( CFOS_DRY_RUN )) || ! brew list --versions "$formula" >/dev/null 2>&1; then
       cfos_run brew install "$formula"
     fi
   done
+
+  # Provision pinned Python into the external CFOS build tree, never Homebrew
+  # or a user-global Python directory. uv itself is installed locally as well.
+  local python_home="$CFOS_BUILD_ROOT/CFOS/work/tools/python"
+  local uv_home="$CFOS_BUILD_ROOT/CFOS/work/tools/uv"
+  local managed_python="$python_home/bin/python3"
+  if (( CFOS_DRY_RUN )); then
+    cfos_run mkdir -p "$python_home" "$uv_home"
+  else
+    mkdir -p "$python_home/bin" "$uv_home/bin"
+    if [[ ! -x "$uv_home/bin/uv" ]]; then
+      command -v curl >/dev/null || { echo 'CFOS: curl required to bootstrap isolated Python' >&2; return 1; }
+      echo "CFOS: installing isolated uv into $uv_home"
+      local uv_installer="$uv_home/install.sh"
+      curl -fsSL https://astral.sh/uv/install.sh -o "$uv_installer" || return 1
+      env UV_INSTALL_DIR="$uv_home/bin" UV_NO_MODIFY_PATH=1 sh "$uv_installer" || return 1
+    fi
+    [[ -x "$uv_home/bin/uv" ]] || { echo 'CFOS: isolated uv installation failed' >&2; return 1; }
+    if [[ ! -x "$managed_python" ]] || ! "$managed_python" -c 'import sys; sys.exit(sys.version_info[:2] != (3, 11))' 2>/dev/null; then
+      echo "CFOS: installing isolated Python 3.11 into $python_home"
+      UV_PYTHON_INSTALL_DIR="$python_home/managed" "$uv_home/bin/uv" python install 3.11 || return 1
+      local python_found
+      python_found="$(UV_PYTHON_INSTALL_DIR="$python_home/managed" "$uv_home/bin/uv" python find --managed-python 3.11)" || return 1
+      [[ -x "$python_found" ]] || { echo "CFOS: Python 3.11 unavailable: $python_found" >&2; return 1; }
+      ln -sfn "$python_found" "$managed_python"
+    fi
+    export CFOS_PYTHON="$managed_python"
+    export PATH="$python_home/bin:$PATH"
+    echo "CFOS: using isolated Python: $CFOS_PYTHON"
+  fi
 
   # Homebrew packages can be installed but their executables hidden from
   # Xcode's sanitized PATH.  Validate the actual shader tools in Setup.

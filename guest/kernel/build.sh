@@ -82,13 +82,42 @@ fi
 docker build --platform linux/arm64 -q -t "$IMAGE" "$here" > /dev/null
 docker volume create "$VOLUME" > /dev/null
 
-docker run --rm --platform linux/arm64 \
-	-e KVER="$KVER" -e JOBS="$JOBS" \
-	-v "$VOLUME":/build \
-	-v "$here":/steamac:ro \
-	-v "$cache":/cache:ro \
-	-v "$out":/out \
-	"$IMAGE" sh /steamac/container-build.sh
+# Keep the container alive while staging.  Never make its startup command depend
+# on a script that might not yet exist in the image (or a stale cached image).
+# Colima cannot reliably bind-mount external host paths; docker cp/exec use its API.
+container=$(docker create --platform linux/arm64 \
+    -e KVER="$KVER" -e JOBS="$JOBS" \
+    -v "$VOLUME":/build "$IMAGE" /bin/sh -c 'while :; do sleep 3600; done')
+cleanup_container() { docker rm -f "$container" >/dev/null 2>&1 || true; }
+trap cleanup_container EXIT HUP INT TERM
+
+docker start "$container" >/dev/null
+# docker cp requires parent directories to exist in the container.
+docker exec "$container" mkdir -p /steamac/config /steamac/patches /cache /out
+docker cp "$here/container-build.sh" "$container:/steamac/container-build.sh"
+docker cp "$here/check-config.sh" "$container:/steamac/check-config.sh"
+docker cp "$here/config/." "$container:/steamac/config/"
+docker cp "$here/patches/." "$container:/steamac/patches/"
+docker cp "$tarball" "$container:/cache/linux-$KVER.tar.xz"
+# Fail with actionable diagnostics if the copied script is not actually visible.
+docker exec "$container" /bin/sh -c \
+    'test -s /steamac/container-build.sh && test -s /steamac/check-config.sh && test -s "/cache/linux-$KVER.tar.xz"' || {
+    echo "CFOS: kernel container staging failed: required files missing inside container" >&2
+    docker exec "$container" ls -la /steamac /cache >&2 || true
+    exit 1
+}
+echo "CFOS: kernel container inputs staged; running /steamac/container-build.sh"
+# Exec, rather than the container entrypoint, runs the staged script.  Its exit
+# code is propagated by set -e; a failed build cannot publish stale artifacts.
+docker exec "$container" /bin/sh /steamac/container-build.sh
+docker cp "$container:/out/Image" "$out/Image.tmp"
+docker cp "$container:/out/kernel.config" "$out/kernel.config.tmp"
+docker cp "$container:/out/kernel-check-config.log" "$out/kernel-check-config.log.tmp"
+mv -f "$out/Image.tmp" "$out/Image"
+mv -f "$out/kernel.config.tmp" "$out/kernel.config"
+mv -f "$out/kernel-check-config.log.tmp" "$out/kernel-check-config.log"
+cleanup_container
+trap - EXIT HUP INT TERM
 
 cp "$out/kernel.config" "$here/config-steamac"
 file "$out/Image"

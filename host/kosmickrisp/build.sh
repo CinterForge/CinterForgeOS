@@ -262,14 +262,14 @@ for dep in $BREW_DEPS; do
 		exit 1
 	fi
 done
-python=
-for v in 3.14 3.13 3.12 3.11 3.10; do
-	if command -v "python$v" > /dev/null 2>&1; then
-		python=$(command -v "python$v")
-		break
-	fi
-done
-[ -n "$python" ] || { echo "Mesa needs Python >= 3.10 (brew install python)" >&2; exit 1; }
+# Use the pinned, self-contained interpreter installed by CFOS Setup.
+# Build scripts must never install or select machine-global Python.
+python="${CFOS_PYTHON:-$STEAMAC_WORK_DIR/tools/python/bin/python3}"
+[ -x "$python" ] && "$python" -c 'import sys; sys.exit(sys.version_info[:2] != (3, 11))' 2>/dev/null || {
+    echo "CFOS: isolated Python 3.11 missing: $python (run CFOS Setup)" >&2
+    exit 1
+}
+echo ">> Mesa Python: $python ($("$python" --version 2>&1))"
 
 mkdir -p "$work"
 
@@ -283,7 +283,7 @@ patch_rev=$(printf '%s' "$MESA_COMMIT" | shasum -a 256 | cut -c1-8)
 cache=$work/.cfos-build-fingerprint
 cache_tool=$root/scripts/host-build-cache.py
 cache_output=$out/lib/libvulkan_kosmickrisp.dylib
-if python3 "$cache_tool" check "$cache" "$cache_output" "$src" "$here/build.sh"; then
+if "$python" "$cache_tool" check "$cache" "$cache_output" "$src" "$here/build.sh"; then
     echo "[Xcode] KosmicKrisp unchanged (source + dirty files + build script); skipping build and probes"
     exit 0
 fi
@@ -409,4 +409,4 @@ mv -f "$out/KOSMICKRISP.txt.tmp.$$" "$out/KOSMICKRISP.txt"
 echo ">> $lib"
 otool -L "$lib"
 
-python3 "$cache_tool" record "$cache" "$cache_output" "$src" "$here/build.sh"
+"$python" "$cache_tool" record "$cache" "$cache_output" "$src" "$here/build.sh"
