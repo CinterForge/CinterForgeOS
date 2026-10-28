@@ -150,7 +150,7 @@ cfos_setup() {
     else
       checkout="$CFOS_WORKSPACE/$repo_name"
       remote="https://github.com/CinterForge/$repo_name.git"
-      branch=''
+      branch='cinterforge/cinterforge'
     fi
     if [[ ! -d "$checkout/.git" ]]; then
       if [[ -e "$checkout" ]]; then
@@ -193,9 +193,35 @@ cfos_setup() {
         "https://github.com/CinterForge/$repo_name"|"https://github.com/CinterForge/$repo_name.git"|"git@github.com:CinterForge/$repo_name.git") ;;
         *) echo "CFOS: unexpected origin for $repo_name: $actual_origin" >&2; return 1 ;;
       esac
-      if [[ -n "$branch" ]]; then
+      if [[ "$(git -C "$checkout" symbolic-ref --quiet --short HEAD)" != "$branch" ]]; then
+        echo "CFOS: $repo_name must be on branch $branch (currently $(git -C "$checkout" branch --show-current))" >&2
+        # Never discard local modifications, staged changes, or untracked files.
+        if [[ -n "$(git -C "$checkout" status --porcelain --untracked-files=all)" ]]; then
+          echo "CFOS: $repo_name has local changes; refusing automatic branch checkout." >&2
+          return 1
+        fi
+        if [[ -r /dev/tty && -w /dev/tty ]]; then
+          printf 'Check out required branch and continue? [y/N]: ' > /dev/tty
+          IFS= read -r answer < /dev/tty || return 1
+        elif [[ -t 0 ]]; then
+          read -r -p 'Check out required branch and continue? [y/N]: ' answer || return 1
+        else
+          echo 'CFOS: no interactive terminal available; stopping without switching branches.' >&2
+          return 1
+        fi
+        case "$answer" in
+          y|Y|yes|YES|Yes) ;;
+          *) echo 'CFOS: branch checkout declined; stopping Setup.' >&2; return 1 ;;
+        esac
+        git -C "$checkout" fetch origin "$branch" || return 1
+        if git -C "$checkout" show-ref --verify --quiet "refs/heads/$branch"; then
+          git -C "$checkout" switch "$branch" || return 1
+        else
+          git -C "$checkout" switch --track -c "$branch" "origin/$branch" || return 1
+        fi
         [[ "$(git -C "$checkout" symbolic-ref --quiet --short HEAD)" == "$branch" ]] || {
-          echo "CFOS: $repo_name must be on branch $branch" >&2; return 1;
+          echo "CFOS: failed to select required branch $branch for $repo_name" >&2
+          return 1
         }
       fi
     fi
