@@ -9,9 +9,17 @@ steamroot="$HOME/.local/share/Steam"
 client="$steamroot/steamrtarm64/steam"
 logdir="$HOME/.local/state/cinterforge"
 mkdir -p "$logdir" "$steamroot/package"
-source /run/steamapps/common/CinterForge/Applications/Test/Scripts/app-launch-diagnostics
-cfdiag_init Steam
-trap 'code=$?; cfdiag_finish "$code"' EXIT
+# Diagnostics are optional: first boot must not depend on an externally staged
+# test helper that may not exist yet on a new BUILDER installation.
+if [[ -r /run/steamapps/common/CinterForge/Applications/Test/Scripts/app-launch-diagnostics ]]; then
+    source /run/steamapps/common/CinterForge/Applications/Test/Scripts/app-launch-diagnostics
+    cfdiag_init Steam
+    trap 'code=$?; cfdiag_finish "$code"' EXIT
+else
+    CF_DIAG_ROOT="$HOME/.local/state/cinterforge"
+    mkdir -p "$CF_DIAG_ROOT"
+    echo '[Steam login] External diagnostic helper unavailable; using persistent local logs' >&2
+fi
 # Keep actionable startup events visible in the VM journal as well as in a
 # persistent file. Detailed client stdout/stderr stays in steam-login.log.
 status_file="$logdir/steam-status"

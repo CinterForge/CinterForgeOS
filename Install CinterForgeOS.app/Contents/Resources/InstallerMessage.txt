@@ -1,0 +1,4 @@
+Install CinterForgeOS
+Setup • Build • Stage
+
+The installation log opens in Terminal.

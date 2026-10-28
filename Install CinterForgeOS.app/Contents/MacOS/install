@@ -1,0 +1,14 @@
+#!/bin/bash
+set -euo pipefail
+HERE="$(cd "$(dirname "$0")" && pwd -P)"
+ROOT="$(cd "$HERE/../../.." && pwd -P)"
+MESSAGE="$ROOT/Install CinterForgeOS.app/Contents/Resources/InstallerMessage.txt"
+# Bundle is source-controlled alongside CFOS. No generated state in the repo.
+[[ -f "$ROOT/CFOS" ]] || { osascript -e 'display alert "CinterForgeOS source checkout not found"'; exit 1; }
+if ! osascript -e 'display dialog "Install CinterForgeOS?\n\nThis runs Setup, Build and Stage. It can take a while. Progress appears in Terminal." buttons {"Cancel", "Install"} default button "Install" with title "CinterForgeOS Installer" with icon POSIX file "'"$ROOT"'/Install CinterForgeOS.app/Contents/Resources/CinterForge.icns"' >/dev/null; then exit 0; fi
+# Terminal provides a real, inspectable live log and visible error status.
+# Use a shell-quoted repo path; no hardcoded machine paths.
+quoted=$(printf '%q' "$ROOT")
+command="cd $quoted && /bin/bash ./Install-CinterForgeOS.sh"
+quoted_command=$(printf '%s' "$command" | sed 's/\\/\\\\/g;s/"/\\"/g')
+osascript -e "tell application \"Terminal\" to activate" -e "tell application \"Terminal\" to do script \"$quoted_command\""
