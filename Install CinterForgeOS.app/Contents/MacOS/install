@@ -1,51 +1,25 @@
 #!/bin/bash
-# Finder launcher for the existing CFOS Setup -> Build -> Stage installer.
-# Never fail silently, including before the installation log can be created.
-set -uo pipefail
-HERE="$(cd "$(dirname "$0")" && pwd -P)" || exit 1
-BUNDLE="$(cd "$HERE/../.." && pwd -P)" || exit 1
-ROOT="$(cd "$BUNDLE/.." && pwd -P)" || exit 1
-LOG="$ROOT/../Builds/CFOS/Installer/installer-launch.log"
-
-alert() {
-  local heading="$1" message="$2"
-  /usr/bin/osascript - "$heading" "$message" <<'APPLESCRIPT' || /usr/bin/osascript -e 'display alert "CinterForgeOS installer failed"' || true
-on run argv
-    display alert (item 1 of argv) message (item 2 of argv) as critical
-end run
-APPLESCRIPT
-}
-
-fail() {
-  alert 'CinterForgeOS installation failed' "$1"
+# The existing installer bundle owns the complete UI and Steam preflight.
+set -euo pipefail
+HERE="$(cd "$(dirname "$0")" && pwd -P)"
+BUNDLE="$(cd "$HERE/../.." && pwd -P)"
+UI="$BUNDLE/Contents/Resources/UI"
+DIALOG="$UI/steam_dialogs.applescript"
+# The installer is inside the checkout. Resolve its parent directly; never
+# require a machine-specific location or a Finder environment variable.
+ROOT="$(cd "$BUNDLE/.." && pwd -P)"
+if [[ ! -f "$ROOT/Install-CinterForgeOS.sh" || ! -d "$ROOT/build" ]]; then
+  /usr/bin/osascript -e 'display alert "CinterForgeOS installer source not found" message "The installer must be inside the CinterForgeOS checkout, alongside Install-CinterForgeOS.sh and build/."' || true
   exit 1
-}
-
-[[ -f "$ROOT/Install-CinterForgeOS.sh" && -f "$ROOT/CFOS" && -d "$ROOT/build" ]] || \
-  fail "The installer checkout is incomplete: $ROOT"
-
-# First check read access in this process, not merely file existence.
-if ! /bin/cat "$ROOT/Install-CinterForgeOS.sh" >/dev/null 2>&1; then
-  fail "This installer app cannot read the external volume: $ROOT. No build was started."
 fi
-
-if ! /bin/mkdir -p "${LOG%/*}"; then
-  fail "Cannot create installer log directory: ${LOG%/*}. No build was started."
+if [[ ! -f "$ROOT/CFOS" ]]; then
+  /usr/bin/osascript -e 'display alert "CinterForgeOS lifecycle entry point missing" message "The checkout is missing CFOS. Restore that file from the repository; the installer cannot run Setup, Build, and Stage without it."' || true
+  exit 1
 fi
-if ! { printf '\n=== Installer launched: %s ===\n' "$(date)" >> "$LOG"; }; then
-  fail "Cannot write installer log: $LOG. No build was started."
-fi
-
-# Show an immediate, visible acknowledgement. Keep the original installer
-# script and its Steam-account selection as the sole installation lifecycle.
-/usr/bin/osascript -e 'display notification "Installation started; see Builds/CFOS/Installer/installer-launch.log" with title "CinterForgeOS"' >/dev/null 2>&1 || true
-(
-  cd "$ROOT" || exit 1
-  CFOS_INSTALL_DIALOG=1 CFOS_PLAIN_OUTPUT=1 /bin/bash ./Install-CinterForgeOS.sh
-) >> "$LOG" 2>&1
-status=$?
-if (( status != 0 )); then
-  alert 'CinterForgeOS installation failed' "Installer exited with status $status. Read the error in: $LOG"
-  exit "$status"
-fi
-/usr/bin/osascript -e 'display dialog "CinterForgeOS Setup, Build, and Stage completed." buttons {"OK"} default button "OK" with title "CinterForgeOS"' >/dev/null 2>&1 || true
+# Launch the same shell installer used successfully from Terminal.  Run the
+# Steam account dialog there as part of that workflow, so Python does not
+# inherit the Finder-launched .app's restricted volume-access context.
+quoted_root=$(printf '%q' "$ROOT")
+command="cd $quoted_root && CFOS_INSTALL_DIALOG=1 /bin/bash ./Install-CinterForgeOS.sh"
+quoted_command=$(printf '%s' "$command" | /usr/bin/sed 's/\\/\\\\/g;s/"/\\"/g')
+/usr/bin/osascript -e 'tell application "Terminal" to activate' -e "tell application \"Terminal\" to do script \"$quoted_command\""
