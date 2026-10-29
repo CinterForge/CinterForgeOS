@@ -228,6 +228,10 @@ on buildInstallerWindow(defaultLabel, labelsList, uiPath)
     my addButton(715, 31, 122, 42, "Cancel", "cancelClicked:", false)
     set installButton to my addButton(848, 31, 132, 42, "Install", "installClicked:", true)
     my mainWindow's setDefaultButtonCell:(installButton's cell())
+    -- Terminal launches this dialog, but must not cover it while the user
+    -- chooses an account. Floating level keeps the installer above Terminal;
+    -- the window is dismissed before the build animation begins.
+    my mainWindow's setLevel:3 -- NSFloatingWindowLevel
     my mainWindow's makeKeyAndOrderFront:(missing value)
     cocoaApp's activateIgnoringOtherApps:true
     cocoaApp's runModalForWindow:(my mainWindow)

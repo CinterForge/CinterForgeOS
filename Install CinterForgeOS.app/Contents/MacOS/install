@@ -16,30 +16,10 @@ if [[ ! -f "$ROOT/CFOS" ]]; then
   /usr/bin/osascript -e 'display alert "CinterForgeOS lifecycle entry point missing" message "The checkout is missing CFOS. Restore that file from the repository; the installer cannot run Setup, Build, and Stage without it."' || true
   exit 1
 fi
-# This UI and its CLI contract are versioned together in CinterForgeOS.
-# Never prefer a sibling fork's potentially incompatible registration script.
-REGISTER="$ROOT/scripts/steam/register_nonsteam.py"
-if [[ ! -f "$DIALOG" || ! -f "$REGISTER" ]]; then
-  /usr/bin/osascript -e 'display alert "CinterForgeOS installer components missing" message "The bundled UI or Steam registration script is missing."' || true
-  exit 1
-fi
-# Display the branded Install/Cancel window exactly once, before Setup/Build/Stage.
-# The preflight prints CFOS_STEAM_ACCOUNT_ID=<numeric ID> only on confirmation.
-# Do not silently fall back to the old display dialog.
-if ! preflight=$(CFOS_STEAM_DIALOG_SCRIPT="$DIALOG" /usr/bin/python3 "$REGISTER" --preflight --install-dialog 2>&1); then
-  # Cancellation is a normal outcome. Other failures are shown, not hidden.
-  if [[ "$preflight" == *"Installation cancelled"* ]]; then exit 0; fi
-  /usr/bin/osascript -e 'on run argv' -e 'display alert "CinterForgeOS installation could not start" message (item 1 of argv)' -e 'end run' -- "$preflight"
-  exit 1
-fi
-account_id=$(printf '%s\n' "$preflight" | /usr/bin/sed -n 's/^CFOS_STEAM_ACCOUNT_ID=\([0-9][0-9]*\)$/\1/p' | /usr/bin/tail -n 1)
-if [[ -z "$account_id" ]]; then
-  /usr/bin/osascript -e 'display alert "No Steam account selected" message "Installation did not start."'
-  exit 1
-fi
-# Carry the chosen account into Stage so it cannot ask again.
+# Launch the same shell installer used successfully from Terminal.  Run the
+# Steam account dialog there as part of that workflow, so Python does not
+# inherit the Finder-launched .app's restricted volume-access context.
 quoted_root=$(printf '%q' "$ROOT")
-quoted_account=$(printf '%q' "$account_id")
-command="cd $quoted_root && CFOS_STEAM_USER_ID=$quoted_account /bin/bash ./Install-CinterForgeOS.sh"
+command="cd $quoted_root && CFOS_INSTALL_DIALOG=1 /bin/bash ./Install-CinterForgeOS.sh"
 quoted_command=$(printf '%s' "$command" | /usr/bin/sed 's/\\/\\\\/g;s/"/\\"/g')
 /usr/bin/osascript -e 'tell application "Terminal" to activate' -e "tell application \"Terminal\" to do script \"$quoted_command\""
