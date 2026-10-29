@@ -56,12 +56,27 @@ mesa_docker() {
     local -a args=("$@") create_args=() copies=()
     local arg host dest mode cid status=0 copy_status=0
     local i=0 needs_copy=0
-    # Probe the actual guest-mesa scripts mount, rather than trusting docker run.
+    # A visible /scripts mount alone does not prove that /work and /out
+    # bind to the host.  Colima can expose one path but not another; that
+    # previously let vkprobe compile inside a throwaway container and vanish.
+    # Test both directions before choosing the direct Docker path.
+    local marker="mesa-mount-$$-${RANDOM}"
+    printf '%s\n' "$marker" > "$WORK/$marker"
+    printf '%s\n' "$marker" > "$OUT/$marker"
     if ! docker run --rm --platform linux/arm64 \
-        -v "$HERE/container:/scripts:ro" --entrypoint /bin/sh "$TOOLS_IMAGE" \
-        -c 'test -f /scripts/fetch-mesa.sh' >/dev/null 2>&1; then
+        -v "$HERE/container:/scripts:ro" -v "$WORK:/work" -v "$OUT:/out" \
+        --entrypoint /bin/sh "$TOOLS_IMAGE" -ec '
+            test -f /scripts/fetch-mesa.sh
+            test "$(cat "/work/$1")" = "$1"
+            test "$(cat "/out/$1")" = "$1"
+            printf "%s\n" "$1" > "/work/$1.reply"
+            printf "%s\n" "$1" > "/out/$1.reply"
+        ' sh "$marker" >/dev/null 2>&1 ||
+        [[ $(cat "$WORK/$marker.reply" 2>/dev/null) != "$marker" ]] ||
+        [[ $(cat "$OUT/$marker.reply" 2>/dev/null) != "$marker" ]]; then
         needs_copy=1
     fi
+    rm -f "$WORK/$marker" "$OUT/$marker" "$WORK/$marker.reply" "$OUT/$marker.reply"
     if (( ! needs_copy )); then
         docker run "${args[@]}"
         return
@@ -84,7 +99,7 @@ mesa_docker() {
         (( i += 1 ))
     done
     cid=$(docker create "${create_args[@]}") || return 1
-    echo '[mesa] Docker daemon cannot see external source; copying inputs into container' >&2
+    echo '[mesa] Docker bind mounts failed round-trip validation; copying inputs and outputs through Docker' >&2
     for (( i=0; i<${#copies[@]}; i+=2 )); do
         host=${copies[i]}; dest=${copies[i+1]}
         if [[ -d $host ]]; then

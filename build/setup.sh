@@ -30,7 +30,7 @@ cfos_setup() {
   local formulae=(
     dtc xz lld pkgconf libepoxy meson ninja llvm
     spirv-llvm-translator spirv-tools spirv-headers spirv-cross
-    vulkan-loader glslang cmake go rustup colima docker
+    vulkan-loader glslang cmake go rustup colima docker qemu
   )
   for formula in "${formulae[@]}"; do
     if (( CFOS_DRY_RUN )) || ! brew list --versions "$formula" >/dev/null 2>&1; then
@@ -108,7 +108,7 @@ cfos_setup() {
   # Validate binaries, not just Homebrew package metadata.
   if (( ! CFOS_DRY_RUN )); then
     local tool
-    for tool in git make xcodebuild xcrun cargo go python3 docker colima; do
+    for tool in git make xcodebuild xcrun cargo go python3 docker colima qemu-img; do
       command -v "$tool" >/dev/null || {
         echo "CFOS: missing required tool: $tool" >&2
         return 1
@@ -152,7 +152,7 @@ cfos_setup() {
 
   if (( CFOS_DRY_RUN )); then
     cfos_run mkdir -p "$colima_home" "$mount_work" "$COLIMA_CACHE_HOME" "$DOCKER_CONFIG"
-    cfos_run colima start --profile "$colima_profile" --arch aarch64 --vm-type vz --activate=false --mount "$mount_root:w"
+    cfos_run colima start --profile "$colima_profile" --arch aarch64 --vm-type vz --disk 96 --activate=false --mount "$mount_root:w"
   else
     mkdir -p "$colima_home" "$mount_work" "$COLIMA_CACHE_HOME" "$DOCKER_CONFIG"
     [[ ! -L "$colima_home" && ! -L "$LIMA_HOME" ]] || {
@@ -164,7 +164,7 @@ cfos_setup() {
     if ! docker info >/dev/null 2>&1; then
       if [[ -d "$LIMA_HOME/colima-$colima_profile" ]]; then
         cfos_colima_start || return 1
-      elif ! cfos_colima_start --arch aarch64 --vm-type vz --mount "$mount_root:w"; then
+      elif ! cfos_colima_start --arch aarch64 --vm-type vz --disk 96 --mount "$mount_root:w"; then
         echo "CFOS: managed VM failed to start; see $LIMA_HOME/colima-$colima_profile/ha.stderr.log" >&2
         return 1
       fi
@@ -175,12 +175,13 @@ cfos_setup() {
       # remove Lima internals or introduce symlinks to a previous workspace.
       colima stop --profile "$colima_profile" || return 1
       colima delete --profile "$colima_profile" --force || return 1
-      cfos_colima_start --arch aarch64 --vm-type vz --mount "$mount_root:w" || return 1
+      cfos_colima_start --arch aarch64 --vm-type vz --disk 96 --mount "$mount_root:w" || return 1
       cfos_colima_healthy || {
         echo "CFOS: fresh managed VM cannot mount source=$CFOS_ROOT and Builds=$mount_work" >&2
         return 1
       }
     fi
+    cfos_colima_ensure_disk || return 1
     echo "CFOS: managed Colima ready: $docker_socket"
   fi
 

@@ -54,6 +54,40 @@ cfos_colima_start() {
   return 1
 }
 
+# LLVM/Mesa image extraction requires more space than the original 20 GiB VM.
+# Colima's --disk flag does not resize an already-created VZ/Lima instance.
+# This profile is disposable build infrastructure: recreate only this managed
+# profile at the requested size, rather than repeatedly restarting an undersized
+# filesystem. Authored source and staged outputs live outside Colima in Builds.
+cfos_colima_ensure_disk() {
+  local profile=cinterforge-linux target_gib=96
+  local capacity_kib mount_root
+  capacity_kib="$(colima ssh --profile "$profile" -- df -Pk /var/lib/containerd 2>/dev/null | awk 'NR==2 {print $2}')" || return 1
+  [[ "$capacity_kib" =~ ^[0-9]+$ ]] || {
+    echo 'CFOS: unable to measure managed containerd filesystem capacity' >&2
+    return 1
+  }
+  # ext4 reserves metadata, so a 96 GiB disk exposes slightly less than 96 GiB.
+  # 80 GiB is ample evidence that the new 96 GiB disk is mounted.
+  if (( capacity_kib >= 80 * 1024 * 1024 )); then return 0; fi
+  mount_root="$(dirname "${CFOS_ROOT:-${STEAMAC_SOURCE_ROOT:-}}")"
+  [[ -d "$mount_root/CinterForgeOS" && -d "$mount_root/Builds" ]] || {
+    echo "CFOS: cannot safely recreate managed VM: invalid workspace $mount_root" >&2
+    return 1
+  }
+  echo "CFOS: managed container filesystem is $((capacity_kib / 1024 / 1024)) GiB; replacing undersized disposable Colima profile with ${target_gib} GiB"
+  echo 'CFOS: Docker images and container caches in this managed profile will be rebuilt; source and Builds outputs are preserved'
+  colima stop --profile "$profile" || return 1
+  colima delete --profile "$profile" --force || return 1
+  cfos_colima_start --arch aarch64 --vm-type vz --disk "$target_gib" --mount "$mount_root:w" || return 1
+  capacity_kib="$(colima ssh --profile "$profile" -- df -Pk /var/lib/containerd 2>/dev/null | awk 'NR==2 {print $2}')" || return 1
+  [[ "$capacity_kib" =~ ^[0-9]+$ ]] && (( capacity_kib >= 80 * 1024 * 1024 )) || {
+    echo "CFOS: new managed Colima filesystem is still too small (${capacity_kib:-unknown} KiB); refusing to build" >&2
+    return 1
+  }
+  echo "CFOS: managed containerd filesystem ready: $((capacity_kib / 1024 / 1024)) GiB"
+}
+
 cfos_colima_activate() {
   cfos_colima_environment || return 1
   command -v docker >/dev/null && command -v colima >/dev/null || {
@@ -62,12 +96,18 @@ cfos_colima_activate() {
   [[ -d "$COLIMA_HOME" ]] || {
     echo 'CFOS: managed Colima not configured; run ./CFOS setup cinterforge-os mac Release' >&2; return 1;
   }
-  if docker info >/dev/null 2>&1; then return 0; fi
+  if docker info >/dev/null 2>&1; then
+    cfos_colima_ensure_disk || return 1
+    return 0
+  fi
   echo 'CFOS: activating managed Colima profile after shutdown/reboot'
   cfos_colima_start || return 1
   local attempt
   for ((attempt=0; attempt<30; attempt++)); do
-    if docker info >/dev/null 2>&1; then return 0; fi
+    if docker info >/dev/null 2>&1; then
+      cfos_colima_ensure_disk || return 1
+      return 0
+    fi
     sleep 2
   done
   echo "CFOS: Docker unavailable at $DOCKER_HOST" >&2

@@ -13,7 +13,8 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = Path(os.environ.get("STEAMAC_WORK_DIR", str(ROOT.parent / "Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work"))) / "out"
+WORK_ROOT = Path(os.environ.get("STEAMAC_WORK_DIR", str(ROOT.parent / "Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/work")))
+OUT = WORK_ROOT / "out"
 MESA_INPUTS = (
     "guest/mesa/build.sh", "guest/mesa/versions.env", "guest/mesa/container",
     "scripts/config.env", "scripts/steps/10-rootfs.sh",
@@ -40,8 +41,12 @@ OUTPUTS = {
     "kernel": (OUT / "Image",),
     "initramfs": (OUT / "initramfs.cpio.gz",),
     "mesa": (OUT / "mesa-venus",),
-    "mesa-aarch64": (OUT / "mesa-venus/usr/lib/libvulkan_virtio.so", OUT / "mesa-venus/usr/share/vulkan"),
-    "mesa-x86": (OUT / "mesa-venus/usr/share/guestos", OUT / "mesa-venus/usr/lib/steamac"),
+    "mesa-aarch64": (OUT / "mesa-venus/usr/lib/libvulkan_virtio.so", OUT / "mesa-venus/usr/share/vulkan",
+                     WORK_ROOT / "build/mesa-venus/bin/vkprobe-aarch64"),
+    "mesa-x86": (OUT / "mesa-venus/usr/share/guestos", OUT / "mesa-venus/usr/lib/steamac",
+                 WORK_ROOT / "build/mesa-venus/bin/vkprobe-x86_64",
+                 WORK_ROOT / "build/mesa-venus/bin/vkprobe-i386",
+                 WORK_ROOT / "build/mesa-venus/bin/fault-report-test"),
     "layer": (OUT / "steamac-layer.img",),
 }
 COMMANDS = {
