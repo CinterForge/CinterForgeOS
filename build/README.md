@@ -2,12 +2,13 @@
 
 ## Prerequisites
 - macOS 26 or higher
+- Xcode 26 or higher
 - M2 or higher
 - An activated Steam account with Steam installed and working on the machine
 - The setup script _should_ install any prerequisites and ask permission as it does - needs testing
 - After running setup, you can either run build, stage and test or you can launch the XCode workspace and Build and Run
 
-It should be as simple Clone, Setup, Build and Run.  If it is not, that is a bug in the build system.
+It should be as simple as Clone, Setup, Build and Run.  If it is not, that is a bug in the build system.
 
 ## Build scripts a glance
 

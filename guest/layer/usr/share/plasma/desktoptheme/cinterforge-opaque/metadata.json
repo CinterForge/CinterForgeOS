@@ -1,0 +1,5 @@
+{
+  "KPlugin": {"Id": "cinterforge-opaque", "Name": "CinterForge Opaque", "Description": "Solid backgrounds for stable CinterForgeOS desktop", "Version": "1.0", "Category": "Plasma Theme", "License": "CC0-1.0"},
+  "X-Plasma-API": "5.0",
+  "X-Plasma-Theme": {"FallbackTheme": "breeze", "UseNativeWidgetStyle": false}
+}

@@ -39,8 +39,47 @@ cfos_stage() {
       echo 'CFOS: installation failed; previous application restored.' >&2
       return 1
     fi
-    # App bundles contain no managed SteamOS user disks: Swift manages those.
-    if [[ -e "$backup" ]]; then rm -rf -- "$backup"; fi
+    # The new installation is committed only after it passes validation.
+    # Remove the transaction backup and stale backups left by interrupted
+    # successful stages. Never touch another application's files or Ubuntu.
+    if ! cfos_validate_app "$installed_app"; then
+      echo 'CFOS: installed application failed validation; restoring previous version.' >&2
+      rm -rf -- "$installed_app"
+      if [[ -d "$backup" && ! -L "$backup" ]]; then mv -- "$backup" "$installed_app"; fi
+      return 1
+    fi
+    if [[ -d "$backup" && ! -L "$backup" ]]; then
+      rm -rf -- "$backup" || { echo "CFOS: could not remove transaction backup: $backup" >&2; return 1; }
+    fi
+    # Only clean backups for this exact installed app, and only when the
+    # canonical installed bundle is valid. Do not follow symbolic links.
+    local old_backup
+    for old_backup in "${installed_app}.previous."*; do
+      [[ -e "$old_backup" || -L "$old_backup" ]] || continue
+      if [[ -d "$old_backup" && ! -L "$old_backup" && "${old_backup##*.}" =~ ^[0-9]+$ ]]; then
+        echo "CFOS: removing stale installation backup: $old_backup"
+        rm -rf -- "$old_backup" || { echo "CFOS: could not remove stale backup: $old_backup" >&2; return 1; }
+      else
+        echo "CFOS: leaving unrecognized backup entry untouched: $old_backup" >&2
+      fi
+    done
     echo "CFOS: staged $installed_app"
+    # Prefer the editable CinterForge fork. The installer must still work when
+    # that sibling checkout is absent or has not received the macOS changes.
+    local steam_register="$CFOS_WORKSPACE/cinterforge-steamtinkerlaunch/mac/register_nonsteam.py"
+    local steam_dialog="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/Install CinterForgeOS.app/Contents/Resources/UI/steam_dialogs.applescript"
+    if [[ ! -f "$steam_dialog" ]]; then
+      echo "CFOS: missing Steam dialog script: $steam_dialog" >&2
+      return 1
+    fi
+    local steam_artwork="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/Install CinterForgeOS.app/Contents/Resources/UI/SteamArtwork"
+    [[ -f "$steam_artwork/hero.png" && -f "$steam_artwork/logo.png" ]] || { echo 'CFOS: missing Steam-specific hero/logo artwork' >&2; return 1; }
+    local -a steam_user_args=()
+    if [[ -n "${CFOS_STEAM_USER_ID:-}" ]]; then steam_user_args=(--steam-user "$CFOS_STEAM_USER_ID"); fi
+    # Always use the checked-in registrar: the sibling fork can be stale and
+    # the old embedded fallback used the wrong Steam artwork identifier.
+    local bundled_register="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/steam/register_nonsteam.py"
+    [[ -f "$bundled_register" ]] || { echo "CFOS: missing Steam registrar: $bundled_register" >&2; return 1; }
+    CFOS_STEAM_ARTWORK_DIR="$steam_artwork" CFOS_STEAM_DIALOG_SCRIPT="$steam_dialog" cfos_run /usr/bin/python3 "$bundled_register" --app "$installed_app" --restart-steam "${steam_user_args[@]}"
   done < <(cfos_configurations)
 }

@@ -195,8 +195,9 @@ def main():
             staged = run('git','diff','--cached','--name-only',cwd=checkout,capture=True)
             if not staged:
                 raise RuntimeError(f'No modifications after applying {name} patches')
-            run('git','-c','user.name=CinterForge','-c','user.email=build@cinterforge.local',
-                'commit','-m',f'CinterForge: apply {len(patches)} pinned patches to {base[:12]}',cwd=checkout)
+            if staged:
+                run('git','-c','user.name=CinterForge','-c','user.email=build@cinterforge.local',
+                    'commit','-m',f'CinterForge: apply {len(patches)} pinned patches to {base[:12]}',cwd=checkout)
         if not args.no_push:
             run('git','push','--set-upstream','origin',branch,cwd=checkout)
         print(f'READY: {checkout} ({branch})' + (f' -> {repo}' if not args.no_push else ' (local only)'))

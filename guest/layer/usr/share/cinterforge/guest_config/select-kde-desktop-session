@@ -118,6 +118,69 @@ if [ -f "$legacy_compositor" ]; then
         echo '[CinterForgeOS] WARNING: compositor override has user modifications; leaving it intact' >&2
     fi
 fi
+# Diagnostic: use KWin software cursor in the Plasma Wayland session.
+# Install before SDDM starts so KWin inherits the setting on first launch.
+# This tests cursor-plane / pointer-triggered graphics hangs without changing
+# Steam, Vulkan drivers, or the VM GPU configuration.
+cursor_env_dir="$home/.config/plasma-workspace/env"
+install -d -m 0755 -o steamos -g steamos "$cursor_env_dir"
+cursor_env="$cursor_env_dir/60-cinterforgeos-software-cursor.sh"
+cat > "$cursor_env" <<'CFOS_SOFTWARE_CURSOR'
+#!/bin/sh
+export KWIN_FORCE_SW_CURSOR=1
+CFOS_SOFTWARE_CURSOR
+chmod 0755 "$cursor_env"
+chown steamos:steamos "$cursor_env"
+echo '[CinterForgeOS] KWin software cursor enabled for next Plasma session'
+# CinterForgeOS stability profile: disable KWin desktop effects and animations.
+# Keep the Wayland compositor itself running: disabling it would prevent KDE
+# from displaying windows. Apply before SDDM starts, on every fresh boot.
+# KWin's effect plugin names vary between Plasma releases; explicitly disable
+# the known stock plugins and turn off animation globally as a fallback.
+kwriteconfig_bin=
+if command -v kwriteconfig6 >/dev/null 2>&1; then
+    kwriteconfig_bin=$(command -v kwriteconfig6)
+elif command -v kwriteconfig5 >/dev/null 2>&1; then
+    kwriteconfig_bin=$(command -v kwriteconfig5)
+fi
+if [ -n "$kwriteconfig_bin" ]; then
+    for effect in \
+        blur backgroundcontrast contrast translucency \
+        wobblywindows magiclamp glide fade fadedesktop \
+        slidingpopups slide slideback overview desktopgrid \
+        cube cubeslide coverswitch flipswitch presentwindows \
+        scale sheet dimscreen diminactive fallapart \
+        explosion logout login minimizeanimation maximize \
+        morphingpopups dialogparent highlightwindow \
+        windowaperture screenedge touchpoints mouseclick \
+        mousemark trackmouse zoom lookingglass magnifier \
+        thumbnailaside snaphelper showfps showpaint \
+        colorpicker invert startupfeedback; do
+        runuser -u steamos -- "$kwriteconfig_bin" --file kwinrc --group Plugins --key "${effect}Enabled" false
+    done
+    runuser -u steamos -- "$kwriteconfig_bin" --file kwinrc --group Compositing --key AnimationSpeed 0
+    runuser -u steamos -- "$kwriteconfig_bin" --file kdeglobals --group KDE --key AnimationDurationFactor 0
+    echo '[CinterForgeOS] KWin desktop effects disabled; animations set to instant (compositor retained)'
+else
+    echo '[CinterForgeOS] WARNING: kwriteconfig unavailable; cannot disable KDE effects' >&2
+fi
+# Ship our own opaque Plasma theme; do not depend on an optional distro
+# breeze-opaque package. The SVGs deliberately contain NO alpha/translucency.
+# This controls Plasma launcher/panels/popups, not just KWin effects.
+opaque_theme_dir=/usr/share/plasma/desktoptheme/cinterforge-opaque
+if [ -f "$opaque_theme_dir/metadata.json" ] && [ -n "$kwriteconfig_bin" ]; then
+    runuser -u steamos -- "$kwriteconfig_bin" --file plasmarc --group Theme --key name cinterforge-opaque
+    runuser -u steamos -- "$kwriteconfig_bin" --file plasmarc --group Theme --key adaptiveTransparency false
+    # Force panel opacity even if the existing panel config had an adaptive
+    # or translucent setting. Plasma stores this per panel in appletsrc.
+    panel_config="$home/.config/plasma-org.kde.plasma.desktop-appletsrc"
+    if [ -f "$panel_config" ]; then
+        sed -i -E 's/^(panelOpacity|opacityMode)=.*/\1=2/' "$panel_config"
+    fi
+    echo '[CinterForgeOS] Enforced packaged opaque Plasma theme (launcher/panels/dialogs)'
+else
+    echo '[CinterForgeOS] ERROR: packaged cinterforge-opaque Plasma theme missing; opacity cannot be guaranteed' >&2
+fi
 # Enable native Plasma previous-session restore on first setup. Respect a
 # user-selected setting (e.g. empty session or manually saved session).
 # Session state lives in the existing persistent /home/steamos; it is never
@@ -140,10 +203,8 @@ fi
 autostart="$home/.config/autostart"
 install -d -m 0755 -o steamos -g steamos "$autostart"
 rm -f "$autostart/cinterforge-installed-test.desktop"
-# Disable Steam autostart in the persistent home. Starting Steam during
-# Plasma session establishment can replace the desktop or produce black frames.
-# The separate application-menu and desktop launchers below remain available;
-# Heaven's launcher provisions Steam/Proton on demand.
+# Disable Steam session autostart, including entries left by older CFOS builds.
+# XDG Hidden=true shadows system-wide Steam autostart without launching a client.
 autostart="$home/.config/autostart"
 install -d -m 0755 -o steamos -g steamos "$autostart"
 rm -f "$autostart/cinterforge-steam.desktop"
@@ -155,6 +216,21 @@ Hidden=true
 CFOS_STEAM_AUTOSTART
 chmod 0644 "$autostart/steam.desktop"
 chown steamos:steamos "$autostart/steam.desktop"
+# First-run provisioning is independent of Steam's general autostart. KDE
+# starts this one-shot gate after the user session is established; it launches
+# Steam for sign-in only when the required tools are missing.
+cat > "$autostart/cinterforge-first-run.desktop" <<'CFOS_FIRST_RUN_AUTOSTART'
+[Desktop Entry]
+Type=Application
+Name=CinterForgeOS First Run Setup
+Comment=Sign in to Steam and install required ARM64 tools when missing
+Exec=/usr/lib/steamac/cfos-first-run
+Terminal=false
+OnlyShowIn=KDE;
+X-KDE-autostart-phase=2
+CFOS_FIRST_RUN_AUTOSTART
+chmod 0644 "$autostart/cinterforge-first-run.desktop"
+chown steamos:steamos "$autostart/cinterforge-first-run.desktop"
 # Provide an explicit, user-launchable Steam entry instead of starting it
 # during session establishment. This is not an XDG autostart directory.
 applications="$home/.local/share/applications"
@@ -185,11 +261,35 @@ Categories=Game;
 CFOS_STEAM_APPLICATION
 chown steamos:steamos "$applications/steam.desktop"
 chmod 0644 "$applications/steam.desktop"
-# SteamOS may retain ~/Desktop/steam.desktop as a read-only file or as a
-# symlink into its immutable root filesystem. Do not overwrite, chmod, or
-# chown it during SDDM startup: the Steam menu entry above is the supported
-# on-demand launcher and desktop shortcut migration is not a boot prerequisite.
-# Keep user desktop files (including SteamOS-owned shortcuts) untouched.
+# The Steam icon on the KDE desktop must launch Steam DESKTOP, not the
+# SteamOS gaming session. SteamOS can supply this icon as a symlink into its
+# immutable root; replace the link itself, never its read-only target.
+# Leave unrelated desktop shortcuts (including Return to Gaming Mode) intact.
+desktop="$home/Desktop"
+install -d -m 0755 -o steamos -g steamos "$desktop"
+steam_shortcut="$desktop/steam.desktop"
+if [ -L "$steam_shortcut" ]; then
+    rm -f -- "$steam_shortcut"
+elif [ -e "$steam_shortcut" ]; then
+    # Only replace the stock Steam shortcut. Preserve user-created entries.
+    if ! grep -Eiq '^(Name=.*Steam|Exec=.*(steam|gamescope|steamos-session-select))' "$steam_shortcut"; then
+        steam_shortcut=""
+    fi
+fi
+if [ -n "$steam_shortcut" ]; then
+    cat > "$steam_shortcut" <<'CFOS_STEAM_DESKTOP'
+[Desktop Entry]
+Type=Application
+Name=Steam
+Comment=Open Steam Desktop in KDE (not Gaming Mode)
+Exec=/usr/lib/steamac/ensure-steam-proton --launch-steam
+Icon=steam
+Terminal=false
+Categories=Game;
+CFOS_STEAM_DESKTOP
+    chmod 0755 "$steam_shortcut"
+    chown steamos:steamos "$steam_shortcut"
+fi
 
 # Legacy standalone Ardour desktop launchers are superseded by the branded
 # CinterForge Audio entries in the Linux and Windows desktop folders.
@@ -202,5 +302,5 @@ for legacy in cinterforge-audio-linux.desktop cinterforge-audio-windows.desktop;
         rm -f -- "$applications/$legacy"
     fi
 done
-echo '[CinterForgeOS] Native Steam launcher available on demand; Steam autostart disabled'
+echo '[CinterForgeOS] KDE first-run provisioning enabled; Steam general autostart disabled'
 echo '[CinterForgeOS] SDDM autologin selected explicit CinterForgeOS Plasma Desktop Mode (not Steam Gaming Mode)'

@@ -178,8 +178,17 @@ install -D -m 0755 "$CFG/select-kde-desktop-session" "$ST/usr/lib/cinterforge/se
 # SDDM ExecStartPre runs this on EVERY boot; an invalid awk expression keeps
 # the user at the serial login prompt instead of starting Plasma.
 sh -n "$ST/usr/lib/cinterforge/select-kde-desktop-session"
+grep -Fq 'cinterforge-first-run.desktop' "$ST/usr/lib/cinterforge/select-kde-desktop-session" \
+    || { echo '[layer] KDE first-run provisioning autostart missing' >&2; exit 1; }
+grep -Fq 'Exec=/usr/lib/steamac/cfos-first-run' "$ST/usr/lib/cinterforge/select-kde-desktop-session" \
+    || { echo '[layer] KDE first-run launcher missing' >&2; exit 1; }
+
+# Steam is allowed to start only through the managed KDE user-session launcher.
+# This must never select Gaming Mode or block the Plasma login sequence.
+grep -Fq 'CFOS_STEAM_AUTOSTART' "$ST/usr/lib/cinterforge/select-kde-desktop-session" \
+    || { echo '[layer] missing managed KDE Steam autostart setup' >&2; exit 1; }
 grep -Fq 'Hidden=true' "$ST/usr/lib/cinterforge/select-kde-desktop-session" \
-    || { echo '[layer] KDE protection missing: Steam autostart must be disabled' >&2; exit 1; }
+    || { echo '[layer] KDE Steam autostart must be disabled' >&2; exit 1; }
 grep -Fq 'substr($0, 1, 1) == "["' "$ST/usr/lib/cinterforge/select-kde-desktop-session" \
     || { echo '[layer] obsolete KDE login script (missing INI parser fix)' >&2; exit 1; }
 install -D -m 0755 "$CFG/select-kde-wallpaper" "$ST/usr/lib/cinterforge/select-kde-wallpaper"
@@ -250,19 +259,41 @@ done
     || { echo '[layer] Plasma session incorrectly requires SteamVR' >&2; exit 1; }
 grep -Fq 'WATCH_SERVICE=steamac-nested-desktop.service' "$ST/usr/lib/steamos/gamescope-session" \
     || { echo '[layer] Plasma service is not the desktop session client' >&2; exit 1; }
+# Stage the authored first-run launcher explicitly, just like the KDE entries.
+# Avoid relying on an intermediate layer copy for this boot-critical file.
+# Source ZIPs do not reliably retain executable permissions. Install all
+# Steam first-run entry points explicitly; never depend on cp -a source modes.
+for steam_command in cfos-first-run ensure-steam-proton steam-kde-login; do
+    steam_source="/src/guest/layer/usr/lib/steamac/$steam_command"
+    [[ -s "$steam_source" ]] || { echo "[layer] missing Steam source: $steam_source" >&2; exit 1; }
+    [[ "$(head -c 2 "$steam_source")" == '#!' ]] || { echo "[layer] Steam command lacks shebang: $steam_source" >&2; exit 1; }
+    install -D -m 0755 "$steam_source" "$ST/usr/lib/steamac/$steam_command"
+done
+steam_autostart_source="/src/guest/layer/usr/lib/steamac/desktop-xdg/autostart/steam.desktop"
+[[ -s "$steam_autostart_source" ]] || { echo "[layer] missing managed Steam autostart source: $steam_autostart_source" >&2; exit 1; }
+install -D -m 0644 "$steam_autostart_source" "$ST/usr/lib/steamac/desktop-xdg/autostart/steam.desktop"
 steam_autostart="$ST/usr/lib/steamac/desktop-xdg/autostart/steam.desktop"
-[[ -f "$steam_autostart" ]] && grep -Eq '^Hidden[[:space:]]*=[[:space:]]*true[[:space:]]*$' "$steam_autostart" \
-    || { echo '[layer] Desktop Mode must disable Steam XDG autostart' >&2; exit 1; }
-! grep -Eq '^[[:space:]]*Exec[[:space:]]*=' "$steam_autostart" \
-    || { echo '[layer] Steam XDG autostart still contains an executable' >&2; exit 1; }
+[[ -f "$steam_autostart" ]] && grep -Fq 'Hidden=true' "$steam_autostart" \
+    || { echo '[layer] Desktop Mode must disable Steam KDE autostart' >&2; exit 1; }
+! grep -Eq '^Exec=.*(gamescope-session|steam -gamepadui|steam -tenfoot)' "$steam_autostart" \
+    || { echo '[layer] Steam KDE autostart must not enter Gaming Mode' >&2; exit 1; }
+for steam_command in cfos-first-run ensure-steam-proton steam-kde-login; do
+    [[ -x "$ST/usr/lib/steamac/$steam_command" ]] \
+        || { echo "[layer] missing executable Steam launcher: $steam_command" >&2; exit 1; }
+done
 grep -Fq 'export XDG_CONFIG_DIRS=/usr/lib/steamac/desktop-xdg:' "$ST/usr/lib/steamac/nested-desktop" \
     || { echo '[layer] nested Plasma does not use the Steam-autostart override' >&2; exit 1; }
 sh -n "$ST/usr/lib/cinterforge/select-kde-desktop-session"
+grep -Fq 'cinterforge-first-run.desktop' "$ST/usr/lib/cinterforge/select-kde-desktop-session" \
+    || { echo '[layer] KDE first-run provisioning autostart missing' >&2; exit 1; }
+grep -Fq 'Exec=/usr/lib/steamac/cfos-first-run' "$ST/usr/lib/cinterforge/select-kde-desktop-session" \
+    || { echo '[layer] KDE first-run launcher missing' >&2; exit 1; }
+
 # SteamOS can keep a read-only Desktop/steam.desktop from its immutable root;
 # the SDDM preflight must never try to update that icon and block KDE login.
 ! grep -Eq '^[[:space:]]*(cp|install|chmod|chown)[[:space:]].*\$home/Desktop/steam\.desktop' "$ST/usr/lib/cinterforge/select-kde-desktop-session" \
     || { echo '[layer] KDE preflight must not rewrite immutable Steam desktop icon' >&2; exit 1; }
-echo '[layer] verified Plasma Desktop Mode (Steam autostart disabled)'
+echo '[layer] verified Plasma Desktop Mode (Steam autostart disabled; first-run provisioning enabled)'
 # Same binary, root mode: started by udev for the launcher's fx.clock port.
 grep -q 'fx-progress-agent clock-sync' "$ST/usr/lib/systemd/system/fx-clock-sync.service" \
     && grep -q 'fx-clock-sync.service' "$ST/usr/lib/udev/rules.d/70-fx-progress.rules" \
@@ -284,7 +315,7 @@ grep -q 'fx-progress-agent sleep suspend$' "$ST/usr/lib/systemd/system/systemd-s
 for f in usr/bin/splctl usr/lib/rauc/post-install.sh usr/lib/steamac/kernelsetup.sh \
          usr/lib/steamac/rauc-shims/steamos-chroot usr/lib/steamac/steam-gfx-env \
          usr/lib/steamac/steam-shader-defaults usr/lib/steamac/steam-client \
-         usr/lib/steamac/steam-kde-login \
+         usr/lib/steamac/steam-kde-login usr/lib/steamac/cfos-first-run \
          usr/lib/steamac/nested-desktop usr/lib/steamac/desktop-bin/kwin_wayland_wrapper \
          usr/lib/steamac/desktop-bin/steamosctl usr/lib/steamos/gamescope-session; do
     # Source archives may lose executable mode. Install the required OS startup

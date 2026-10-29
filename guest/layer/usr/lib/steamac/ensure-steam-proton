@@ -17,13 +17,14 @@ if [[ "$(id -un)" != steamos || "$(uname -m)" != aarch64 ]]; then
 fi
 # Client install/login may be interactive. Always use the existing native
 # CinterForge launcher; /usr/bin/steam is a broken wrapper on fresh installs.
-if [[ ! -x "$client" ]]; then
-  echo 'Steam ARM64 missing: starting official Valve bootstrap/login'
-  nohup /usr/lib/steamac/steam-kde-login >>"$log" 2>&1 </dev/null &
-fi
 if [[ "${1:-}" == --launch-steam ]]; then
-  if [[ -x "$client" ]]; then
-    # Steam itself handles a duplicate launch by activating its existing UI.
+  if ! pgrep -u "$(id -u)" -f '/steamrtarm64/steam|[/]usr/lib/steamac/steam-kde-login' >/dev/null 2>&1; then
+    nohup /usr/lib/steamac/steam-kde-login >>"$log" 2>&1 </dev/null &
+  else
+    echo 'Steam already running; not starting a second client'
+  fi
+elif [[ ! -x "$client" ]]; then
+  if ! pgrep -u "$(id -u)" -f '[/]usr/lib/steamac/steam-kde-login' >/dev/null 2>&1; then
     nohup /usr/lib/steamac/steam-kde-login >>"$log" 2>&1 </dev/null &
   fi
 fi

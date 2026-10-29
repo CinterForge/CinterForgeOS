@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+# Nonblocking first-run Steam login and Valve tool provisioning.
+# KDE must remain usable: no modal dialogs, no session switching, no Gamescope.
+set -uo pipefail
+state="$HOME/.local/state/cinterforge"
+mkdir -p "$state" || exit 1
+external=/run/steamapps/common/CinterForge/Applications/Logs/Steam/FirstRun
+if mkdir -p "$external" 2>/dev/null && [[ -w "$external" ]]; then
+  log="$external/first-run.log"
+else
+  log="$state/first-run.log"
+fi
+exec >>"$log" 2>&1
+exec 8>"$state/first-run.lock"
+flock -n 8 || exit 0
+report() { printf '[%s] %s\n' "$(date -Is)" "$*"; }
+root="$HOME/.local/share/Steam"
+client="$root/steamrtarm64/steam"
+proton="$root/steamapps/common/Proton 11.0 (ARM64)/proton"
+runtime="$root/steamapps/common/SteamLinuxRuntime_4-arm64"
+ready() { [[ -x "$client" && -x "$proton" && -d "$runtime" ]]; }
+# Always launch Steam Desktop, even when the tools were installed on a prior
+# boot. A fresh KDE session must not silently skip the Steam login window.
+rm -f "$state/valve-ready"
+for ((i=0;i<90;i++)); do
+  if [[ -n "${WAYLAND_DISPLAY:-}${DISPLAY:-}" ]] &&
+     [[ -S "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/bus" ]]; then break; fi
+  sleep 1
+done
+# Avoid competing Steam bootstrap processes from KDE shortcuts/autostart.
+if ! pgrep -u "$(id -u)" -f '/steamrtarm64/steam|[/]usr/lib/steamac/steam-kde-login' >/dev/null 2>&1; then
+  report 'Starting Steam Desktop for interactive login'
+  /usr/lib/steamac/steam-kde-login >>"$log" 2>&1 &
+fi
+if ready; then
+  touch "$state/valve-ready"
+  report 'READY: Valve components present; Steam Desktop launched'
+  exit 0
+fi
+# Steam loginusers.vdf can be present from an earlier session. Do not treat
+# its mere existence as a current authentication guarantee. Request installs
+# through the running client and verify actual downloaded files afterwards.
+loginusers="$root/config/loginusers.vdf"
+authenticated() {
+  [[ -s "$loginusers" ]] &&
+    grep -Eq '"MostRecent"[[:space:]]+"1"' "$loginusers" &&
+    pgrep -u "$(id -u)" -f '/steamrtarm64/steam' >/dev/null 2>&1
+}
+report 'Waiting for Steam authentication (KDE stays interactive)'
+for ((i=0;i<900;i++)); do
+  if ready; then touch "$state/valve-ready"; report 'READY: components installed'; exit 0; fi
+  if authenticated; then break; fi
+  sleep 2
+done
+if ! authenticated; then
+  report 'INCOMPLETE: sign-in not detected; will retry next KDE login'
+  exit 1
+fi
+report 'Signed-in Steam client detected; requesting Valve tools'
+request() {
+  local appid="$1" name="$2"
+  report "Requesting $name ($appid)"
+  # Steam's URI IPC can stall. Never block KDE or hold provisioning forever.
+  timeout 20s "$client" "steam://install/$appid" </dev/null ||
+    report "NOTE: $name request returned nonzero; checking files anyway"
+}
+[[ -d "$runtime" ]] || request 4185400 'Steam Linux Runtime 4 ARM64'
+[[ -x "$proton" ]] || request 4628740 'Proton 11 ARM64'
+# Downloads are asynchronous. Repeat requests at bounded intervals in case
+# Steam was still completing login/updates when the first URI was delivered.
+for ((i=0;i<900;i++)); do
+  if ready; then
+    touch "$state/valve-ready"
+    report 'READY: Steam Desktop, Proton 11 ARM64, Steam Linux Runtime 4 ARM64'
+    exit 0
+  fi
+  if (( i > 0 && i % 90 == 0 )); then
+    [[ -d "$runtime" ]] || request 4185400 'Steam Linux Runtime 4 ARM64'
+    [[ -x "$proton" ]] || request 4628740 'Proton 11 ARM64'
+  fi
+  sleep 2
+done
+report 'INCOMPLETE: downloads not verified; will retry next KDE login'
+exit 1

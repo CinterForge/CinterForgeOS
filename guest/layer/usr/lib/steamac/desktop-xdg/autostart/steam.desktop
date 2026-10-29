@@ -1,6 +1,5 @@
 [Desktop Entry]
 Type=Application
 Name=Steam
-# Desktop Mode starts Plasma, not Steam. Shadow stock system XDG autostart;
-# Steam/Proton are launched on demand from KDE or the Heaven launcher.
+Comment=Steam is launched explicitly from the KDE application menu
 Hidden=true
