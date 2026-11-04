@@ -95,20 +95,20 @@ done
 ln -sfn ../run-steamapps.automount "$ST/usr/lib/systemd/system/multi-user.target.wants/run-steamapps.automount"
 [[ -f "$ST/usr/lib/systemd/system/run-steamapps.mount" && -f "$ST/usr/lib/systemd/system/run-steamapps.automount" ]] \
   || { echo '[layer] steamapps units failed to stage' >&2; exit 1; }
-# Install the guest CinterForge entry point with executable permissions.
+# Install the guest Cinter entry point with executable permissions.
 # Source archive permissions are not reliable, so set the mode explicitly.
-guest_bridge_source="/src/guest/layer/usr/bin/CinterForge"
-guest_bridge_destination="$ST/usr/bin/CinterForge"
+guest_bridge_source="/src/guest/layer/usr/bin/Cinter"
+guest_bridge_destination="$ST/usr/bin/Cinter"
 
 if [[ ! -f "$guest_bridge_source" ]]; then
-    echo "[layer] guest CinterForge source file missing: $guest_bridge_source" >&2
+    echo "[layer] guest Cinter source file missing: $guest_bridge_source" >&2
     exit 1
 fi
 
 install -D -m 0755 "$guest_bridge_source" "$guest_bridge_destination"
 
 if [[ ! -x "$guest_bridge_destination" ]]; then
-    echo "[layer] guest CinterForge entry point is not executable: $guest_bridge_destination" >&2
+    echo "[layer] guest Cinter entry point is not executable: $guest_bridge_destination" >&2
     exit 1
 fi
 

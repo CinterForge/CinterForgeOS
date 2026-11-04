@@ -1,0 +1,14 @@
+#!/bin/sh
+# CinterForgeOS guest Cinter executes the persistent, user-owned dispatcher.
+# Only host Build -> ZIP -> Stage may provision it; boot never modifies it.
+set -eu
+
+dispatcher=/run/steamapps/common/CinterForge/Applications/Test/Dispatcher/Cinter
+
+if [ ! -f "$dispatcher" ] || [ ! -r "$dispatcher" ]; then
+    echo "[Cinter] Dispatcher missing/unreadable: $dispatcher" >&2
+    echo '[Cinter] Build and Stage CinterForgeOS to install it; guest launch never creates user data.' >&2
+    exit 1
+fi
+
+exec /bin/sh "$dispatcher" "$@"

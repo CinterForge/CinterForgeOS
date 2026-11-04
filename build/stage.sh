@@ -82,4 +82,49 @@ cfos_stage() {
     [[ -f "$bundled_register" ]] || { echo "CFOS: missing Steam registrar: $bundled_register" >&2; return 1; }
     CFOS_STEAM_ARTWORK_DIR="$steam_artwork" CFOS_STEAM_DIALOG_SCRIPT="$steam_dialog" cfos_run /usr/bin/python3 "$bundled_register" --app "$installed_app" --restart-steam "${steam_user_args[@]}"
   done < <(cfos_configurations)
+
+  # The CFOS host Stage must install the external Cinter command tree as well
+  # as the signed app. Reuse CinterForge's existing Stage ownership and
+  # preservation rules; never create another dispatcher or guest helper.
+  local lifecycle="$CFOS_WORKSPACE/CinterForge/CinterForgeServer/cinter/build_cinterforge/creativeSuite/lifecycle.py"
+  local external="$CFOS_WORKSPACE/CinterForge/CinterForgeServer/cinter/build_cinterforge/creativeSuite/apps/cinterforge-os/external"
+  if [[ ! -f "$lifecycle" || ! -f "$external/dispatch/cinter-dispatcher.sh" ]]; then
+    echo 'CFOS: missing sibling CinterForge external Cinter Stage sources.' >&2
+    return 1
+  fi
+  if (( CFOS_DRY_RUN )); then
+    echo "CFOS: would stage external Cinter dispatcher and scripts from $external"
+  else
+    CFOS_LIFECYCLE="$lifecycle" CFOS_EXTERNAL="$external" CFOS_BUILD_ROOT="$CFOS_BUILD_ROOT" \
+      /usr/bin/python3 - <<'PYTHON'
+import importlib.util
+import os
+from pathlib import Path
+import shutil
+import tempfile
+
+lifecycle_path = Path(os.environ['CFOS_LIFECYCLE'])
+external = Path(os.environ['CFOS_EXTERNAL'])
+build_root = Path(os.environ['CFOS_BUILD_ROOT'])
+spec = importlib.util.spec_from_file_location('cinter_cfos_lifecycle', lifecycle_path)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+build_root.mkdir(parents=True, exist_ok=True)
+with tempfile.TemporaryDirectory(prefix='CinterExternalStage-', dir=build_root) as temp:
+    staged = Path(temp)
+    shutil.copy2(external / 'dispatch/cinter-dispatcher.sh', staged / 'CinterDispatcher')
+    scripts = staged / 'TestScripts'
+    for source in external.rglob('*'):
+        if not source.is_file() or source.name == 'cinter-dispatcher.sh':
+            continue
+        relative = source.relative_to(external)
+        if any(part.startswith('.') or part == '__pycache__' for part in relative.parts):
+            continue
+        target = scripts / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+    module.provision_cinterforge_os_dispatcher(staged)
+    module.provision_cinterforge_os_test_scripts(staged)
+PYTHON
+  fi
 }

@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=CinterForgeOS desktop ready
-Exec=CinterForge run-desktop-ready
+Exec=Cinter run-desktop-ready
 OnlyShowIn=KDE;
 Terminal=false
 X-KDE-autostart-phase=2

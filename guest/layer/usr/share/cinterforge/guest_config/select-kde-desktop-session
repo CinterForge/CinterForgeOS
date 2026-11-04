@@ -291,6 +291,24 @@ CFOS_STEAM_DESKTOP
     chown steamos:steamos "$steam_shortcut"
 fi
 
+# Keep Konsole reachable without opening the unstable KDE application menu.
+# Preserve an existing user-customized shortcut.
+konsole_shortcut="$desktop/konsole.desktop"
+if [ ! -e "$konsole_shortcut" ] && [ ! -L "$konsole_shortcut" ]; then
+    cat > "$konsole_shortcut" <<'CFOS_KONSOLE_DESKTOP'
+[Desktop Entry]
+Type=Application
+Name=Konsole
+Comment=Open a terminal without the application menu
+Exec=konsole
+Icon=utilities-terminal
+Terminal=false
+Categories=System;TerminalEmulator;
+CFOS_KONSOLE_DESKTOP
+    chmod 0755 "$konsole_shortcut"
+    chown steamos:steamos "$konsole_shortcut"
+fi
+
 # Legacy standalone Ardour desktop launchers are superseded by the branded
 # CinterForge Audio entries in the Linux and Windows desktop folders.
 desktop="$home/Desktop"

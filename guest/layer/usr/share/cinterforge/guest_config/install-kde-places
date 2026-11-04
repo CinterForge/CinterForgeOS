@@ -7,11 +7,11 @@ home=/home/steamos
 places="$home/.local/share/user-places.xbel"
 seed=/usr/share/cinterforge/kde/user-places.xbel
 install -d -m 0755 -o steamos -g steamos "$home/.local/share"
-# Install only the missing local entry point so Konsole users can type ./CinterForge.
+# Install only the missing local entry point so Konsole users can type Cinter.
 # Never overwrite a user's existing ~/CinterForge file or link.
-if [ ! -e "$home/CinterForge" ] && [ ! -L "$home/CinterForge" ]; then
-    ln -s /usr/bin/CinterForge "$home/CinterForge"
-    chown -h steamos:steamos "$home/CinterForge"
+if [ ! -e "$home/Cinter" ] && [ ! -L "$home/Cinter" ]; then
+    ln -s /usr/bin/Cinter "$home/Cinter"
+    chown -h steamos:steamos "$home/Cinter"
 fi
 # The sole host filesystem share is /run/steamapps. Do not create shadow shares.
 # Four separate groups: staged CinterForge applications vs original publishers.
@@ -57,7 +57,7 @@ install_managed_launcher() {
           *) return 0 ;;
         esac
     fi
-    if [ -f "$dst" ] && ! grep -Eq '^(X-CinterForgeOS-Managed=true|Exec=(CinterForge|/usr/bin/CinterForge) (launch-|install-))' "$dst"; then
+    if [ -f "$dst" ] && ! grep -Eq '^(X-CinterForgeOS-Managed=true|Exec=(Cinter|/usr/bin/Cinter|CinterForge|/usr/bin/CinterForge) (launch-|install-))' "$dst"; then
         return 0
     fi
     # Preserve all authored application fields and mark our own copy for
