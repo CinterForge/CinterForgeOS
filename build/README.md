@@ -43,9 +43,9 @@ Run from any working directory:
 
 The macOS product requires Apple Silicon, an appropriate Xcode installation, native Homebrew, guest graphics dependencies and the maintained fork sources. Setup provisions pinned host tools, isolated runtimes and a managed Colima profile. Build invokes the established Xcode image/host build machinery. Stage installs the complete app to Steam's CinterForge application area and separately stages the guest command dispatcher from `guest/dispatch/external`. Test verifies the installed native application and available graphics validation. It does not certify every guest application or every Steam title.
 
-### Linux AMD64 headless product
+### Linux x86-64 headless product
 
-The Linux product is an Ubuntu 24.04 AMD64 OCI userspace for headless application tests, packaging and server-side workflows. It is **not** the ARM64 SteamOS desktop and does not create a Linux GUI VM. On an Apple Silicon Mac, Build uses the managed Colima/Docker environment; on a Linux build host, it uses the existing Docker/Buildx daemon. Setup verifies that environment and its pinned Dockerfile. It does not need Xcode, a CinterForge checkout or an installed Steam client.
+The Linux product is an Ubuntu 24.04 x86-64 OCI userspace for headless application tests, packaging and server-side workflows. It is **not** the ARM64 SteamOS desktop and does not create a Linux GUI VM. On an Apple Silicon Mac, Build uses the managed Colima/Docker environment; on a Linux build host, it uses the existing Docker/Buildx daemon. Setup verifies that environment and its pinned Dockerfile. It does not need Xcode, a CinterForge checkout or an installed Steam client.
 
 Build creates `Builds/CreativeSuite/Built/cinterforge-os/linux/<version>/Ubuntu/Ubuntu-24.04-amd64-rootfs.tar`. Stage verifies and copies that artifact into versioned `Builds/CreativeSuite/Staged/` and the persistent Steam applications tree. Test imports the **installed** archive and verifies AMD64 execution and the read-only installed-applications bridge. `2026-Debug` and `2026` are distinct artifacts. Application-specific headless tests consume this installed environment rather than rebuilding the OS.
 
