@@ -2,6 +2,39 @@
 # Setup: prepare host toolchains, private Colima profile, and guest sources.
 # Sourced by ../CFOS. Nothing in this file runs until cfos_setup is called.
 cfos_setup() {
+  if [[ "$CFOS_PLATFORM" == linux ]]; then
+    # The headless AMD64 distro builds on Apple Silicon via managed Colima,
+    # or on Linux with an existing Docker/Buildx daemon. Neither needs a
+    # CinterForge source checkout, an Xcode project or the Steam client.
+    if [[ "$(uname -s)" == Darwin ]]; then
+      cfos_require_mac
+      local formula
+      local linux_formulae=(docker docker-buildx colima)
+      if (( ! CFOS_DRY_RUN )); then
+        [[ -x /opt/homebrew/bin/brew ]] || { echo 'CFOS Linux Setup requires Apple Silicon Homebrew on macOS.' >&2; return 1; }
+        export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+      fi
+      for formula in "${linux_formulae[@]}"; do
+        if (( CFOS_DRY_RUN )) || ! brew list --versions "$formula" >/dev/null 2>&1; then
+          cfos_run brew install "$formula"
+        fi
+      done
+    elif [[ "$(uname -s)" == Linux ]]; then
+      if (( CFOS_DRY_RUN )); then
+        cfos_run docker info
+        cfos_run docker buildx version
+      else
+        command -v docker >/dev/null || { echo 'CFOS Linux Setup requires Docker.' >&2; return 1; }
+        docker info >/dev/null || { echo 'CFOS Linux Setup requires an active Docker daemon.' >&2; return 1; }
+        docker buildx version >/dev/null || { echo 'CFOS Linux Setup requires Docker Buildx.' >&2; return 1; }
+      fi
+    else
+      echo "CFOS Linux Setup does not support host OS $(uname -s)" >&2
+      return 1
+    fi
+    cfos_linux setup
+    return $?
+  fi
   cfos_require_mac
   # Never install host dependencies through Intel Homebrew under Rosetta.
   # This also makes Setup and Xcode build scripts resolve the same formulae.
@@ -30,7 +63,7 @@ cfos_setup() {
   local formulae=(
     dtc xz lld pkgconf libepoxy meson ninja llvm
     spirv-llvm-translator spirv-tools spirv-headers spirv-cross
-    vulkan-loader glslang cmake go rustup colima docker qemu
+    vulkan-loader glslang cmake go rustup colima docker docker-buildx qemu
   )
   for formula in "${formulae[@]}"; do
     if (( CFOS_DRY_RUN )) || ! brew list --versions "$formula" >/dev/null 2>&1; then
@@ -122,7 +155,7 @@ cfos_setup() {
   source "$CFOS_ROOT/scripts/colima-runtime.sh"
   cfos_colima_environment || return 1
   local colima_home="$COLIMA_HOME"
-  local colima_profile='cinterforge-linux'
+  local colima_profile="$CFOS_COLIMA_PROFILE"
   local docker_socket="$COLIMA_HOME/$colima_profile/docker.sock"
   local mount_root="$CFOS_WORKSPACE"
   local mount_work="$CFOS_BUILD_ROOT/CFOS/work"
@@ -150,9 +183,13 @@ cfos_setup() {
     rm -f "$mount_work/$probe"
   }
 
+  # macOS guest-image builds need more RAM than headless Linux tests. Set it
+  # before creating a profile and verify live memory even when already running.
+  local build_memory_gib
+  build_memory_gib="$(cfos_colima_build_memory_gib)" || return 1
   if (( CFOS_DRY_RUN )); then
     cfos_run mkdir -p "$colima_home" "$mount_work" "$COLIMA_CACHE_HOME" "$DOCKER_CONFIG"
-    cfos_run colima start --profile "$colima_profile" --arch aarch64 --vm-type vz --disk 96 --activate=false --mount "$mount_root:w"
+    cfos_run colima start --profile "$colima_profile" --arch aarch64 --vm-type vz --disk 96 --memory "$build_memory_gib" --activate=false --mount "$mount_root:w"
   else
     mkdir -p "$colima_home" "$mount_work" "$COLIMA_CACHE_HOME" "$DOCKER_CONFIG"
     [[ ! -L "$colima_home" && ! -L "$LIMA_HOME" ]] || {
@@ -164,7 +201,8 @@ cfos_setup() {
     if ! docker info >/dev/null 2>&1; then
       if [[ -d "$LIMA_HOME/colima-$colima_profile" ]]; then
         cfos_colima_start || return 1
-      elif ! cfos_colima_start --arch aarch64 --vm-type vz --disk 96 --mount "$mount_root:w"; then
+      elif ! cfos_colima_check_host_memory "$build_memory_gib" ||
+           ! cfos_colima_start --arch aarch64 --vm-type vz --disk 96 --memory "$build_memory_gib" --mount "$mount_root:w"; then
         echo "CFOS: managed VM failed to start; see $LIMA_HOME/colima-$colima_profile/ha.stderr.log" >&2
         return 1
       fi
@@ -175,13 +213,16 @@ cfos_setup() {
       # remove Lima internals or introduce symlinks to a previous workspace.
       colima stop --profile "$colima_profile" || return 1
       colima delete --profile "$colima_profile" --force || return 1
-      cfos_colima_start --arch aarch64 --vm-type vz --disk 96 --mount "$mount_root:w" || return 1
+      cfos_colima_check_host_memory "$build_memory_gib" || return 1
+      cfos_colima_start --arch aarch64 --vm-type vz --disk 96 --memory "$build_memory_gib" --mount "$mount_root:w" || return 1
       cfos_colima_healthy || {
         echo "CFOS: fresh managed VM cannot mount source=$CFOS_ROOT and Builds=$mount_work" >&2
         return 1
       }
     fi
     cfos_colima_ensure_disk || return 1
+    cfos_colima_ensure_memory || return 1
+    cfos_colima_healthy || return 1
     echo "CFOS: managed Colima ready: $docker_socket"
   fi
 
@@ -189,7 +230,7 @@ cfos_setup() {
   # Never replace an existing checkout or silently accept an unrelated origin.
   local repo_name checkout remote answer branch
   local required_repos=(
-    FEX
+    cinterforge-FEX
     cinterforge-kosmickrisp-mesa
     cinterforge-libkrun
     cinterforge-moltenvk
@@ -197,9 +238,9 @@ cfos_setup() {
     cinterforge-virglrenderer
   )
   for repo_name in "${required_repos[@]}"; do
-    if [[ "$repo_name" == FEX ]]; then
-      checkout="${FEX_FORK_CHECKOUT:-$CFOS_WORKSPACE/FEX}"
-      remote='https://github.com/CinterForge/FEX.git'
+    if [[ "$repo_name" == cinterforge-FEX ]]; then
+      checkout="${FEX_FORK_CHECKOUT:-$CFOS_WORKSPACE/cinterforge-FEX}"
+      remote='https://github.com/CinterForge/cinterforge-FEX.git'
       branch='cinterforge/cinterforge'
     else
       checkout="$CFOS_WORKSPACE/$repo_name"

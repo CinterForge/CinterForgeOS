@@ -5,26 +5,81 @@ cfos_colima_environment() {
   local root="${CFOS_ROOT:-${STEAMAC_SOURCE_ROOT:-}}"
   [[ -n "$root" ]] || { echo 'CFOS: source root not set' >&2; return 1; }
   root="$(cd "$root" && pwd -P)" || return 1
-  local workspace="$(dirname "$root")"
-  export CFOS_SHARED_BUILDS="$workspace/Builds"
-  export COLIMA_HOME="$CFOS_SHARED_BUILDS/CFOS/Colima"
-  export LIMA_HOME="$COLIMA_HOME/_lima"
-  local agent_socket="$LIMA_HOME/colima-cinterforge-linux/ha.sock"
-  if (( ${#agent_socket} >= 104 )); then
-    echo "CFOS: Lima host-agent socket path too long: $agent_socket" >&2
+  export CFOS_SHARED_BUILDS="$(dirname "$root")/Builds"
+  # This Python source belongs to CFOS, not CinterForge. The same resolver is
+  # used by the Ubuntu backend, the macOS Xcode build and Setup. Shell-quote
+  # values so workspaces containing spaces do not break dispatch.
+  local exports
+  exports="$("${CFOS_PYTHON:-python3}" "$root/build/linux/managed_backend.py" --shell-env "$root")" || return 1
+  eval "$exports"
+}
+
+# The SteamOS guest-layer Docker builder is substantially larger than the
+# headless Ubuntu smoke environment. Keep its memory policy with CFOS, not in
+# Xcode phases or the generic Linux backend. Allow builders with different
+# capacities to override this explicitly, but fail before killing a working
+# Colima instance when the host cannot support the requested allocation.
+cfos_colima_build_memory_gib() {
+  local target="${CFOS_MAC_BUILD_MEMORY_GIB:-32}"
+  [[ "$target" =~ ^[1-9][0-9]*$ ]] && (( target >= 8 && target <= 256 )) || {
+    echo "CFOS: CFOS_MAC_BUILD_MEMORY_GIB must be an integer between 8 and 256 GiB (got '$target')" >&2
+    return 1
+  }
+  printf '%s\n' "$target"
+}
+
+cfos_colima_check_host_memory() {
+  local target="$1" bytes reserve_gib=4
+  [[ "$(uname -s)" == Darwin ]] || return 0
+  bytes="$(sysctl -n hw.memsize)" || return 1
+  [[ "$bytes" =~ ^[0-9]+$ ]] || { echo "CFOS: unreadable macOS physical RAM: $bytes" >&2; return 1; }
+  if (( bytes < (target + reserve_gib) * 1024 * 1024 * 1024 )); then
+    echo "CFOS: macOS has $((bytes / 1024 / 1024 / 1024)) GiB physical RAM; a ${target} GiB Colima builder needs at least ${reserve_gib} GiB headroom for macOS/Xcode." >&2
+    echo 'CFOS: leaving the existing VM and Docker images untouched. Set CFOS_MAC_BUILD_MEMORY_GIB to a smaller value only if that builder size is known to work.' >&2
     return 1
   fi
-  export COLIMA_CACHE_HOME="$CFOS_SHARED_BUILDS/CreativeSuite/Built/cinterforge-os/mac/CFOS/Cache/Colima"
-  export DOCKER_CONFIG="$CFOS_SHARED_BUILDS/CreativeSuite/Built/cinterforge-os/mac/CFOS/Docker"
-  export DOCKER_HOST="unix://$COLIMA_HOME/cinterforge-linux/docker.sock"
-  unset DOCKER_CONTEXT
 }
+
+# Colima can change memory on a *stopped* existing VM without deleting its
+# disk. Linux Setup may have started this same profile with only 8 GiB, which
+# is insufficient for the SteamOS Debian image builder. Before macOS Build,
+# check the live guest and restart only if its allocation is too small.
+cfos_colima_ensure_memory() {
+  local target memory_kib minimum_kib profile="$CFOS_COLIMA_PROFILE"
+  target="$(cfos_colima_build_memory_gib)" || return 1
+  memory_kib="$(colima ssh --profile "$profile" -- cat /proc/meminfo 2>/dev/null | awk '$1=="MemTotal:" { print $2; exit }')" || return 1
+  [[ "$memory_kib" =~ ^[0-9]+$ ]] || {
+    echo "CFOS: cannot read available RAM inside managed Colima profile $profile" >&2
+    return 1
+  }
+  # The guest kernel reserves some of its assigned memory: accept >=95%.
+  minimum_kib=$((target * 1024 * 1024 * 95 / 100))
+  if (( memory_kib >= minimum_kib )); then
+    echo "CFOS: Colima memory ready: $((memory_kib / 1024 / 1024)) GiB (requested ${target} GiB)"
+    return 0
+  fi
+  cfos_colima_check_host_memory "$target" || return 1
+  echo "CFOS: Colima has $((memory_kib / 1024 / 1024)) GiB; restarting $profile with ${target} GiB for macOS SteamOS Build (preserving VM disk/images)"
+  colima stop --profile "$profile" || return 1
+  cfos_colima_start --memory "$target" || return 1
+  memory_kib="$(colima ssh --profile "$profile" -- cat /proc/meminfo 2>/dev/null | awk '$1=="MemTotal:" { print $2; exit }')" || return 1
+  if [[ ! "$memory_kib" =~ ^[0-9]+$ ]] || (( memory_kib < minimum_kib )); then
+    echo "CFOS: managed Colima did not apply ${target} GiB memory (guest reports ${memory_kib:-unknown} KiB); refusing to run SteamOS Build" >&2
+    return 1
+  fi
+  docker info >/dev/null || {
+    echo 'CFOS: Docker did not recover after increasing Colima memory' >&2
+    return 1
+  }
+  echo "CFOS: Colima memory ready: $((memory_kib / 1024 / 1024)) GiB (requested ${target} GiB)"
+}
+
 # Lima records an exclusive owner for an additional disk. After the earlier
 # CFOS path migrations, the disk can retain an owner equal to this *stopped*
 # instance. This is a metadata ownership failure, not disk corruption.
 # Never unlock a disk owned by a running instance or another profile.
 cfos_colima_start() {
-  local profile=cinterforge-linux
+  local profile="$CFOS_COLIMA_PROFILE"
   local disk="colima-$profile"
   local log="$LIMA_HOME/colima-$profile/ha.stderr.log"
   local start_output log_bytes=0
@@ -60,7 +115,7 @@ cfos_colima_start() {
 # profile at the requested size, rather than repeatedly restarting an undersized
 # filesystem. Authored source and staged outputs live outside Colima in Builds.
 cfos_colima_ensure_disk() {
-  local profile=cinterforge-linux target_gib=96
+  local profile="$CFOS_COLIMA_PROFILE" target_gib=96
   local capacity_kib mount_root
   capacity_kib="$(colima ssh --profile "$profile" -- df -Pk /var/lib/containerd 2>/dev/null | awk 'NR==2 {print $2}')" || return 1
   [[ "$capacity_kib" =~ ^[0-9]+$ ]] || {
@@ -98,6 +153,7 @@ cfos_colima_activate() {
   }
   if docker info >/dev/null 2>&1; then
     cfos_colima_ensure_disk || return 1
+    cfos_colima_ensure_memory || return 1
     return 0
   fi
   echo 'CFOS: activating managed Colima profile after shutdown/reboot'
@@ -106,6 +162,7 @@ cfos_colima_activate() {
   for ((attempt=0; attempt<30; attempt++)); do
     if docker info >/dev/null 2>&1; then
       cfos_colima_ensure_disk || return 1
+      cfos_colima_ensure_memory || return 1
       return 0
     fi
     sleep 2

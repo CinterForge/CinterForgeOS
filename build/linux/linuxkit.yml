@@ -1,0 +1,258 @@
+kernel:
+  image: linuxkit/kernel:6.6.71-cinter-virtiofs-819af9d59279506dd2994e7aea1cbbaaebfdb0a2-dirty-2d674b9
+  cmdline: console=hvc0
+init:
+- '@pkg:./linuxkit-source/pkg/init'
+- '@pkg:./linuxkit-source/pkg/runc'
+- '@pkg:./linuxkit-source/pkg/containerd'
+- '@pkg:./linuxkit-source/pkg/ca-certificates'
+onboot:
+- name: resolver-init
+  image: alpine:3.20
+  binds:
+  - /tmp:/tmp
+  command:
+  - /bin/sh
+  - -c
+  - mkdir -p /tmp/etc
+- name: dhcpcd
+  image: '@pkg:./linuxkit-source/pkg/dhcpcd'
+  net: host
+  binds:
+  - /var:/var
+  - /tmp/etc:/etc
+  capabilities:
+  - CAP_NET_ADMIN
+  - CAP_NET_BIND_SERVICE
+  - CAP_NET_RAW
+  command:
+  - /sbin/dhcpcd
+  - --nobackground
+  - -f
+  - /dhcpcd.conf
+  - '-1'
+services:
+- name: cinter-creative-suite
+  image: alpine:3.20
+  net: host
+  binds:
+  - /proc:/proc
+  - /sys:/sys
+  - /dev:/dev
+  - /usr/local/bin/cinter-creative-suite-guest.sh:/usr/local/bin/cinter-creative-suite-guest.sh
+  - /usr/local/lib/cinter-creative-suite:/usr/local/lib/cinter-creative-suite
+  - /tmp/etc/resolv.conf:/etc/resolv.conf
+  devices:
+  - path: /dev/console
+    type: c
+    major: 5
+    minor: 1
+    mode: '0666'
+  - path: /dev/vda
+    type: b
+    major: 254
+    minor: 0
+    mode: '0660'
+  - path: /dev/null
+    type: c
+    major: 1
+    minor: 3
+    mode: '0666'
+  - path: /dev/zero
+    type: c
+    major: 1
+    minor: 5
+    mode: '0666'
+  - path: /dev/random
+    type: c
+    major: 1
+    minor: 8
+    mode: '0666'
+  - path: /dev/urandom
+    type: c
+    major: 1
+    minor: 9
+    mode: '0666'
+  capabilities:
+  - CAP_SYS_ADMIN
+  - CAP_SYS_CHROOT
+  - CAP_NET_ADMIN
+  - CAP_NET_RAW
+  - CAP_SETUID
+  - CAP_SETGID
+  - CAP_CHOWN
+  - CAP_DAC_OVERRIDE
+  - CAP_FOWNER
+  - CAP_FSETID
+  - CAP_SETFCAP
+  - CAP_MKNOD
+  command:
+  - /bin/sh
+  - -c
+  - "exec >/dev/console 2>&1\nset -eu\n# Explicit boot mode, not the existence of a file on a possibly wrong share.\nif !\
+    \ grep -qw 'cinter.mode=creative-suite' /proc/cmdline; then\n  echo CINTER_CREATIVE_SUITE_IDLE\n  exit 0\nfi\necho CINTER_CREATIVE_SUITE_MODE_CONFIRMED\n\
+    mkdir -p /mnt/cinter-bds\nif ! timeout 10 mount -t virtiofs cinter-bds /mnt/cinter-bds; then\n  echo CINTER_CREATIVE_SUITE_ERROR\
+    \ application-share-mount\n  exit 74\nfi\n# In Creative Suite mode, a missing job is a share-contract failure.\nif [ !\
+    \ -f /mnt/cinter-bds/CreativeSuite/Linux/.cinter/creative-suite-job ]; then\n  echo CINTER_CREATIVE_SUITE_ERROR job-not-visible\n\
+    \  echo CINTER_CREATIVE_SUITE_SHARE_CONTENTS\n  ls -la /mnt/cinter-bds\n  ls -la /mnt/cinter-bds/CreativeSuite/Linux/.cinter\
+    \ 2>&1 || true\n  exit 79\nfi\necho CINTER_CREATIVE_SUITE_JOB_FOUND\nif [ ! -f /mnt/cinter-bds/Linux/DebianAMD64.ext4\
+    \ ]; then\n  echo CINTER_CREATIVE_SUITE_ERROR missing-shared-linux-system\n  printf '77\\n' > /mnt/cinter-bds/CreativeSuite/Linux/.cinter/creative-suite-result\n\
+    \  printf '77\\n' > /mnt/cinter-bds/CreativeSuite/Linux/.cinter/vm-stop-request\n  exit 77\nfi\necho CINTER_CREATIVE_SUITE_DEBIAN_MOUNTED\n\
+    # Register Rosetta in the supervisor before invoking the job dispatcher.\n# This is a mandatory architecture boundary\
+    \ for ALL AMD64 Debian jobs,\n# including Windows Ardour cross-compilation. Never silently skip it.\nmkdir -p /mnt/rosetta\
+    \ /proc/sys/fs/binfmt_misc\nif ! timeout 10 mount -t virtiofs rosetta /mnt/rosetta; then\n  echo CINTER_CREATIVE_SUITE_ERROR\
+    \ rosetta-share-mount\n  exit 85\nfi\nif [ ! -x /mnt/rosetta/rosetta ]; then\n  echo CINTER_CREATIVE_SUITE_ERROR rosetta-interpreter-missing\n\
+    \  exit 86\nfi\nif ! mountpoint -q /proc/sys/fs/binfmt_misc; then\n  if ! mount -t binfmt_misc binfmt_misc /proc/sys/fs/binfmt_misc;\
+    \ then\n    echo CINTER_CREATIVE_SUITE_ERROR binfmt-mount\n    exit 87\n  fi\nfi\n# binfmt_misc requires literal backslash-x\
+    \ escapes in its registration\n# string, NOT binary NUL bytes emitted by printf.  Use the same\n# architecture-specific\
+    \ ELF mask as the working BDS registration.\n# A raw printf \\x00 truncates the rule at the first NUL and makes it\n#\
+    \ match native ARM64 ELF binaries, breaking LinuxKit itself.\n# Inspect the registration using shell builtins.\nif [ !\
+    \ -e /proc/sys/fs/binfmt_misc/rosetta ]; then\n  if ! printf '%s' ':rosetta:M::\\x7fELF\\x02\\x01\\x01\\x00\\\
+    x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\x3e\\x00:\\xff\\xff\\xff\\xff\\xff\\\
+    xfe\\xfe\\x00\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xfe\\xff\\xff\\xff:' /mnt/rosetta/rosetta\
+    \ ':OCF' > /proc/sys/fs/binfmt_misc/register; then\n    echo CINTER_CREATIVE_SUITE_ERROR rosetta-registration\n    exit\
+    \ 88\n  fi\nfi\nrosetta_enabled=\nrosetta_interpreter=\nrosetta_magic=\nrosetta_mask=\nwhile IFS= read -r line; do\n \
+    \ case \"$line\" in\n    enabled) rosetta_enabled=yes ;;\n    interpreter\\ *) rosetta_interpreter=${line#interpreter\
+    \ } ;;\n    magic\\ *) rosetta_magic=${line#magic } ;;\n    mask\\ *) rosetta_mask=${line#mask } ;;\n  esac\ndone < /proc/sys/fs/binfmt_misc/rosetta\n\
+    echo \"CINTER_CREATIVE_SUITE_ROSETTA_BINFMT enabled=$rosetta_enabled interpreter=$rosetta_interpreter magic=$rosetta_magic\
+    \ mask=$rosetta_mask\"\nif [ \"${#rosetta_magic}\" -ne 40 ] || [ \"${#rosetta_mask}\" -ne 40 ]; then\n  echo CINTER_CREATIVE_SUITE_ERROR\
+    \ rosetta-binfmt-truncated\n  exit 89\nfi\n# ELF64 little endian and x86-64 e_machine at byte offset 18.\ncase \"$rosetta_magic\"\
+    \ in\n  7f454c46020101*3e00) ;;\n  *) echo CINTER_CREATIVE_SUITE_ERROR rosetta-binfmt-magic-invalid; exit 89 ;;\nesac\n\
+    if [ \"$rosetta_enabled\" != yes ] || [ \"$rosetta_interpreter\" != /mnt/rosetta/rosetta ]; then\n  echo CINTER_CREATIVE_SUITE_ERROR\
+    \ rosetta-registration-invalid\n  exit 89\nfi\n# Confirm that registration has not broken execution of native ARM64\n\
+    # LinuxKit utilities before entering the AMD64 Debian chroot.\nif ! /bin/busybox true; then\n  echo CINTER_CREATIVE_SUITE_ERROR\
+    \ rosetta-intercepted-native-arm64\n  exit 89\nfi\necho CINTER_CREATIVE_SUITE_ROSETTA_READY\nexec /usr/local/bin/cinter-creative-suite-guest.sh\n"
+- name: xbox-auth-curl
+  image: curlimages/curl@sha256:d9b4541e214bcd85196d6e92e2753ac6d0ea699f0af5741f8c6cccbfcf00ef4b
+  net: host
+  devices:
+  - path: /dev/console
+    type: c
+    major: 5
+    minor: 1
+    mode: '0666'
+  command:
+  - /bin/sh
+  - -c
+  - "exec >/dev/console 2>&1\nif grep -qw 'cinter.mode=creative-suite' /proc/cmdline; then\n  echo CINTER_XBOX_AUTH_SKIPPED_CREATIVE_SUITE\n\
+    \  exit 0\nfi\nrm -f /var/cinter-xbox-auth-curl.done\necho CINTER_XBOX_AUTH_CURL_BEGIN\nset +e\ncurl -iv --connect-timeout\
+    \ 10 --max-time 20 https://auth.xboxlive.com/\nrc=$?\necho CINTER_XBOX_AUTH_CURL_END rc=$rc\nprintf '%s\\n' \"$rc\" >\
+    \ /var/cinter-xbox-auth-curl.done\nexit 0\n"
+  capabilities:
+  - CAP_SYS_ADMIN
+  binds:
+  - /var:/var
+  - /tmp/etc/resolv.conf:/etc/resolv.conf
+- name: cinter-bds
+  image: alpine:3.20
+  net: host
+  binds:
+  - /proc:/proc
+  - /sys:/sys
+  - /var:/var
+  - /usr/local/bin/cinter-bds-guest.sh:/usr/local/bin/cinter-bds-guest.sh
+  - /etc/ssl/certs:/etc/ssl/certs
+  - /tmp/etc/resolv.conf:/etc/resolv.conf
+  devices:
+  - path: /dev/console
+    type: c
+    major: 5
+    minor: 1
+    mode: '0666'
+  capabilities:
+  - CAP_SYS_ADMIN
+  - CAP_SYS_CHROOT
+  - CAP_SYS_BOOT
+  - CAP_NET_ADMIN
+  - CAP_NET_RAW
+  command:
+  - /bin/sh
+  - -c
+  - "exec >/dev/console 2>&1\nset -eux\necho CINTER_BDS_GUEST_BOOT\nif grep -qw 'cinter.mode=creative-suite' /proc/cmdline;\
+    \ then\n  echo CINTER_BDS_SKIPPED_CREATIVE_SUITE\n  exit 0\nfi\necho CINTER_BDS_NETWORK_READY_CHECK_BEGIN\nip -4 addr\
+    \ show dev eth0 2>&1 || true\nip route 2>&1 || true\ncat /etc/resolv.conf 2>&1 || true\nip -4 addr show dev eth0 | grep\
+    \ -q 'inet ' || { echo CINTER_BDS_ERROR network-no-ipv4; exit 29; }\nip route | grep -q '^default ' || { echo CINTER_BDS_ERROR\
+    \ network-no-default-route; exit 30; }\ngrep -Eq '^[[:space:]]*nameserver[[:space:]]+[^[:space:]]+' /etc/resolv.conf ||\
+    \ { echo CINTER_BDS_ERROR network-no-dns; exit 31; }\necho CINTER_BDS_NETWORK_READY_CHECK_PASS\nmkdir -p /mnt/cinter-bds\
+    \ /mnt/rosetta\necho CINTER_BDS_MOUNT_BEGIN cinter-bds\ntimeout 10 mount -t virtiofs cinter-bds /mnt/cinter-bds || { rc=$?;\
+    \ echo CINTER_BDS_ERROR cinter-bds-mount rc=$rc; dmesg | tail -40; exit 24; }\necho CINTER_BDS_MOUNT_PASS cinter-bds\n\
+    # The dedicated Creative Suite service owns one-shot application jobs.\n# Do not run Xbox diagnostics or Bedrock for those\
+    \ VM invocations.\nif [ -f /mnt/cinter-bds/CreativeSuite/Linux/.cinter/creative-suite-job ]; then\n  echo CINTER_BDS_SKIPPED_CREATIVE_SUITE\n\
+    \  exit 0\nfi\necho CINTER_XBOX_AUTH_CURL_WAIT\ni=0\nwhile [ ! -f /var/cinter-xbox-auth-curl.done ] && [ \"$i\" -lt 30\
+    \ ]; do i=$((i+1)); sleep 1; done\n[ -f /var/cinter-xbox-auth-curl.done ] || { echo CINTER_BDS_ERROR xbox-auth-curl-timeout;\
+    \ exit 28; }\necho \"CINTER_XBOX_AUTH_CURL_RESULT rc=$(cat /var/cinter-xbox-auth-curl.done)\"\nmkdir -p /mnt/cinter-bds/.cinter\n\
+    GUEST_IP=$(ip -4 -o addr show dev eth0 | awk '{split($4,a,\"/\"); print a[1]; exit}')\nprintf '%s\\n' \"$GUEST_IP\" |\
+    \ grep -Eq '^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$' || { echo CINTER_BDS_ERROR guest-ip-unavailable; exit 32; }\nprintf '%s\\\
+    n' \"$GUEST_IP\" > /mnt/cinter-bds/.cinter/guest-ip\necho \"CINTER_BDS_GUEST_IP_PUBLISHED $GUEST_IP\"\necho CINTER_BDS_MOUNT_BEGIN\
+    \ rosetta\ntimeout 10 mount -t virtiofs rosetta /mnt/rosetta || { rc=$?; echo CINTER_BDS_ERROR rosetta-mount rc=$rc; dmesg\
+    \ | tail -40; exit 25; }\necho CINTER_BDS_MOUNT_PASS rosetta\nmount -t binfmt_misc binfmt_misc /proc/sys/fs/binfmt_misc\
+    \ || true\nexec /usr/local/bin/cinter-bds-guest.sh </dev/console >/dev/console 2>&1\n"
+files:
+- path: usr/local/bin/cinter-creative-suite-guest.sh
+  mode: '0755'
+  contents: '#!/bin/sh
+
+    exec /usr/local/lib/cinter-creative-suite/env/guest.sh
+
+    '
+- path: usr/local/bin/cinter-bds-guest.sh
+  mode: '0755'
+  contents: "#!/bin/sh\nset -eu\nBDS_ROOT=\"${CINTER_BDS_ROOT:-/mnt/cinter-bds}\"\nROSETTA_ROOT=\"${CINTER_ROSETTA_ROOT:-/mnt/rosetta}\"\
+    \nGLIBC_ROOT=\"$BDS_ROOT/.cinter/glibc-x86_64\"\n[ -x \"$BDS_ROOT/bedrock_server\" ] || { echo \"CINTER_BDS_ERROR missing\
+    \ $BDS_ROOT/bedrock_server\" >&2; exit 20; }\n[ -x \"$ROSETTA_ROOT/rosetta\" ] || { echo \"CINTER_BDS_ERROR missing $ROSETTA_ROOT/rosetta\"\
+    \ >&2; exit 21; }\n[ -x \"$GLIBC_ROOT/ld-linux-x86-64.so.2\" ] || { echo \"CINTER_BDS_ERROR missing $GLIBC_ROOT/ld-linux-x86-64.so.2\"\
+    \ >&2; exit 26; }\nif [ -w /proc/sys/fs/binfmt_misc/register ] && [ ! -e /proc/sys/fs/binfmt_misc/rosetta ]; then\n  #\
+    \ Apple's documented Rosetta-for-Linux binfmt rule.  The mask is required:\n  # without it, ordinary x86-64 ELF files\
+    \ do not match and /bin/sh tries to\n  # interpret the BDS executable as a shell script.\n  printf ':rosetta:M::\\\\x7fELF\\\
+    \\x02\\\\x01\\\\x01\\\\x00\\\\x00\\\\x00\\\\x00\\\\x00\\\\x00\\\\x00\\\\x00\\\\x00\\\\x02\\\\x00\\\\x3e\\\\x00:\\\\xff\\\
+    \\xff\\\\xff\\\\xff\\\\xff\\\\xfe\\\\xfe\\\\x00\\\\xff\\\\xff\\\\xff\\\\xff\\\\xff\\\\xff\\\\xff\\\\xff\\\\xfe\\\\xff\\\
+    \\xff\\\\xff:%s:OCF' \"$ROSETTA_ROOT/rosetta\" > /proc/sys/fs/binfmt_misc/register\nfi\n[ -r /proc/sys/fs/binfmt_misc/rosetta\
+    \ ] || { echo \"CINTER_BDS_ERROR rosetta-binfmt-registration-missing\" >&2; exit 23; }\ngrep -q '^enabled$' /proc/sys/fs/binfmt_misc/rosetta\
+    \ || { echo \"CINTER_BDS_ERROR rosetta-binfmt-disabled\" >&2; cat /proc/sys/fs/binfmt_misc/rosetta >&2; exit 23; }\necho\
+    \ \"CINTER_BDS_ROSETTA_REGISTERED\"\necho \"CINTER_BDS_GUEST_CONTRACT direct-bds-v2\"\nCA_BUNDLE=/etc/ssl/certs/ca-certificates.crt\n\
+    [ -s \"$CA_BUNDLE\" ] || { echo \"CINTER_BDS_ERROR missing CA bundle $CA_BUNDLE\" >&2; exit 27; }\necho \"CINTER_BDS_CA_BUNDLE_READY\
+    \ $CA_BUNDLE\"\necho \"CINTER_BDS_NETWORK_DIAGNOSTIC_BEGIN\"\necho \"CINTER_BDS_NETWORK_RESOLV_CONF_BEGIN\"\ncat /etc/resolv.conf\
+    \ 2>&1 || true\necho \"CINTER_BDS_NETWORK_RESOLV_CONF_END\"\necho \"CINTER_BDS_NETWORK_ROUTE_BEGIN\"\n(ip addr 2>&1 ||\
+    \ true)\n(ip route 2>&1 || true)\necho \"CINTER_BDS_NETWORK_ROUTE_END\"\necho \"CINTER_BDS_FIREWALL_BEGIN\"\nif command\
+    \ -v iptables >/dev/null 2>&1; then iptables -L -n -v 2>&1 || true; else echo \"CINTER_BDS_FIREWALL iptables=unavailable\"\
+    ; fi\nif command -v nft >/dev/null 2>&1; then nft list ruleset 2>&1 || true; else echo \"CINTER_BDS_FIREWALL nft=unavailable\"\
+    ; fi\necho \"CINTER_BDS_FIREWALL_END\"\necho \"CINTER_BDS_UDP_PRELAUNCH_BEGIN port=19132\"\nif command -v nc >/dev/null\
+    \ 2>&1; then\n  set +e\n  printf 'CINTER_BDS_UDP_BROADCAST_PROBE\\n' | nc -u -w 1 255.255.255.255 19132 >/dev/null 2>&1\n\
+    \  UDP_RC=$?\n  set -e\n  echo \"CINTER_BDS_UDP_BROADCAST_SEND rc=$UDP_RC destination=255.255.255.255:19132\"\nelse\n\
+    \  echo \"CINTER_BDS_UDP_BROADCAST_SEND nc=unavailable\"\nfi\necho \"CINTER_BDS_UDP_TABLE_BEGIN\"\ncat /proc/net/udp 2>&1\
+    \ || true\ncat /proc/net/udp6 2>&1 || true\necho \"CINTER_BDS_UDP_TABLE_END\"\necho \"CINTER_BDS_UDP_PRELAUNCH_END\"\n\
+    echo \"CINTER_BDS_NETWORK_DIAGNOSTIC_END\"\ncd \"$BDS_ROOT\"\necho \"CINTER_BDS_ROOT_RESOLVED $BDS_ROOT\"\necho \"CINTER_BDS_WORKDIR\
+    \ $(pwd)\"\nif [ -f \"$BDS_ROOT/server.properties\" ]; then\n  echo \"CINTER_BDS_PROPERTIES_VISIBLE path=$BDS_ROOT/server.properties\
+    \ bytes=$(wc -c < \"$BDS_ROOT/server.properties\" | tr -d ' ')\"\n  LEVEL_NAME=$(sed -n 's/^level-name=//p' \"$BDS_ROOT/server.properties\"\
+    \ | head -n 1)\n  echo \"CINTER_BDS_LEVEL_NAME ${LEVEL_NAME:-<unset>}\"\nelse\n  echo \"CINTER_BDS_ERROR server.properties-not-visible\
+    \ root=$BDS_ROOT cwd=$(pwd)\" >&2\n  exit 28\nfi\necho \"CINTER_BDS_WORLDS_BEGIN\"\nfind worlds -mindepth 1 -maxdepth\
+    \ 1 -type d -print 2>/dev/null || true\necho \"CINTER_BDS_WORLDS_END\"\n# Execute BDS as BDS, not as ld-linux.  Invoking\
+    \ the loader as argv[0] makes\n# /proc/self/exe identify the loader, which causes BDS to resolve data files\n# (for example\
+    \ profiler bootstrap.json) under .cinter/glibc-x86_64/data.\n# Materialize the interpreter at the ELF-requested path,\
+    \ then let Rosetta's\n# binfmt handler execute bedrock_server directly.\nmkdir -p /lib64\ncp \"$GLIBC_ROOT/ld-linux-x86-64.so.2\"\
+    \ /lib64/ld-linux-x86-64.so.2\nchmod 755 /lib64/ld-linux-x86-64.so.2\nexport LD_LIBRARY_PATH=\"$GLIBC_ROOT:$BDS_ROOT${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}\"\
+    \n[ -x \"$BDS_ROOT/.cinter/cinter-nethernet-probe\" ] || { echo \"CINTER_BDS_ERROR missing $BDS_ROOT/.cinter/cinter-nethernet-probe\"\
+    \ >&2; exit 22; }\necho \"CINTER_BDS_EXEC $BDS_ROOT/bedrock_server\"\n# BDS is launched as an asynchronous command so\
+    \ the NetherNet readiness probe can\n# run beside it.  In a non-interactive POSIX shell an asynchronous command with no\n\
+    # explicit stdin redirection may receive /dev/null instead of the shell's stdin.\n# Attach all three BDS console descriptors\
+    \ directly to the VM serial console.\n# This deliberately avoids the former FIFO/cat relay, which put Rosetta BDS behind\n\
+    # a Linux pipe and native runs eventually wedged in pipe_read.\necho \"CINTER_BDS_CONSOLE_MODE direct-serial-console\"\
+    \n./bedrock_server </dev/console >/dev/console 2>&1 &\nBDS_PID=$!\n(\n  # Keep this deadline comfortably inside the host-side\
+    \ smoke deadline.\n  # One probe already tries IPv6 loopback and IPv4 loopback.\n  # address, so probing a second port\
+    \ doubled the wall time without adding\n  # evidence for the configured BDS port (19132).\n  i=0\n  while [ \"$i\" -lt\
+    \ 12 ]; do\n    # This subshell is a child of the LinuxKit service.  Write acceptance\n    # markers to the service stdout/stderr\
+    \ inherited by containerd.  Writing\n    # them to /dev/console races BDS, which also owns /dev/console for its\n    #\
+    \ interactive stdin/stdout and caused the host smoke to wait forever even\n    # after BDS printed \"Server started.\"\
+    .\n    echo \"CINTER_BDS_NETHERNET_ATTEMPT attempt=$((i+1)) port=19132\"\n    if \"$BDS_ROOT/.cinter/cinter-nethernet-probe\"\
+    \ 19132 >/dev/null 2>&1; then\n      echo \"CINTER_BDS_NETHERNET_PASS port=19132\"\n      exit 0\n    fi\n    i=$((i+1));\
+    \ sleep 1\n  done\n  echo \"CINTER_BDS_NETHERNET_DIAGNOSTIC_BEGIN\"\n  echo \"CINTER_BDS_NETHERNET_DIAGNOSTIC port=19132\"\
+    \n  \"$BDS_ROOT/.cinter/cinter-nethernet-probe\" 19132 2>&1 || true\n  echo \"CINTER_BDS_NETHERNET_FAIL timeout attempts=$i\
+    \ port=19132\"\n) &\nPROBE_PID=$!\nset +e\nwait \"$BDS_PID\"\nRC=$?\nkill \"$PROBE_PID\" 2>/dev/null || true\nwait \"\
+    $PROBE_PID\" 2>/dev/null || true\necho \"CINTER_BDS_EXIT rc=$RC\"\n# This script runs inside a LinuxKit service container.\
+    \ `poweroff` here is not a\n# reliable way to stop the enclosing Virtualization.framework VM. Publish the\n# completed\
+    \ BDS result through the writable VirtioFS share; CinterBDSVM owns the\n# VM lifecycle and will stop the VM only after\
+    \ seeing this marker.\nprintf '%s\\n' \"$RC\" > \"$BDS_ROOT/.cinter/vm-stop-request\"\necho \"CINTER_BDS_VM_STOP_REQUEST\
+    \ rc=$RC\"\nexit \"$RC\"\n"
+trust:
+  org:
+  - linuxkit

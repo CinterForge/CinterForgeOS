@@ -3,6 +3,10 @@
 # This is NOT yet the complete DX9/OpenGL/SteamOS graphics regression suite.
 # Sourced by ../CFOS.
 cfos_test() {
+  if [[ "$CFOS_PLATFORM" == linux ]]; then
+    cfos_linux test
+    return $?
+  fi
   cfos_require_mac
   local configuration installed_app
   while IFS= read -r configuration; do

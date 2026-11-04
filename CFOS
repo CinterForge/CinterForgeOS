@@ -9,18 +9,40 @@ CFOS_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 CFOS_WORKSPACE="$(dirname "$CFOS_ROOT")"
 CFOS_BUILD_ROOT="$CFOS_WORKSPACE/Builds/CreativeSuite/Built/cinterforge-os/mac"
 CFOS_PRODUCT_ROOT="$CFOS_BUILD_ROOT/CFOS/work/out/XcodeProduct"
-if [[ -z "${CFOS_INSTALL_ROOT:-}" ]]; then
-  CFOS_STEAMAPPS="$(/usr/bin/python3 "$CFOS_ROOT/scripts/resolve-steamapps.py")" || exit 1
-  CFOS_INSTALL_ROOT="$CFOS_STEAMAPPS/common/CinterForge/Applications/macOS/CinterForgeOS"
-fi
+# Steam discovery is required by Stage/Test/Publish, not Setup/Build. Do not
+# require Steam to be installed just to provision or compile CFOS.
+cfos_steamapps() {
+  if [[ -z "${CFOS_STEAMAPPS:-}" ]]; then
+    CFOS_STEAMAPPS="$(python3 "$CFOS_ROOT/scripts/resolve-steamapps.py")" || return 1
+  fi
+  printf '%s\n' "$CFOS_STEAMAPPS"
+}
+cfos_install_root() {
+  if [[ -n "${CFOS_INSTALL_ROOT:-}" ]]; then printf '%s\n' "$CFOS_INSTALL_ROOT"; return; fi
+  if (( CFOS_DRY_RUN )) && [[ -z "${CFOS_STEAMAPPS:-}" ]]; then
+    printf '%s\n' '<resolved Steam library>/common/CinterForge/Applications/macOS/CinterForgeOS'
+    return 0
+  fi
+  local steamapps
+  steamapps="$(cfos_steamapps)" || return 1
+  printf '%s/common/CinterForge/Applications/macOS/CinterForgeOS\n' "$steamapps"
+}
+cfos_linux() {
+  local op="$1"
+  local args=("$op" --repo-root "$CFOS_ROOT" --configuration "$CFOS_CONFIGURATION")
+  (( ! CFOS_DRY_RUN )) || args+=(--dry-run)
+  cfos_run python3 -u "$CFOS_ROOT/build/linux/ubuntu_pipeline.py" "${args[@]}"
+}
 
 usage() {
   cat >&2 <<'USAGE'
-Usage: ./CFOS <setup|build|stage|test|all> cinterforge-os mac <Release|Debug|all> [--dry-run]
+Usage: ./CFOS <setup|build|stage|test|publish|all> cinterforge-os <mac|linux> <Release|Debug|all> [--dry-run]
 
 Examples:
   ./CFOS setup cinterforge-os mac Release
   ./CFOS all cinterforge-os mac all
+  ./CFOS build cinterforge-os linux Release
+  ./CFOS publish cinterforge-os mac Release
   ./CFOS test cinterforge-os mac Debug --dry-run
 
 The fourth argument "all" means Debug and Release.
@@ -36,9 +58,13 @@ CFOS_PLATFORM="$3"
 CFOS_CONFIGURATION="$4"
 shift 4
 
-case "$CFOS_ACTION" in setup|build|stage|test|all) ;; *) usage ;; esac
-[[ "$CFOS_APPLICATION" == 'cinterforge-os' && "$CFOS_PLATFORM" == 'mac' ]] || usage
+case "$CFOS_ACTION" in setup|build|stage|test|publish|all) ;; *) usage ;; esac
+[[ "$CFOS_APPLICATION" == 'cinterforge-os' ]] || usage
+case "$CFOS_PLATFORM" in mac|linux) ;; *) usage ;; esac
 case "$CFOS_CONFIGURATION" in Release|Debug|all) ;; *) usage ;; esac
+if [[ "$CFOS_ACTION" == publish && "$CFOS_CONFIGURATION" != Release ]]; then
+  echo "CFOS: Publish requires a staged Release." >&2; exit 64
+fi
 CFOS_DRY_RUN=0
 if (( $# )); then
   [[ $# -eq 1 && "$1" == '--dry-run' ]] || usage
@@ -75,9 +101,10 @@ cfos_built_app() {
 }
 
 cfos_installed_app() {
+  local root; root="$(cfos_install_root)" || return 1
   case "$1" in
-    Release) printf '%s/2026/CinterForge OS.app\n' "$CFOS_INSTALL_ROOT" ;;
-    Debug) printf '%s/2026-Debug/CinterForge OS.app\n' "$CFOS_INSTALL_ROOT" ;;
+    Release) printf '%s/2026/CinterForge OS.app\n' "$root" ;;
+    Debug) printf '%s/2026-Debug/CinterForge OS.app\n' "$root" ;;
   esac
 }
 
@@ -101,6 +128,7 @@ source "$CFOS_ROOT/build/build.sh"
 source "$CFOS_ROOT/build/stage.sh"
 source "$CFOS_ROOT/build/test.sh"
 source "$CFOS_ROOT/build/all.sh"
+source "$CFOS_ROOT/build/publish.sh"
 
 case "$CFOS_ACTION" in
   setup) cfos_setup ;;
@@ -108,4 +136,5 @@ case "$CFOS_ACTION" in
   stage) cfos_stage ;;
   test)  cfos_test ;;
   all)   cfos_all ;;
+  publish) cfos_publish ;;
 esac

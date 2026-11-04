@@ -1,174 +1,94 @@
 # Building CinterForgeOS
 
-## Prerequisites
-- macOS 26 or higher
-- Xcode 26 or higher
-- M2 or higher
-- An activated Steam account with Steam installed and working on the machine
-- The setup script _should_ install any prerequisites and ask permission as it does - needs testing
-- After running setup, you can either run build, stage and test or you can launch the XCode workspace and Build and Run
+CinterForgeOS is a standalone source repository. Its public `./CFOS` entry point owns the macOS SteamOS/KDE host product and the Linux AMD64 **headless Ubuntu server/test environment**. CinterForge delegates to these commands; CinterForgeOS does not import CinterForge's build scripts, source checkout or application lifecycle.
 
-It should be as simple as Clone, Setup, Build and Run.  If it is not, that is a bug in the build system.
-
-## Build scripts a glance
+## Workspace and ownership
 
 ```text
-CinterForgeOS/
-  CFOS                  # CLI, argument validation, shared helpers
-  build/
-    README.md           # this guide
-    setup.sh            # cfos_setup: host prerequisites and source acquisition
-    build.sh            # cfos_build: Xcode native host build
-    stage.sh            # cfos_stage: versioned application installation
-    test.sh             # cfos_test: installed native self-test
-    all.sh              # cfos_all: setup → build → stage → test
-  CinterForgeOS.xcodeproj/
-  guest/                # SteamOS guest components and FEX integration
-  host/                 # host-side integrations and forks
-  scripts/              # existing detailed build/image/driver tooling
+<workspace>/
+├── CinterForgeOS/                   # authored OS source and ./CFOS
+├── cinterforge-FEX/                # maintained FEX source fork
+├── <other maintained forks>/       # sibling source repositories
+└── Builds/                         # all generated tools, images and packages
+
+<resolved Steam library>/steamapps/common/CinterForge/Applications/
+├── macOS/CinterForgeOS/2026/       # installed CinterForge OS.app
+├── Linux/CinterForgeOS/2026/       # installed headless Ubuntu AMD64 runtime
+└── Test/                            # staged, external guest dispatch and tools
 ```
 
-All five shell files are **sourced** by `CFOS` and define functions; none runs
-independently. This ensures each operation shares one command-line contract and
-one set of resolved paths.
+Paths are derived from the `CFOS` script location. The managed Colima VM state lives under `Builds/CreativeSuite/CFOS/` (including `Colima/`); compiled macOS and Linux artifacts remain under `Builds/CreativeSuite/Built/cinterforge-os/`. The only managed generated destinations are the sibling `Builds/` and the resolved Steam application tree. `CFOS_STEAMAPPS` can designate the Steam `steamapps` directory for Stage/Test/Publish; Setup and Build do not require Steam. `CFOS_INSTALL_ROOT` can designate the macOS installed-product root.
 
-## Commands
+## Lifecycle
 
-Run these from the repository root on an Apple Silicon Mac:
+Run from any working directory:
 
 ```bash
-./CFOS setup cinterforge-os mac Release
-./CFOS build cinterforge-os mac Release
-./CFOS stage cinterforge-os mac Release
-./CFOS test  cinterforge-os mac Release
-./CFOS all   cinterforge-os mac Release
+./CFOS setup   cinterforge-os mac   Release
+./CFOS build   cinterforge-os mac   Release
+./CFOS stage   cinterforge-os mac   Release
+./CFOS test    cinterforge-os mac   Release
+./CFOS publish cinterforge-os mac   Release
+
+./CFOS setup   cinterforge-os linux Release
+./CFOS build   cinterforge-os linux Release
+./CFOS stage   cinterforge-os linux Release
+./CFOS test    cinterforge-os linux Release
+./CFOS publish cinterforge-os linux Release
 ```
 
-Use `Debug` instead of `Release` for an Xcode debug build, or `all` in the fourth
-argument to work on **both Debug and Release**:
+`./CFOS all cinterforge-os <mac|linux> Release` runs Setup → Build → Stage → Test. Both platforms accept `Debug` as a separate build/install identity and `all` as a configuration selector to process Debug and Release. `publish` accepts Release only. Append `--dry-run` to inspect commands without writing artifacts.
 
-```bash
-./CFOS all cinterforge-os mac all
-```
+### macOS host product
 
-The **first** `all` means all lifecycle phases. The **fourth** `all` means both
-Xcode configurations; it does not mean every CPU architecture or platform.
-Only the `cinterforge-os mac` application/platform pair is supported by this
-standalone command today. Unsupported combinations fail with a usage error.
+The macOS product requires Apple Silicon, an appropriate Xcode installation, native Homebrew, guest graphics dependencies and the maintained fork sources. Setup provisions pinned host tools, isolated runtimes and a managed Colima profile. Build invokes the established Xcode image/host build machinery. Stage installs the complete app to Steam's CinterForge application area and separately stages the guest command dispatcher from `guest/dispatch/external`. Test verifies the installed native application and available graphics validation. It does not certify every guest application or every Steam title.
 
-Append `--dry-run` to preview commands without installing packages or staging
-anything. Dry-run also works on a non-macOS machine for command inspection;
-this is *not* equivalent to performing a real build or testing the environment.
+### Linux AMD64 headless product
 
-```bash
-./CFOS all cinterforge-os mac all --dry-run
-```
+The Linux product is an Ubuntu 24.04 AMD64 OCI userspace for headless application tests, packaging and server-side workflows. It is **not** the ARM64 SteamOS desktop and does not create a Linux GUI VM. On an Apple Silicon Mac, Build uses the managed Colima/Docker environment; on a Linux build host, it uses the existing Docker/Buildx daemon. Setup verifies that environment and its pinned Dockerfile. It does not need Xcode, a CinterForge checkout or an installed Steam client.
 
-## Lifecycle, step by step
+Build creates `Builds/CreativeSuite/Built/cinterforge-os/linux/<version>/Ubuntu/Ubuntu-24.04-amd64-rootfs.tar`. Stage verifies and copies that artifact into versioned `Builds/CreativeSuite/Staged/` and the persistent Steam applications tree. Test imports the **installed** archive and verifies AMD64 execution and the read-only installed-applications bridge. `2026-Debug` and `2026` are distinct artifacts. Application-specific headless tests consume this installed environment rather than rebuilding the OS.
 
-### 1. `setup.sh`: Prepare prerequisites
+### Publishing
 
-`cfos_setup` checks Apple Silicon macOS, checks for Homebrew, installs missing
-formulae from a deliberately explicit list, and checks expected tools. It then
-configures a **separate managed Colima profile** (`cinterforge-linux`) under the
-workspace's `Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/` directory, not the developer's default Colima profile.
-Finally, it calls the existing FEX source fetch and Wine userspace fetch scripts:
+Publish packages only a validated, already-staged Release. Linux Publish copies the matching installed rootfs archive into `Builds/CreativeSuite/Zipped`. macOS Publish packages both the installed app and the OS-owned staged guest dispatcher/scripts, retaining their persistent Applications layout. The command prepares the **local distribution**; remote Steam or Cloudflare upload requires separate approval and credentials.
 
-```text
-guest/fex/build.sh fetch
-guest/fex/runtime.sh fetch
-```
+## Architectural constraints
 
-The FEX source checkout defaults to `../FEX` (sibling of `CinterForgeOS`, on the same workspace drive) (override with
-`FEX_FORK_CHECKOUT`). **This is an unresolved fresh-clone dependency**: Setup
-currently expects the CinterForge-maintained `cinterforge/cinterforge` branch to have been
-cloned already. The complete native, graphics, guest, and toolchain dependency
-closure has not yet been demonstrated from a clean clone.
+The guest system base is replaceable; installed applications and user projects remain persistent and independently owned. The Linux AMD64 build environment and the graphical ARM64 SteamOS guest are separate. Proton is a test/runtime compatibility layer, not a cross-compiler dependency. `cinterforge-FEX` is the sibling fork checkout name; FEX remains the runtime's technology name.
 
-Setup does **not** create a SteamOS disk. A user decides whether to download or
-select a SteamOS image when the Swift application launches.
+Never move generated data into source checkouts, hardcode a developer workspace, install into Proton prefixes or reimplement OS setup/build in CinterForge. Preserve valid caches; a changed ABI, toolchain or input revision invalidates only the affected outputs. A passing Linux headless smoke does not establish that the installed macOS KDE or Windows/Proton UI works.
 
+### macOS Colima memory for SteamOS builds
 
-### Moving an existing managed Colima directory
+The Debian guest-image builder runs inside the same managed Colima profile
+used for the Linux headless tests. Linux tests can start that profile with 8
+GiB, but macOS SteamOS Build requires a larger allocation. CFOS macOS Setup
+and Build target **32 GiB guest memory** by default. They measure the RAM
+inside the running VM, and when it is undersized, stop and restart that same
+profile with the new allocation **without deleting its disk or Docker images**.
+The physical Mac must also leave at least 4 GiB for macOS/Xcode; a 32 GiB VM
+therefore needs at least 36 GiB of physical RAM. An override is available for
+machines with a validated smaller build configuration:
+`CFOS_MAC_BUILD_MEMORY_GIB=<integer> ./CFOS build cinterforge-os mac Release`.
+If the host cannot accommodate the requested size, CFOS reports the limitation
+without stopping an already running VM. This memory requirement is for the
+SteamOS *builder*, not the runtime guest's configured memory.
 
-All generated macOS state is grouped under the **same** application build directory:
+### macOS Colima socket paths
 
-```text
-Builds/CreativeSuite/Built/cinterforge-os/mac/
-└── CFOS/
-    ├── Colima/       # symlink to Builds/CFOS/Colima (real VM data)
-    ├── Cache/        # managed Colima download cache
-    ├── Docker/       # isolated Docker client configuration
-    ├── SwiftPM/      # Swift package build products
-    └── work/         # compiled guest, host, images, logs, and Xcode outputs
-```
+Source checkouts may be located under any workspace path; the CFOS resolver derives the
+shared sibling `Builds` directory rather than using `$HOME` or fixed mountpoints.
+Lima itself uses pathname-based Unix sockets with a macOS length limit. To
+avoid imposing short repository names, new CFOS-managed instances use a
+compact profile (`c`) with Lima state at `Builds/CreativeSuite/CFOS/L/`,
+while Colima configuration remains at `Builds/CreativeSuite/CFOS/Colima/`.
+These directories are on the same selected build volume. Existing legacy
+instances are reused when their socket path fits, or left untouched when a
+compact instance is needed. Neither Setup nor Build creates a symlink or
+relocates a user's VM disk automatically.
 
-Older layouts used `Source/CFOS`, `Builds/CFOS`, or a `Steamac/` directory
-containing `work/` and `SwiftPM/`. **Do not delete those directories.**
-Stop the `cinterforge-linux` Colima profile first, then migrate the original
-contents to `.../mac/CFOS/` without merging nonempty directories. A checkout
-with multiple populated old locations needs manual reconciliation. The Setup
-command deliberately stops rather than silently picking a second VM.
-
-**Caution:** Lima uses Unix-domain sockets that have strict macOS path length
-limits. The deeper location requested here may prevent Colima from starting
-on some systems; this must be verified on the target Mac. Do not work around
-that by creating another unmanaged VM.
-
-## How paths and environment are managed
-
-The root launcher resolves its own location, so it does not matter what your
-current working directory is. It uses the parent of the checkout as its
-workspace:
-
-```text
-workspace/
-  CinterForgeOS/      # source checkout; scripts and Xcode project
-  Builds/             # generated build artifacts (not authored inputs)
-  Builds/
-    CFOS/             # managed Colima VM, disks and cache
-```
-
-Optional environment variables:
-
-| Name | Purpose |
-| --- | --- |
-| `FEX_FORK_CHECKOUT` | Local maintained FEX checkout, defaults to `../FEX` (sibling of `CinterForgeOS`, on the same workspace drive). |
-| `CFOS_INSTALL_ROOT` | Installed CinterForgeOS version-container root. |
-
-Other environment variables used inside existing guest/host scripts retain
-their own documented meanings. This command does not rewrite Git sources,
-change the Xcode project, or create another artifact manifest.
-
-## Security and distribution
-
-CinterForgeOS is a public repository. Do not commit Steam publisher secrets, API credentials, signed-in user state, disk, images, or proprietary cached dependencies. Public users should be able to build without access to Hope's private credentials. Publishing and privileged authentication belong outside this public lifecycle.
-
-When contributing build changes, keep phase ownership obvious: Setup prepares,
-Build compiles, Stage installs, Test verifies, and the Swift launcher handles
-SteamOS user-disk consent and creation. Keep detailed functionality in its
-existing implementation rather than adding new framework layers.
-
-### macOS Colima socket path limit
-
-**Colima/Lima requires a short *physical* home path.** A `/tmp` symlink to
-`Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/Colima` does not fix the
-problem, because Lima resolves the link while constructing its Unix sockets.
-The error is `UNIX_PATH_MAX` (or `ha.sock: connect: invalid argument`).
-
-The authoritative managed VM home is therefore:
-
-```text
-Builds/CFOS/Colima/                     # real VM disks, configs and sockets
-Builds/CreativeSuite/Built/cinterforge-os/mac/CFOS/
-    Colima -> /absolute/path/to/Builds/CFOS/Colima  # view only; created by Setup
-    Cache/
-    Docker/
-    SwiftPM/
-    work/
-```
-
-Both directories are within `Builds`. **The short physical path is required
-by macOS, not an alternate fallback.** Xcode and `./CFOS setup` use the same
-absolute Colima home and the same `cinterforge-linux` profile. Neither uses
-the developer's default Colima profile. Setup never silently deletes a VM.
+The operating-system socket limit cannot be removed by renaming the project.
+For exceptionally deep physical mount paths that exceed the limit even with
+the compact layout, CFOS reports the specific socket path before creating
+VM state. Linux-native hosts use their preconfigured Docker daemon instead.

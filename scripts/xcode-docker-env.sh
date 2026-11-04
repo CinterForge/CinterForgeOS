@@ -9,5 +9,5 @@ fi
 # Use exactly the same activation and paths as ./CFOS build.
 source "$STEAMAC_SOURCE_ROOT/scripts/colima-runtime.sh"
 cfos_colima_activate || return 1
-printf '[Xcode Docker] Managed profile: cinterforge-linux\n[Xcode Docker] Socket: %s\n' "$DOCKER_HOST"
+printf '[Xcode Docker] Managed profile: %s\n[Xcode Docker] Socket: %s\n' "$CFOS_COLIMA_PROFILE" "$DOCKER_HOST"
 docker info --format '[Xcode Docker] Docker server: {{.ServerVersion}}' || return 1
