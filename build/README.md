@@ -19,6 +19,34 @@ CinterForgeOS is a standalone source repository. Its public `./CFOS` entry point
 
 Paths are derived from the `CFOS` script location. The managed Colima VM state lives under `Builds/CreativeSuite/CFOS/` (including `Colima/`); compiled macOS and Linux artifacts remain under `Builds/CreativeSuite/Built/cinterforge-os/`. The only managed generated destinations are the sibling `Builds/` and the resolved Steam application tree. `CFOS_STEAMAPPS` can designate the Steam `steamapps` directory for Stage/Test/Publish; Setup and Build do not require Steam. `CFOS_INSTALL_ROOT` can designate the macOS installed-product root.
 
+## Source checkout bootstrap (required before Ubuntu Setup)
+
+CFOS owns fork creation, cloning, and the checked-in source registry under
+`scripts/fork.py` and `scripts/source_repositories.csv`. Start from the
+CinterForgeOS checkout, with all other repositories as siblings:
+
+```bash
+./CFOS clone all --dry-run   # read-only, fail if any required source is missing/invalid
+./CFOS clone all             # explicitly clone missing forks (no implicit Setup clones)
+./CFOS clone all --dry-run   # require a clean source-inventory result
+```
+
+The repository list includes `cinterforge-kosmickrisp-mesa` (the host
+graphics integration is built from the CFOS source tree, not from a separate
+`cinterforge-kosmickrisp` checkout). Converter (`cfconvert`) belongs to CinterForgeWebApp and is built through
+CinterForge's application lifecycle; it is not a separate source repository.
+
+`clone all --dry-run` does not access GitHub or repair any path. Existing
+non-Git source directories are treated as invalid, not overwritten; the
+operator must resolve them explicitly before cloning. Products implemented
+within CinterForge are not added to the sibling-repository manifest. The GitHub-facing `./CFOS fork all` action is separate and may need
+the GitHub CLI and authentication. CinterForge can forward its historical
+clone/fork command to CFOS but contains no clone implementation itself.
+
+**Linux and macOS Setup fail at the source-inventory gate before installing
+host packages or changing managed VMs.** This check is also executed by the
+Ubuntu Setup Python entry point when called directly.
+
 ## Lifecycle
 
 Run from any working directory:
@@ -35,6 +63,13 @@ Run from any working directory:
 ./CFOS stage   cinterforge-os linux Release
 ./CFOS test    cinterforge-os linux Release
 ./CFOS publish cinterforge-os linux Release
+
+# LinuxKit is CFOS's minimal ARM64 dedicated-server appliance.
+# LinuxKit Build generates kernel/initrd/cmdline; on macOS CFOS subsequently
+# compiles and signs CinterBDSVM. Consumers never rebuild either artifact.
+./CFOS build cinterforge-os linuxkit Release
+./CFOS test cinterforge-os linuxkit Release
+./CFOS launch cinterforge-os linuxkit Release --server "$HOME/Source/Builds/CraftMaster/Server/Linux/Server"
 ```
 
 `./CFOS all cinterforge-os <mac|linux> Release` runs Setup → Build → Stage → Test. Both platforms accept `Debug` as a separate build/install identity and `all` as a configuration selector to process Debug and Release. `publish` accepts Release only. Append `--dry-run` to inspect commands without writing artifacts.
@@ -43,11 +78,53 @@ Run from any working directory:
 
 The macOS product requires Apple Silicon, an appropriate Xcode installation, native Homebrew, guest graphics dependencies and the maintained fork sources. Setup provisions pinned host tools, isolated runtimes and a managed Colima profile. Build invokes the established Xcode image/host build machinery. Stage installs the complete app to Steam's CinterForge application area and separately stages the guest command dispatcher from `guest/dispatch/external`. Test verifies the installed native application and available graphics validation. It does not certify every guest application or every Steam title.
 
-### Linux x86-64 headless product
+### Linux AMD64 headless product
 
-The Linux product is an Ubuntu 24.04 x86-64 OCI userspace for headless application tests, packaging and server-side workflows. It is **not** the ARM64 SteamOS desktop and does not create a Linux GUI VM. On an Apple Silicon Mac, Build uses the managed Colima/Docker environment; on a Linux build host, it uses the existing Docker/Buildx daemon. Setup verifies that environment and its pinned Dockerfile. It does not need Xcode, a CinterForge checkout or an installed Steam client.
+The Linux product is **one Ubuntu 24.04 AMD64 OCI userspace** for both Linux/Windows cross-build and headless tests **and** an optional KDE Plasma desktop session. It is not the ARM64 SteamOS guest or another libkrun disk. Its KDE session uses Xvfb and noVNC over Mac loopback, embedded inside the native Swift/WebKit app; XQuartz is not required. SteamOS retains its independent libkrun/Proton launch path. The CFOS launcher can select Ubuntu, SteamOS, or both. On an Apple Silicon Mac, Build uses the managed Colima/Docker environment; on a Linux build host, it uses the existing Docker/Buildx daemon. Setup first validates that every checkout in the CFOS-owned source registry is present locally, including the maintained CinterForge and Creative Suite forks. It then verifies the host Docker/Colima prerequisites and pinned Dockerfile. It does not need Xcode or an installed Steam client for the Linux-only build, and it never clones source automatically.
 
-Build creates `Builds/CreativeSuite/Built/cinterforge-os/linux/<version>/Ubuntu/Ubuntu-24.04-amd64-rootfs.tar`. Stage verifies and copies that artifact into versioned `Builds/CreativeSuite/Staged/` and the persistent Steam applications tree. Test imports the **installed** archive and verifies AMD64 execution and the read-only installed-applications bridge. `2026-Debug` and `2026` are distinct artifacts. Application-specific headless tests consume this installed environment rather than rebuilding the OS.
+Build creates `Builds/CreativeSuite/Built/cinterforge-os/linux/<version>/Ubuntu/Ubuntu-24.04-amd64-rootfs.tar`. Stage verifies and copies that artifact into versioned `Builds/CreativeSuite/Staged/` and the persistent Steam applications tree. Test imports the **installed** archive, compiles and runs native Linux code plus a MinGW Windows PE through Wine/Xvfb, tests a KDE Plasma session, and verifies the read-only installed-applications bridge. A `headless-verified.json` receipt records the exact installed rootfs hash, Dockerfile, headless tests and KDE launcher. CFOS macOS and CinterForge apps require that successful Ubuntu Build → Stage → Test before they begin. The shared Ubuntu **Release** product supplies both macOS Debug and Release; a changed image or test script invalidates its receipt until it is rebuilt, restaged and retested. `2026-Debug` and `2026` are distinct artifacts. Application-specific headless tests consume this installed environment rather than rebuilding the OS.
+
+### Ubuntu Server and WebApp product integration
+
+The Ubuntu Release lifecycle now includes the independently owned sibling
+`CinterForgeServer` and `CinterForgeWebApp` products. **Build** uses Ubuntu's
+own AMD64 toolchain to invoke the existing `CinterForgeDesktop/Cinter build web`
+command (Hugo and the WebApp-owned minimal `CinterRuntime.py` packager); it does
+not implement another Hugo builder. CFOS packages the full authored Server
+source separately, without host Python environments or Git metadata. The
+resulting product fingerprint is recorded under
+`Builds/CreativeSuite/Built/cinterforge-os/linux/2026/Products/manifest.json`.
+
+**Stage** installs the Server source under
+`Ubuntu/steamapps/common/CinterForge/Applications/Server/CinterForgeServer/2026/Source/`,
+and the WebApp under
+`.../Applications/WebApps/CinterForgeWebApp/2026/`, using the normal
+`websites/dev/` and `Server/CinterRuntime.py` layout. Ubuntu's rootfs is
+replaceable; these application products are retained in the separate Ubuntu
+`steamapps` volume. The Server's Python environment is created *inside the
+Ubuntu AMD64 image* at `.../CinterForgeServer/2026/Python/`—never copied from
+macOS. This initially provides the interpreter and standard-library services;
+the full optional AI/creative Server Python dependency closure requires its
+own validated, pinned install contract before full Server functionality can
+be called production-ready.
+
+**Test** mounts the installed volume into the *installed* Ubuntu image,
+imports the Server's central IO module, launches the WebApp runtime on **guest
+loopback port 20380**, and checks both API health and HTML. No host port is
+published. Only after the headless Linux/Windows and KDE acceptance **and**
+these installed product tests pass does CFOS commit its Ubuntu readiness receipt.
+Both headless shell and KDE mode start the same installed WebApp API through
+one CFOS guest service controller, with no macOS host port publication. A KDE
+desktop entry opens the local browser frontend. Credential files and private
+settings are excluded from the Server source product; the published Server
+repository must still undergo its own public-source security review.
+
+Native Linux Creative Suite application builds still belong to their existing
+Cinter app recipes and adapters. This product integration does not mark
+those incomplete Inspect recipes as executable or claim their Setup, Build,
+Stage, and Test are already passing. Their subsequent Stage operations must
+install into the *same* Ubuntu `/run/steamapps` and their own receipts must be
+verified independently.
 
 ### Publishing
 
@@ -57,7 +134,86 @@ Publish packages only a validated, already-staged Release. Linux Publish copies 
 
 The guest system base is replaceable; installed applications and user projects remain persistent and independently owned. The Linux AMD64 build environment and the graphical ARM64 SteamOS guest are separate. Proton is a test/runtime compatibility layer, not a cross-compiler dependency. `cinterforge-FEX` is the sibling fork checkout name; FEX remains the runtime's technology name.
 
-Never move generated data into source checkouts, hardcode a developer workspace, install into Proton prefixes or reimplement OS setup/build in CinterForge. Preserve valid caches; a changed ABI, toolchain or input revision invalidates only the affected outputs. A passing Linux headless smoke does not establish that the installed macOS KDE or Windows/Proton UI works.
+Never move generated data into source checkouts, hardcode a developer workspace, install into Proton prefixes or reimplement OS setup/build in CinterForge. Preserve valid caches; a changed ABI, toolchain or input revision invalidates only the affected outputs. A passing Ubuntu Test proves the general compiler, Wine executable smoke, Plasma session, and installed Applications bridge, not every application-specific toolchain or Windows/Proton GUI. Both the CFOS macOS app and CinterForge Desktop bundle the **same** CFOS-authored host Ubuntu adapter under `Contents/Resources/Ubuntu/`; each installed .app depends on one separately installed Ubuntu rootfs archive. It can launch in a native Swift/WebKit desktop window without a source checkout.
+
+### Shared LinuxKit Bedrock launcher
+
+CFOS Build validates the source-fingerprinted ARM64 LinuxKit artifacts, while
+`./CFOS test cinterforge-os linuxkit Release` installs a disposable official
+Bedrock server and exercises Rosetta, guest networking, NetherNet, console
+`list`, graceful `stop`, and exit status using the existing CraftMaster smoke.
+The internal validation also checks kernel/initrd and the signed macOS
+Virtualization launcher. The macOS-only `launch cinterforge-os linuxkit Release --server <directory>` command verifies
+that image and the explicitly supplied Bedrock server, its runtime loader,
+NetherNet probe and configuration, and then starts the same CFOS VM host.
+The macOS Desktop and CinterForge CraftMaster call this command instead of
+packaging or rebuilding another LinuxKit kernel, Swift launcher or Debian
+guest. An installed Desktop may locate its CFOS entry through
+`CINTER_CFOS_LAUNCHER`; that installed launcher must resolve its independently
+versioned CFOS runtime. `--dry-run` prints the intended operations only.
+
+### Ubuntu consolidation boundary
+
+Ubuntu's installed distribution includes a **separate persistent Ubuntu-owned `steamapps` directory** beside the versioned rootfs `Distro` folder. In headless and KDE modes CFOS bind-mounts this directory at `/run/steamapps`, matching SteamOS's guest-visible path `common/CinterForge/Applications/...` without sharing SteamOS's actual writable library. It holds Linux/Windows installed application versions, the `DesktopEntries/share/applications` KDE menu directory, Test and Logs, and is preserved when the Ubuntu rootfs is restaged. Stage initializes the volume; Test must mount it and prove read/write visibility from inside the installed AMD64 image. App install/shortcut production must target the guest mount and be validated separately before release.
+
+CFOS produces three distinct Linux execution artifacts. **LinuxKit** is the minimal ARM64 Bedrock/server appliance and obtains Rosetta translation from the Apple Silicon macOS host at launch; it does not contain a Debian build disk or Creative Suite job runner. **Ubuntu 24.04 AMD64** is the sole deep Linux/Windows build-and-test userspace, with headless and optional KDE desktop sessions. **SteamOS ARM64** is the graphical consumer environment and supports compatible Linux x86-64 and Windows applications via its runtime stack. The ARM64 SteamOS image assembly currently invokes tooling within a Debian Trixie builder container; this is a build-host detail that must be migrated to the verified Ubuntu build environment, not a fourth shipped OS. Each artifact requires native Build → Stage → Test evidence before it is accepted by dependent products.
+
+### Shared Linux/Windows workstation toolchains
+
+The Ubuntu AMD64 rootfs includes native GCC 10 and modern GCC/Clang, LLVM's
+`clang-cl`/`lld-link`/resource tools, the distro's MinGW-w64 i686 and x86-64
+cross-compilers, Wine, GCC/Clang debugging tools, Rust 1.98/Cargo, `xwin`,
+Node.js 22, Go, Java, Mono, Qt, GTK, KDE and broad audio/video/graphics SDKs.
+Linux Test must compile and execute GCC 10 C/C++ and Rust code, run Node, and
+compile Windows PE binaries and launch one under Wine; installed tools are
+checked rather than merely assumed from Dockerfile declarations. The same
+rootfs includes upstream SDL3 **3.4.18**, checksum-pinned and built for both
+Linux AMD64 and Windows x64 (MinGW POSIX). Linux Test compiles and runs a
+SDL3-linked Linux executable and a Windows PE linked to the matching SDL3.dll
+under Wine. This is the shared OpenGL/SDL3 foundation for CinterForgeSteam;
+Steamworks SDK/app sources and their own ABI/package tests remain app-owned.
+
+Docker `export` produces a portable rootfs tar but does not retain `ENV`,
+`WORKDIR` or `CMD`. Both CFOS Test and the installed Mac adapter restore the
+same toolchain environment on import, including Rust/Cargo, xwin and Node PATH;
+the imported image tag also includes the configuration digest. The Swift
+launcher can select **SteamOS**, **Ubuntu Desktop**, or **Both**. Its Ubuntu
+window embeds KDE Plasma through a loopback-only noVNC WebKit view, does not
+require XQuartz, and discovers Docker/Colima even when started by Finder with
+an abbreviated PATH. This is a software-rendered desktop pending GPU/session
+performance validation on macOS; it is **not** equivalent to native Vulkan
+acceleration or a libkrun guest. The Mac adapter requires a supported installed
+Docker backend; it does not redistribute Docker or Colima binaries.
+ Because the
+Ubuntu build definition and tests are in its success receipt, adding or
+changing these tools requires rebuilding, staging and retesting Ubuntu before
+downstream Setup or Build is authorized.
+
+The maintained Creative Suite forks require distinct application **ABIs**:
+
+| Fork | Additional platform-specific dependency owner |
+| --- | --- |
+| CinterForgeAudio (Ardour) | Pinned GCC **10 POSIX MinGW/MSVCRT** and its `x-mingw.sh` dependency closure; this is **not** native Ubuntu `gcc-10` or generic MinGW 13 |
+| CinterForge3D (Blender) | Clang-CL and `xwin`-acquired Windows SDK/CRT with pinned Blender libraries; some Windows features require CUDA, HIP, OptiX and DLSS SDKs |
+| CinterForgeDocument (Scribus) | Genuine MSVC/Visual Studio and matching Qt 6 and Scribus Windows libraries for its MSVC target |
+| CinterForgeImage (GIMP) | MSYS2/GTK/GEGL/babl, with its upstream dependency build scripts and optional vcpkg target |
+| CinterForgePaint (Krita) | KDE CI dependency management and Qt 6, Windows package tooling |
+| CinterForgePhoto (RapidRAW) | Rust 1.98, Tauri 2, frontend Node tooling and target-specific webview dependencies |
+| CinterForgeVector (Inkscape) | Windows **MSYS2 UCRT64** dependency stack, separate from MSVCRT MinGW |
+| CinterForgeVideo (Kdenlive) | Its pinned KDE Frameworks/MLT/FFmpeg dependency versions |
+
+Some Windows SDKs and proprietary vendor toolkits cannot be redistributed
+inside a public Ubuntu rootfs. CFOS ships the open-source cross-toolchain and
+SDK-acquisition *tools*; the application Setup stage obtains and validates
+licensed or pinned vendor inputs into its versioned `Builds/Dependencies`
+location. True `cl.exe`/MSBuild targets require a licensed Windows-capable
+execution environment with the required Microsoft Build Tools and SDK; Wine
+plus MinGW does not become MSVC simply by installing more packages. `xwin`
+provides SDK/CRT inputs for the Clang-CL route but not Microsoft's compiler.
+No application is considered built or tested until its own staged executable
+and ABI closure pass its platform-specific Test. Prefer retaining independently
+versioned app dependencies in Builds across ordinary source edits, and
+invalidate only the requirements affected by a material toolchain change.
 
 ### macOS Colima memory for SteamOS builds
 

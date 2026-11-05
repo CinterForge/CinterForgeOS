@@ -22,6 +22,28 @@ LEGACY_PROFILE = 'cinterforge-linux'
 SOCKET_PATH_LIMIT = 104
 
 
+def host_executable(name: str) -> str | None:
+    """Find a host tool when Finder launches Swift without Homebrew on PATH.
+
+    User overrides support nonstandard package-manager prefixes. These are
+    host executable paths, never guesses about repository/build locations.
+    """
+    configured = os.environ.get('CFOS_' + name.upper())
+    if configured:
+        executable = Path(configured).expanduser()
+        if not executable.is_file() or not os.access(executable, os.X_OK):
+            raise RuntimeError(f'Configured CFOS_{name.upper()} is not executable: {executable}')
+        return str(executable.resolve())
+    found = shutil.which(name)
+    if found:
+        return found
+    for prefix in ('/opt/homebrew/bin', '/usr/local/bin'):
+        executable = Path(prefix) / name
+        if executable.is_file() and os.access(executable, os.X_OK):
+            return str(executable)
+    return None
+
+
 def storage_root(source: Path) -> Path:
     """Resolve CFOS state from the canonical Linux build Source path.
 
@@ -155,7 +177,7 @@ def print_shell_environment(repo: Path) -> None:
 def ensure_backend(source: Path) -> tuple[str, dict[str, str]]:
     """Start or reuse one headless Apple Silicon Colima VM with Rosetta."""
     if platform.system() == 'Linux':
-        docker = shutil.which('docker')
+        docker = host_executable('docker')
         if not docker:
             raise RuntimeError('CFOS Linux backend requires Docker')
         # Do not replace the caller's Linux Docker context, daemon, or storage.
@@ -164,8 +186,8 @@ def ensure_backend(source: Path) -> tuple[str, dict[str, str]]:
         return docker, environment
     if platform.system() != 'Darwin' or platform.machine() != 'arm64':
         raise RuntimeError('CFOS Linux backend requires Linux or Apple Silicon macOS')
-    docker = shutil.which('docker')
-    colima = shutil.which('colima')
+    docker = host_executable('docker')
+    colima = host_executable('colima')
     if not docker or not colima:
         missing = [name for name, executable in (('docker', docker), ('colima', colima))
                    if executable is None]
@@ -175,6 +197,18 @@ def ensure_backend(source: Path) -> tuple[str, dict[str, str]]:
         )
 
     environment = backend_environment(source)
+    # Finder does not inherit the interactive shell's Homebrew PATH. Colima
+    # may itself invoke limactl and other helpers by name; resolve their
+    # executable parents for the CHILD environment, never change the user's
+    # global PATH or tool installation.
+    host_bins = []
+    for binary in (docker, colima, host_executable('limactl')):
+        if binary:
+            directory = str(Path(binary).parent)
+            if directory not in host_bins:
+                host_bins.append(directory)
+    inherited = environment.get('PATH', '').split(os.pathsep)
+    environment['PATH'] = os.pathsep.join(host_bins + [p for p in inherited if p and p not in host_bins])
     profile = environment['CFOS_COLIMA_PROFILE']
     status = subprocess.run(
         [colima, 'status', '--profile', profile],
@@ -250,7 +284,7 @@ def ensure_backend(source: Path) -> tuple[str, dict[str, str]]:
                         f'{(delete.stderr or delete.stdout).strip()}'
                     )
             else:
-                lima = shutil.which('limactl')
+                lima = host_executable('limactl')
                 if not lima:
                     raise RuntimeError(
                         f'Orphaned managed Lima disk {managed_disk}; limactl is '
@@ -323,7 +357,7 @@ def ensure_buildx(docker: str, environment: dict[str, str]) -> None:
         Path('/opt/homebrew/lib/docker/cli-plugins/docker-buildx'),
         Path('/usr/local/lib/docker/cli-plugins/docker-buildx'),
     ]
-    brew = shutil.which('brew')
+    brew = host_executable('brew')
     if brew:
         prefix = subprocess.run(
             [brew, '--prefix', 'docker-buildx'],

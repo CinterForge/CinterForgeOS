@@ -1,0 +1,24 @@
+Name,Git Repo URL,GitHub Fork Source URL,Source Acquisition
+cfimage,https://gitlab.gnome.org/GNOME/gimp,https://github.com/GNOME/gimp,source
+cfpaint,https://invent.kde.org/graphics/krita,https://github.com/KDE/krita,source
+cfvector,https://gitlab.com/inkscape/inkscape,,source
+cfdocument,https://github.com/scribusproject/scribus,,source
+cf3d,https://projects.blender.org/blender/blender,https://github.com/blender/blender,source
+cfvideo,https://invent.kde.org/multimedia/kdenlive,https://github.com/KDE/kdenlive,source
+cfaudio,https://github.com/Ardour/ardour,,source
+cfphoto,https://github.com/CyberTimon/RapidRAW,,source
+cinterforge-os,https://github.com/fxgl/steamac,,source
+fex,https://github.com/FEX-Emu/FEX,,source
+steamtinkerlaunch,https://github.com/sonic2kk/steamtinkerlaunch,,source
+cfvoxel,https://github.com/JannisX11/blockbench,,source
+cfcode,https://github.com/microsoft/vscode,,source
+leveldb,https://github.com/google/leveldb,,source
+CinterForgeServer,https://github.com/CinterForge/CinterForgeServer.git,,source
+CinterForgeWebApp,https://github.com/CinterForge/CinterForgeWebApp.git,,source
+CinterForgePlugins,https://github.com/CinterForge/CinterForgePlugins.git,,source
+cinterforge-kosmickrisp-mesa,https://github.com/CinterForge/cinterforge-kosmickrisp-mesa.git,,source
+cinterforge-libkrun,https://github.com/CinterForge/cinterforge-libkrun.git,,source
+cinterforge-macemu,https://github.com/CinterForge/cinterforge-macemu.git,,source
+cinterforge-moltenvk,https://github.com/CinterForge/cinterforge-moltenvk.git,,source
+cinterforge-spirv-cross,https://github.com/CinterForge/cinterforge-spirv-cross.git,,source
+cinterforge-virglrenderer,https://github.com/CinterForge/cinterforge-virglrenderer.git,,source

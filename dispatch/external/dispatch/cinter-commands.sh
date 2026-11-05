@@ -20,6 +20,8 @@ windows_inspector="$test_scripts_directory/inspect/inspect-unforked-windows.py"
 runtime_tester="$test_scripts_directory/test/test-x86-runtime.sh"
 linux_runner="$test_scripts_directory/run/run-linux-amd64.sh"
 baseline_collector="$test_scripts_directory/baseline/baseline-environments.py"
+upstream_installer="$test_scripts_directory/installl/install-unforked.sh"
+upstream_launcher="$test_scripts_directory/launch/launch-unforked.sh"
 
 # Other test scripts use this same directory when calling their helpers.
 export CINTERFORGE_TEST_SCRIPTS_DIRECTORY="$test_scripts_directory"
@@ -48,6 +50,8 @@ CinterForgeOS / Konsole Cinter — original upstream application inspection
   Cinter help
   Cinter baseline [linux|win|all] # Save FEX/Wine baselines in steamapps
   Cinter installers [win|mac|linux|all]
+  Cinter unforked install <Linux|Windows> <app> # Original publisher only
+  Cinter unforked launch <Linux|Windows> <app>  # Installed upstream executable
   Cinter test runtime [--gui]        # FEX + Wine; optional Notepad GUI
   Cinter test linux <absolute-executable> [arguments...]
   Cinter test <app> <linux|win> Release # Launch installed branded GUI on KDE
@@ -335,6 +339,17 @@ main() {
     case "$command_name" in
         help|-h|--help)
             show_help
+            ;;
+
+        unforked)
+            [ "$#" -eq 3 ] || show_usage_error
+            upstream_action=$1
+            shift
+            case "$upstream_action" in
+                install) require_test_script "$upstream_installer"; exec "$upstream_installer" "$@" ;;
+                launch) require_test_script "$upstream_launcher"; exec "$upstream_launcher" "$@" ;;
+                *) show_usage_error ;;
+            esac
             ;;
 
         baseline)

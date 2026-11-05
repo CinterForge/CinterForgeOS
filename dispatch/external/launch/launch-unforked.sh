@@ -6,30 +6,49 @@ platform=$1 app=$2
 case "$app" in GIMP|Krita|Inkscape|Scribus|Blender|Kdenlive|Ardour|cfdocument) ;; *) echo "Unknown upstream app: $app" >&2; exit 2 ;; esac
 case "$platform" in
  Linux)
-  # Prefer an actual installed executable inside the FEX x86_64 rootfs.
-  root=/usr/share/cinterforge/fex/RootFS
-  case "$app" in GIMP) exe=cfimage ;; Krita) exe=cfpaint ;; Inkscape) exe=cfvector ;; Scribus) exe=cfdocument ;; Blender) exe=cf3d ;; Kdenlive) exe=cfvideo ;; Ardour) exe=cfaudio ;; cfdocument) exe=rapidraw ;; esac
-  if [ -x "$root/usr/bin/$exe" ]; then
-    exec Cinter run-linux-amd64 "$root/usr/bin/$exe"
+  # First-class portable Linux publisher installation in persistent Steam
+  # storage. The fork has a separate Linux/<CinterForgeApp> destination.
+  installed=/run/steamapps/common/CinterForge/Applications/Unforked/Linux/$app
+  descriptor="$installed/executable.txt"
+  if [ -f "$descriptor" ]; then
+    relative=$(cat "$descriptor")
+    case "$relative" in /*|*..*|'') echo "Unsafe upstream executable path: $relative" >&2; exit 1 ;; esac
+    program="$installed/$relative"
+    [ -f "$program" ] && [ -x "$program" ] || { echo "Missing installed upstream executable: $program" >&2; exit 1; }
+    # AppImages run extracted on demand when FUSE is unavailable in SteamOS.
+    export APPIMAGE_EXTRACT_AND_RUN=1
+    runner="${CINTERFORGE_TEST_SCRIPTS_DIRECTORY:-/run/steamapps/common/CinterForge/Applications/Test/Scripts}/run/run-linux-amd64.sh"
+    [ -x "$runner" ] || { echo "Missing CFOS Linux/FEX runner: $runner" >&2; exit 1; }
+    exec "$runner" "$program"
   fi
-  # Original publisher distributions live on shared Steam storage. A tarball,
-  # deb, run installer or AppImage is NOT evidence of an installed executable.
-  echo "Original Linux $app is not installed in the FEX userspace ($root/usr/bin/$exe)." >&2
-  echo "Installer: /run/steamapps/common/CinterForge/Applications/UnforkedInstallers/Linux/$app" >&2
+  # The distribution's own FEX RootFS can also contain upstream applications
+  # installed as native x86 packages. Never substitute branded 'cf*' binaries.
+  root=/usr/share/cinterforge/fex/RootFS
+  case "$app" in GIMP) exe=gimp ;; Krita) exe=krita ;; Inkscape) exe=inkscape ;;
+      Scribus) exe=scribus ;; Blender) exe=blender ;; Kdenlive) exe=kdenlive ;;
+      Ardour) exe=ardour ;; cfdocument) exe=rapidraw ;; esac
+  if [ -x "$root/usr/bin/$exe" ]; then
+    runner="${CINTERFORGE_TEST_SCRIPTS_DIRECTORY:-/run/steamapps/common/CinterForge/Applications/Test/Scripts}/run/run-linux-amd64.sh"
+    [ -x "$runner" ] || { echo "Missing CFOS Linux/FEX runner: $runner" >&2; exit 1; }
+    exec "$runner" "$root/usr/bin/$exe"
+  fi
+  echo "Original Linux $app is not installed; use Cinter unforked install Linux $app." >&2
   exit 1 ;;
  Windows)
   prefix="$HOME/.local/share/cinterforge/reference-wine/$app"
   [ -d "$prefix/drive_c" ] || { echo "Original Windows $app not installed in Wine prefix: $prefix" >&2; exit 1; }
   # Each upstream app has its own prefix. Require an unambiguous installed exe.
   case "$app" in
-   GIMP) pattern='cfimage-*.exe' ;; Krita) pattern='cfpaint.exe' ;; Inkscape) pattern='cfvector.exe' ;;
-   Scribus) pattern='cfdocument.exe' ;; Blender) pattern='cf3d.exe' ;; Kdenlive) pattern='cfvideo.exe' ;;
-   Ardour) pattern='cfaudio*.exe' ;; cfdocument) pattern='rapidraw.exe' ;;
+   GIMP) pattern='gimp*.exe' ;; Krita) pattern='krita.exe' ;; Inkscape) pattern='inkscape.exe' ;;
+   Scribus) pattern='scribus.exe' ;; Blender) pattern='blender.exe' ;; Kdenlive) pattern='kdenlive.exe' ;;
+   Ardour) pattern='ardour*.exe' ;; cfdocument) pattern='rapidraw.exe' ;;
   esac
   found=$(find "$prefix/drive_c/Program Files" "$prefix/drive_c/Program Files (x86)" -type f -iname "$pattern" 2>/dev/null || true)
   count=$(printf '%s\n' "$found" | sed '/^$/d' | wc -l)
   [ "$count" -eq 1 ] || { echo "Expected exactly one installed $app executable under $prefix; found $count." >&2; printf '%s\n' "$found" >&2; exit 1; }
   export WINEPREFIX="$prefix"
-  exec Cinter cinterforge-wine "$found" ;;
+  runner="${CINTERFORGE_TEST_SCRIPTS_DIRECTORY:-/run/steamapps/common/CinterForge/Applications/Test/Scripts}/wine/cinterforge-wine.sh"
+  [ -x "$runner" ] || { echo "Missing CFOS Wine/FEX runner: $runner" >&2; exit 1; }
+  exec "$runner" "$found" ;;
  *) echo "Unsupported platform: $platform" >&2; exit 2 ;;
 esac

@@ -46,7 +46,7 @@ func runCinterBDSVM() throws {
         throw NSError(domain:"CinterBDSVM", code:3, userInfo:[NSLocalizedDescriptionKey:"Rosetta for Linux is unavailable on this Mac"])
     }
     // Startup-only probes isolate host Virtualization.framework attachments.
-    // They never execute a Creative Suite job or modify the guest filesystem.
+    // They never run the Bedrock service or modify its persistent content.
     let probe = env["CINTER_VM_PROBE_STAGE"]
     let validProbes = ["kernel", "initrd", "serial", "network", "entropy", "boot", "disk", "builds", "rosetta", "full"]
     if let probe = probe, !validProbes.contains(probe) {
@@ -61,32 +61,14 @@ func runCinterBDSVM() throws {
     guard !generatedCommandLine.isEmpty else {
         throw NSError(domain:"CinterBDSVM", code:4, userInfo:[NSLocalizedDescriptionKey:"generated LinuxKit kernel command line is empty"])
     }
-    // The guest must know its purpose without guessing from a shared-file marker.
-    let creativeSuiteMode = env["CINTER_LINUX_SYSTEM_DIR"] != nil
-    boot.commandLine = generatedCommandLine + (creativeSuiteMode ? " cinter.mode=creative-suite" : " cinter.mode=craftmaster")
+    // LinuxKit runs only the server appliance; Ubuntu owns compiler workloads.
+    boot.commandLine = generatedCommandLine + " cinter.mode=server-appliance"
     config.bootLoader = boot
     let console = VZVirtioConsoleDeviceSerialPortConfiguration()
     console.attachment = VZFileHandleSerialPortAttachment(fileHandleForReading: .standardInput,
                                                            fileHandleForWriting: .standardOutput)
     config.serialPorts = (probe == "kernel" || probe == "initrd") ? [] : [console]
-    // A Creative Suite VM exposes the common Builds directory through the
-    // existing cinter-bds tag. This keeps Debian and application payloads on
-    // ONE VirtioFS device; the separate cinter-linux tag was not visible in
-    // the LinuxKit guest on Apple Virtualization.
-    let sharedRoot: String
-    if creativeSuiteMode {
-        let applicationRoot = URL(fileURLWithPath: bds).standardizedFileURL
-        let buildsRoot = applicationRoot.deletingLastPathComponent().deletingLastPathComponent()
-        let linuxRoot = URL(fileURLWithPath: env["CINTER_LINUX_SYSTEM_DIR"]!).standardizedFileURL
-        guard linuxRoot.deletingLastPathComponent().path == buildsRoot.path,
-              applicationRoot.path == buildsRoot.appendingPathComponent("CreativeSuite/Linux").path else {
-            throw NSError(domain: "CinterBDSVM", code: 5, userInfo: [NSLocalizedDescriptionKey:
-                "Creative Suite and Debian must be under the same Builds directory"])
-        }
-        sharedRoot = buildsRoot.path
-    } else {
-        sharedRoot = bds
-    }
+    let sharedRoot = bds
     let bdsShare = VZSharedDirectory(url: URL(fileURLWithPath: sharedRoot), readOnly: false)
     let bdsFS = VZVirtioFileSystemDeviceConfiguration(tag: "cinter-bds")
     bdsFS.share = VZSingleDirectoryShare(directory: bdsShare)
@@ -99,21 +81,9 @@ func runCinterBDSVM() throws {
     } else {
         config.directorySharingDevices = [bdsFS, rosettaFS]
     }
-    if creativeSuiteMode && !["kernel", "initrd", "serial", "network", "entropy", "boot"].contains(probe ?? "") {
-        let diskPath = URL(fileURLWithPath: env["CINTER_LINUX_SYSTEM_DIR"]!)
-            .appendingPathComponent("DebianAMD64.ext4")
-        guard FileManager.default.fileExists(atPath: diskPath.path) else {
-            throw NSError(domain: "CinterBDSVM", code: 6, userInfo: [NSLocalizedDescriptionKey:
-                "Missing Debian ext4 disk: \(diskPath.path)"])
-        }
-        let diskAttachment = try VZDiskImageStorageDeviceAttachment(url: diskPath, readOnly: false)
-        let diskDevice = VZVirtioBlockDeviceConfiguration(attachment: diskAttachment)
-        config.storageDevices = [diskDevice]
-        fputs("CINTER_VM_DISK debian-ext4=\(diskPath.path)\n", stderr)
-    }
     fputs("CINTER_VM_SHARE tag=cinter-bds root=\(sharedRoot)\n", stderr)
     fputs("CINTER_VM_SHARE tag=rosetta\n", stderr)
-    fputs("CINTER_VM_MODE \(creativeSuiteMode ? "creative-suite" : "craftmaster")\n", stderr)
+    fputs("CINTER_VM_MODE server-appliance\n", stderr)
     fflush(stderr)
     let network = VZVirtioNetworkDeviceConfiguration()
     network.attachment = VZNATNetworkDeviceAttachment()

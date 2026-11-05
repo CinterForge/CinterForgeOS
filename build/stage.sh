@@ -2,6 +2,74 @@
 # Stage: install a complete versioned .app bundle, preserving the old version
 # if copying or validation fails. Does NOT download/provision SteamOS disks.
 # Sourced by ../CFOS.
+# Stage the ONE authored SteamOS guest dispatcher from this repository. The
+# previous reference to scripts/steam/stage_external.py was an orphaned path:
+# do not recreate another Python packager for files already under dispatch/.
+cfos_stage_guest_commands() {
+  local src="$CFOS_ROOT/dispatch/external"
+  local external="$CFOS_WORKSPACE/Builds/CreativeSuite/Staged/mac/cinterforge-os/External/Current"
+  local apps destination temporary
+  [[ -s "$src/dispatch/cinter-commands.sh" && -d "$src/installl" && -d "$src/launch" ]] || {
+    echo "CFOS: authored guest dispatcher missing: $src" >&2; return 1;
+  }
+  if (( CFOS_DRY_RUN )); then
+    cfos_run mkdir -p "$external/TestScripts"
+    cfos_run cp "$src/dispatch/cinter-commands.sh" "$external/CinterDispatcher"
+    cfos_run rsync -a "$src/" "$external/TestScripts/"
+    return 0
+  fi
+  # A published product must be an exact copy of the staged guest commands.
+  # Build and compare in a sibling folder first; don't replace a valid Stage
+  # until all authored files have copied successfully.
+  mkdir -p "$(dirname "$external")"
+  temporary="${external}.staging.$$"
+  [[ ! -e "$temporary" ]] || { echo "CFOS: unreconciled guest staging: $temporary" >&2; return 1; }
+  mkdir -p "$temporary/TestScripts"
+  if ! cp "$src/dispatch/cinter-commands.sh" "$temporary/CinterDispatcher" \
+       || ! rsync -a --exclude '.DS_Store' "$src/" "$temporary/TestScripts/" \
+       || ! cmp -s "$src/dispatch/cinter-commands.sh" "$temporary/CinterDispatcher"; then
+    rm -rf -- "$temporary"
+    return 1
+  fi
+  chmod 755 "$temporary/CinterDispatcher"
+  # Some source files carry 0644 permissions in the checkout. The installed
+  # SteamOS dispatcher execs these scripts directly, so Stage must make the
+  # actual published executable entry points executable rather than assume
+  # that Git transport retained their executable bits.
+  local entry
+  for entry in \
+      dispatch/cinter-commands.sh \
+      installl/install-unforked.sh \
+      launch/launch-unforked.sh \
+      run/run-linux-amd64.sh \
+      wine/cinterforge-wine.sh \
+      inspect/inspect-unforked-windows.py; do
+    [[ -s "$temporary/TestScripts/$entry" ]] || {
+      echo "CFOS: required guest command not present: $entry" >&2
+      rm -rf -- "$temporary"
+      return 1
+    }
+    chmod 755 "$temporary/TestScripts/$entry"
+  done
+  if [[ -e "$external" ]]; then
+    echo "CFOS: replacing previously staged guest commands: $external"
+    local backup="${external}.previous.$$"
+    mv "$external" "$backup" || { rm -rf "$temporary"; return 1; }
+    if ! mv "$temporary" "$external"; then mv "$backup" "$external"; return 1; fi
+    rm -rf "$backup"
+  else
+    mv "$temporary" "$external"
+  fi
+  apps="$(cfos_steamapps)/common/CinterForge/Applications" || return 1
+  destination="$apps/Test"
+  mkdir -p "$destination/Dispatcher" "$destination/Scripts"
+  # Keep the authored external commands in the persistent SteamOS volume;
+  # do not alter the immutable guest image or other application folders.
+  cp "$external/CinterDispatcher" "$destination/Dispatcher/Cinter"
+  rsync -a --exclude '.DS_Store' "$external/TestScripts/" "$destination/Scripts/"
+  echo "CFOS: staged SteamOS upstream install/launch/test commands to $destination"
+}
+
 cfos_stage() {
   if [[ "$CFOS_PLATFORM" == linux ]]; then
     cfos_linux stage
@@ -87,11 +155,7 @@ cfos_stage() {
     CFOS_STEAM_ARTWORK_DIR="$steam_artwork" CFOS_STEAM_DIALOG_SCRIPT="$steam_dialog" cfos_run /usr/bin/python3 "$bundled_register" --app "$installed_app" --restart-steam "${steam_user_args[@]}"
   done < <(cfos_configurations)
 
-  # The external guest command tree is authored and staged by CFOS itself.
-  # No CinterForge checkout or lifecycle.py import is permitted here.
-  if (( CFOS_DRY_RUN )); then
-    cfos_run python3 "$CFOS_ROOT/scripts/steam/stage_external.py"
-  else
-    cfos_run python3 "$CFOS_ROOT/scripts/steam/stage_external.py"
-  fi
+  # Both Linux and Windows publisher install commands are distributed with
+  # the installed SteamOS product, independent of the CinterForge forks.
+  cfos_stage_guest_commands || return 1
 }

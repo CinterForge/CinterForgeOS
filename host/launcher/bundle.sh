@@ -179,6 +179,19 @@ PY
 # guest rebuild during assembly must not publish mismatched resources.
 python3 "$ROOT/scripts/guest-artifacts.py" check-bundle "$TMP/Contents/Resources"
 
+# Ubuntu KDE opens in this same Swift window via the CFOS-owned installed
+# Ubuntu adapter. Include the real backend helpers BEFORE sealing/signing.
+# No VM rootfs, Python venv, or source repository is bundled into the app.
+mkdir -p "$TMP/Contents/Resources/Ubuntu"
+for helper in ubuntu_adapter.py managed_backend.py headless_contract.sh; do
+    [[ -f "$ROOT/build/linux/$helper" ]] || { echo "bundle.sh: CFOS Ubuntu helper missing: $helper" >&2; exit 1; }
+    cp "$ROOT/build/linux/$helper" "$TMP/Contents/Resources/Ubuntu/$helper"
+done
+# Use the same CinterForgeOS background already shipped with the Linux OS.
+wallpaper="$ROOT/resources/html/assets/backgrounds/cinterforge-linux-1920x1080.png"
+[[ -f "$wallpaper" ]] || { echo 'bundle.sh: CFOS wallpaper missing' >&2; exit 1; }
+cp "$wallpaper" "$TMP/Contents/Resources/CinterForgeOS-Desktop.png"
+
 # Sign inside-out: libraries, helper executables, then the bundle (executable + sealed resources).
 for f in "$FW"/*.dylib "$TMP/Contents/Resources/gvproxy" "$TMP/Contents/Resources/desync"; do
     codesign --force --sign - --timestamp=none "$f"

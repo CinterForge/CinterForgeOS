@@ -3,6 +3,9 @@
 # Sourced by ../CFOS. Nothing in this file runs until cfos_setup is called.
 cfos_setup() {
   if [[ "$CFOS_PLATFORM" == linux ]]; then
+    # First gate: source inventory. Check before any Homebrew/Colima/Docker
+    # installation or mutation; only ./CFOS clone all may acquire sources.
+    cfos_run python3 -u "$CFOS_ROOT/scripts/fork.py" clone all --dry-run || return 1
     # The headless AMD64 distro builds on Apple Silicon via managed Colima,
     # or on Linux with an existing Docker/Buildx daemon. Neither needs a
     # CinterForge source checkout, an Xcode project or the Steam client.
@@ -36,6 +39,10 @@ cfos_setup() {
     return $?
   fi
   cfos_require_mac
+  cfos_run python3 -u "$CFOS_ROOT/scripts/fork.py" clone all --dry-run || return 1
+  # Ubuntu AMD64 is the universal precondition for the macOS SteamOS build.
+  # Do not build Linux implicitly here: its Build → Stage → Test is independent.
+  cfos_linux verify || return 1
   # Never install host dependencies through Intel Homebrew under Rosetta.
   # This also makes Setup and Xcode build scripts resolve the same formulae.
   if (( ! CFOS_DRY_RUN )); then
@@ -226,101 +233,6 @@ cfos_setup() {
     echo "CFOS: managed Colima ready: $docker_socket"
   fi
 
-  # Required maintained forks live beside CinterForgeOS, regardless of drive.
-  # Never replace an existing checkout or silently accept an unrelated origin.
-  local repo_name checkout remote answer branch
-  local required_repos=(
-    cinterforge-FEX
-    cinterforge-kosmickrisp-mesa
-    cinterforge-libkrun
-    cinterforge-moltenvk
-    cinterforge-spirv-cross
-    cinterforge-virglrenderer
-  )
-  for repo_name in "${required_repos[@]}"; do
-    if [[ "$repo_name" == cinterforge-FEX ]]; then
-      checkout="${FEX_FORK_CHECKOUT:-$CFOS_WORKSPACE/cinterforge-FEX}"
-      remote='https://github.com/CinterForge/cinterforge-FEX.git'
-      branch='cinterforge/cinterforge'
-    else
-      checkout="$CFOS_WORKSPACE/$repo_name"
-      remote="https://github.com/CinterForge/$repo_name.git"
-      branch='cinterforge/cinterforge'
-    fi
-    if [[ ! -d "$checkout/.git" ]]; then
-      if [[ -e "$checkout" ]]; then
-        echo "CFOS: required repository path exists but is not a Git checkout: $checkout" >&2
-        return 1
-      fi
-      echo "CFOS: required repository missing: $checkout" >&2
-      echo "CFOS: clone $remote${branch:+ (branch $branch)}?" >&2
-      if (( CFOS_DRY_RUN )); then
-        cfos_run git clone ${branch:+--branch "$branch"} "$remote" "$checkout"
-        continue
-      fi
-      # Setup may be invoked by a wrapper that redirects stdin. Prefer the
-      # controlling terminal so an interactive user can still approve cloning.
-      # Never assume consent in unattended runs.
-      if [[ -r /dev/tty && -w /dev/tty ]]; then
-        printf 'Clone repository and continue? [y/N]: ' > /dev/tty
-        IFS= read -r answer < /dev/tty || return 1
-      elif [[ -t 0 ]]; then
-        read -r -p 'Clone repository and continue? [y/N]: ' answer || return 1
-      else
-        echo 'CFOS: no interactive terminal available; stopping without cloning.' >&2
-        return 1
-      fi
-      case "$answer" in
-        y|Y|yes|YES|Yes) ;;
-        *) echo 'CFOS: repository clone declined; stopping Setup.' >&2; return 1 ;;
-      esac
-      if [[ -n "$branch" ]]; then
-        cfos_run git clone --recurse-submodules --branch "$branch" "$remote" "$checkout" || return 1
-      else
-        cfos_run git clone --recurse-submodules "$remote" "$checkout" || return 1
-      fi
-    fi
-    if (( ! CFOS_DRY_RUN )); then
-      [[ -d "$checkout/.git" ]] || { echo "CFOS: invalid checkout: $checkout" >&2; return 1; }
-      local actual_origin
-      actual_origin="$(git -C "$checkout" remote get-url origin)" || return 1
-      case "$actual_origin" in
-        "https://github.com/CinterForge/$repo_name"|"https://github.com/CinterForge/$repo_name.git"|"git@github.com:CinterForge/$repo_name.git") ;;
-        *) echo "CFOS: unexpected origin for $repo_name: $actual_origin" >&2; return 1 ;;
-      esac
-      if [[ "$(git -C "$checkout" symbolic-ref --quiet --short HEAD)" != "$branch" ]]; then
-        echo "CFOS: $repo_name must be on branch $branch (currently $(git -C "$checkout" branch --show-current))" >&2
-        # Never discard local modifications, staged changes, or untracked files.
-        if [[ -n "$(git -C "$checkout" status --porcelain --untracked-files=all)" ]]; then
-          echo "CFOS: $repo_name has local changes; refusing automatic branch checkout." >&2
-          return 1
-        fi
-        if [[ -r /dev/tty && -w /dev/tty ]]; then
-          printf 'Check out required branch and continue? [y/N]: ' > /dev/tty
-          IFS= read -r answer < /dev/tty || return 1
-        elif [[ -t 0 ]]; then
-          read -r -p 'Check out required branch and continue? [y/N]: ' answer || return 1
-        else
-          echo 'CFOS: no interactive terminal available; stopping without switching branches.' >&2
-          return 1
-        fi
-        case "$answer" in
-          y|Y|yes|YES|Yes) ;;
-          *) echo 'CFOS: branch checkout declined; stopping Setup.' >&2; return 1 ;;
-        esac
-        git -C "$checkout" fetch origin "$branch" || return 1
-        if git -C "$checkout" show-ref --verify --quiet "refs/heads/$branch"; then
-          git -C "$checkout" switch "$branch" || return 1
-        else
-          git -C "$checkout" switch --track -c "$branch" "origin/$branch" || return 1
-        fi
-        [[ "$(git -C "$checkout" symbolic-ref --quiet --short HEAD)" == "$branch" ]] || {
-          echo "CFOS: failed to select required branch $branch for $repo_name" >&2
-          return 1
-        }
-      fi
-    fi
-  done
   cfos_run bash "$CFOS_ROOT/guest/fex/build.sh" fetch
   cfos_run bash "$CFOS_ROOT/guest/fex/runtime.sh" fetch
   echo 'CFOS: Setup prepared source prerequisites; the build phase compiles the application.'

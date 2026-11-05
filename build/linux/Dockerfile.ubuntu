@@ -1,34 +1,252 @@
-# Ubuntu AMD64 development userspace. This is separate from the Debian
-# Cloudflare/FEX image and from the SteamOS ARM64 desktop disk.
+# CFOS shipping AMD64 Ubuntu userspace. One installed rootfs supports both
+# Linux headless application tests and Windows cross-build / Wine smoke tests.
+# App-specific ABI toolchains (notably Ardour GCC 10/MSVCRT) are still owned by
+# their pinned application recipes; the distro provides the common tooling.
 FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
 RUN test "$(dpkg --print-architecture)" = amd64
+# Wine requires 32-bit runtime libraries for Windows applications. Configure
+# multiarch before installing anything, so the final exported rootfs retains it.
+RUN dpkg --add-architecture i386 && \
+    sed -i 's/Components: main/Components: main universe multiverse/' /etc/apt/sources.list.d/ubuntu.sources
+
+# Baseline Linux build, compiler, runtime and unattended GUI test infrastructure.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates python3 python3-venv python3-pip bash coreutils \
-    procps file git curl dbus-x11 xvfb xauth openbox \
-    libgl1 mesa-utils libgtk-3-0 libx11-6 \
+    procps file git curl wget rsync zip unzip xz-utils zstd tar e2fsprogs util-linux hugo xdg-utils \
+    gcc g++ make cmake ninja-build meson pkg-config clang lld \
+    automake autoconf libtool bison flex gettext patch binutils \
+    gdb ccache patchelf strace \
+    libc6-dev libstdc++-13-dev libssl-dev zlib1g-dev libzstd-dev \
+    dbus-x11 xvfb xauth x11-utils x11-xserver-utils openbox xdotool \
+    libgl1 mesa-utils mesa-vulkan-drivers vulkan-tools libgtk-3-0 libx11-6 \
     libglibmm-2.4-1t64 libgtkmm-2.4-1t64 libsigc++-2.0-0v5 \
     libjack-jackd2-0 libasound2t64 libpulse0 libsndfile1 \
     libsamplerate0 libfftw3-double3 librubberband2 liblo7 \
     libaubio5 libtag1v5 libarchive13t64 libxml2 libcurl4t64 \
-    libudev1 libusb-1.0-0 libvamp-hostsdk3v5 && \
-    rm -rf /var/lib/apt/lists/*
-
-# Smaller, independently cached shared-application additions. Keep the stable
-# Ubuntu baseline above byte-for-byte unchanged so updating application
-# dependencies does not reinstall the entire base userspace.
-RUN apt-get update && apt-get install -y --no-install-recommends \
+    libudev1 libusb-1.0-0 libvamp-hostsdk3v5 \
     liblrdf0 liblilv-0-0 libsuil-0-0 libserd-0-0 libsord-0-0 libsratom-0-0 \
-    jackd2 ffmpeg && \
-    rm -rf /var/lib/apt/lists/*
+    jackd2 ffmpeg imagemagick assimp-utils \
+    && rm -rf /var/lib/apt/lists/*
 
-# All Linux applications share this installed userspace. Fail during the OS
-# build, rather than discovering missing common C++ audio libraries in tests.
-RUN ldconfig -p | grep -q 'libglibmm-2.4.so.1' && \
-    ldconfig -p | grep -q 'libgtkmm-2.4.so.1' && \
-    ldconfig -p | grep -q 'liblrdf.so.0' && \
+# Native MinGW cross compiler and real Wine execution tools. Do not mistake the
+# distro compiler for an app's pinned upstream GCC/MSVCRT toolchain closure.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc-mingw-w64-x86-64-posix g++-mingw-w64-x86-64-posix \
+    mingw-w64-tools wine wine64 wine32:i386 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install the ORIGINAL (unforked) Ubuntu Creative Suite for comparison with
+# CinterForge forks. This is real distro installation, not a Build receipt or
+# an AppImage/DEB download sitting outside the OS. Keep the original names so
+# system packages never overwrite CinterForge-built apps in steamapps.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gimp krita inkscape scribus blender kdenlive ardour \
+    && rm -rf /var/lib/apt/lists/*
+RUN set -eu; \
+    for package in gimp krita inkscape scribus blender kdenlive ardour ffmpeg; do \
+      dpkg-query -W -f='${Status}' "$package" | grep -qx 'install ok installed' || exit 1; \
+    done; \
+    for binary in gimp krita inkscape scribus blender kdenlive ardour ffmpeg; do \
+      command -v "$binary" >/dev/null || { echo "Missing upstream: $binary" >&2; exit 1; }; \
+    done
+
+# The same rootfs is also an optional graphical KDE workstation. Xvfb
+# provides a software-rendered X11 seat in the portable container; no host
+# XQuartz or host X server is required. WebSocket/VNC is published to the
+# macOS host's loopback interface only by ubuntu_adapter.py.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    plasma-desktop plasma-workspace kwin-x11 \
+    konsole dolphin kde-config-gtk-style \
+    x11vnc novnc websockify x11-apps \
+    fonts-dejavu-core fonts-noto-core dbus-user-session tini \
+    && rm -rf /var/lib/apt/lists/*
+# Each app's Setup owns its pinned dependency closure; these are shared
+# development headers and toolchains common to the Linux and Windows suites.
+# Install them in the SAME image that passed CFOS Linux Test, not implicitly
+# during another application's Build.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gfortran qt6-base-dev qt6-declarative-dev \
+    libgtk-3-dev libx11-dev libgl1-mesa-dev libvulkan-dev \
+    libasound2-dev libpulse-dev libjack-jackd2-dev libsndfile1-dev \
+    libcurl4-openssl-dev libxml2-dev \
+    gcc-mingw-w64-i686-posix g++-mingw-w64-i686-posix \
+    && rm -rf /var/lib/apt/lists/*
+
+# Common source-build workstation for the eight maintained Creative Suite
+# forks. Keep GCC 10 BESIDE the distribution compiler: the former is needed
+# by selected legacy code, while newer projects require modern Clang/LLVM.
+# The GCC 10 Windows/POSIX/MSVCRT toolchain is a DIFFERENT artifact, owned by
+# Ardour's pinned x-mingw.sh recipe; never substitute these native gcc-10 bits.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc-10 g++-10 gcc-13 g++-13 \
+    clang-18 clang-tools-18 lld-18 llvm-18 llvm-18-tools llvm-18-dev \
+    libc++-dev libc++abi-dev \
+    binutils-mingw-w64-x86-64 binutils-mingw-w64-i686 \
+    mingw-w64-x86-64-dev mingw-w64-i686-dev \
+    nasm yasm gperf swig autoconf-archive libtool-bin \
+    python3-dev python3-setuptools python3-wheel python3-numpy python3-gi \
+    git-lfs graphviz lcov valgrind cppcheck shellcheck \
+    golang-go default-jdk-headless mono-devel \
+    msitools nsis winetricks \
+    && rm -rf /var/lib/apt/lists/*
+
+# Broad graphics, audio, UI and packaging SDKs. Application Setup remains
+# authoritative for specific ABIs and pinned third-party library versions;
+# supplying headers here eliminates repeated generic provisioning on each
+# incremental checkout build. Do not silently omit absent packages.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    extra-cmake-modules qt6-multimedia-dev qt6-tools-dev qt6-tools-dev-tools \
+    libqt6svg6-dev qt6-webengine-dev \
+    qtbase5-dev qtdeclarative5-dev qtmultimedia5-dev \
+    libqt5svg5-dev qttools5-dev qttools5-dev-tools \
+    libkf5archive-dev libkf5config-dev libkf5coreaddons-dev \
+    libkf5i18n-dev libkf5widgetsaddons-dev libkf5xmlgui-dev \
+    libgtk-4-dev libgtkmm-3.0-dev libglib2.0-dev \
+    libgdk-pixbuf-2.0-dev libcairo2-dev libpango1.0-dev libharfbuzz-dev \
+    libjson-glib-dev libgegl-dev libbabl-dev librsvg2-dev \
+    libpoppler-glib-dev liblcms2-dev libopenexr-dev libraw-dev \
+    libheif-dev libjxl-dev libwebp-dev libjpeg-dev libpng-dev libtiff-dev \
+    libexiv2-dev libgphoto2-dev libusb-1.0-0-dev \
+    libopencv-dev libpugixml-dev libboost-all-dev libeigen3-dev \
+    libassimp-dev libopenimageio-dev libopenvdb-dev \
+    libglew-dev libglfw3-dev libsdl2-dev libopenal-dev \
+    libegl1-mesa-dev libosmesa6-dev libwayland-dev libxkbcommon-dev \
+    libdrm-dev libgbm-dev libtbb-dev libembree-dev \
+    glslang-tools spirv-tools libshaderc-dev \
+    libfftw3-dev libsamplerate0-dev librubberband-dev liblo-dev libaubio-dev \
+    liblrdf0-dev liblilv-dev libsuil-dev libserd-dev libsord-dev \
+    libtag1-dev libarchive-dev libgstreamer1.0-dev \
+    libgstreamer-plugins-base1.0-dev \
+    libavcodec-dev libavdevice-dev libavfilter-dev libavformat-dev \
+    libavutil-dev libswresample-dev libswscale-dev libmlt-dev \
+    libsqlite3-dev libffi-dev libicu-dev libbz2-dev liblzma-dev \
+    libglu1-mesa-dev libxrandr-dev libxi-dev libxcursor-dev \
+    libxinerama-dev libxss-dev libxext-dev libxfixes-dev \
+    libdbus-1-dev libudev-dev libpipewire-0.3-dev \
+    libavahi-compat-libdnssd-dev libprotobuf-dev protobuf-compiler \
+    libogg-dev libvorbis-dev libflac-dev libopus-dev liblz4-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# CinterForgeSteam is moving from D3D9 to shared SDL3/OpenGL on Linux and
+# Windows. Ubuntu Noble predates SDL3, so build the SAME pinned upstream SDL3
+# release for Linux AMD64 and Windows x64. Both SDKs are part of the shipping
+# workstation rather than fetched whenever an application rebuilds. This uses
+# open-source SDL; Steamworks SDK/application libraries remain app-owned.
+# Release archive hash is published by the SDL project on GitHub.
+ARG CFOS_SDL3_VERSION=3.4.18
+ARG CFOS_SDL3_SHA256=9c75cf16330322c217dedd2e0609f1124f1b54b8633e763467b4684d0f4334a3
+RUN set -eu; \
+    src=/opt/cinterforge/SDKs/SDL3; \
+    mkdir -p "$src"; \
+    curl --fail --location --retry 3 --silent --show-error \
+        "https://www.libsdl.org/release/SDL3-${CFOS_SDL3_VERSION}.tar.gz" \
+        -o /tmp/CFOS-SDL3.tar.gz; \
+    echo "${CFOS_SDL3_SHA256}  /tmp/CFOS-SDL3.tar.gz" | sha256sum --check --status; \
+    tar -xzf /tmp/CFOS-SDL3.tar.gz -C "$src" --strip-components=1; \
+    cmake -S "$src" -B /tmp/CFOS-SDL3-linux -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+        -DSDL_SHARED=ON -DSDL_STATIC=OFF -DSDL_TEST_LIBRARY=OFF -DSDL_TESTS=OFF; \
+    cmake --build /tmp/CFOS-SDL3-linux --parallel 4; \
+    cmake --install /tmp/CFOS-SDL3-linux; \
+    cmake -S "$src" -B /tmp/CFOS-SDL3-windows -G Ninja \
+        -DCMAKE_SYSTEM_NAME=Windows \
+        -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc-posix \
+        -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++-posix \
+        -DCMAKE_RC_COMPILER=x86_64-w64-mingw32-windres \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/opt/cinterforge/SDKs/Windows/x86_64 \
+        -DSDL_SHARED=ON -DSDL_STATIC=OFF -DSDL_TEST_LIBRARY=OFF -DSDL_TESTS=OFF; \
+    cmake --build /tmp/CFOS-SDL3-windows --parallel 4; \
+    cmake --install /tmp/CFOS-SDL3-windows; \
+    pkg-config --exists sdl3; \
+    test -f /opt/cinterforge/SDKs/Windows/x86_64/bin/SDL3.dll; \
+    test -f /opt/cinterforge/SDKs/Windows/x86_64/lib/libSDL3.dll.a; \
+    rm -rf /tmp/CFOS-SDL3-linux /tmp/CFOS-SDL3-windows /tmp/CFOS-SDL3.tar.gz
+
+# Blender already uses clang-cl/lld-link and the open-source `xwin` tool to
+# acquire its licensed Microsoft SDK/CRT into app-owned Builds/Dependencies.
+# Install these TOOLS in Ubuntu, but do NOT prebundle Microsoft SDK binaries,
+# MSVC, CUDA, HIP or other proprietary vendor payloads in a public rootfs.
+# App-specific Setup validates the actual SDK license and pinned revisions.
+RUN set -eu; \
+    for tool in clang-cl lld-link llvm-rc llvm-mt; do \
+        found=''; \
+        for candidate in "/usr/bin/$tool" "/usr/bin/$tool-18" "/usr/lib/llvm-18/bin/$tool"; do \
+            if [ -x "$candidate" ]; then found="$candidate"; break; fi; \
+        done; \
+        test -n "$found" || { echo "Missing LLVM Windows tool: $tool" >&2; exit 1; }; \
+        ln -s "$found" "/usr/local/bin/$tool"; \
+    done
+
+# RapidRAW/Tauri requires Rust 1.98; Blender's xwin cross-SDK acquisition
+# also requires a recent Rust compiler. Pin once in the shipping toolchain,
+# with low parallelism so building the installer under Rosetta stays bounded.
+ENV RUSTUP_HOME=/opt/rustup CARGO_HOME=/opt/cargo
+ENV PATH="/opt/cargo/bin:/opt/xwin/bin:${PATH}"
+RUN curl --proto '=https' --tlsv1.2 -fsSL https://sh.rustup.rs | \
+    sh -s -- -y --profile default --default-toolchain 1.98.0 && \
+    rustc --version && cargo --version && \
+    CARGO_BUILD_JOBS=2 cargo install xwin --version 0.10.0 --locked \
+        --root /opt/xwin --jobs 2 && \
+    xwin --version
+
+# Pin Node.js LTS rather than using Ubuntu 24.04's older apt Node. Verify the
+# upstream checksum: the image must be reproducible, not a rolling curl pipe.
+ARG CFOS_NODE_VERSION=22.16.0
+ARG CFOS_NODE_SHA256=f4cb75bb036f0d0eddf6b79d9596df1aaab9ddccd6a20bf489be5abe9467e84e
+RUN set -eu; \
+    archive="node-v${CFOS_NODE_VERSION}-linux-x64.tar.xz"; \
+    curl --fail --location --silent --show-error \
+      "https://nodejs.org/dist/v${CFOS_NODE_VERSION}/${archive}" -o "/tmp/${archive}"; \
+    echo "${CFOS_NODE_SHA256}  /tmp/${archive}" | sha256sum --check --status; \
+    mkdir -p /opt/node; \
+    tar -xJf "/tmp/${archive}" -C /opt/node --strip-components=1; \
+    rm "/tmp/${archive}"; \
+    for tool in node npm npx corepack; do \
+      ln -s "/opt/node/bin/$tool" "/usr/local/bin/$tool"; \
+    done; \
+    node --version; npm --version
+
+# Desktop package post-install hooks may already create UID 1000. The
+# distribution contract requires a named non-root user, never a specific UID.
+# Let useradd select the next available account instead of failing on a clean
+# image with "useradd: UID 1000 is not unique".
+RUN useradd --create-home --shell /bin/bash cinterforge && \
+    test "$(id -u cinterforge)" -ge 1000 && \
+    test -d /home/cinterforge && \
+    mkdir -p /opt/cinterforge/Applications && \
+    chown cinterforge:cinterforge /opt/cinterforge
+COPY ubuntu_service.sh /usr/local/lib/cfos-ubuntu-service.sh
+COPY ubuntu_shell.sh /usr/local/bin/cfos-ubuntu-shell
+COPY ubuntu_desktop.sh /usr/local/bin/cfos-ubuntu-desktop
+RUN chmod 0755 /usr/local/bin/cfos-ubuntu-desktop /usr/local/bin/cfos-ubuntu-shell && \
+    test -x /usr/bin/startplasma-x11 && \
+    test -f /usr/share/novnc/vnc.html && \
+    command -v kwin_x11 && command -v x11vnc && command -v websockify
+
+# Fail image Build if mandatory *generic* facilities are absent. The installed
+# archive is tested separately against actual compiled Linux and Windows code.
+RUN set -eu; \
+    test "$(dpkg --print-architecture)" = amd64; \
+    dpkg --print-foreign-architectures | grep -qx i386; \
+    for tool in gcc g++ clang cmake ninja meson pkg-config make git python3 \
+                Xvfb xvfb-run wine x86_64-w64-mingw32-gcc \
+                i686-w64-mingw32-gcc qmake6 ffmpeg; do \
+        command -v "$tool" >/dev/null || { echo "Missing tool: $tool" >&2; exit 1; }; \
+    done; \
+    pkg-config --exists gtk+-3.0 libcurl vulkan sdl3; \
+    test "$(id -u cinterforge)" -ge 1000; \
+    ldconfig -p | grep -q 'libglibmm-2.4.so.1'; \
+    ldconfig -p | grep -q 'libgtkmm-2.4.so.1'; \
+    ldconfig -p | grep -q 'liblrdf.so.0'; \
     ldconfig -p | grep -q 'liblilv-0.so.0'
-RUN mkdir -p /opt/cinterforge/Applications
-ENV CINTER_APPLICATIONS_ROOT=/opt/cinterforge/Applications
+# The installed rootfs is immutable, but the separately installed Ubuntu
+# steamapps volume is mounted at the same guest path as on SteamOS. Keep the
+# mount point in the image; CFOS Stage supplies persistent volume contents.
+RUN mkdir -p /run/steamapps/common/CinterForge/Applications
+ENV CINTER_STEAMAPPS=/run/steamapps
+ENV CINTER_APPLICATIONS_ROOT=/run/steamapps/common/CinterForge/Applications
+ENV XDG_DATA_DIRS=/run/steamapps/common/CinterForge/Applications/DesktopEntries/share:/usr/local/share:/usr/share
 WORKDIR /opt/cinterforge
 CMD ["/bin/bash"]

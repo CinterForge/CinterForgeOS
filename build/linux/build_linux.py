@@ -8,11 +8,9 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import json
 import shutil
 import platform
 import subprocess
-import sys
 from pathlib import Path
 def cfos_builds_root(repo_root: Path) -> Path:
     """Resolve the sole sibling Builds location using the CFOS source identity."""
@@ -27,8 +25,6 @@ from launcher_signing import has_virtualization_entitlement, sign_launcher
 
 HERE = Path(__file__).resolve().parent
 SOURCES = ("linuxkit.yml", "CinterBDSVM.swift")
-# The LinuxKit input inventory belongs to this checkout, not CinterForge.
-SCRIPT_SOURCES = tuple(sorted((HERE.parents[1] / 'guest/linuxkit').rglob('*.sh')))
 
 
 
@@ -71,42 +67,125 @@ def ensure_arm64_boot_kernel(kernel: Path) -> None:
     print(f"[linux] verified ARM64 Linux Image: {kernel} ({kernel.stat().st_size} bytes)", flush=True)
 
 
+def validate_linuxkit_images(source: Path) -> None:
+    """Do not send unexpanded local package placeholders to linuxkit build.
+
+    The CFOS appliance uses explicitly selected LinuxKit ARM64 OCI images;
+    linuxkit-source/pkg is neither checked in nor staged beside this YAML.
+    """
+    configuration = source.read_text()
+    if any(token in configuration for token in ('@pkg:', 'dummy://', 'linuxkit-source/pkg/')):
+        raise RuntimeError(
+            f"Unresolved LinuxKit package reference in {source}. "
+            "The LinuxKit base images must have explicit ARM64 image references "
+            "in the checked-in linuxkit.yml; no local linuxkit-source tree is staged."
+        )
+
+
 def stage_sources(repo_root: Path) -> Path:
     destination = cfos_builds_root(repo_root) / "Linux"
     destination.mkdir(parents=True, exist_ok=True)
-    from render_linuxkit import render
-    render(destination / "linuxkit.yml")
-    for filename in ("CinterBDSVM.swift",):
+    for filename in SOURCES:
         source = HERE / filename
         if not source.is_file():
             raise FileNotFoundError(f"Missing checked-in Linux source: {source}")
+        if filename == "linuxkit.yml":
+            validate_linuxkit_images(source)
         target = destination / filename
         if not target.is_file() or target.read_bytes() != source.read_bytes():
             shutil.copy2(source, target)
     return destination
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--repo-root", type=Path, required=True)
-    parser.add_argument("--prepare-debian", action="store_true")
-    args = parser.parse_args()
-    root = args.repo_root.resolve()
-    destination = stage_sources(root)
-    required = ("CinterBDSVM", "cinter-bds-kernel", "cinter-bds-initrd.img", "cinter-bds-cmdline")
+def shared_source_fingerprint(destination: Path) -> str:
+    """Identify the authored LinuxKit build inputs, not runtime build timestamps."""
     digest = hashlib.sha256()
     for filename in SOURCES:
         digest.update(filename.encode())
         digest.update((HERE / filename).read_bytes())
-    for script in SCRIPT_SOURCES:
-        digest.update(str(script.relative_to(HERE.parents[1])).encode())
-        digest.update(script.read_bytes())
-    # The rendered configuration is the actual LinuxKit build input. Include it
-    # so changes to the renderer or its output cannot reuse a stale guest image.
-    digest.update((destination / "linuxkit.yml").read_bytes())
-    # Version the image contract so an older, incorrectly marked initrd is rebuilt.
-    digest.update(b"creative-suite-rosetta-supervisor-v3")
-    fingerprint = digest.hexdigest() + "\n"
+    rendered = destination / "linuxkit.yml"
+    if not rendered.is_file():
+        raise RuntimeError(f"CFOS shared LinuxKit configuration missing: {rendered}")
+    digest.update(rendered.read_bytes())
+    digest.update(b"linuxkit-bedrock-rosetta-appliance-v1")
+    return digest.hexdigest() + "\n"
+
+
+def verify_shared_bootstrap(repo_root: Path, *, require_launcher: bool = False) -> Path:
+    """Read-only consumer prerequisite; only CFOS Linux Build may construct it.
+
+    The VM host launcher is macOS-only (Virtualization.framework), whereas the
+    ARM64 LinuxKit kernel/initrd can be built on a Linux build host. When run
+    on macOS the launcher must already be compiled and signed by CFOS.
+    """
+    destination = cfos_builds_root(repo_root) / "Linux"
+    kernel = destination / "cinter-bds-kernel"
+    required = (
+        destination / "cinter-bds-kernel",
+        destination / "cinter-bds-initrd.img",
+        destination / "cinter-bds-cmdline",
+        destination / "built-source-fingerprint.txt",
+    )
+    if require_launcher:
+        required += (
+            destination / "CinterBDSVM",
+            destination / "vm-launcher-source-fingerprint.txt",
+        )
+    missing = [str(path) for path in required if not path.is_file() or path.stat().st_size == 0]
+    if missing:
+        raise RuntimeError(
+            "CFOS LinuxKit must be built and provisioned before any consumer build; "
+            "run ./CFOS build cinterforge-os linuxkit Release first. Missing: " + ", ".join(missing)
+        )
+    actual = (destination / "built-source-fingerprint.txt").read_text()
+    if actual != shared_source_fingerprint(destination):
+        raise RuntimeError(
+            "CFOS LinuxKit image is stale: its authored source changed. "
+            "Rebuild with ./CFOS build cinterforge-os linux Release"
+        )
+    with kernel.open("rb") as stream:
+        stream.seek(0x38)
+        magic = stream.read(4)
+    if magic != b"ARM\x64":
+        raise RuntimeError(f"CFOS LinuxKit kernel is not an uncompressed ARM64 Image: {kernel}")
+    if require_launcher:
+        expected = hashlib.sha256((HERE / "CinterBDSVM.swift").read_bytes()).hexdigest() + "\n"
+        if (destination / "vm-launcher-source-fingerprint.txt").read_text() != expected:
+            raise RuntimeError("CFOS macOS LinuxKit host launcher is stale; rebuild it through CFOS")
+        if not has_virtualization_entitlement(destination / "CinterBDSVM"):
+            raise RuntimeError("CFOS LinuxKit launcher has no valid virtualization entitlement")
+    print(f"[CFOS LinuxKit] VERIFIED prebuilt shared bootstrap: {destination}", flush=True)
+    return destination
+
+
+def shared_bootstrap_digest(repo_root: Path) -> str:
+    """Fingerprint the tested LinuxKit image consumed by the CFOS Ubuntu lock."""
+    destination = verify_shared_bootstrap(repo_root)
+    digest = hashlib.sha256()
+    for name in ("built-source-fingerprint.txt", "cinter-bds-kernel", "cinter-bds-initrd.img", "cinter-bds-cmdline"):
+        digest.update(name.encode())
+        with (destination / name).open("rb") as stream:
+            for block in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(block)
+    return digest.hexdigest()
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--repo-root", type=Path, required=True)
+    parser.add_argument("--verify-only", action="store_true",
+                        help="Validate the already built shared LinuxKit artifact without modifying it")
+    args = parser.parse_args()
+    root = args.repo_root.resolve()
+    if args.verify_only:
+        verify_shared_bootstrap(root, require_launcher=platform.system() == "Darwin")
+        return 0
+    destination = stage_sources(root)
+    required = ("cinter-bds-kernel", "cinter-bds-initrd.img", "cinter-bds-cmdline")
+    # LinuxKit produces the kernel/initrd/cmdline only. The macOS Swift launcher
+    # is compiled below, by CFOS, after its guest image is ready. It is never
+    # an expected output of `linuxkit build`.
+    fingerprint = shared_source_fingerprint(destination)
     built_marker = destination / "built-source-fingerprint.txt"
     current = all((destination / name).is_file() for name in required) and built_marker.is_file() and built_marker.read_text() == fingerprint
     if current:
@@ -153,13 +232,14 @@ def main() -> int:
             ], check=True)
             sign_launcher(swift_binary)
             swift_marker.write_text(swift_fingerprint)
-    if args.prepare_debian:
-        subprocess.run([
-            sys.executable, "-u", str(HERE / "prepare_debian.py"),
-            "--repo-root", str(root),
-        ], check=True)
+    verify_shared_bootstrap(root, require_launcher=platform.system() == "Darwin")
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except (OSError, RuntimeError, subprocess.CalledProcessError) as error:
+        import sys
+        print(f'[CFOS LinuxKit] ERROR: {error}', file=sys.stderr, flush=True)
+        raise SystemExit(1)
