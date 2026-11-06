@@ -16,6 +16,7 @@ const demoRoutes = Object.freeze({
   Code: '/websites/dev/codeoss/out/vs/code/browser/workbench/workbench.html',
   Voxel: '/websites/dev/blockbench/index.html',
   Desktop: '/websites/dev/index.html',
+  Lagomorph: '/websites/dev/lagomorph/index.html',
 });
 const productRoutes = Object.freeze({
   '3D': '/products/cinterforge-3d/', Image: '/products/cinterforge-image/',
@@ -40,7 +41,28 @@ function openPage(path, title) {
   frame.src = url.pathname + url.search;
   preview.showModal();
 }
+async function launchLagomorph() {
+  // The browser and native WebView use this same CFOS-owned launcher. The
+  // authorized game/emulator package is a separately staged WebApp asset;
+  // never serve the uploaded System 7 ROM/disks as a convenient fallback.
+  const url = new URL(demoRoutes.Lagomorph, location.origin);
+  try {
+    const response = await fetch(url.href, { method: 'HEAD', cache: 'no-store', credentials: 'same-origin' });
+    if (!response.ok || !(response.headers.get('content-type') || '').toLowerCase().includes('text/html')) {
+      throw new Error('Approved Lagomorph browser package is unavailable');
+    }
+    openPage(url.pathname, 'Lagomorph 1 — Web');
+  } catch (_) {
+    showToast('Lagomorph 1 Web is not included in this authorized build.');
+  }
+}
 function launch(name) {
+  // Lagomorph is a web game opened INSIDE the OS desktop, not a native
+  // executable request or a separate Website launcher.
+  if (name === 'Lagomorph') {
+    launchLagomorph();
+    return;
+  }
   if (nativeMode && host && typeof host.postMessage === 'function') {
     host.postMessage({ action: 'launch', app: name });
     return;

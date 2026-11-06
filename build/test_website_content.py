@@ -64,6 +64,18 @@ class WebsiteContentTests(unittest.TestCase):
             website.install(archive, builds)
             self.assertTrue((extracted / 'content/technology/cinterforgeos/_index.md').is_file())
 
+    def test_shared_webview_desktop_has_rights_gated_lagomorph_launcher(self):
+        desktop = SOURCE.parent.parent / 'resources/html'
+        markup = (desktop / 'index.html').read_text()
+        controller = (desktop / 'app.js').read_text()
+        self.assertIn('data-app="Lagomorph"', markup)
+        self.assertIn("Lagomorph: '/websites/dev/lagomorph/index.html'", controller)
+        self.assertIn("name === 'Lagomorph'", controller)
+        self.assertIn("method: 'HEAD'", controller)
+        self.assertIn('not included in this authorized build', controller)
+        self.assertNotIn('Lagomorph.zip', controller)
+        self.assertNotIn('System 7 HD', controller)
+
     def test_rejects_archive_tampering_and_traversal(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
