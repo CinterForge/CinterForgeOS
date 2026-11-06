@@ -70,6 +70,14 @@ if [[ "${1:-}" == clone || "${1:-}" == fork ]]; then
   exec python3 -u "$CFOS_ROOT/scripts/fork.py" "$source_action" "$@"
 fi
 
+# Model provenance/installation is CFOS-owned, not Server update-data.
+if [[ $# -ge 2 && "${2:-}" == 'models' ]]; then
+  case "${1:-}" in setup|build|stage|test)
+    phase="$1"; shift 2
+    exec python3 -u "$CFOS_ROOT/build/models/lifecycle.py" "$phase" "$@" ;;
+  esac
+fi
+
 # CFOS owns the complete Creative Suite recipe lifecycle across all platforms.
 # Only the OS itself continues through the specialized native CFOS image flow.
 if [[ $# -ge 3 && "${2:-}" != 'cinterforge-os' ]]; then
