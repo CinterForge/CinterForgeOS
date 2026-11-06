@@ -1,0 +1,978 @@
+{
+  "schema": "cinterforge.creative-suite.recipe.v1",
+  "identity": {
+    "application": "cfaudio",
+    "platform": "linux",
+    "target_arch": "x86_64",
+    "build_host": "Linux x86-64",
+    "acquisition": "source"
+  },
+  "source": {
+    "upstream_url": "https://github.com/Ardour/ardour",
+    "checkout_name": "CinterForgeAudio",
+    "revision": null,
+    "submodules": "upstream_pinned_gitlinks"
+  },
+  "toolchain": {
+    "components": [
+      {
+        "name": "autoconf",
+        "category": "tool",
+        "observed_version": "2.69",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+        "evidence": "autoconf-2.69"
+      },
+      {
+        "name": "automake",
+        "category": "tool",
+        "observed_version": "1.14.1",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+        "evidence": "automake-1.14.1"
+      },
+      {
+        "name": "cmake",
+        "category": "tool",
+        "observed_version": "2.8.12.2",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+        "evidence": "cmake-2.8.12.2"
+      },
+      {
+        "name": "intltool",
+        "category": "tool",
+        "observed_version": "0.50.2",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+        "evidence": "intltool-0.50.2"
+      },
+      {
+        "name": "itstool",
+        "category": "tool",
+        "observed_version": "2.0.7",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+        "evidence": "itstool-2.0.7"
+      },
+      {
+        "name": "libtool",
+        "category": "tool",
+        "observed_version": "2.4.7",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+        "evidence": "libtool-2.4.7"
+      },
+      {
+        "name": "m4",
+        "category": "tool",
+        "observed_version": "1.4.19",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+        "evidence": "m4-1.4.19"
+      },
+      {
+        "name": "make",
+        "category": "tool",
+        "observed_version": "4.4",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+        "evidence": "make-4.4"
+      },
+      {
+        "name": "pkg-config",
+        "category": "tool",
+        "observed_version": "0.29.2",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+        "evidence": "pkg-config-0.29.2"
+      }
+    ],
+    "detected": {},
+    "cross_compiler": null
+  },
+  "dependencies": [
+    {
+      "name": "aubio",
+      "category": "dependency",
+      "observed_version": "0.3.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "aubio-0.3.2"
+    },
+    {
+      "name": "bison",
+      "category": "dependency",
+      "observed_version": "3.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "bison-3.0"
+    },
+    {
+      "name": "boost",
+      "category": "dependency",
+      "observed_version": "1.68.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "boost_1_68_0"
+    },
+    {
+      "name": "cairo",
+      "category": "dependency",
+      "observed_version": "1.16.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "cairo-1.16.0"
+    },
+    {
+      "name": "cairomm",
+      "category": "dependency",
+      "observed_version": "1.12.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "cairomm-1.12.2"
+    },
+    {
+      "name": "curl",
+      "category": "dependency",
+      "observed_version": "7.66.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "curl-7.66.0"
+    },
+    {
+      "name": "expat",
+      "category": "dependency",
+      "observed_version": "2.8.4",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "expat-2.8.4"
+    },
+    {
+      "name": "fftw",
+      "category": "dependency",
+      "observed_version": "3.3.8",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "fftw-3.3.8"
+    },
+    {
+      "name": "flac",
+      "category": "dependency",
+      "observed_version": "1.3.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "flac-1.3.2"
+    },
+    {
+      "name": "flex",
+      "category": "dependency",
+      "observed_version": "2.5.35",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "flex-2.5.35"
+    },
+    {
+      "name": "fontconfig",
+      "category": "dependency",
+      "observed_version": "2.13.1",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "fontconfig-2.13.1"
+    },
+    {
+      "name": "freetype",
+      "category": "dependency",
+      "observed_version": "2.13.3",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "freetype-2.13.3"
+    },
+    {
+      "name": "fribidi",
+      "category": "dependency",
+      "observed_version": "1.0.9",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "fribidi-1.0.9"
+    },
+    {
+      "name": "gettext",
+      "category": "dependency",
+      "observed_version": "0.22",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "gettext-0.22"
+    },
+    {
+      "name": "glib",
+      "category": "dependency",
+      "observed_version": "2.56.4",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "glib-2.56.4"
+    },
+    {
+      "name": "glibmm",
+      "category": "dependency",
+      "observed_version": "2.56.1",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "glibmm-2.56.1"
+    },
+    {
+      "name": "gnome-common",
+      "category": "dependency",
+      "observed_version": "2.34.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "gnome-common-2.34.0"
+    },
+    {
+      "name": "gtk-osx-docbook",
+      "category": "dependency",
+      "observed_version": "1.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "gtk-osx-docbook-1.0"
+    },
+    {
+      "name": "harfbuzz",
+      "category": "dependency",
+      "observed_version": "2.6.7",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "harfbuzz-2.6.7"
+    },
+    {
+      "name": "libarchive",
+      "category": "dependency",
+      "observed_version": "3.6.1",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "libarchive-3.6.1"
+    },
+    {
+      "name": "libffi",
+      "category": "dependency",
+      "observed_version": "3.5.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "libffi-3.5.2"
+    },
+    {
+      "name": "liblo",
+      "category": "dependency",
+      "observed_version": "0.28",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "liblo-0.28"
+    },
+    {
+      "name": "libogg",
+      "category": "dependency",
+      "observed_version": "1.3.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "libogg-1.3.2"
+    },
+    {
+      "name": "libpng",
+      "category": "dependency",
+      "observed_version": "1.6.50",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "libpng-1.6.50"
+    },
+    {
+      "name": "libsamplerate",
+      "category": "dependency",
+      "observed_version": "0.1.9",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "libsamplerate-0.1.9"
+    },
+    {
+      "name": "libsigc++",
+      "category": "dependency",
+      "observed_version": "2.10.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "libsigc++-2.10.2"
+    },
+    {
+      "name": "libsndfile",
+      "category": "dependency",
+      "observed_version": "1.1.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "libsndfile-1.1.0"
+    },
+    {
+      "name": "libusb",
+      "category": "dependency",
+      "observed_version": "1.0.30",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "libusb-1.0.30"
+    },
+    {
+      "name": "libvorbis",
+      "category": "dependency",
+      "observed_version": "1.3.4",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "libvorbis-1.3.4"
+    },
+    {
+      "name": "libwebsockets",
+      "category": "dependency",
+      "observed_version": "4.3.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "libwebsockets-4.3.0-14"
+    },
+    {
+      "name": "libxml2",
+      "category": "dependency",
+      "observed_version": "2.9.14",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "libxml2-2.9.14"
+    },
+    {
+      "name": "libxslt",
+      "category": "dependency",
+      "observed_version": "1.1.43",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "libxslt-1.1.43"
+    },
+    {
+      "name": "lilv",
+      "category": "dependency",
+      "observed_version": "0.24.13",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "lilv-0.24.13"
+    },
+    {
+      "name": "LRDF",
+      "category": "dependency",
+      "observed_version": "0.5.3",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "LRDF-0.5.3-rg"
+    },
+    {
+      "name": "lv2",
+      "category": "dependency",
+      "observed_version": "1.18.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "lv2-1.18.2"
+    },
+    {
+      "name": "nss",
+      "category": "dependency",
+      "observed_version": "3.45",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "nss-3.45"
+    },
+    {
+      "name": "nss-pem",
+      "category": "dependency",
+      "observed_version": "1.0.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "nss-pem-1.0.2"
+    },
+    {
+      "name": "opus",
+      "category": "dependency",
+      "observed_version": "1.3.1",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "opus-1.3.1"
+    },
+    {
+      "name": "pango",
+      "category": "dependency",
+      "observed_version": "1.42.4",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "pango-1.42.4"
+    },
+    {
+      "name": "pangomm",
+      "category": "dependency",
+      "observed_version": "2.42.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "pangomm-2.42.0"
+    },
+    {
+      "name": "pcre",
+      "category": "dependency",
+      "observed_version": "8.36",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "pcre-8.36"
+    },
+    {
+      "name": "pixman",
+      "category": "dependency",
+      "observed_version": "0.42.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "pixman-0.42.2"
+    },
+    {
+      "name": "raptor2",
+      "category": "dependency",
+      "observed_version": "2.0.14",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "raptor2-2.0.14"
+    },
+    {
+      "name": "rasqal",
+      "category": "dependency",
+      "observed_version": "0.9.32",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "rasqal-0.9.32"
+    },
+    {
+      "name": "readline",
+      "category": "dependency",
+      "observed_version": "8.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "readline-8.2"
+    },
+    {
+      "name": "redland",
+      "category": "dependency",
+      "observed_version": "1.0.17",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "redland-1.0.17"
+    },
+    {
+      "name": "rubberband",
+      "category": "dependency",
+      "observed_version": "3.3.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "rubberband-3.3.0"
+    },
+    {
+      "name": "serd",
+      "category": "dependency",
+      "observed_version": "0.30.11",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "serd-0.30.11"
+    },
+    {
+      "name": "sord",
+      "category": "dependency",
+      "observed_version": "0.16.9",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "sord-0.16.9"
+    },
+    {
+      "name": "sratom",
+      "category": "dependency",
+      "observed_version": "0.6.8",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "sratom-0.6.8"
+    },
+    {
+      "name": "taglib",
+      "category": "dependency",
+      "observed_version": "1.9.1",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "taglib-1.9.1"
+    },
+    {
+      "name": "tar",
+      "category": "dependency",
+      "observed_version": "1.27",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "tar-1.27"
+    },
+    {
+      "name": "termcap",
+      "category": "dependency",
+      "observed_version": "1.3.1",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "termcap-1.3.1"
+    },
+    {
+      "name": "tiff",
+      "category": "dependency",
+      "observed_version": "4.0.3",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "tiff-4.0.3"
+    },
+    {
+      "name": "util-linux",
+      "category": "dependency",
+      "observed_version": "2.38.1",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "util-linux-2.38.1"
+    },
+    {
+      "name": "vamp-plugin-sdk",
+      "category": "dependency",
+      "observed_version": "2.9.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "vamp-plugin-sdk-2.9.0"
+    },
+    {
+      "name": "xz",
+      "category": "dependency",
+      "observed_version": "5.2.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "xz-5.2.2"
+    },
+    {
+      "name": "zlib",
+      "category": "dependency",
+      "observed_version": "1.3.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "evidence": "zlib-1.3.2"
+    }
+  ],
+  "constraints": [
+    {
+      "name": "library",
+      "operator": ">=",
+      "version": "1.68",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/build_log.txt",
+      "evidence": "Checking for boost library >= 1.68                   : yes"
+    },
+    {
+      "name": "rubberband",
+      "operator": ">=",
+      "version": "3.0.0",
+      "source": "https://nightly.ardour.org/i/A_Linux_x86_64/build_log.txt",
+      "evidence": "Checking for rubberband >= 3.0.0                     : yes"
+    }
+  ],
+  "patches": [
+    {
+      "component": "bison",
+      "action": "sed -i.bak 's%defined _IO_ftrylockfile%defined _IO_ftrylockfile || defined _IO_EOF_SEEN%' lib/fseterr.c",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "freetype",
+      "action": "sed -i.bak '/#define TT_CONFIG_OPTION_BYTECODE_INTERPRETER/d' include/freetype/config/ftoption.h",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "freetype",
+      "action": "sed -i.bak '/#define TT_CONFIG_OPTION_BYTECODE_INTERPRETER/d' ./devel/ftoption.h",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "cairo",
+      "action": "sed -i.bak 's/ test perf//' Makefile.in",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "boost",
+      "action": "sed -i.bak 's/4\\.0\\.0/0.0.0/' tools/build/src/tools/darwin.jam",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "boost",
+      "action": "sed -i.bak 's/arch arm/arch arm64/' tools/build/src/tools/darwin.jam",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "nss",
+      "action": "sed -i.bak \"s%DSO_LDOPTS\\t\\t= %DSO_LDOPTS\\t\\t= -L$PREFIX/lib/ %\" coreconf/Linux.mk",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "glibmm",
+      "action": "sed -i.bak 's%return gobject_;%return \\&gobject_;%' glib/glibmm/threads.h",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "liblo",
+      "action": "sed -i.bak 's/ -stdlib=libc++//g' configure",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "liblo",
+      "action": "sed -i.bak 's/define LO_MARKER\\(.*\\)$/define LO_MARKER\\1LU/g' lo/lo_macros.h",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "libvorbis",
+      "action": "sed -i.bak 's/-force_cpusubtype_ALL//g' configure",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "libsndfile",
+      "action": "sed -i.bak 's/ -Wvla//' configure",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "libsndfile",
+      "action": "sed -i.bak 's/ -lsndfile/ -lsndfile -lvorbis -lvorbisenc -lFLAC -logg -lopus/' $PREFIX/lib/pkgconfig/sndfile.pc",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "libsamplerate",
+      "action": "sed -i.bak 's/ examples tests//' Makefile.in",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "libsndfile",
+      "action": "sed -i.bak 's/ -Wvla//' configure",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "libsamplerate",
+      "action": "sed -i.bak 's/ examples tests//' Makefile.in",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "aubio",
+      "action": "sed -i.bak '/no-long-double/d' configure",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "LRDF",
+      "action": "sed -i.bak 's/glibtoolize/libtoolize/g' autogen.sh",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "taglib",
+      "action": "sed -i.bak 's/\\~ListPrivate/virtual ~ListPrivate/' taglib/toolkit/tlist.tcc",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "taglib",
+      "action": "find . -type f -exec sed -i.bak 's/StringPrivate/MyPrivateString/g' {} \\;",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "m4",
+      "action": "patch -p1 < $this_script_dir/misc-patches/m4-glibc.patch",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "pixman",
+      "action": "patch -p1 < $this_script_dir/misc-patches/pixman-42.2-arm64-clang.diff",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "cairo",
+      "action": "patch -p0 < $this_script_dir/misc-patches/cairo-gradients.patch",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "cairo",
+      "action": "patch -p1 < $this_script_dir/misc-patches/cairo-quartz-surface-ref.patch",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    }
+  ],
+  "preparation": {
+    "packages": [],
+    "package_manager": "apt-get",
+    "audit": [],
+    "status": "unverified"
+  },
+  "configure": {
+    "system": "waf",
+    "argv": [
+      "./waf",
+      "configure",
+      "--strict",
+      "--prefix=/usr",
+      "--configdir=/work/Install/etc",
+      "--ptformat",
+      "--with-backends=jack,alsa,pulseaudio,dummy",
+      "--libjack=weak",
+      "--optimize",
+      "--cxx17"
+    ],
+    "observed_result": null
+  },
+  "build": {
+    "system": "waf",
+    "argv_by_config": {
+      "Debug": [
+        "./waf",
+        "build"
+      ],
+      "Release": [
+        "./waf",
+        "build"
+      ]
+    },
+    "verified": false,
+    "last_result": {
+      "success": true,
+      "version": "2026"
+    }
+  },
+  "environment": {
+    "variables": {},
+    "prefix": null,
+    "sdk": null
+  },
+  "outputs": {
+    "build_destination": "Builds/CreativeSuite/Built/ardour/linux",
+    "install_destination": "Applications/Linux/Ardour"
+  },
+  "evidence": {
+    "status": "partial_evidence",
+    "urls": [
+      "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+      "https://nightly.ardour.org/i/A_Linux_x86_64/build_log.txt",
+      "https://ardour.org/files/patch-info.html"
+    ],
+    "inspection": [
+      {
+        "url": "https://nightly.ardour.org/i/A_Linux_x86_64/info.txt",
+        "chars": 1768,
+        "first_lines": [
+          "Ardour - Log file: info.txt",
+          "Nightlies",
+          "Download",
+          "Bug Tracker"
+        ]
+      },
+      {
+        "url": "https://nightly.ardour.org/i/A_Linux_x86_64/build_log.txt",
+        "chars": 475591,
+        "first_lines": [
+          "Ardour - Log file: build_log.txt",
+          "Nightlies",
+          "Download",
+          "Bug Tracker"
+        ]
+      },
+      {
+        "url": "https://ardour.org/files/patch-info.html",
+        "chars": 2363,
+        "first_lines": [
+          "Changes Made to The Dependency Stack For Ardour",
+          "Generated Mon 16 Feb 2026 08:32:37 PM EST",
+          "Automatically generated from build-stack",
+          "The information below is generated from the build scripts we use to build all of the dependencies that Ardour requires."
+        ]
+      }
+    ]
+  },
+  "readiness": {
+    "ready": false,
+    "configured": false,
+    "issues": [
+      "Awaiting verified Linux AMD64 Waf configure, successful compilation and packaging",
+      "Build has not completed successfully since the latest build attempt"
+    ],
+    "setup_result": null
+  },
+  "dependency_setup": {
+    "executor": "python",
+    "script": "apps/cfaudio/linux/setup.py",
+    "args": []
+  },
+  "linux_amd64_build_dependencies": {
+    "base_image": "cinterforge-ubuntu:24.04-amd64",
+    "image": "cinterforge-ardour-builddeps:ubuntu24.04-amd64",
+    "apt_build_dep": "ardour",
+    "apt_packages": [
+      "git",
+      "build-essential",
+      "python3",
+      "python3-dev",
+      "python-is-python3",
+      "pkg-config",
+      "cmake",
+      "gettext",
+      "libboost-dev",
+      "libjpeg-dev",
+      "libjack-jackd2-dev",
+      "libasound2-dev",
+      "libpulse-dev",
+      "libfftw3-dev",
+      "libaubio-dev",
+      "libarchive-dev",
+      "libcurl4-openssl-dev",
+      "libwebsockets-dev",
+      "libcppunit-dev",
+      "liblilv-dev",
+      "liblrdf0-dev",
+      "librubberband-dev",
+      "libsamplerate0-dev",
+      "libsndfile1-dev",
+      "libxml2-dev",
+      "libgtkmm-2.4-dev",
+      "liblo-dev",
+      "libtag1-dev",
+      "vamp-plugin-sdk",
+      "libusb-1.0-0-dev",
+      "libreadline-dev",
+      "libsuil-dev",
+      "lv2-dev",
+      "libserd-dev",
+      "libsord-dev",
+      "libsratom-dev",
+      "libboost-system-dev",
+      "libboost-filesystem-dev",
+      "libboost-thread-dev",
+      "libboost-program-options-dev",
+      "libboost-iostreams-dev",
+      "bison",
+      "flex",
+      "autoconf",
+      "automake",
+      "libtool",
+      "intltool",
+      "itstool",
+      "ninja-build",
+      "meson",
+      "patch",
+      "file",
+      "zip",
+      "unzip",
+      "rsync"
+    ],
+    "strategy": "Ubuntu packages and apt build-dep upfront; do not disable upstream features"
+  },
+  "branding": {
+    "repository": "CinterForgeAudio",
+    "icons": [
+      "gtk2_ardour/resources/Ardour-icon_256px.png"
+    ],
+    "splashes": [
+      "gtk2_ardour/resources/Ardour-splash.png",
+      "gtk2_ardour/resources/Ardour-small-splash.png"
+    ],
+    "splash_code": {
+      "loader": [
+        "gtk2_ardour/splash.cc"
+      ],
+      "renderer": [
+        "gtk2_ardour/splash.cc"
+      ],
+      "startup": [
+        "gtk2_ardour/session_dialog.cc"
+      ],
+      "manifest": [],
+      "note": "Runtime splash; inspect small splash separately"
+    }
+  }
+}

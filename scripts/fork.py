@@ -37,6 +37,7 @@ MAINTAINED_FORKS = {
     "cfphoto": "CinterForgePhoto",
     "cfcode": "CinterForgeCode",
     "cfvoxel": "CinterForgeVoxel",
+    "cfconverter": "CinterForgeConverter",
     "leveldb": "cinterforge-leveldb",
     "fex": "cinterforge-FEX",
     "cinterforgeos": "CinterForgeOS",

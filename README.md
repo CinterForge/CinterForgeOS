@@ -1,12 +1,23 @@
 # CinterForge OS
-![CinterForge OS development: Xcode, Finder, and the macOS application](docs/dev-environment/Hero%20Shot.png)
+[![CinterForge OS development: Xcode, Finder, and the macOS application](docs/dev-environment/Hero%20Shot.png)](https://www.cinterforge.com/technology/cinterforgeos/?demo=desktop)
 ### Built by a macOS developer. For macOS developers.
 
 **Build and debug Linux x86-64 and Windows applications on your Mac — in a real SteamOS desktop.**
 
+<a class="btn btn-primary" href="https://www.cinterforge.com/technology/cinterforgeos/?demo=desktop" data-cf-web-demo-url="/cfos/desktop/" data-cf-web-demo-title="CinterForge OS Desktop">Try Web Demo</a>
+
+
 CinterForge OS brings a SteamOS development environment to Apple Silicon. Keep the Mac, Xcode, and the tools you love. Build with the CinterForge toolchain, run applications in KDE Plasma, and investigate how they behave in Linux and Windows compatibility environments — without maintaining a separate development PC.
 
 ![CinterForge OS development: Xcode, Finder, and the macOS application](docs/dev-environment/Screen%201%20-%20XCode%20and%20macOS.png)
+
+## Download CinterForge OS
+
+**[Download the latest OS build for Apple Silicon macOS](https://cinterforge.ucreg.io/CreativeSuite/Zipped/CinterForgeOS-mac-latest.zip)**
+
+The downloadable macOS host is the entry point to CinterForge OS: unzip the release, open **CinterForge OS.app**, and use the launcher to install or launch the OS and server environments you want. The large guest distributions are **separate, versioned downloads**, rather than copies embedded in every macOS app update. The launcher is responsible for obtaining approved images, checking release manifests and SHA-256 hashes, and preserving each guest's installed applications and user data across system upgrades.
+
+The stable download URL is populated only when a validated release is published. See [Building CinterForgeOS — distribution packages](build/README.md#downloadable-release-layout) for the Ubuntu, SteamOS and LinuxKit components, storage model and release requirements. Original publisher installers are not included in public release archives unless redistribution is explicitly permitted.
 
 ## First, thank you
 
@@ -77,6 +88,7 @@ This project is evolving. Contributions that improve build reproducibility, grap
 | Guide | What's inside |
 | --- | --- |
 | [Building CinterForgeOS](build/README.md) | Build it yourself! |
+| [CinterForge OS Technology Stack](docs/technical/CinterForge%20OS%20Technology%20Stack.md) | Illustrated guide to the libraries, original and CinterForge apps, compilers, SDKs, tools and cross-platform technology stack. |
 | [Architecture](docs/technical/CinterForgeOS%20Architecture.md) | The complete host/guest/shared-library design and boot-to-test lifecycle. |
 | [Guest](docs/technical/CinterForgeOS%20guest.md) | SteamOS image, boot, overlays, mounts, KDE, and guest integration. |
 | [Host](docs/technical/CinterForgeOS%20host.md) | Native macOS host, VM lifecycle, graphics, input, storage, and diagnostics. |
@@ -84,7 +96,7 @@ This project is evolving. Contributions that improve build reproducibility, grap
 | [Graphics benchmarking](docs/technical/CinterForgeOS%20Graphics%20Benchmarking.md) | Linux Superposition and Windows Heaven showcase targets, proven controls, and verification criteria. |
 | [Original steamac README](docs/technical/Steamac%20README.md) | Upstream context, platform prerequisites, and technical foundations. |
 
-For operational commands used to install and test Linux/Windows applications, see the **CinterForge** repository's `creativeSuite/apps/cinterforge-os/external/` documentation. The `/usr/bin/CinterForge` bridge inside SteamOS delegates to tools installed outside the guest image.
+For operational commands used to install and test Linux/Windows applications, see the **CinterForge** repository's `build/creativeSuite/apps/cinterforge-os/external/` documentation. The `/usr/bin/CinterForge` bridge inside SteamOS delegates to tools installed outside the guest image.
 
 ## Join in
 

@@ -3,17 +3,14 @@
 # Sourced by both the headless console and KDE launchers. Not a host daemon.
 cfos_start_web_api() {
     local app_root=/run/steamapps/common/CinterForge/Applications/WebApps/CinterForgeWebApp/2026
-    local runtime="$app_root/Server/CinterRuntime.py"
+    local runtime="$app_root/runtime/CinterRuntime.py"
     [[ -f "$runtime" && -f "$app_root/websites/dev/index.html" ]] || {
         echo 'CFOS Ubuntu: WebApp is not installed in /run/steamapps; complete CFOS Stage' >&2
         return 1
     }
     local logfile="${1:-/dev/null}"
-    local python=/run/steamapps/common/CinterForge/Applications/Server/CinterForgeServer/2026/Python/bin/python
-    [[ -x "$python" ]] || {
-        echo "CFOS Ubuntu: staged Server Python environment missing: $python" >&2
-        return 1
-    }
+    # The WebApp mini-server is stdlib-only and runs without the full Server.
+    local python="$(command -v python3)"
     "$python" -u "$runtime" --builds "$app_root" --host 127.0.0.1 --port 20380 >"$logfile" 2>&1 &
     CFOS_API_PID=$!
     local i

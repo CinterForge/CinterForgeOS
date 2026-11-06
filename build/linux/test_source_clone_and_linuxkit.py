@@ -95,7 +95,7 @@ class SourcePreflightTests(unittest.TestCase):
         self.assertTrue({'CinterForgeServer', 'CinterForgeWebApp', 'CinterForgePlugins'}.issubset(names))
         self.assertNotIn('CinterForge', names)
         self.assertNotIn('CinterForgeDesktop', names)  # private Desktop not needed to build CFOS
-        self.assertEqual(len(repositories), 23)
+        self.assertEqual(len(repositories), 24)
 
     def test_complete_public_manifest_dry_run_accepts_only_real_git_checkouts(self):
         with tempfile.TemporaryDirectory(prefix='cfos-all-public-source-') as temp:
@@ -110,23 +110,26 @@ class SourcePreflightTests(unittest.TestCase):
                     subprocess.run(['git', 'init', '-q', str(target)], check=True)
                 status, output, errors = self.run_check()
                 self.assertEqual(status, 0, errors)
-                self.assertIn('present=23 missing_or_invalid=0', output)
+                self.assertIn('present=24 missing_or_invalid=0', output)
                 self.assertIn('PRESENT cinterforgeserver:', output)
                 self.assertIn('PRESENT cinterforgewebapp:', output)
                 self.assertIn('PRESENT cinterforgeplugins:', output)
                 self.assertNotIn('PRESENT cinterforge:', output)
 
-    def test_server_path_resolver_uses_desktop_and_sibling_builds(self):
+    def test_server_path_resolver_uses_server_and_sibling_builds(self):
         resolver = load_module('cinterforge_source_paths',
-                               CFOS.parent / 'CinterForgeServer/cinter/io/CinterIO.py')
+                               CFOS.parent / 'CinterForgeServer/cf/io/CinterIO.py')
         with tempfile.TemporaryDirectory(prefix='cinter-layout-') as temp:
             root = Path(temp)
-            desktop = root / 'CinterForgeDesktop'; desktop.mkdir(); (desktop / 'Cinter').touch()
+            desktop = root / 'CinterForgeSteam'; desktop.mkdir()
             server = root / 'CinterForgeServer'; server.mkdir()
+            (server / 'cf/io').mkdir(parents=True)
+            (server / 'cf/io/CinterIO.py').touch()
+            (server / 'CinterCore.py').touch()
             plugins = root / 'CinterForgePlugins'; plugins.mkdir()
             webapp = root / 'CinterForgeWebApp'; webapp.mkdir()
-            self.assertEqual(resolver.cinterforgeSourceRootPath(server), desktop)
-            self.assertEqual(resolver.cinterforgeSourceRootPath(webapp), desktop)
+            self.assertEqual(resolver.cinterforgeSourceRootPath(server), server)
+            self.assertEqual(resolver.cinterforgeSourceRootPath(webapp), server)
             self.assertEqual(resolver.cinterforgeBuildsRootPath(server), root / 'Builds')
             self.assertEqual(resolver.cinterforgePluginsRootPath(server), plugins)
             self.assertEqual(resolver.cinterforgeWebAppRootPath(desktop), webapp)
@@ -147,13 +150,65 @@ class SourcePreflightTests(unittest.TestCase):
         self.assertNotIn('cfconvert', names)
 
 
+class LinuxKitLocationMigrationTests(unittest.TestCase):
+    def test_existing_linuxkit_files_move_without_rebuild(self):
+        with tempfile.TemporaryDirectory(prefix='cfos-linuxkit-migration-') as directory:
+            workspace = Path(directory)
+            repo = workspace / 'CinterForgeOS'
+            repo.mkdir()
+            (repo / 'CFOS').touch()
+            legacy = workspace / 'Builds' / 'Linux'
+            legacy.mkdir(parents=True)
+            (legacy / 'cinter-bds-kernel').write_bytes(b'existing-kernel')
+            (legacy / 'CinterBDSVM').write_bytes(b'signed-launcher')
+            migrated = linuxkit.linuxkit_bootstrap_root(repo)
+            self.assertEqual(migrated, workspace / 'Builds/CreativeSuite/CFOS/LinuxKit')
+            self.assertEqual((migrated / 'cinter-bds-kernel').read_bytes(), b'existing-kernel')
+            self.assertEqual((migrated / 'CinterBDSVM').read_bytes(), b'signed-launcher')
+            self.assertFalse(legacy.exists())
+
+    def test_migration_preserves_unrelated_legacy_linux_data(self):
+        with tempfile.TemporaryDirectory(prefix='cfos-linuxkit-preserve-') as directory:
+            workspace = Path(directory)
+            repo = workspace / 'CinterForgeOS'
+            repo.mkdir()
+            (repo / 'CFOS').touch()
+            legacy = workspace / 'Builds/Linux'
+            legacy.mkdir(parents=True)
+            (legacy / 'cinter-bds-kernel').write_bytes(b'legacy-kernel')
+            other = legacy / 'OtherApplication/important.save'
+            other.parent.mkdir()
+            other.write_text('preserve this')
+            target = linuxkit.linuxkit_bootstrap_root(repo)
+            self.assertEqual((target / 'cinter-bds-kernel').read_bytes(), b'legacy-kernel')
+            self.assertEqual(other.read_text(), 'preserve this')
+            self.assertTrue(legacy.is_dir())
+
+    def test_migration_rejects_conflicting_target_without_modification(self):
+        with tempfile.TemporaryDirectory(prefix='cfos-linuxkit-conflict-') as directory:
+            workspace = Path(directory)
+            repo = workspace / 'CinterForgeOS'
+            repo.mkdir()
+            (repo / 'CFOS').touch()
+            legacy = workspace / 'Builds/Linux'
+            target = workspace / 'Builds/CreativeSuite/CFOS/LinuxKit'
+            legacy.mkdir(parents=True)
+            target.mkdir(parents=True)
+            (legacy / 'cinter-bds-kernel').write_bytes(b'older')
+            (target / 'cinter-bds-kernel').write_bytes(b'newer')
+            with self.assertRaisesRegex(RuntimeError, 'Conflicting LinuxKit artifacts'):
+                linuxkit.linuxkit_bootstrap_root(repo)
+            self.assertEqual((legacy / 'cinter-bds-kernel').read_bytes(), b'older')
+            self.assertEqual((target / 'cinter-bds-kernel').read_bytes(), b'newer')
+
+
 class LinuxKitImageBuildTests(unittest.TestCase):
     def test_linuxkit_build_compiles_swift_launcher_after_guest_outputs(self):
         with tempfile.TemporaryDirectory(prefix='cfos-linuxkit-test-') as tmp:
             root = Path(tmp) / 'CinterForgeOS'
             root.mkdir()
             (root / 'CFOS').touch()
-            destination = root.parent / 'Builds/Linux'
+            destination = root.parent / 'Builds/CreativeSuite/CFOS/LinuxKit'
             destination.mkdir(parents=True)
             (destination / 'linuxkit.yml').write_text('init: []\n')
             (destination / 'CinterBDSVM.swift').write_text('// mock Swift source\n')
@@ -212,11 +267,11 @@ class LinuxKitBedrockAcceptanceTests(unittest.TestCase):
             osrepo = root / 'CinterForgeOS'; osrepo.mkdir()
             (osrepo / 'CFOS').touch()
             server = root / 'CinterForgeServer'; server.mkdir()
-            scripts = server / 'cinter/build_cinterforge/craftmaster'
+            scripts = server / 'cf/build_cinterforge/craftmaster'
             scripts.mkdir(parents=True)
             (scripts / 'build_craftmaster_server.py').touch()
             (scripts / 'validate_minecraft_server.py').touch()
-            boot = root / 'Builds/Linux'; boot.mkdir(parents=True)
+            boot = root / 'Builds/CreativeSuite/CFOS/LinuxKit'; boot.mkdir(parents=True)
             for name in ('cinter-bds-kernel', 'cinter-bds-initrd.img',
                          'cinter-bds-cmdline', 'CinterBDSVM'):
                 (boot / name).write_bytes(b'fixture')
@@ -274,12 +329,12 @@ class LinuxKitBedrockAcceptanceTests(unittest.TestCase):
             osrepo = root / 'CinterForgeOS'; osrepo.mkdir()
             (osrepo / 'CFOS').touch()
             server_repo = root / 'CinterForgeServer'; server_repo.mkdir()
-            build = server_repo / 'cinter/build_cinterforge/craftmaster'
+            build = server_repo / 'cf/build_cinterforge/craftmaster'
             build.mkdir(parents=True)
             (build / 'build_craftmaster_server.py').touch()
             (build / 'validate_minecraft_server.py').touch()
             (root / 'Builds').mkdir()
-            bootstrap = root / 'Builds/Linux'; bootstrap.mkdir()
+            bootstrap = root / 'Builds/CreativeSuite/CFOS/LinuxKit'; bootstrap.mkdir(parents=True)
             for name in ('cinter-bds-kernel','cinter-bds-initrd.img','cinter-bds-cmdline','CinterBDSVM'):
                 (bootstrap / name).write_bytes(b'fixture')
             commands = []
@@ -311,12 +366,12 @@ class LinuxKitBedrockAcceptanceTests(unittest.TestCase):
             root = Path(temp); osrepo=root/'CinterForgeOS'; osrepo.mkdir()
             (osrepo/'CFOS').touch()
             server_repo=root/'CinterForgeServer'; server_repo.mkdir()
-            build=server_repo/'cinter/build_cinterforge/craftmaster'
+            build=server_repo/'cf/build_cinterforge/craftmaster'
             build.mkdir(parents=True)
             (build/'build_craftmaster_server.py').touch()
             (build/'validate_minecraft_server.py').touch()
             (root/'Builds').mkdir()
-            bootstrap = root/'Builds/Linux'; bootstrap.mkdir()
+            bootstrap = root/'Builds/CreativeSuite/CFOS/LinuxKit'; bootstrap.mkdir(parents=True)
             for name in ('cinter-bds-kernel','cinter-bds-initrd.img','cinter-bds-cmdline','CinterBDSVM'):
                 (bootstrap/name).write_bytes(b'fixture')
             with mock.patch.object(test.platform, 'system', return_value='Darwin'), \
@@ -331,7 +386,7 @@ class LinuxKitBedrockAcceptanceTests(unittest.TestCase):
             self.assertIn('Bedrock did not start', evidence['error'])
 
     def test_update_data_does_not_install_or_run_bedrock(self):
-        data = (CFOS.parent / 'CinterForgeServer/cinter/build_cinterforge/'
+        data = (CFOS.parent / 'CinterForgeServer/cf/build_cinterforge/'
                 'orchestration/update_data_pipeline.py').read_text()
         self.assertNotIn('build_craftmaster_server.py"', data[data.index('    if not args.skip_acquisition:'):])
         self.assertNotIn('"craftmaster-server-smoke-tests"', data)

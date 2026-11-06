@@ -1,0 +1,4307 @@
+{
+  "schema": "cinterforge.creative-suite.recipe.v1",
+  "identity": {
+    "application": "cfaudio",
+    "platform": "win",
+    "target_arch": "x86_64",
+    "build_host": "Linux x86-64",
+    "acquisition": "source"
+  },
+  "source": {
+    "upstream_url": "https://github.com/Ardour/ardour",
+    "checkout_name": "CinterForgeAudio",
+    "revision": "d4ff78f3494eaaac2c969a36f53e056be28ef150",
+    "submodules": "upstream_pinned_gitlinks"
+  },
+  "toolchain": {
+    "components": [],
+    "detected": {},
+    "cross_compiler": "x86_64-w64-mingw32-gcc",
+    "cross_cxx": "x86_64-w64-mingw32-g++",
+    "host_runtime": "CinterForgeOS managed Ubuntu 24.04 AMD64 headless container"
+  },
+  "dependencies": [
+    {
+      "name": "aubio",
+      "category": "dependency",
+      "observed_version": "0.3.2",
+      "required_version": "0.3.2",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "aubio-0.3.2",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-aubio",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "fftw",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "libsamplerate",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [
+          16
+        ],
+        "pkg_config_modules": [
+          "aubio"
+        ],
+        "patch_actions_evidence": [
+          {
+            "action": "sed -i.bak '/no-long-double/d' configure",
+            "execution": "evidence_only_not_authorized"
+          }
+        ],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "fftw",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "libsamplerate",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "boost",
+      "category": "dependency",
+      "observed_version": "1.68.0",
+      "required_version": "1.68.0",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "boost_1_68_0",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-boost",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [
+          4,
+          5
+        ],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [
+          {
+            "action": "sed -i.bak 's/4\\.0\\.0/0.0.0/' tools/build/src/tools/darwin.jam",
+            "execution": "evidence_only_not_authorized"
+          },
+          {
+            "action": "sed -i.bak 's/arch arm/arch arm64/' tools/build/src/tools/darwin.jam",
+            "execution": "evidence_only_not_authorized"
+          }
+        ],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "cairo",
+      "category": "dependency",
+      "observed_version": "1.16.0",
+      "required_version": "1.16.0",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "cairo-1.16.0",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-cairo",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "pixman",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "freetype",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "fontconfig",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "libpng",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "zlib",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [
+          3,
+          22,
+          23
+        ],
+        "pkg_config_modules": [
+          "cairo"
+        ],
+        "patch_actions_evidence": [
+          {
+            "action": "sed -i.bak 's/ test perf//' Makefile.in",
+            "execution": "evidence_only_not_authorized"
+          },
+          {
+            "action": "patch -p0 < $this_script_dir/misc-patches/cairo-gradients.patch",
+            "execution": "evidence_only_not_authorized"
+          },
+          {
+            "action": "patch -p1 < $this_script_dir/misc-patches/cairo-quartz-surface-ref.patch",
+            "execution": "evidence_only_not_authorized"
+          }
+        ],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "pixman",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "freetype",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "fontconfig",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "libpng",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "zlib",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "cairomm",
+      "category": "dependency",
+      "observed_version": "1.14.5",
+      "required_version": "1.14.5",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "cairomm-1.14.5",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-cairomm",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "cairo",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "libsigc++",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "cairomm-1.0"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "cairo",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "libsigc++",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "cppunit",
+      "category": "dependency",
+      "observed_version": "1.13.2",
+      "required_version": "1.13.2",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "cppunit-1.13.2",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-cppunit",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "cppunit"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "curl",
+      "category": "dependency",
+      "observed_version": "7.66.0",
+      "required_version": "7.66.0",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "curl-7.66.0",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-curl",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "libcurl"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "expat",
+      "category": "dependency",
+      "observed_version": "2.8.1",
+      "required_version": "2.8.1",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "expat-2.8.1",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-expat",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "fftw",
+      "category": "dependency",
+      "observed_version": "3.3.8",
+      "required_version": "3.3.8",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "fftw-3.3.8",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-fftw",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "fftw3f"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "flac",
+      "category": "dependency",
+      "observed_version": "1.3.2",
+      "required_version": "1.3.2",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "flac-1.3.2",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-flac",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "libogg",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "libogg",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "fontconfig",
+      "category": "dependency",
+      "observed_version": "2.13.1",
+      "required_version": "2.13.1",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "fontconfig-2.13.1",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-fontconfig",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "freetype",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "expat",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "freetype",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "expat",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "freetype",
+      "category": "dependency",
+      "observed_version": "2.9",
+      "required_version": "2.9",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "freetype-2.9",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-freetype",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "zlib",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "libpng",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [
+          1,
+          2
+        ],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [
+          {
+            "action": "sed -i.bak '/#define TT_CONFIG_OPTION_BYTECODE_INTERPRETER/d' include/freetype/config/ftoption.h",
+            "execution": "evidence_only_not_authorized"
+          },
+          {
+            "action": "sed -i.bak '/#define TT_CONFIG_OPTION_BYTECODE_INTERPRETER/d' ./devel/ftoption.h",
+            "execution": "evidence_only_not_authorized"
+          }
+        ],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "zlib",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "libpng",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "fribidi",
+      "category": "dependency",
+      "observed_version": "1.0.9",
+      "required_version": "1.0.9",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "fribidi-1.0.9",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-fribidi",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "gettext",
+      "category": "dependency",
+      "observed_version": "0.21",
+      "required_version": "0.21",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "gettext-0.21",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-gettext",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "glib",
+      "category": "dependency",
+      "observed_version": "2.56.4",
+      "required_version": "2.56.4",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "glib-2.56.4",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-glib2",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "libffi",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "pcre",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "gettext",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "glib-2.0",
+          "gobject-2.0"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "libffi",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "pcre",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "gettext",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "glibmm",
+      "category": "dependency",
+      "observed_version": "2.56.1",
+      "required_version": "2.56.1",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "glibmm-2.56.1",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-glibmm",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "glib",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "libsigc++",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [
+          7
+        ],
+        "pkg_config_modules": [
+          "glibmm-2.4"
+        ],
+        "patch_actions_evidence": [
+          {
+            "action": "sed -i.bak 's%return gobject_;%return \\&gobject_;%' glib/glibmm/threads.h",
+            "execution": "evidence_only_not_authorized"
+          }
+        ],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "glib",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "libsigc++",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "harfbuzz",
+      "category": "dependency",
+      "observed_version": "2.6.7",
+      "required_version": "2.6.7",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "harfbuzz-2.6.7",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-harfbuzz",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "freetype",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "glib",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "freetype",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "glib",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "libarchive",
+      "category": "dependency",
+      "observed_version": "3.6.1",
+      "required_version": "3.6.1",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "libarchive-3.6.1",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-libarchive",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "zlib",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "libxml2",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "xz",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "libarchive"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "zlib",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "libxml2",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "xz",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "libffi",
+      "category": "dependency",
+      "observed_version": "3.5.2",
+      "required_version": "3.5.2",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "libffi-3.5.2",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-libffi",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "libiconv",
+      "category": "dependency",
+      "observed_version": "1.16",
+      "required_version": "1.16",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "libiconv-1.16",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-libiconv",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "liblo",
+      "category": "dependency",
+      "observed_version": "0.28",
+      "required_version": "0.28",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "liblo-0.28",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-liblo",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [
+          8,
+          9
+        ],
+        "pkg_config_modules": [
+          "liblo"
+        ],
+        "patch_actions_evidence": [
+          {
+            "action": "sed -i.bak 's/ -stdlib=libc++//g' configure",
+            "execution": "evidence_only_not_authorized"
+          },
+          {
+            "action": "sed -i.bak 's/define LO_MARKER\\(.*\\)$/define LO_MARKER\\1LU/g' lo/lo_macros.h",
+            "execution": "evidence_only_not_authorized"
+          }
+        ],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "libogg",
+      "category": "dependency",
+      "observed_version": "1.3.2",
+      "required_version": "1.3.2",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "libogg-1.3.2",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-libogg",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "libpng",
+      "category": "dependency",
+      "observed_version": "1.6.50",
+      "required_version": "1.6.50",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "libpng-1.6.50",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-libpng",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "zlib",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "libpng"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "zlib",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "libsamplerate",
+      "category": "dependency",
+      "observed_version": "0.1.9",
+      "required_version": "0.1.9",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "libsamplerate-0.1.9",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-libsamplerate",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [
+          13,
+          15
+        ],
+        "pkg_config_modules": [
+          "samplerate"
+        ],
+        "patch_actions_evidence": [
+          {
+            "action": "sed -i.bak 's/ examples tests//' Makefile.in",
+            "execution": "evidence_only_not_authorized"
+          },
+          {
+            "action": "sed -i.bak 's/ examples tests//' Makefile.in",
+            "execution": "evidence_only_not_authorized"
+          }
+        ],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "libsigc++",
+      "category": "dependency",
+      "observed_version": "2.10.2",
+      "required_version": "2.10.2",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "libsigc++-2.10.2",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-libsigc++",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "sigc++-2.0"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "libsndfile",
+      "category": "dependency",
+      "observed_version": "1.1.0-41",
+      "required_version": "1.1.0-41",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "libsndfile-1.1.0-41",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-libsndfile",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "flac",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "libogg",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "libvorbis",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "opus",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [
+          11,
+          12,
+          14
+        ],
+        "pkg_config_modules": [
+          "sndfile"
+        ],
+        "patch_actions_evidence": [
+          {
+            "action": "sed -i.bak 's/ -Wvla//' configure",
+            "execution": "evidence_only_not_authorized"
+          },
+          {
+            "action": "sed -i.bak 's/ -lsndfile/ -lsndfile -lvorbis -lvorbisenc -lFLAC -logg -lopus/' $PREFIX/lib/pkgconfig/sndfile.pc",
+            "execution": "evidence_only_not_authorized"
+          },
+          {
+            "action": "sed -i.bak 's/ -Wvla//' configure",
+            "execution": "evidence_only_not_authorized"
+          }
+        ],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "flac",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "libogg",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "libvorbis",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "opus",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "libusb",
+      "category": "dependency",
+      "observed_version": "1.0.20",
+      "required_version": "1.0.20",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "libusb-1.0.20",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-libusb",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "libusb-1.0"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "libvorbis",
+      "category": "dependency",
+      "observed_version": "1.3.4",
+      "required_version": "1.3.4",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "libvorbis-1.3.4",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-libvorbis",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "libogg",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [
+          10
+        ],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [
+          {
+            "action": "sed -i.bak 's/-force_cpusubtype_ALL//g' configure",
+            "execution": "evidence_only_not_authorized"
+          }
+        ],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "libogg",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "libwebsockets",
+      "category": "dependency",
+      "observed_version": "4.3.0-14",
+      "required_version": "4.3.0-14",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "libwebsockets-4.3.0-14",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-libwebsockets",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "libwebsockets"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "libxml2",
+      "category": "dependency",
+      "observed_version": "2.9.14",
+      "required_version": "2.9.14",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "libxml2-2.9.14",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-libxml2",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "libxml-2.0"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "libxslt",
+      "category": "dependency",
+      "observed_version": "1.1.43",
+      "required_version": "1.1.43",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "libxslt-1.1.43",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-libxslt",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "libxml2",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "libxml2",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "lilv",
+      "category": "dependency",
+      "observed_version": "0.24.13",
+      "required_version": "0.24.13",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "lilv-0.24.13",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-lilv",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "lv2",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "serd",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "sord",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "sratom",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "lilv-0"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "lv2",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "serd",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "sord",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "sratom",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "LRDF",
+      "category": "dependency",
+      "observed_version": "0.5.3",
+      "required_version": "0.5.3",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "LRDF-0.5.3-rg",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-lrdf",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "raptor2",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [
+          17
+        ],
+        "pkg_config_modules": [
+          "lrdf"
+        ],
+        "patch_actions_evidence": [
+          {
+            "action": "sed -i.bak 's/glibtoolize/libtoolize/g' autogen.sh",
+            "execution": "evidence_only_not_authorized"
+          }
+        ],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "raptor2",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "lv2",
+      "category": "dependency",
+      "observed_version": "1.18.2",
+      "required_version": "1.18.2",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "lv2-1.18.2",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-lv2",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "lv2"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "mingw-libgnurx",
+      "category": "dependency",
+      "observed_version": "2.5.1",
+      "required_version": "2.5.1",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "mingw-libgnurx-2.5.1",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": null,
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "opus",
+      "category": "dependency",
+      "observed_version": "1.3.1",
+      "required_version": "1.3.1",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "opus-1.3.1",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-opus",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "pango",
+      "category": "dependency",
+      "observed_version": "1.42.4",
+      "required_version": "1.42.4",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "pango-1.42.4",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-pango",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "glib",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "cairo",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "fontconfig",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "freetype",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "harfbuzz",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "fribidi",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "pango"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "glib",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "cairo",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "fontconfig",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "freetype",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "harfbuzz",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "fribidi",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "pangomm",
+      "category": "dependency",
+      "observed_version": "2.46.4",
+      "required_version": "2.46.4",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "pangomm-2.46.4",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-pangomm",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "pango",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "glibmm",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "cairomm",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "pangomm-1.4"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "pango",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "glibmm",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "cairomm",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "pcre",
+      "category": "dependency",
+      "observed_version": "8.36",
+      "required_version": "8.36",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "pcre 8.36",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-pcre",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "pixman",
+      "category": "dependency",
+      "observed_version": "0.42.2",
+      "required_version": "0.42.2",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "pixman-0.42.2",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-pixman",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [
+          21
+        ],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [
+          {
+            "action": "patch -p1 < $this_script_dir/misc-patches/pixman-42.2-arm64-clang.diff",
+            "execution": "evidence_only_not_authorized"
+          }
+        ],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "portaudio",
+      "category": "dependency",
+      "observed_version": "svn rev1963",
+      "required_version": "svn rev1963",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "portaudio svn rev1963",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-portaudio",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "raptor2",
+      "category": "dependency",
+      "observed_version": "2.0.14",
+      "required_version": "2.0.14",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "raptor2-2.0.14",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-raptor2",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "rasqal",
+      "category": "dependency",
+      "observed_version": "0.9.32",
+      "required_version": "0.9.32",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "rasqal 0.9.32",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-rasqal",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "raptor2",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "raptor2",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "readline",
+      "category": "dependency",
+      "observed_version": "8.2",
+      "required_version": "8.2",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "readline-8.2",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-readline",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "redland",
+      "category": "dependency",
+      "observed_version": "1.0.17",
+      "required_version": "1.0.17",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "redland 1.0.17",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-redland",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "raptor2",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "rasqal",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "raptor2",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "rasqal",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "rubberband",
+      "category": "dependency",
+      "observed_version": "3.3.0",
+      "required_version": "3.3.0",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "rubberband-3.3.0",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-rubberband",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "fftw",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "rubberband"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "fftw",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "serd",
+      "category": "dependency",
+      "observed_version": "0.30.11",
+      "required_version": "0.30.11",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "serd-0.30.11",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-serd",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "serd-0"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "sord",
+      "category": "dependency",
+      "observed_version": "0.16.9",
+      "required_version": "0.16.9",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "sord-0.16.9",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-sord",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "serd",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "sord-0"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "serd",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "sratom",
+      "category": "dependency",
+      "observed_version": "0.6.8",
+      "required_version": "0.6.8",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "sratom-0.6.8",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-sratom",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "serd",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          },
+          {
+            "name": "sord",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "sratom-0"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "serd",
+              "verification": "candidate_only_not_authoritative"
+            },
+            {
+              "name": "sord",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "taglib",
+      "category": "dependency",
+      "observed_version": "1.9.1",
+      "required_version": "1.9.1",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "taglib-1.9.1",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-taglib",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [
+          {
+            "name": "zlib",
+            "relationship": "candidate_build_or_link_dependency",
+            "verification": "pending_package_metadata_or_upstream_build_recipe"
+          }
+        ],
+        "transitive_resolution": "provisional graph edge; resolve from selected pinned MSVCRT package metadata or exact upstream build recipe before installing",
+        "patch_evidence_indices": [
+          18,
+          19
+        ],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [
+          {
+            "action": "sed -i.bak 's/\\~ListPrivate/virtual ~ListPrivate/' taglib/toolkit/tlist.tcc",
+            "execution": "evidence_only_not_authorized"
+          },
+          {
+            "action": "find . -type f -exec sed -i.bak 's/StringPrivate/MyPrivateString/g' {} \\;",
+            "execution": "evidence_only_not_authorized"
+          }
+        ],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [
+            {
+              "name": "zlib",
+              "verification": "candidate_only_not_authoritative"
+            }
+          ],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "termcap",
+      "category": "dependency",
+      "observed_version": "1.3.1",
+      "required_version": "1.3.1",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "termcap-1.3.1",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": null,
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "tiff",
+      "category": "dependency",
+      "observed_version": "4.0.3",
+      "required_version": "4.0.3",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "tiff-4.0.3",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-libtiff",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "vamp-plugin-sdk",
+      "category": "dependency",
+      "observed_version": "2.9.0",
+      "required_version": "2.9.0",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "vamp-plugin-sdk-2.9.0",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-vamp-plugin-sdk",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [
+          "vamp-sdk",
+          "vamp-hostsdk"
+        ],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "xz",
+      "category": "dependency",
+      "observed_version": "5.2.2",
+      "required_version": "5.2.2",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "xz-5.2.2",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-xz",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "zlib",
+      "category": "dependency",
+      "observed_version": "1.3.2",
+      "required_version": "1.3.2",
+      "version_policy": "upstream_win64_nightly_exact",
+      "source": "https://nightly.ardour.org/list.php#build-dependencies",
+      "evidence": "zlib-1.3.2",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-zlib",
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "jack",
+      "category": "dependency",
+      "observed_version": null,
+      "required_version": null,
+      "version_policy": "unresolved_from_existing_recipe",
+      "source": null,
+      "evidence": "required Windows pkg-config module jack",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": null,
+        "binary_verified_gcc10_msvcrt": false,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "pkg_config_modules": [
+          "jack"
+        ],
+        "transitive_dependencies": [],
+        "transitive_resolution": "discover_recursively_from_pinned_binary_metadata_or_source_build; do_not_guess",
+        "patch_evidence_indices": [],
+        "candidate_provenance": "unverified candidate; legacy UCRT64 roots do not establish MSVCRT compatibility",
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "ffmpeg",
+      "category": "binary_root_not_yet_in_upstream_version_list",
+      "observed_version": null,
+      "required_version": null,
+      "version_policy": "unresolved_from_original_binary_roots",
+      "source": "existing windows_cross_dependencies.binary_roots",
+      "evidence": "binary root ffmpeg",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-ffmpeg",
+        "candidate_provenance": "legacy root only; no verified MSVCRT package pin",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "pending actual package metadata",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "drmingw",
+      "category": "binary_root_not_yet_in_upstream_version_list",
+      "observed_version": null,
+      "required_version": null,
+      "version_policy": "unresolved_from_original_binary_roots",
+      "source": "existing windows_cross_dependencies.binary_roots",
+      "evidence": "binary root drmingw",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-drmingw",
+        "candidate_provenance": "legacy root only; no verified MSVCRT package pin",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "pending actual package metadata",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    },
+    {
+      "name": "libjpeg-turbo",
+      "category": "binary_root_not_yet_in_upstream_version_list",
+      "observed_version": null,
+      "required_version": null,
+      "version_policy": "unresolved_from_original_binary_roots",
+      "source": "existing windows_cross_dependencies.binary_roots",
+      "evidence": "binary root libjpeg-turbo",
+      "windows_resolution": {
+        "toolchain": "mingw-w64-gcc-10-posix-msvcrt",
+        "preferred_method": "reuse_verified_then_standard_binary_then_source",
+        "candidate_binary_package": "mingw-w64-x86_64-libjpeg-turbo",
+        "candidate_provenance": "legacy root only; no verified MSVCRT package pin",
+        "binary_verified_gcc10_msvcrt": false,
+        "binary_package_version": null,
+        "binary_package_sha256": null,
+        "source_fallback": "required_if_no_compatible_binary_or_ardour_patch",
+        "source_build_required": null,
+        "status": "requires_gcc10_msvcrt_resolution",
+        "transitive_dependencies": [],
+        "transitive_resolution": "pending actual package metadata",
+        "patch_evidence_indices": [],
+        "pkg_config_modules": [],
+        "patch_actions_evidence": [],
+        "binary_acceptance_gates": [
+          "pinned_version_matches",
+          "msvcrt_imports_only",
+          "gcc10_cxx_abi_compatible",
+          "posix_thread_model_compatible",
+          "pkg_config_link_test",
+          "recursive_dll_closure"
+        ],
+        "selected_acquisition_method": null,
+        "selection_status": "unverified_no_install_authorized",
+        "closure_requirements": {
+          "recursive_package_metadata_required": true,
+          "selected_archive_sha256_required": true,
+          "selected_package_dependency_versions_required": true,
+          "runtime_import_scan_required": true,
+          "cxx_abi_and_thread_model_validation_required": true,
+          "build_and_runtime_closure_status": "unresolved",
+          "candidate_in_recipe": [],
+          "unresolved_names": [],
+          "resolution_authority": "selected pinned MSVCRT package metadata or Ardour upstream source recipe"
+        }
+      }
+    }
+  ],
+  "constraints": [
+    {
+      "name": "library",
+      "operator": ">=",
+      "version": "1.68",
+      "source": "https://nightly.ardour.org/i/A_WIN_x86_64/build_log.txt",
+      "evidence": "Checking for boost library >= 1.68                   : yes"
+    },
+    {
+      "name": "rubberband",
+      "operator": ">=",
+      "version": "3.0.0",
+      "source": "https://nightly.ardour.org/i/A_WIN_x86_64/build_log.txt",
+      "evidence": "Checking for rubberband >= 3.0.0                     : yes"
+    }
+  ],
+  "patches": [
+    {
+      "component": "bison",
+      "action": "sed -i.bak 's%defined _IO_ftrylockfile%defined _IO_ftrylockfile || defined _IO_EOF_SEEN%' lib/fseterr.c",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "freetype",
+      "action": "sed -i.bak '/#define TT_CONFIG_OPTION_BYTECODE_INTERPRETER/d' include/freetype/config/ftoption.h",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "freetype",
+      "action": "sed -i.bak '/#define TT_CONFIG_OPTION_BYTECODE_INTERPRETER/d' ./devel/ftoption.h",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "cairo",
+      "action": "sed -i.bak 's/ test perf//' Makefile.in",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "boost",
+      "action": "sed -i.bak 's/4\\.0\\.0/0.0.0/' tools/build/src/tools/darwin.jam",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "boost",
+      "action": "sed -i.bak 's/arch arm/arch arm64/' tools/build/src/tools/darwin.jam",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "nss",
+      "action": "sed -i.bak \"s%DSO_LDOPTS\\t\\t= %DSO_LDOPTS\\t\\t= -L$PREFIX/lib/ %\" coreconf/Linux.mk",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "glibmm",
+      "action": "sed -i.bak 's%return gobject_;%return \\&gobject_;%' glib/glibmm/threads.h",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "liblo",
+      "action": "sed -i.bak 's/ -stdlib=libc++//g' configure",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "liblo",
+      "action": "sed -i.bak 's/define LO_MARKER\\(.*\\)$/define LO_MARKER\\1LU/g' lo/lo_macros.h",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "libvorbis",
+      "action": "sed -i.bak 's/-force_cpusubtype_ALL//g' configure",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "libsndfile",
+      "action": "sed -i.bak 's/ -Wvla//' configure",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "libsndfile",
+      "action": "sed -i.bak 's/ -lsndfile/ -lsndfile -lvorbis -lvorbisenc -lFLAC -logg -lopus/' $PREFIX/lib/pkgconfig/sndfile.pc",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "libsamplerate",
+      "action": "sed -i.bak 's/ examples tests//' Makefile.in",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "libsndfile",
+      "action": "sed -i.bak 's/ -Wvla//' configure",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "libsamplerate",
+      "action": "sed -i.bak 's/ examples tests//' Makefile.in",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "aubio",
+      "action": "sed -i.bak '/no-long-double/d' configure",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "LRDF",
+      "action": "sed -i.bak 's/glibtoolize/libtoolize/g' autogen.sh",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "taglib",
+      "action": "sed -i.bak 's/\\~ListPrivate/virtual ~ListPrivate/' taglib/toolkit/tlist.tcc",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "taglib",
+      "action": "find . -type f -exec sed -i.bak 's/StringPrivate/MyPrivateString/g' {} \\;",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "m4",
+      "action": "patch -p1 < $this_script_dir/misc-patches/m4-glibc.patch",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "pixman",
+      "action": "patch -p1 < $this_script_dir/misc-patches/pixman-42.2-arm64-clang.diff",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "cairo",
+      "action": "patch -p0 < $this_script_dir/misc-patches/cairo-gradients.patch",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "cairo",
+      "action": "patch -p1 < $this_script_dir/misc-patches/cairo-quartz-surface-ref.patch",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    }
+  ],
+  "preparation": {
+    "packages": [],
+    "package_manager": "apt-get",
+    "audit": [],
+    "status": "cross_toolchain_preflight_implemented"
+  },
+  "configure": {
+    "system": "waf",
+    "argv": [
+      "./waf",
+      "configure",
+      "--dist-target=mingw",
+      "--ptformat",
+      "--with-backends=jack,portaudio,dummy",
+      "--optimize",
+      "--cxx17"
+    ],
+    "observed_result": null
+  },
+  "build": {
+    "system": "waf",
+    "argv_by_config": {
+      "Debug": [
+        "./waf",
+        "build"
+      ],
+      "Release": [
+        "./waf",
+        "build"
+      ]
+    },
+    "verified": false,
+    "last_result": {
+      "success": false,
+      "version": "2026"
+    }
+  },
+  "environment": {
+    "variables": {},
+    "prefix": null,
+    "sdk": null
+  },
+  "outputs": {
+    "build_destination": "Builds/CreativeSuite/Built/cfaudio/win/<version>/Output",
+    "install_destination": "Applications/Windows/CinterForge Audio/<version>"
+  },
+  "evidence": {
+    "status": "partial_evidence",
+    "urls": [
+      "https://nightly.ardour.org/i/A_WIN_x86_64/info.txt",
+      "https://nightly.ardour.org/i/A_WIN_x86_64/build_log.txt",
+      "https://ardour.org/files/patch-info.html"
+    ],
+    "inspection": [
+      {
+        "url": "https://nightly.ardour.org/i/A_WIN_x86_64/info.txt",
+        "chars": 1584,
+        "first_lines": [
+          "Ardour - Log file: info.txt",
+          "Nightlies",
+          "Download",
+          "Bug Tracker"
+        ]
+      },
+      {
+        "url": "https://nightly.ardour.org/i/A_WIN_x86_64/build_log.txt",
+        "chars": 4152026,
+        "first_lines": [
+          "Ardour - Log file: build_log.txt",
+          "Nightlies",
+          "Download",
+          "Bug Tracker"
+        ]
+      },
+      {
+        "url": "https://ardour.org/files/patch-info.html",
+        "chars": 2363,
+        "first_lines": [
+          "Changes Made to The Dependency Stack For Ardour",
+          "Generated Mon 16 Feb 2026 08:32:37 PM EST",
+          "Automatically generated from build-stack",
+          "The information below is generated from the build scripts we use to build all of the dependencies that Ardour requires."
+        ]
+      }
+    ]
+  },
+  "readiness": {
+    "ready": false,
+    "issues": [
+      "Build has not completed successfully since the latest build attempt",
+      "MinGW-w64 host toolchain is prepared via shared headless Ubuntu container; Windows-target .pc libraries must be provisioned under Dependencies/Windows-x64.",
+      "Waf Windows x64 configure, build and installer integration pending implementation."
+    ],
+    "setup_result": null,
+    "configured": false
+  },
+  "dependency_setup": {
+    "executor": "python",
+    "script": "apps/cfaudio/win/setup.py",
+    "args": [
+      "--target",
+      "win",
+      "--prepare-dependencies"
+    ]
+  },
+  "windows_cross_dependencies": {
+    "required_pkg_config_modules": [
+      "glib-2.0",
+      "gobject-2.0",
+      "glibmm-2.4",
+      "sigc++-2.0",
+      "cairo",
+      "cairomm-1.0",
+      "pango",
+      "pangomm-1.4",
+      "sndfile",
+      "samplerate",
+      "fftw3f",
+      "aubio",
+      "rubberband",
+      "liblo",
+      "libarchive",
+      "libcurl",
+      "libxml-2.0",
+      "libpng",
+      "lv2",
+      "vamp-sdk",
+      "vamp-hostsdk",
+      "libusb-1.0",
+      "jack",
+      "cppunit",
+      "libwebsockets",
+      "lrdf",
+      "serd-0",
+      "sord-0",
+      "sratom-0",
+      "lilv-0"
+    ],
+    "pkg_config_link_closure": {
+      "fftw3f": [
+        "fftw3f_threads"
+      ]
+    },
+    "locked_toolchain": {
+      "compiler": "x86_64-w64-mingw32-gcc",
+      "compiler_major": 10,
+      "thread_model": "posix",
+      "crt": "msvcrt",
+      "prohibit": [
+        "ucrt",
+        "ucrt64",
+        "mixed_crt",
+        "unverified_binary_abi"
+      ]
+    },
+    "completion_gates": [
+      "each_dependency_has_selected_compatible_acquisition_method",
+      "all_package_versions_and_hashes_pinned",
+      "all_transitive_dependencies_closed",
+      "ardour_patch_application_verified",
+      "gcc10_posix_msvcrt_abi_checks_pass",
+      "pkg_config_and_dll_closure_pass"
+    ],
+    "closure_generation": {
+      "schema": "cfaudio.windows.dependency-closure.v1",
+      "status": "blocked_pending_verified_msvcrt_binary_metadata",
+      "locked_target": {
+        "compiler": "mingw-w64-gcc-10",
+        "thread_model": "posix",
+        "crt": "msvcrt",
+        "architecture": "x86_64"
+      },
+      "roots": [
+        "aubio",
+        "boost",
+        "cairo",
+        "cairomm",
+        "cppunit",
+        "curl",
+        "expat",
+        "fftw",
+        "flac",
+        "fontconfig",
+        "freetype",
+        "fribidi",
+        "gettext",
+        "glib",
+        "glibmm",
+        "harfbuzz",
+        "libarchive",
+        "libffi",
+        "libiconv",
+        "liblo",
+        "libogg",
+        "libpng",
+        "libsamplerate",
+        "libsigc++",
+        "libsndfile",
+        "libusb",
+        "libvorbis",
+        "libwebsockets",
+        "libxml2",
+        "libxslt",
+        "lilv",
+        "LRDF",
+        "lv2",
+        "mingw-libgnurx",
+        "opus",
+        "pango",
+        "pangomm",
+        "pcre",
+        "pixman",
+        "portaudio",
+        "raptor2",
+        "rasqal",
+        "readline",
+        "redland",
+        "rubberband",
+        "serd",
+        "sord",
+        "sratom",
+        "taglib",
+        "termcap",
+        "tiff",
+        "vamp-plugin-sdk",
+        "xz",
+        "zlib",
+        "jack",
+        "ffmpeg",
+        "drmingw",
+        "libjpeg-turbo"
+      ],
+      "algorithm": [
+        "load every root from recipe",
+        "select a verified existing GCC10/MSVCRT installation or compatible pinned package",
+        "read the selected package dependency metadata, including version constraints and optional runtime dependencies",
+        "recursively add each newly discovered dependency to dependencies and repeat until fixed point",
+        "when no compatible binary is available, build from upstream source with required Ardour patches and record source hash and build flags",
+        "validate all selected artifacts and runtime imports against GCC10 POSIX MSVCRT",
+        "emit reproducible package lock with exact versions, URLs, hashes, and recursive edges",
+        "reject completion if any dependency is unresolved or a runtime DLL is missing"
+      ],
+      "candidate_graph": {
+        "edges": {
+          "aubio": [
+            "fftw",
+            "libsamplerate"
+          ],
+          "boost": [],
+          "cairo": [
+            "pixman",
+            "freetype",
+            "fontconfig",
+            "libpng",
+            "zlib"
+          ],
+          "cairomm": [
+            "cairo",
+            "libsigc++"
+          ],
+          "cppunit": [],
+          "curl": [],
+          "expat": [],
+          "fftw": [],
+          "flac": [
+            "libogg"
+          ],
+          "fontconfig": [
+            "freetype",
+            "expat"
+          ],
+          "freetype": [
+            "zlib",
+            "libpng"
+          ],
+          "fribidi": [],
+          "gettext": [],
+          "glib": [
+            "libffi",
+            "pcre",
+            "gettext"
+          ],
+          "glibmm": [
+            "glib",
+            "libsigc++"
+          ],
+          "harfbuzz": [
+            "freetype",
+            "glib"
+          ],
+          "libarchive": [
+            "zlib",
+            "libxml2",
+            "xz"
+          ],
+          "libffi": [],
+          "libiconv": [],
+          "liblo": [],
+          "libogg": [],
+          "libpng": [
+            "zlib"
+          ],
+          "libsamplerate": [],
+          "libsigc++": [],
+          "libsndfile": [
+            "flac",
+            "libogg",
+            "libvorbis",
+            "opus"
+          ],
+          "libusb": [],
+          "libvorbis": [
+            "libogg"
+          ],
+          "libwebsockets": [],
+          "libxml2": [],
+          "libxslt": [
+            "libxml2"
+          ],
+          "lilv": [
+            "lv2",
+            "serd",
+            "sord",
+            "sratom"
+          ],
+          "LRDF": [
+            "raptor2"
+          ],
+          "lv2": [],
+          "mingw-libgnurx": [],
+          "opus": [],
+          "pango": [
+            "glib",
+            "cairo",
+            "fontconfig",
+            "freetype",
+            "harfbuzz",
+            "fribidi"
+          ],
+          "pangomm": [
+            "pango",
+            "glibmm",
+            "cairomm"
+          ],
+          "pcre": [],
+          "pixman": [],
+          "portaudio": [],
+          "raptor2": [],
+          "rasqal": [
+            "raptor2"
+          ],
+          "readline": [],
+          "redland": [
+            "raptor2",
+            "rasqal"
+          ],
+          "rubberband": [
+            "fftw"
+          ],
+          "serd": [],
+          "sord": [
+            "serd"
+          ],
+          "sratom": [
+            "serd",
+            "sord"
+          ],
+          "taglib": [
+            "zlib"
+          ],
+          "termcap": [],
+          "tiff": [],
+          "vamp-plugin-sdk": [],
+          "xz": [],
+          "zlib": [],
+          "jack": [],
+          "ffmpeg": [],
+          "drmingw": [],
+          "libjpeg-turbo": []
+        },
+        "reachable_candidate_dependencies": {
+          "aubio": [
+            "fftw",
+            "libsamplerate"
+          ],
+          "boost": [],
+          "cairo": [
+            "expat",
+            "fontconfig",
+            "freetype",
+            "libpng",
+            "pixman",
+            "zlib"
+          ],
+          "cairomm": [
+            "cairo",
+            "expat",
+            "fontconfig",
+            "freetype",
+            "libpng",
+            "libsigc++",
+            "pixman",
+            "zlib"
+          ],
+          "cppunit": [],
+          "curl": [],
+          "expat": [],
+          "fftw": [],
+          "flac": [
+            "libogg"
+          ],
+          "fontconfig": [
+            "expat",
+            "freetype",
+            "libpng",
+            "zlib"
+          ],
+          "freetype": [
+            "libpng",
+            "zlib"
+          ],
+          "fribidi": [],
+          "gettext": [],
+          "glib": [
+            "gettext",
+            "libffi",
+            "pcre"
+          ],
+          "glibmm": [
+            "gettext",
+            "glib",
+            "libffi",
+            "libsigc++",
+            "pcre"
+          ],
+          "harfbuzz": [
+            "freetype",
+            "gettext",
+            "glib",
+            "libffi",
+            "libpng",
+            "pcre",
+            "zlib"
+          ],
+          "libarchive": [
+            "libxml2",
+            "xz",
+            "zlib"
+          ],
+          "libffi": [],
+          "libiconv": [],
+          "liblo": [],
+          "libogg": [],
+          "libpng": [
+            "zlib"
+          ],
+          "libsamplerate": [],
+          "libsigc++": [],
+          "libsndfile": [
+            "flac",
+            "libogg",
+            "libvorbis",
+            "opus"
+          ],
+          "libusb": [],
+          "libvorbis": [
+            "libogg"
+          ],
+          "libwebsockets": [],
+          "libxml2": [],
+          "libxslt": [
+            "libxml2"
+          ],
+          "lilv": [
+            "lv2",
+            "serd",
+            "sord",
+            "sratom"
+          ],
+          "LRDF": [
+            "raptor2"
+          ],
+          "lv2": [],
+          "mingw-libgnurx": [],
+          "opus": [],
+          "pango": [
+            "cairo",
+            "expat",
+            "fontconfig",
+            "freetype",
+            "fribidi",
+            "gettext",
+            "glib",
+            "harfbuzz",
+            "libffi",
+            "libpng",
+            "pcre",
+            "pixman",
+            "zlib"
+          ],
+          "pangomm": [
+            "cairo",
+            "cairomm",
+            "expat",
+            "fontconfig",
+            "freetype",
+            "fribidi",
+            "gettext",
+            "glib",
+            "glibmm",
+            "harfbuzz",
+            "libffi",
+            "libpng",
+            "libsigc++",
+            "pango",
+            "pcre",
+            "pixman",
+            "zlib"
+          ],
+          "pcre": [],
+          "pixman": [],
+          "portaudio": [],
+          "raptor2": [],
+          "rasqal": [
+            "raptor2"
+          ],
+          "readline": [],
+          "redland": [
+            "raptor2",
+            "rasqal"
+          ],
+          "rubberband": [
+            "fftw"
+          ],
+          "serd": [],
+          "sord": [
+            "serd"
+          ],
+          "sratom": [
+            "serd",
+            "sord"
+          ],
+          "taglib": [
+            "zlib"
+          ],
+          "termcap": [],
+          "tiff": [],
+          "vamp-plugin-sdk": [],
+          "xz": [],
+          "zlib": [],
+          "jack": [],
+          "ffmpeg": [],
+          "drmingw": [],
+          "libjpeg-turbo": []
+        },
+        "unknown_edge_targets": [],
+        "evidence": "provisional; not verified binary package metadata"
+      },
+      "required_lock_fields": [
+        "name",
+        "version",
+        "source_url",
+        "sha256",
+        "acquisition_method",
+        "compiler",
+        "crt",
+        "thread_model",
+        "direct_dependencies",
+        "runtime_dlls"
+      ],
+      "completion_requires": [
+        "zero_unknown_edges",
+        "all_selected_packages_pinned_and_verified",
+        "zero_unresolved_dependencies",
+        "zero_missing_dlls",
+        "no_ucrt_imports",
+        "source_patch_provenance_verified"
+      ],
+      "complete": false
+    },
+    "proton_runtime_closure_test": {
+      "role": "test_only_runtime_provider",
+      "provider": "CinterForgeOS installed Proton (Wine Windows API implementation)",
+      "build_dependency": false,
+      "link_dependency": false,
+      "install_into_application": false,
+      "dependency_graph_root": false,
+      "include_in_binary_package_resolution": false,
+      "version_source": "query installed CinterForgeOS Proton runtime at test time; never assume a fixed version",
+      "record_results": [
+        "proton_name",
+        "proton_version",
+        "proton_build_identifier",
+        "runtime_path_or_identifier",
+        "test_timestamp",
+        "target_application_build_identifier",
+        "import_scan_report",
+        "launch_test_report"
+      ],
+      "execution_phase": [
+        "stage_inspection",
+        "test_after_CinterForgeOS_KDE_ready"
+      ],
+      "static_validation": {
+        "targets": "recursively inspect every staged PE executable and bundled DLL",
+        "imports": [
+          "normal_imports",
+          "delay_load_imports"
+        ],
+        "classify_provider": [
+          "bundled_application_dependency",
+          "windows_system_api_provided_by_proton",
+          "unresolved"
+        ],
+        "check": [
+          "DLL name and architecture",
+          "required imported symbols or ordinals against selected Proton version",
+          "recursive transitive DLL imports"
+        ],
+        "fail_on": [
+          "unresolved_DLL",
+          "unresolved_import_or_ordinal",
+          "architecture_mismatch",
+          "missing_proton_runtime"
+        ]
+      },
+      "dynamic_validation": {
+        "require_launch": true,
+        "environment": "CinterForgeOS with selected installed Proton runtime",
+        "check": [
+          "runtime-loaded DLLs not visible in static PE imports",
+          "application startup",
+          "existing application smoke tests"
+        ],
+        "fail_on": [
+          "launch_failure",
+          "missing_dynamic_dependency",
+          "smoke_test_failure"
+        ]
+      },
+      "constraints": [
+        "do not link against Proton or Wine internals",
+        "do not copy Proton DLLs into application",
+        "Windows application must remain independently runnable on native Windows",
+        "do not claim Proton closure verified until inspected and tested against installed runtime"
+      ],
+      "status": "specified_not_executed",
+      "failure_policy": "report missing DLLs/exports with provider and Proton version; fail runtime closure test without altering GCC10/MSVCRT build dependency closure"
+    },
+    "proton_runtime_completion_gate": {
+      "required_for": "CinterForgeOS runtime test completion",
+      "build_gate": false,
+      "stage_test_gate": true,
+      "condition": "all PE imports resolve via bundled DLLs or selected installed Proton runtime, and CinterForgeOS launch/smoke tests pass",
+      "status": "not_verified"
+    },
+    "upstream_build_tools": {
+      "url": "git://git.ardour.org/ardour/ardour-build-tools.git",
+      "script": "x-mingw.sh",
+      "authority": "Pinned Ardour Windows cross-dependency versions, sources, patches and build order",
+      "revision": "8e0ae1cb36f89658458e1cde86555b84e35aa2d9"
+    }
+  },
+  "branding": {
+    "repository": "CinterForgeAudio",
+    "icons": [
+      "gtk2_ardour/icons/Ardour.ico"
+    ],
+    "splashes": [
+      "gtk2_ardour/resources/Ardour-splash.png",
+      "gtk2_ardour/resources/Ardour-small-splash.png"
+    ],
+    "splash_code": {
+      "loader": [
+        "gtk2_ardour/splash.cc"
+      ],
+      "renderer": [
+        "gtk2_ardour/splash.cc"
+      ],
+      "startup": [
+        "gtk2_ardour/session_dialog.cc"
+      ],
+      "manifest": [],
+      "note": "Runtime splash; inspect small splash separately"
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "schema": "cinterforge.creative-suite.recipe.v1",
+  "identity": {
+    "application": "cf3d",
+    "platform": "linux",
+    "target_arch": "x86_64",
+    "build_host": "Linux x86-64",
+    "acquisition": "source"
+  },
+  "source": {
+    "upstream_url": "https://projects.blender.org/blender/blender.git",
+    "checkout_name": "CinterForge3D",
+    "revision": null
+  },
+  "dependency_setup": {
+    "executor": "python",
+    "script": "apps/cf3d/linux/setup.py",
+    "args": []
+  },
+  "preparation": {
+    "packages": [],
+    "package_manager": "upstream-blender-linux-x64-git-lfs",
+    "audit": [],
+    "status": "dependencies_prepared"
+  },
+  "configure": {
+    "system": "cmake",
+    "argv": [
+      "cmake",
+      "-S",
+      "/source",
+      "-B",
+      "/build",
+      "-G",
+      "Ninja",
+      "-C",
+      "/source/build_files/cmake/config/blender_release.cmake",
+      "-DLIBDIR=/deps"
+    ],
+    "observed_result": {
+      "configured": true
+    }
+  },
+  "build": {
+    "system": "cmake-ninja",
+    "argv_by_config": {
+      "Debug": [
+        "cmake",
+        "--build",
+        "Build"
+      ],
+      "Release": [
+        "cmake",
+        "--build",
+        "Build"
+      ]
+    },
+    "verified": true,
+    "last_result": {
+      "success": true,
+      "version": "2026"
+    }
+  },
+  "readiness": {
+    "ready": true,
+    "configured": true,
+    "issues": [
+      "Blender Linux AMD64 source build has not completed successfully"
+    ],
+    "setup_result": {
+      "configured": true,
+      "ready": false
+    }
+  },
+  "branding": {
+    "repository": "CinterForge3D",
+    "icons": [
+      "release/datafiles/icons_svg/blender_logo_large.svg"
+    ],
+    "splashes": [
+      "release/datafiles/splash.png"
+    ],
+    "splash_code": {
+      "loader": [
+        "source/blender/windowmanager/intern/wm_splash_screen.cc"
+      ],
+      "renderer": [
+        "source/blender/windowmanager/intern/wm_splash_screen.cc"
+      ],
+      "startup": [],
+      "manifest": [
+        "source/blender/editors/datafiles/CMakeLists.txt"
+      ],
+      "note": "Embedded Blender startup splash; call chain not fully verified"
+    }
+  }
+}

@@ -19,7 +19,7 @@ import sys
 import tempfile
 from datetime import datetime, timezone
 
-from build_linux import verify_shared_bootstrap
+from build_linux import verify_shared_bootstrap, linuxkit_bootstrap_root
 from managed_backend import ensure_backend, source_directory
 
 HERE = Path(__file__).resolve().parent
@@ -109,7 +109,7 @@ def test_linuxkit(repo: Path, *, offline: bool = False) -> None:
     if platform.system() != 'Darwin' or platform.machine() != 'arm64':
         raise RuntimeError('CFOS LinuxKit Bedrock/Rosetta Test requires Apple Silicon macOS')
     server_repo = repo.parent / 'CinterForgeServer'
-    if not (server_repo / 'cinter/build_cinterforge/craftmaster').is_dir():
+    if not (server_repo / 'cf/build_cinterforge/craftmaster').is_dir():
         raise RuntimeError(f'Missing sibling CinterForgeServer source for Bedrock Test: {server_repo}; run ./CFOS clone all')
     verify_shared_bootstrap(repo, require_launcher=True)
     root = repo.parent / 'Builds'
@@ -117,7 +117,7 @@ def test_linuxkit(repo: Path, *, offline: bool = False) -> None:
         raise RuntimeError(f'Shared Builds directory missing: {root}')
     tmp_parent = root / 'Intermediates/CFOS/LinuxKit'
     tmp_parent.mkdir(parents=True, exist_ok=True)
-    build = server_repo / 'cinter/build_cinterforge'
+    build = server_repo / 'cf/build_cinterforge'
     installer = build / 'craftmaster/build_craftmaster_server.py'
     validator = build / 'craftmaster/validate_minecraft_server.py'
     if not installer.is_file() or not validator.is_file():
@@ -130,7 +130,7 @@ def test_linuxkit(repo: Path, *, offline: bool = False) -> None:
     # Keep a durable Test receipt outside the disposable test installation.
     receipt = root / 'Logs/CFOS/linuxkit-bedrock-acceptance.json'
     receipt.parent.mkdir(parents=True, exist_ok=True)
-    bootstrap = root / 'Linux'
+    bootstrap = linuxkit_bootstrap_root(repo)
     evidence = {'schema': 'cinterforge.cfos.linuxkit-bedrock-test.v1',
                 'bootstrap_sha256': {name: _sha256(bootstrap / name) for name in
                    ('cinter-bds-kernel', 'cinter-bds-initrd.img', 'cinter-bds-cmdline', 'CinterBDSVM')},

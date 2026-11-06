@@ -1,7 +1,8 @@
 # CFOS shipping AMD64 Ubuntu userspace. One installed rootfs supports both
 # Linux headless application tests and Windows cross-build / Wine smoke tests.
-# App-specific ABI toolchains (notably Ardour GCC 10/MSVCRT) are still owned by
-# their pinned application recipes; the distro provides the common tooling.
+# App-specific ABI toolchains (notably Ardour GCC 10/MSVCRT) still require
+# their pinned recipes, but CFOS Setup must eventually bake every approved
+# dependency into the OS so application Build does not provision ad hoc.
 FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
 RUN test "$(dpkg --print-architecture)" = amd64
@@ -61,8 +62,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     x11vnc novnc websockify x11-apps \
     fonts-dejavu-core fonts-noto-core dbus-user-session tini \
     && rm -rf /var/lib/apt/lists/*
-# Each app's Setup owns its pinned dependency closure; these are shared
-# development headers and toolchains common to the Linux and Windows suites.
+# CFOS Setup owns the shared OS-level dependency closure; individual app
+# recipes declare specific ABI requirements but must not install prerequisites
+# during Build. These are common Linux/Windows headers and toolchains.
 # Install them in the SAME image that passed CFOS Linux Test, not implicitly
 # during another application's Build.
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -72,6 +74,38 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libcurl4-openssl-dev libxml2-dev \
     gcc-mingw-w64-i686-posix g++-mingw-w64-i686-posix \
     && rm -rf /var/lib/apt/lists/*
+
+# Microsoft cross-platform build tooling is part of the FROZEN Ubuntu OS,
+# not installed on demand by an application recipe. Ubuntu 24.04 provides
+# .NET 8 and .NET 10 SDKs in its native APT feed. Do not add the Microsoft
+# package feed for .NET: mixed feeds can produce inconsistent runtime packs.
+# dotnet msbuild and dotnet nuget are native Linux-supported tool entry points;
+# VS C++/cl.exe/Windows-only tasks remain target-specific and do NOT run here.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    dotnet-sdk-8.0 dotnet-sdk-10.0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# PowerShell is installed from one exact Microsoft release, with the official
+# release SHA256 verified BEFORE installing. No extra rolling APT repository
+# is enabled. Keep the version/hash as explicit change-controlled OS inputs.
+ARG CFOS_POWERSHELL_VERSION=7.6.6
+ARG CFOS_POWERSHELL_SHA256=9585f38ab5a026c3fc0995486e26e12050777960fef47a22dca98b577c5d27a7
+RUN set -eu; \
+    deb="powershell_${CFOS_POWERSHELL_VERSION}-1.deb_amd64.deb"; \
+    curl --fail --location --retry 3 --silent --show-error \
+        "https://github.com/PowerShell/PowerShell/releases/download/v${CFOS_POWERSHELL_VERSION}/${deb}" \
+        -o "/tmp/${deb}"; \
+    echo "${CFOS_POWERSHELL_SHA256}  /tmp/${deb}" | sha256sum --check --status; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends "/tmp/${deb}"; \
+    rm -f "/tmp/${deb}"; \
+    rm -rf /var/lib/apt/lists/*; \
+    pwsh -NoLogo -NoProfile -NonInteractive -Command \
+      'if ($PSVersionTable.PSVersion.ToString() -ne "7.6.6") { throw "Incorrect PowerShell version" }'; \
+    dotnet --list-sdks | grep -q '^8\.0\.'; \
+    dotnet --list-sdks | grep -q '^10\.0\.'; \
+    dotnet msbuild -version >/dev/null; \
+    dotnet nuget --help >/dev/null
 
 # Common source-build workstation for the eight maintained Creative Suite
 # forks. Keep GCC 10 BESIDE the distribution compiler: the former is needed
@@ -128,6 +162,88 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libogg-dev libvorbis-dev libflac-dev libopus-dev liblz4-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# SUPERPOWERED WORKSTATION: Initial union of the compiler, linker, cross-target
+# and interpreter families from the Creative Suite / WebApp inspection. This is
+# an intentionally broad CFOS OS-level baseline, not application-local Setup.
+# Ordinary app builds must not install generic compilers or tools into the guest.
+# Version-specific third-party library/SDK closures will be reconciled when the
+# forks are built; record exact installed distro versions in the OS receipt.
+# Keep older GCC/Clang versions alongside newer ones for upstream compatibility.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc-11 g++-11 gcc-12 g++-12 gcc-14 g++-14 \
+    clang-17 clang-19 clang-tools-19 llvm-19 llvm-19-tools llvm-19-dev \
+    lld-19 lldb-18 clangd-18 clangd-19 clang-tidy-18 clang-tidy-19 \
+    clang-format-18 clang-format-19 libclang-18-dev libclang-19-dev \
+    libomp-18-dev libc++-18-dev libc++abi-18-dev flang-18 \
+    mold binutils-gold gdb-multiarch scons bear \
+    gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu \
+    gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
+    libc6-dev-arm64-cross libstdc++-13-dev-arm64-cross \
+    gcc-mingw-w64-x86-64-win32 g++-mingw-w64-x86-64-win32 \
+    gcc-mingw-w64-i686-win32 g++-mingw-w64-i686-win32 \
+    musl-tools emscripten binaryen wabt \
+    && rm -rf /var/lib/apt/lists/*
+
+# Every supported source tree should find a useful language frontend on first
+# boot. The Node 22 and Rust 1.98 installation below supersede Ubuntu's older
+# distro versions; we deliberately keep Ubuntu-native Go/JDK/Mono and scripting
+# tools as additional independent build pipelines.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openjdk-17-jdk-headless openjdk-21-jdk-headless maven ant gradle \
+    ruby ruby-dev perl php-cli php-dev lua5.4 liblua5.4-dev \
+    luajit libluajit-5.1-dev tcl tk tcl-dev tk-dev zsh fish \
+    gawk python3.12-dev python3-virtualenv python3-pytest \
+    python3-pytest-xdist python3-pytest-cov python3-requests \
+    python3-yaml python3-jinja2 python3-lxml python3-pil \
+    cython3 pybind11-dev python3-pybind11 pipx \
+    libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1-dev \
+    libayatana-appindicator3-dev libnotify-dev libsecret-1-dev libxdo-dev \
+    qt6-websockets-dev qt6-wayland-dev qt6-shadertools-dev \
+    qt6-declarative-dev-tools qt6-base-dev-tools \
+    qtwebengine5-dev libqt5websockets5-dev \
+    ocl-icd-opencl-dev opencl-headers mesa-common-dev \
+    dpkg-dev debhelper devscripts fakeroot rpm p7zip-full cabextract icoutils \
+    && rm -rf /var/lib/apt/lists/*
+
+# Noble's distribution Gradle is 4.4.1 and cannot run on JDK 17/21.
+# Keep that legacy package, but install real, hash-verified Gradle 8 and 9
+# alongside it. The app-owned Gradle wrapper remains the first choice.
+ARG CFOS_GRADLE8_VERSION=8.14.6
+ARG CFOS_GRADLE8_SHA256=7988ed071b2a07900e2ec715fca15c6ab72bce6db433af301fa7fa7e9407bd24
+ARG CFOS_GRADLE9_VERSION=9.8.2
+ARG CFOS_GRADLE9_SHA256=21bd5da2de49b642904077f38c0efdc7778e92b3ed0889392dca61b97e389607
+RUN set -eu; \
+    mkdir -p /opt/cinterforge/Toolchains; \
+    for selected in \
+        "${CFOS_GRADLE8_VERSION}:${CFOS_GRADLE8_SHA256}" \
+        "${CFOS_GRADLE9_VERSION}:${CFOS_GRADLE9_SHA256}"; do \
+        version="${selected%%:*}"; sha="${selected#*:}"; \
+        curl --fail --location --retry 3 --silent --show-error \
+            "https://services.gradle.org/distributions/gradle-${version}-bin.zip" \
+            -o "/tmp/gradle-${version}.zip"; \
+        echo "${sha}  /tmp/gradle-${version}.zip" | sha256sum --check --status; \
+        unzip -q "/tmp/gradle-${version}.zip" -d /opt/cinterforge/Toolchains; \
+        rm "/tmp/gradle-${version}.zip"; \
+    done; \
+    ln -s "/opt/cinterforge/Toolchains/gradle-${CFOS_GRADLE8_VERSION}/bin/gradle" /usr/local/bin/gradle; \
+    ln -s "/opt/cinterforge/Toolchains/gradle-${CFOS_GRADLE9_VERSION}/bin/gradle" /usr/local/bin/gradle9; \
+    GRADLE_USER_HOME=/tmp/cfos-gradle-version-check gradle --version | grep -q 'Gradle 8.14.6'; \
+    GRADLE_USER_HOME=/tmp/cfos-gradle-version-check gradle9 --version | grep -q 'Gradle 9.8.2'; \
+    rm -rf /tmp/cfos-gradle-version-check
+
+# First aggregate pass from the real Inspector: the Ardour Linux recipe
+# declares these build dependencies in addition to the generic SDK layer.
+# Keep them in the frozen OS instead of running app-local apt provisioning.
+# Source: Inspection/Sources/cfaudio/linux/recipe.json
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential python-is-python3 libboost-dev \
+    libwebsockets-dev libcppunit-dev libgtkmm-2.4-dev \
+    vamp-plugin-sdk libreadline-dev lv2-dev libsratom-dev \
+    libboost-system-dev libboost-filesystem-dev libboost-thread-dev \
+    libboost-program-options-dev libboost-iostreams-dev \
+    intltool itstool \
+    && rm -rf /var/lib/apt/lists/*
+
 # CinterForgeSteam is moving from D3D9 to shared SDL3/OpenGL on Linux and
 # Windows. Ubuntu Noble predates SDL3, so build the SAME pinned upstream SDL3
 # release for Linux AMD64 and Windows x64. Both SDKs are part of the shipping
@@ -168,7 +284,7 @@ RUN set -eu; \
 # acquire its licensed Microsoft SDK/CRT into app-owned Builds/Dependencies.
 # Install these TOOLS in Ubuntu, but do NOT prebundle Microsoft SDK binaries,
 # MSVC, CUDA, HIP or other proprietary vendor payloads in a public rootfs.
-# App-specific Setup validates the actual SDK license and pinned revisions.
+# CFOS image acquisition/validation owns SDK licensing and pinned revisions.
 RUN set -eu; \
     for tool in clang-cl lld-link llvm-rc llvm-mt; do \
         found=''; \
@@ -186,7 +302,11 @@ ENV RUSTUP_HOME=/opt/rustup CARGO_HOME=/opt/cargo
 ENV PATH="/opt/cargo/bin:/opt/xwin/bin:${PATH}"
 RUN curl --proto '=https' --tlsv1.2 -fsSL https://sh.rustup.rs | \
     sh -s -- -y --profile default --default-toolchain 1.98.0 && \
-    rustc --version && cargo --version && \
+    rustup component add rustfmt clippy rust-analyzer && \
+    rustup target add aarch64-unknown-linux-gnu x86_64-unknown-linux-musl \
+        x86_64-pc-windows-gnu i686-pc-windows-gnu \
+        x86_64-pc-windows-msvc wasm32-unknown-unknown && \
+    rustc --version && cargo --version && rustup target list --installed && \
     CARGO_BUILD_JOBS=2 cargo install xwin --version 0.10.0 --locked \
         --root /opt/xwin --jobs 2 && \
     xwin --version
@@ -207,6 +327,75 @@ RUN set -eu; \
       ln -s "/opt/node/bin/$tool" "/usr/local/bin/$tool"; \
     done; \
     node --version; npm --version
+# Preinstall real package manager and native-module build CLIs. The first
+# application build still uses each source tree's OWN checked-in lockfile;
+# these pinned global tools ensure a missing package-manager frontend or
+# TypeScript/native-addon compiler cannot block a fresh OS installation.
+ENV PATH="/opt/node/bin:${PATH}"
+RUN set -eu; \
+    npm install --global --prefix /opt/node --no-audit --no-fund \
+        typescript@5.9.3 node-gyp@11.4.2 \
+        pnpm@10.16.1 yarn@1.22.22 esbuild@0.25.12; \
+    for tool in tsc tsserver node-gyp pnpm yarn yarnpkg esbuild; do \
+        test -x "/opt/node/bin/${tool}" || { echo "Missing node build CLI: ${tool}" >&2; exit 1; }; \
+    done; \
+    tsc --version | grep -qx 'Version 5.9.3'; \
+    pnpm --version | grep -qx '10.16.1'; \
+    yarn --version | grep -qx '1.22.22'; \
+    node-gyp --version | grep -qx 'v11.4.2'
+
+# GStreamer 1.24 requires GNU libunwind's pkg-config metadata, but the
+# LLVM C++ toolchain installs libunwind-18-dev as a virtual provider of
+# libunwind-dev WITHOUT the GNU libunwind.pc file. Installing the GNU -dev
+# package normally would conflict with the LLVM development stack. Preserve
+# both toolchains: install the GNU runtime normally and unpack its genuine,
+# APT-verified development package into a separate SDK prefix. No fake .pc
+# metadata, untracked host installation, or removal of LLVM is permitted.
+# See upstream LLVM packaging issue #84662.
+RUN set -eu; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends libunwind8; \
+    sdk=/opt/cinterforge/SDKs/GNUlibunwind; \
+    work=/tmp/cfos-gnu-libunwind; \
+    mkdir -p "$sdk" "$work" /usr/local/lib/pkgconfig; \
+    cd "$work"; \
+    apt-get download libunwind-dev libunwind8; \
+    set -- libunwind-dev_*_amd64.deb; \
+    test "$#" -eq 1 && test -f "$1"; \
+    printf 'GNU libunwind-dev SDK\t%s\n' "$(dpkg-deb -f "$1" Version)" > "$sdk/SDK-Receipt.txt"; \
+    dpkg-deb -x "$1" "$sdk"; \
+    set -- libunwind8_*_amd64.deb; \
+    test "$#" -eq 1 && test -f "$1"; \
+    dpkg-deb -x "$1" "$sdk"; \
+    for pc in "$sdk"/usr/lib/x86_64-linux-gnu/pkgconfig/libunwind*.pc; do \
+        test -f "$pc" || { echo "GNU libunwind SDK metadata missing: $pc" >&2; exit 1; }; \
+        sed "s@/usr@${sdk}/usr@g" "$pc" > "/usr/local/lib/pkgconfig/${pc##*/}"; \
+    done; \
+    test -r "$sdk/usr/include/x86_64-linux-gnu/libunwind.h"; \
+    test -e "$sdk/usr/lib/x86_64-linux-gnu/libunwind.so"; \
+    pkg-config --exists libunwind gstreamer-1.0; \
+    test "$(pkg-config --variable=libdir libunwind)" = "$sdk/usr/lib/x86_64-linux-gnu"; \
+    pkg-config --cflags --libs gstreamer-1.0 >/dev/null; \
+    rm -rf "$work" /var/lib/apt/lists/*
+
+# Capture exactly which distributions/versions went into the shipping
+# image. This is not a claim that APT feeds themselves are immutable: the
+# manifest makes each build auditable and drives later recipe-closure fixes.
+RUN set -eu; \
+    mkdir -p /opt/cinterforge/Receipts; \
+    dpkg-query -W -f='${Package}\t${Version}\n' | LC_ALL=C sort \
+        > /opt/cinterforge/Receipts/Ubuntu-Toolchain-Packages.tsv; \
+    { cat /opt/cinterforge/SDKs/GNUlibunwind/SDK-Receipt.txt; \
+      rustc --version; cargo --version; rustup target list --installed; \
+      node --version; npm --version; pnpm --version; yarn --version; \
+      tsc --version; \
+      GRADLE_USER_HOME=/tmp/cfos-gradle-receipt gradle --version | grep 'Gradle '; \
+      GRADLE_USER_HOME=/tmp/cfos-gradle-receipt gradle9 --version | grep 'Gradle '; \
+      pwsh -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'; \
+      dotnet --list-sdks; gcc --version | head -1; clang-18 --version | head -1; \
+      clang-19 --version | head -1; x86_64-w64-mingw32-gcc --version | head -1; \
+    } > /opt/cinterforge/Receipts/Ubuntu-NonAPT-Toolchains.txt; \
+    rm -rf /tmp/cfos-gradle-receipt
 
 # Desktop package post-install hooks may already create UID 1000. The
 # distribution contract requires a named non-root user, never a specific UID.
@@ -217,10 +406,16 @@ RUN useradd --create-home --shell /bin/bash cinterforge && \
     test -d /home/cinterforge && \
     mkdir -p /opt/cinterforge/Applications && \
     chown cinterforge:cinterforge /opt/cinterforge
+# Source permission bits vary between Git checkouts and macOS ZIP extraction.
+# The shell/KDE entrypoints source this file as the unprivileged guest user:
+# enforce its actual installed permissions instead of inheriting 0600 modes.
 COPY ubuntu_service.sh /usr/local/lib/cfos-ubuntu-service.sh
 COPY ubuntu_shell.sh /usr/local/bin/cfos-ubuntu-shell
 COPY ubuntu_desktop.sh /usr/local/bin/cfos-ubuntu-desktop
-RUN chmod 0755 /usr/local/bin/cfos-ubuntu-desktop /usr/local/bin/cfos-ubuntu-shell && \
+RUN chmod 0644 /usr/local/lib/cfos-ubuntu-service.sh && \
+    chmod 0755 /usr/local/bin/cfos-ubuntu-desktop /usr/local/bin/cfos-ubuntu-shell && \
+    runuser -u cinterforge -- test -r /usr/local/lib/cfos-ubuntu-service.sh && \
+    runuser -u cinterforge -- /bin/bash -n /usr/local/lib/cfos-ubuntu-service.sh && \
     test -x /usr/bin/startplasma-x11 && \
     test -f /usr/share/novnc/vnc.html && \
     command -v kwin_x11 && command -v x11vnc && command -v websockify
@@ -232,7 +427,10 @@ RUN set -eu; \
     dpkg --print-foreign-architectures | grep -qx i386; \
     for tool in gcc g++ clang cmake ninja meson pkg-config make git python3 \
                 Xvfb xvfb-run wine x86_64-w64-mingw32-gcc \
-                i686-w64-mingw32-gcc qmake6 ffmpeg; do \
+                i686-w64-mingw32-gcc qmake6 ffmpeg pwsh dotnet \
+                gcc-14 clang-19 rustfmt clippy-driver \
+                aarch64-linux-gnu-g++ arm-linux-gnueabihf-g++ \
+                mold emcc wasm-opt wat2wasm pnpm yarn tsc node-gyp; do \
         command -v "$tool" >/dev/null || { echo "Missing tool: $tool" >&2; exit 1; }; \
     done; \
     pkg-config --exists gtk+-3.0 libcurl vulkan sdl3; \

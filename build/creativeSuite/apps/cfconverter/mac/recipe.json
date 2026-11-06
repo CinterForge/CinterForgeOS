@@ -1,0 +1,290 @@
+{
+  "schema": "cinterforge.creative-suite.recipe.v1",
+  "identity": {
+    "application": "cfconverter",
+    "platform": "mac",
+    "target_arch": "arm64",
+    "build_host": "macOS",
+    "acquisition": "prebuilt",
+    "product_name": "CinterForge Converter",
+    "cli_key": "cfconverter",
+    "installation_platform_directory": "macOS"
+  },
+  "source": {
+    "checkout_name": null,
+    "revision": null
+  },
+  "preparation": {
+    "package_manager": "approved-upstream-distribution",
+    "packages": [],
+    "status": "unverified"
+  },
+  "configure": {
+    "system": "not-applicable",
+    "argv": []
+  },
+  "build": {
+    "system": "prebuilt-acquisition",
+    "verified": false,
+    "last_result": {
+      "success": false,
+      "version": "2026"
+    }
+  },
+  "readiness": {
+    "ready": false,
+    "configured": false,
+    "issues": [
+      "Build has not completed successfully since the latest build attempt",
+      "No verified macOS acquisition or installed application test recorded"
+    ]
+  },
+  "lifecycle_contract": {
+    "setup": {
+      "scope": "prepare prerequisites and validate source/toolchain; overall READY requires successful Build",
+      "must_preserve": [
+        "existing dependency installations",
+        "upstream source checkout",
+        "incremental compiler objects"
+      ]
+    },
+    "build": {
+      "scope": "produce upstream-native uncompressed output",
+      "must_not": [
+        "install persistent application",
+        "sign incomplete bundle",
+        "publish"
+      ]
+    },
+    "stage": {
+      "scope": "consume completed native output; brand; close runtime dependencies; sign final macOS bundle; install selected version",
+      "must_not": [
+        "compile sources",
+        "change version",
+        "remove other versions"
+      ]
+    },
+    "test": {
+      "scope": "exercise installed product, not build-tree binary",
+      "evidence_location": "Applications/macOS/<ProductName>/<InstalledVersion>/Tests"
+    },
+    "publish": {
+      "scope": "publish verified staged Release only"
+    },
+    "remove": {
+      "scope": "remove only selected managed installed version"
+    },
+    "build_identity": {
+      "format": "YYYY-MM-DD_HH-MM-SS",
+      "created_by": "build",
+      "preserved_by": [
+        "stage",
+        "test",
+        "publish"
+      ]
+    },
+    "product_version": {
+      "initial": "2026",
+      "advance_only_on": "build New",
+      "ordinary_debug": "reuse-current-version"
+    }
+  },
+  "mac_entrypoints": {
+    "setup": {
+      "entrypoints": {},
+      "missing_entrypoints": [
+        "sh",
+        "ps1",
+        "py"
+      ]
+    },
+    "build": {
+      "entrypoints": {
+        "sh": "apps/cfconverter/mac/build.sh"
+      },
+      "missing_entrypoints": [
+        "ps1",
+        "py"
+      ]
+    },
+    "stage": {
+      "entrypoints": {
+        "sh": "apps/cfconverter/mac/stage.sh"
+      },
+      "missing_entrypoints": [
+        "ps1",
+        "py"
+      ]
+    },
+    "test": {
+      "entrypoints": {},
+      "missing_entrypoints": [
+        "sh",
+        "ps1",
+        "py"
+      ]
+    },
+    "remove": {
+      "entrypoints": {},
+      "missing_entrypoints": [
+        "sh",
+        "ps1",
+        "py"
+      ]
+    },
+    "publish": {
+      "entrypoints": {},
+      "missing_entrypoints": [
+        "sh",
+        "ps1",
+        "py"
+      ]
+    }
+  },
+  "mac_artifact_contract": {
+    "built_root": "~/Source/Builds/CreativeSuite/Built/<app>/mac/<version>",
+    "built_payload": "Output",
+    "staged_root": "~/Source/Builds/CreativeSuite/Staged",
+    "installed_root": "steamapps/common/CinterForge/Applications/macOS/<ProductName>/<InstalledVersion>",
+    "discover_steam_install_using": "appmanifest_4032160.acf",
+    "runtime_dependencies": "complete private non-system dependency closure; do not rely on build sysroots or other Creative Suite apps",
+    "macos_signing": "Stage only after complete bundle assembly",
+    "test_target": "installed signed product"
+  },
+  "acquisition_contract": {
+    "existing_build_adapter": "env/build_prebuilt.sh",
+    "existing_stage_adapter": "env/stage_prebuilt.sh",
+    "requirements": "approved intact upstream distribution; fail if missing; no source compilation claimed"
+  },
+  "engines": {
+    "attribution": "Powered by FFmpeg, Assimp, ImageMagick+",
+    "components": [
+      "FFmpeg",
+      "Assimp",
+      "ImageMagick"
+    ],
+    "version_pins": "not declared in current mac adapter"
+  },
+  "mac_build_policy": {
+    "source_build_system": "prebuilt-acquisition",
+    "engines": [
+      "FFmpeg",
+      "Assimp",
+      "ImageMagick"
+    ],
+    "source_build_not_yet_implemented": true
+  },
+  "platform_lifecycle": {
+    "entrypoints_present": {
+      "setup": [],
+      "build": [
+        "build.sh"
+      ],
+      "stage": [
+        "stage.sh"
+      ],
+      "test": [],
+      "remove": [],
+      "publish": []
+    },
+    "setup": {
+      "responsibility": "prepare pinned build prerequisites and verify the declared toolchain without discarding completed dependency builds",
+      "build_success_required_for_overall_ready": true
+    },
+    "build": {
+      "responsibility": "produce an upstream-native uncompressed output preserving one immutable build identity",
+      "must_not": [
+        "publish",
+        "modify persistent installed application data"
+      ]
+    },
+    "stage": {
+      "responsibility": "consume completed Built output; assemble private runtime closure; apply product identity; install selected version; on macOS sign final bundle",
+      "must_not": [
+        "recompile",
+        "advance version",
+        "remove other installed versions"
+      ]
+    },
+    "test": {
+      "responsibility": "run a real installed or deployed product and store per-version functional evidence",
+      "never_accept": "syntax-only or compile-only verification"
+    },
+    "publish": {
+      "responsibility": "distribute the exact validated staged Release artifact, if a publisher is implemented",
+      "allow_configurations": [
+        "Release"
+      ]
+    },
+    "remove": {
+      "responsibility": "remove only the selected managed version and its owned integration; preserve user data and other versions"
+    },
+    "build_id": {
+      "generated_by": "build",
+      "format": "YYYY-MM-DD_HH-MM-SS",
+      "immutable_after_build": true
+    },
+    "installed_version": {
+      "initial": "2026",
+      "new": "advance development version only when Build New explicitly requested",
+      "stage_must_not_advance": true
+    }
+  },
+  "platform_artifacts": {
+    "build_root": "{source_parent}/Builds/CreativeSuite/Built/{app}/{platform}/{installed_version}",
+    "build_output": "{build_root}/Output",
+    "build_logs": "{build_root}/Logs",
+    "stage_root": "{source_parent}/Builds/CreativeSuite/Staged/{platform}/{app}/{installed_version}",
+    "installed_root": "{steam_cinterforge_library}/steamapps/common/CinterForge/Applications/{installation_platform_directory}/{product_name}/{installed_version}",
+    "require_runtime_dependency_closure": true,
+    "system_dependencies_exempt": true,
+    "share_private_app_runtime_with_other_apps": false,
+    "installation_discovery": "discover via Steam appmanifest_4032160.acf rather than fixed absolute path"
+  },
+  "platform_execution": {
+    "selector": "mac",
+    "host": "macOS ARM64",
+    "build_arch": "arm64",
+    "native_execution": "macOS native .app",
+    "source_of_truth": "local application source and its own upstream build definitions, exact pins and patches; scripts remain authoritative until new recipe fields are consumed"
+  },
+  "source_evidence": {
+    "recipe_was_present_before_pass": true,
+    "local_scripts_found": {
+      "setup": [],
+      "build": [
+        "build.sh"
+      ],
+      "stage": [
+        "stage.sh"
+      ],
+      "test": [],
+      "remove": [],
+      "publish": []
+    },
+    "build_definition_from_mac_recipe": null,
+    "upstream_pin": null,
+    "pin_verified_in_this_pass": false
+  },
+  "conversion_engines": {
+    "upstream": [
+      "FFmpeg",
+      "Assimp",
+      "ImageMagick"
+    ],
+    "attribution": "Powered by FFmpeg, Assimp, ImageMagick+",
+    "feature_policy": "retain functionality of each configured engine"
+  },
+  "validation_provenance": {
+    "recipe_json_validated_this_pass": true,
+    "native_setup_executed_this_pass": false,
+    "native_build_executed_this_pass": false,
+    "native_stage_executed_this_pass": false,
+    "installed_test_executed_this_pass": false,
+    "existing_readiness_fields_are_historical": true
+  },
+  "dependency_setup": {
+    "executor": "prebuilt",
+    "args": []
+  }
+}

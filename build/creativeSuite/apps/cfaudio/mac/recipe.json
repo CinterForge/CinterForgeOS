@@ -1,0 +1,3081 @@
+{
+  "schema": "cinterforge.creative-suite.recipe.v1",
+  "identity": {
+    "application": "cfaudio",
+    "platform": "mac",
+    "target_arch": "arm64",
+    "build_host": "macOS",
+    "acquisition": "source"
+  },
+  "source": {
+    "upstream_url": "https://github.com/Ardour/ardour",
+    "checkout_name": "CinterForgeAudio",
+    "revision": null,
+    "submodules": "upstream_pinned_gitlinks"
+  },
+  "toolchain": {
+    "components": [
+      {
+        "name": "Apple clang version",
+        "category": "compiler",
+        "observed_version": "13.0.0",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+        "evidence": "Apple clang version 13.0.0 (clang-1300.0.29.30)"
+      },
+      {
+        "name": "autoconf",
+        "category": "tool",
+        "observed_version": "2.69",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+        "evidence": "autoconf-2.69"
+      },
+      {
+        "name": "automake",
+        "category": "tool",
+        "observed_version": "1.14.1",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+        "evidence": "automake-1.14.1"
+      },
+      {
+        "name": "cmake",
+        "category": "tool",
+        "observed_version": "3.18.4",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+        "evidence": "cmake-3.18.4"
+      },
+      {
+        "name": "intltool",
+        "category": "tool",
+        "observed_version": "0.50.2",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+        "evidence": "intltool-0.50.2"
+      },
+      {
+        "name": "itstool",
+        "category": "tool",
+        "observed_version": "2.0.7",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+        "evidence": "itstool-2.0.7"
+      },
+      {
+        "name": "libtool",
+        "category": "tool",
+        "observed_version": "2.4.7",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+        "evidence": "libtool-2.4.7"
+      },
+      {
+        "name": "m4",
+        "category": "tool",
+        "observed_version": "1.4.18",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+        "evidence": "m4-1.4.18"
+      },
+      {
+        "name": "make",
+        "category": "tool",
+        "observed_version": "4.1",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+        "evidence": "make-4.1"
+      },
+      {
+        "name": "make",
+        "category": "tool",
+        "observed_version": "4.4",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+        "evidence": "make-4.4"
+      },
+      {
+        "name": "pkg-config",
+        "category": "tool",
+        "observed_version": "0.29.2",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+        "evidence": "pkg-config-0.29.2"
+      },
+      {
+        "name": "Python",
+        "category": "tool",
+        "observed_version": "2.7.18",
+        "required_version": null,
+        "version_policy": "observed_upstream_not_pinned",
+        "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+        "evidence": "Python-2.7.18"
+      }
+    ],
+    "detected": {
+      "cc": {
+        "path": "/usr/bin/cc",
+        "version": [
+          "Apple clang version 17.0.0 (clang-1700.6.3.2)"
+        ]
+      },
+      "c++": {
+        "path": "/usr/bin/c++",
+        "version": [
+          "Apple clang version 17.0.0 (clang-1700.6.3.2)"
+        ]
+      },
+      "clang": {
+        "path": "/usr/bin/clang",
+        "version": [
+          "Apple clang version 17.0.0 (clang-1700.6.3.2)"
+        ]
+      },
+      "clang++": {
+        "path": "/usr/bin/clang++",
+        "version": [
+          "Apple clang version 17.0.0 (clang-1700.6.3.2)"
+        ]
+      },
+      "gcc": {
+        "path": "/usr/bin/gcc",
+        "version": [
+          "Apple clang version 17.0.0 (clang-1700.6.3.2)"
+        ]
+      },
+      "g++": {
+        "path": "/usr/bin/g++",
+        "version": [
+          "Apple clang version 17.0.0 (clang-1700.6.3.2)"
+        ]
+      },
+      "cmake": {
+        "path": "/opt/homebrew/bin/cmake",
+        "version": [
+          "cmake version 4.3.1"
+        ]
+      },
+      "meson": {
+        "path": "/opt/homebrew/bin/meson",
+        "version": [
+          "1.12.1"
+        ]
+      },
+      "ninja": {
+        "path": "/opt/homebrew/bin/ninja",
+        "version": [
+          "1.13.2"
+        ]
+      },
+      "git": {
+        "path": "/opt/homebrew/bin/git",
+        "version": [
+          "git version 2.49.0"
+        ]
+      }
+    },
+    "cross_compiler": null
+  },
+  "dependencies": [
+    {
+      "name": "aubio",
+      "category": "dependency",
+      "observed_version": "0.3.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "aubio-0.3.2"
+    },
+    {
+      "name": "boost",
+      "category": "dependency",
+      "observed_version": "1.68.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "boost_1_68_0"
+    },
+    {
+      "name": "cairo",
+      "category": "dependency",
+      "observed_version": "1.16.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "cairo-1.16.0"
+    },
+    {
+      "name": "cairomm",
+      "category": "dependency",
+      "observed_version": "1.12.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "cairomm-1.12.2"
+    },
+    {
+      "name": "curl",
+      "category": "dependency",
+      "observed_version": "7.66.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "curl-7.66.0"
+    },
+    {
+      "name": "expat",
+      "category": "dependency",
+      "observed_version": "2.8.4",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "expat-2.8.4"
+    },
+    {
+      "name": "fftw",
+      "category": "dependency",
+      "observed_version": "3.3.8",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "fftw-3.3.8"
+    },
+    {
+      "name": "flac",
+      "category": "dependency",
+      "observed_version": "1.3.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "flac-1.3.2"
+    },
+    {
+      "name": "fontconfig",
+      "category": "dependency",
+      "observed_version": "2.13.1",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "fontconfig-2.13.1"
+    },
+    {
+      "name": "freetype",
+      "category": "dependency",
+      "observed_version": "2.13.3",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "freetype-2.13.3"
+    },
+    {
+      "name": "fribidi",
+      "category": "dependency",
+      "observed_version": "1.0.9",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "fribidi-1.0.9"
+    },
+    {
+      "name": "gettext",
+      "category": "dependency",
+      "observed_version": "0.21",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "gettext-0.21"
+    },
+    {
+      "name": "glib",
+      "category": "dependency",
+      "observed_version": "2.56.4",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "glib-2.56.4"
+    },
+    {
+      "name": "glibmm",
+      "category": "dependency",
+      "observed_version": "2.56.1",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "glibmm-2.56.1"
+    },
+    {
+      "name": "gnome-common",
+      "category": "dependency",
+      "observed_version": "2.34.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "gnome-common-2.34.0"
+    },
+    {
+      "name": "gnome-doc-utils",
+      "category": "dependency",
+      "observed_version": "0.20.10",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "gnome-doc-utils-0.20.10"
+    },
+    {
+      "name": "gtk-doc",
+      "category": "dependency",
+      "observed_version": "1.21",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "gtk-doc-1.21"
+    },
+    {
+      "name": "gtk-osx-docbook",
+      "category": "dependency",
+      "observed_version": "1.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "gtk-osx-docbook-1.0"
+    },
+    {
+      "name": "harfbuzz",
+      "category": "dependency",
+      "observed_version": "2.6.7",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "harfbuzz-2.6.7"
+    },
+    {
+      "name": "libarchive",
+      "category": "dependency",
+      "observed_version": "3.6.1",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "libarchive-3.6.1"
+    },
+    {
+      "name": "libffi",
+      "category": "dependency",
+      "observed_version": "3.4.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "libffi-3.4.2"
+    },
+    {
+      "name": "libffi",
+      "category": "dependency",
+      "observed_version": "3.5.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "libffi-3.5.2"
+    },
+    {
+      "name": "libiconv",
+      "category": "dependency",
+      "observed_version": "1.16",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "libiconv-1.16"
+    },
+    {
+      "name": "liblo",
+      "category": "dependency",
+      "observed_version": "0.28",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "liblo-0.28"
+    },
+    {
+      "name": "libogg",
+      "category": "dependency",
+      "observed_version": "1.3.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "libogg-1.3.2"
+    },
+    {
+      "name": "libpng",
+      "category": "dependency",
+      "observed_version": "1.6.50",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "libpng-1.6.50"
+    },
+    {
+      "name": "libsamplerate",
+      "category": "dependency",
+      "observed_version": "0.1.9",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "libsamplerate-0.1.9"
+    },
+    {
+      "name": "libsigc++",
+      "category": "dependency",
+      "observed_version": "2.10.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "libsigc++-2.10.2"
+    },
+    {
+      "name": "libsndfile",
+      "category": "dependency",
+      "observed_version": "1.1.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "libsndfile-1.1.0"
+    },
+    {
+      "name": "libusb",
+      "category": "dependency",
+      "observed_version": "1.0.30",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "libusb-1.0.30"
+    },
+    {
+      "name": "libvorbis",
+      "category": "dependency",
+      "observed_version": "1.3.4",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "libvorbis-1.3.4"
+    },
+    {
+      "name": "libwebsockets",
+      "category": "dependency",
+      "observed_version": "4.3.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "libwebsockets-4.3.0-13"
+    },
+    {
+      "name": "libxml2",
+      "category": "dependency",
+      "observed_version": "2.9.14",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "libxml2-2.9.14"
+    },
+    {
+      "name": "libxslt",
+      "category": "dependency",
+      "observed_version": "1.1.43",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "libxslt-1.1.43"
+    },
+    {
+      "name": "lilv",
+      "category": "dependency",
+      "observed_version": "0.24.13",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "lilv-0.24.13"
+    },
+    {
+      "name": "LRDF",
+      "category": "dependency",
+      "observed_version": "0.5.3",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "LRDF-0.5.3-rg"
+    },
+    {
+      "name": "lv2",
+      "category": "dependency",
+      "observed_version": "1.18.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "lv2-1.18.2"
+    },
+    {
+      "name": "opus",
+      "category": "dependency",
+      "observed_version": "1.3.1",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "opus-1.3.1"
+    },
+    {
+      "name": "pango",
+      "category": "dependency",
+      "observed_version": "1.42.4",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "pango-1.42.4"
+    },
+    {
+      "name": "pangomm",
+      "category": "dependency",
+      "observed_version": "2.42.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "pangomm-2.42.0"
+    },
+    {
+      "name": "pixman",
+      "category": "dependency",
+      "observed_version": "0.42.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "pixman-0.42.2"
+    },
+    {
+      "name": "raptor2",
+      "category": "dependency",
+      "observed_version": "2.0.14",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "raptor2-2.0.14"
+    },
+    {
+      "name": "readline",
+      "category": "dependency",
+      "observed_version": "8.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "readline-8.2"
+    },
+    {
+      "name": "rubberband",
+      "category": "dependency",
+      "observed_version": "3.3.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "rubberband-3.3.0"
+    },
+    {
+      "name": "serd",
+      "category": "dependency",
+      "observed_version": "0.30.11",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "serd-0.30.11"
+    },
+    {
+      "name": "sord",
+      "category": "dependency",
+      "observed_version": "0.16.9",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "sord-0.16.9"
+    },
+    {
+      "name": "sratom",
+      "category": "dependency",
+      "observed_version": "0.6.8",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "sratom-0.6.8"
+    },
+    {
+      "name": "taglib",
+      "category": "dependency",
+      "observed_version": "1.9.1",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "taglib-1.9.1"
+    },
+    {
+      "name": "termcap",
+      "category": "dependency",
+      "observed_version": "1.3.1",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "termcap-1.3.1"
+    },
+    {
+      "name": "tiff",
+      "category": "dependency",
+      "observed_version": "4.0.10",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "tiff-4.0.10"
+    },
+    {
+      "name": "uuid",
+      "category": "dependency",
+      "observed_version": "1.6.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "uuid-1.6.2"
+    },
+    {
+      "name": "vamp-plugin-sdk",
+      "category": "dependency",
+      "observed_version": "2.9.0",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "vamp-plugin-sdk-2.9.0"
+    },
+    {
+      "name": "xz",
+      "category": "dependency",
+      "observed_version": "5.2.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "xz-5.2.2"
+    },
+    {
+      "name": "zlib",
+      "category": "dependency",
+      "observed_version": "1.3.2",
+      "required_version": null,
+      "version_policy": "observed_upstream_not_pinned",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "evidence": "zlib-1.3.2"
+    }
+  ],
+  "constraints": [
+    {
+      "name": "library",
+      "operator": ">=",
+      "version": "1.68",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/build_log.txt",
+      "evidence": "Checking for boost library >= 1.68                   : yes"
+    },
+    {
+      "name": "mmacosx-version-min",
+      "operator": "=",
+      "version": "11.0",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/build_log.txt",
+      "evidence": "* Linker flags                                      : ['-L/Users/ardour/gtk/inst/lib', '-Xlinker', '-headerpad_max_install_names', '-mmacosx-version-min=11.0', '-arch', 'arm64']"
+    },
+    {
+      "name": "rubberband",
+      "operator": ">=",
+      "version": "3.0.0",
+      "source": "https://nightly.ardour.org/i/A_MAC_arm64/build_log.txt",
+      "evidence": "Checking for rubberband >= 3.0.0                     : yes"
+    }
+  ],
+  "source_requirements": [
+    {
+      "kind": "program",
+      "name": "llvm-nm",
+      "minimum_version": null,
+      "optional": null,
+      "platform_condition": "not_statically_resolved",
+      "path": "wscript",
+      "line": 978,
+      "evidence": "conf.find_program('llvm-nm', var = 'llvm_nm')",
+      "method": "find_program",
+      "provider": null,
+      "provider_status": "unresolved"
+    },
+    {
+      "kind": "header",
+      "name": "winsock2.h",
+      "minimum_version": null,
+      "optional": null,
+      "platform_condition": "not_statically_resolved",
+      "path": "wscript",
+      "line": 1242,
+      "evidence": "conf.check_cc(function_name='htonl', header_name='winsock2.h', lib='ws2_32')",
+      "method": "check_cc",
+      "provider": null,
+      "provider_status": "unresolved"
+    },
+    {
+      "kind": "header",
+      "name": "exchndl.h",
+      "minimum_version": null,
+      "optional": false,
+      "platform_condition": "not_statically_resolved",
+      "path": "wscript",
+      "line": 1351,
+      "evidence": "conf.check_cc (function_name='ExcHndlInit', define_name='HAVE_DRMINGW', header_name='exchndl.h', lib=['exchndl', 'mgwhelp'], mandatory=True, uselib_store='DRMINGW')",
+      "method": "check_cc",
+      "provider": null,
+      "provider_status": "unresolved"
+    },
+    {
+      "kind": "program",
+      "name": "lld",
+      "minimum_version": null,
+      "optional": null,
+      "platform_condition": "not_statically_resolved",
+      "path": "wscript",
+      "line": 1459,
+      "evidence": "conf.find_program ('lld')",
+      "method": "find_program",
+      "provider": null,
+      "provider_status": "unresolved"
+    },
+    {
+      "kind": "program",
+      "name": "lld-link",
+      "minimum_version": null,
+      "optional": null,
+      "platform_condition": "not_statically_resolved",
+      "path": "wscript",
+      "line": 1462,
+      "evidence": "conf.find_program('lld-link', var='LINK')",
+      "method": "find_program",
+      "provider": null,
+      "provider_status": "unresolved"
+    }
+  ],
+  "configure_checks": [
+    {
+      "check": "'gcc' (C compiler)",
+      "result": "not found",
+      "passed": false,
+      "provider": null,
+      "provider_status": "unresolved"
+    },
+    {
+      "check": "'g++' (C++ compiler)",
+      "result": "not found",
+      "passed": false,
+      "provider": null,
+      "provider_status": "unresolved"
+    },
+    {
+      "check": "function 'dlopen' in dlfcn.h",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "boost library >= 1.68",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'glib-2.0' >= 2.28",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'gthread-2.0' >= 2.2",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'glibmm-2.4' >= 2.32.0",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'sndfile' >= 1.0.18",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'giomm-2.4' >= 2.2",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'libcurl' >= 7.55.0",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'libarchive' >= 3.0.0",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'liblo' >= 0.26",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'taglib' >= 1.9",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'vamp-sdk' >= 2.1",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'vamp-hostsdk' >= 2.1",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'rubberband'",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'libusb-1.0' >= 1.0.16",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "rubberband >= 3.0.0",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "sndfile RF64=>RIFF support",
+      "result": "Found",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'jack' >= 1.9.10",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "clang",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "clang >= 15",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "compiler flags ['-std=c++17']",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'fftw3f'",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'aubio' >= 0.3.2",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'aubio' >= 0.4.0",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'gobject-2.0'",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'gio-2.0' >= 2.2",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'libpng'",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "header unistd.h",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "header jpeglib.h",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'pango' >= 1.20",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'cairo' >= 1.12",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'pangocairo'",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "header unistd.h",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'gmodule-2.0'",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "header unistd.h",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'sigc++-2.0' >= 2.0",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'cairomm-1.0' >= 1.8.4",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'pangomm-1.4' >= 1.4",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'lv2' >= 1.16.0",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'libxml-2.0'",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "header execinfo.h",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "header unistd.h",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "function 'posix_memalign' in stdlib.h",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "function 'getmntent' in mntent.h",
+      "result": "no",
+      "passed": false,
+      "provider": null,
+      "provider_status": "unresolved"
+    },
+    {
+      "check": "function 'localtime_r' in time.h",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'cppunit' >= 1.12.0",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "header cwiid.h",
+      "result": "not found",
+      "passed": false,
+      "provider": null,
+      "provider_status": "unresolved"
+    },
+    {
+      "check": "'libwebsockets' >= 2.0.0",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'jack' >= 1.9.10",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'lrdf' >= 0.4.0",
+      "result": "not found",
+      "passed": false,
+      "provider": null,
+      "provider_status": "unresolved"
+    },
+    {
+      "check": "'samplerate' >= 0.1.0",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'lv2' >= 1.2.0",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'lv2' >= 1.10.0",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'lv2' >= 1.17.2",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'lv2' >= 1.18.6",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'serd-0' >= 0.14.0",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'sord-0' >= 0.8.0",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'sratom-0' >= 0.2.0",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'lilv-0' >= 0.24.2",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'ogg' >= 1.1.2",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'flac' >= 1.2.1",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'fftw3f' >= 3.3.5",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "header sys/vfs.h",
+      "result": "not found",
+      "passed": false,
+      "provider": null,
+      "provider_status": "unresolved"
+    },
+    {
+      "check": "header sys/statvfs.h",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'samplerate' >= 0.1.7",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'sigc++-2.0' >= 2.12.1",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'lv2' >= 1.0.0",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'cairo' >= 1.12.0",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'gthread-2.0' >= 2.10.1",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'x11' >= 1.1",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'pangoft2' >= 1.36.8",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "'fontconfig'",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "header unistd.h",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "Cocoa live resizing constants",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    },
+    {
+      "check": "static libreadline",
+      "result": "not found",
+      "passed": false,
+      "provider": null,
+      "provider_status": "unresolved"
+    },
+    {
+      "check": "libreadline",
+      "result": "yes",
+      "passed": true,
+      "provider": null,
+      "provider_status": "not_needed"
+    }
+  ],
+  "patches": [
+    {
+      "component": "bison",
+      "action": "sed -i.bak 's%defined _IO_ftrylockfile%defined _IO_ftrylockfile || defined _IO_EOF_SEEN%' lib/fseterr.c",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "freetype",
+      "action": "sed -i.bak '/#define TT_CONFIG_OPTION_BYTECODE_INTERPRETER/d' include/freetype/config/ftoption.h",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "freetype",
+      "action": "sed -i.bak '/#define TT_CONFIG_OPTION_BYTECODE_INTERPRETER/d' ./devel/ftoption.h",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "cairo",
+      "action": "sed -i.bak 's/ test perf//' Makefile.in",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "boost",
+      "action": "sed -i.bak 's/4\\.0\\.0/0.0.0/' tools/build/src/tools/darwin.jam",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "boost",
+      "action": "sed -i.bak 's/arch arm/arch arm64/' tools/build/src/tools/darwin.jam",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "nss",
+      "action": "sed -i.bak \"s%DSO_LDOPTS\\t\\t= %DSO_LDOPTS\\t\\t= -L$PREFIX/lib/ %\" coreconf/Linux.mk",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "glibmm",
+      "action": "sed -i.bak 's%return gobject_;%return \\&gobject_;%' glib/glibmm/threads.h",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "liblo",
+      "action": "sed -i.bak 's/ -stdlib=libc++//g' configure",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "liblo",
+      "action": "sed -i.bak 's/define LO_MARKER\\(.*\\)$/define LO_MARKER\\1LU/g' lo/lo_macros.h",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "libvorbis",
+      "action": "sed -i.bak 's/-force_cpusubtype_ALL//g' configure",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "libsndfile",
+      "action": "sed -i.bak 's/ -Wvla//' configure",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "libsndfile",
+      "action": "sed -i.bak 's/ -lsndfile/ -lsndfile -lvorbis -lvorbisenc -lFLAC -logg -lopus/' $PREFIX/lib/pkgconfig/sndfile.pc",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "libsamplerate",
+      "action": "sed -i.bak 's/ examples tests//' Makefile.in",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "libsndfile",
+      "action": "sed -i.bak 's/ -Wvla//' configure",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "libsamplerate",
+      "action": "sed -i.bak 's/ examples tests//' Makefile.in",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "aubio",
+      "action": "sed -i.bak '/no-long-double/d' configure",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "LRDF",
+      "action": "sed -i.bak 's/glibtoolize/libtoolize/g' autogen.sh",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "taglib",
+      "action": "sed -i.bak 's/\\~ListPrivate/virtual ~ListPrivate/' taglib/toolkit/tlist.tcc",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "taglib",
+      "action": "find . -type f -exec sed -i.bak 's/StringPrivate/MyPrivateString/g' {} \\;",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "m4",
+      "action": "patch -p1 < $this_script_dir/misc-patches/m4-glibc.patch",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "pixman",
+      "action": "patch -p1 < $this_script_dir/misc-patches/pixman-42.2-arm64-clang.diff",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "cairo",
+      "action": "patch -p0 < $this_script_dir/misc-patches/cairo-gradients.patch",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    },
+    {
+      "component": "cairo",
+      "action": "patch -p1 < $this_script_dir/misc-patches/cairo-quartz-surface-ref.patch",
+      "source": "https://ardour.org/files/patch-info.html",
+      "execution": "evidence_only_not_authorized"
+    }
+  ],
+  "preparation": {
+    "packages": [
+      "boost",
+      "libarchive",
+      "jpeg-turbo",
+      "jack",
+      "cppunit",
+      "libwebsockets",
+      "lrdf"
+    ],
+    "package_manager": "brew",
+    "audit": [
+      {
+        "name": "boost",
+        "manager": "brew",
+        "status": "already_installed",
+        "before": "boost 1.92.0",
+        "prefix": "/opt/homebrew/opt/boost"
+      },
+      {
+        "name": "libarchive",
+        "manager": "brew",
+        "status": "already_installed",
+        "before": "libarchive 3.7.7",
+        "prefix": "/opt/homebrew/opt/libarchive"
+      },
+      {
+        "name": "jpeg-turbo",
+        "manager": "brew",
+        "status": "already_installed",
+        "before": "jpeg-turbo 3.2.0",
+        "prefix": "/opt/homebrew/opt/jpeg-turbo",
+        "header": "/opt/homebrew/opt/jpeg-turbo/include/jpeglib.h"
+      },
+      {
+        "name": "jack",
+        "manager": "brew",
+        "status": "installed",
+        "before": "",
+        "exit_code": 0,
+        "prefix": "/opt/homebrew/opt/jack"
+      },
+      {
+        "name": "cppunit",
+        "manager": "brew",
+        "status": "installed",
+        "before": "",
+        "exit_code": 0,
+        "prefix": "/opt/homebrew/opt/cppunit"
+      },
+      {
+        "name": "libwebsockets",
+        "manager": "brew",
+        "status": "installed",
+        "before": "",
+        "exit_code": 0,
+        "prefix": "/opt/homebrew/opt/libwebsockets"
+      }
+    ],
+    "status": "configured"
+  },
+  "configure": {
+    "system": "waf",
+    "argv": [
+      "./waf",
+      "configure",
+      "--arm64",
+      "--strict",
+      "--ptformat",
+      "--libjack=weak",
+      "--optimize"
+    ],
+    "observed_result": {
+      "argv": [
+        "./waf",
+        "configure",
+        "--arm64",
+        "--strict",
+        "--ptformat",
+        "--libjack=weak",
+        "--optimize"
+      ],
+      "exit_code": 0
+    }
+  },
+  "build": {
+    "system": "waf",
+    "argv_by_config": {
+      "Debug": [
+        "./waf",
+        "build"
+      ],
+      "Release": [
+        "./waf",
+        "build"
+      ]
+    },
+    "verified": true,
+    "last_result": {
+      "success": true,
+      "version": "2026"
+    }
+  },
+  "environment": {
+    "variables": {
+      "BOOST_ROOT": "/opt/homebrew/opt/boost",
+      "PKG_CONFIG_PATH": "/opt/homebrew/opt/libarchive/lib/pkgconfig:/opt/homebrew/opt/jpeg-turbo/lib/pkgconfig:/opt/homebrew/opt/jack/lib/pkgconfig:/opt/homebrew/opt/cppunit/lib/pkgconfig:/opt/homebrew/opt/libwebsockets/lib/pkgconfig",
+      "CPPFLAGS": "-I/opt/homebrew/opt/boost/include -I/opt/homebrew/opt/libarchive/include -I/opt/homebrew/opt/jpeg-turbo/include -I/opt/homebrew/opt/jack/include -I/opt/homebrew/opt/cppunit/include -I/opt/homebrew/opt/libwebsockets/include",
+      "CXXFLAGS": "-I/opt/homebrew/opt/boost/include -I/opt/homebrew/opt/libarchive/include -I/opt/homebrew/opt/jpeg-turbo/include -I/opt/homebrew/opt/jack/include -I/opt/homebrew/opt/cppunit/include -I/opt/homebrew/opt/libwebsockets/include",
+      "LDFLAGS": "-L/opt/homebrew/opt/boost/lib -L/opt/homebrew/opt/libarchive/lib -L/opt/homebrew/opt/jpeg-turbo/lib -L/opt/homebrew/opt/jack/lib -L/opt/homebrew/opt/cppunit/lib -L/opt/homebrew/opt/libwebsockets/lib"
+    },
+    "prefix": null,
+    "sdk": null
+  },
+  "outputs": {
+    "build_destination": "Builds/CreativeSuite/Built/ardour/mac",
+    "install_destination": "Applications/macOS/Ardour"
+  },
+  "evidence": {
+    "status": "partial_evidence",
+    "urls": [
+      "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+      "https://nightly.ardour.org/i/A_MAC_arm64/build_log.txt",
+      "https://ardour.org/files/patch-info.html"
+    ],
+    "inspection": [
+      {
+        "url": "https://nightly.ardour.org/i/A_MAC_arm64/info.txt",
+        "chars": 1760,
+        "first_lines": [
+          "Ardour - Log file: info.txt",
+          "Nightlies",
+          "Download",
+          "Bug Tracker"
+        ]
+      },
+      {
+        "url": "https://nightly.ardour.org/i/A_MAC_arm64/build_log.txt",
+        "chars": 783509,
+        "first_lines": [
+          "Ardour - Log file: build_log.txt",
+          "Nightlies",
+          "Download",
+          "Bug Tracker"
+        ]
+      },
+      {
+        "url": "https://ardour.org/files/patch-info.html",
+        "chars": 2363,
+        "first_lines": [
+          "Changes Made to The Dependency Stack For Ardour",
+          "Generated Mon 16 Feb 2026 08:32:37 PM EST",
+          "Automatically generated from build-stack",
+          "The information below is generated from the build scripts we use to build all of the dependencies that Ardour requires."
+        ]
+      }
+    ]
+  },
+  "readiness": {
+    "ready": true,
+    "configured": true,
+    "issues": [
+      "Source/static evidence is not a verified complete dependency manifest; validate by native configure."
+    ],
+    "setup_result": {
+      "application": "cfaudio",
+      "target": "mac",
+      "host": "Darwin",
+      "host_arch": "arm64",
+      "evidence_status": "partial_evidence",
+      "packages": [
+        {
+          "name": "boost",
+          "manager": "brew",
+          "status": "already_installed",
+          "before": "boost 1.92.0",
+          "prefix": "/opt/homebrew/opt/boost"
+        },
+        {
+          "name": "libarchive",
+          "manager": "brew",
+          "status": "already_installed",
+          "before": "libarchive 3.7.7",
+          "prefix": "/opt/homebrew/opt/libarchive"
+        },
+        {
+          "name": "jpeg-turbo",
+          "manager": "brew",
+          "status": "already_installed",
+          "before": "jpeg-turbo 3.2.0",
+          "prefix": "/opt/homebrew/opt/jpeg-turbo",
+          "header": "/opt/homebrew/opt/jpeg-turbo/include/jpeglib.h"
+        },
+        {
+          "name": "jack",
+          "manager": "brew",
+          "status": "installed",
+          "before": "",
+          "exit_code": 0,
+          "prefix": "/opt/homebrew/opt/jack"
+        },
+        {
+          "name": "cppunit",
+          "manager": "brew",
+          "status": "installed",
+          "before": "",
+          "exit_code": 0,
+          "prefix": "/opt/homebrew/opt/cppunit"
+        },
+        {
+          "name": "libwebsockets",
+          "manager": "brew",
+          "status": "installed",
+          "before": "",
+          "exit_code": 0,
+          "prefix": "/opt/homebrew/opt/libwebsockets"
+        }
+      ],
+      "configure": {
+        "argv": [
+          "./waf",
+          "configure",
+          "--arm64",
+          "--strict",
+          "--ptformat",
+          "--libjack=weak",
+          "--optimize"
+        ],
+        "exit_code": 0
+      },
+      "configure_checks": [
+        {
+          "check": "'gcc' (C compiler)",
+          "result": "not found",
+          "passed": false,
+          "provider": null,
+          "provider_status": "unresolved"
+        },
+        {
+          "check": "'g++' (C++ compiler)",
+          "result": "not found",
+          "passed": false,
+          "provider": null,
+          "provider_status": "unresolved"
+        },
+        {
+          "check": "function 'dlopen' in dlfcn.h",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "boost library >= 1.68",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'glib-2.0' >= 2.28",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'gthread-2.0' >= 2.2",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'glibmm-2.4' >= 2.32.0",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'sndfile' >= 1.0.18",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'giomm-2.4' >= 2.2",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'libcurl' >= 7.55.0",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'libarchive' >= 3.0.0",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'liblo' >= 0.26",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'taglib' >= 1.9",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'vamp-sdk' >= 2.1",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'vamp-hostsdk' >= 2.1",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'rubberband'",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'libusb-1.0' >= 1.0.16",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "rubberband >= 3.0.0",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "sndfile RF64=>RIFF support",
+          "result": "Found",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'jack' >= 1.9.10",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "clang",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "clang >= 15",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "compiler flags ['-std=c++17']",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'fftw3f'",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'aubio' >= 0.3.2",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'aubio' >= 0.4.0",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'gobject-2.0'",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'gio-2.0' >= 2.2",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'libpng'",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "header unistd.h",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "header jpeglib.h",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'pango' >= 1.20",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'cairo' >= 1.12",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'pangocairo'",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "header unistd.h",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'gmodule-2.0'",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "header unistd.h",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'sigc++-2.0' >= 2.0",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'cairomm-1.0' >= 1.8.4",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'pangomm-1.4' >= 1.4",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'lv2' >= 1.16.0",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'libxml-2.0'",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "header execinfo.h",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "header unistd.h",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "function 'posix_memalign' in stdlib.h",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "function 'getmntent' in mntent.h",
+          "result": "no",
+          "passed": false,
+          "provider": null,
+          "provider_status": "unresolved"
+        },
+        {
+          "check": "function 'localtime_r' in time.h",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'cppunit' >= 1.12.0",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "header cwiid.h",
+          "result": "not found",
+          "passed": false,
+          "provider": null,
+          "provider_status": "unresolved"
+        },
+        {
+          "check": "'libwebsockets' >= 2.0.0",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'jack' >= 1.9.10",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'lrdf' >= 0.4.0",
+          "result": "not found",
+          "passed": false,
+          "provider": null,
+          "provider_status": "unresolved"
+        },
+        {
+          "check": "'samplerate' >= 0.1.0",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'lv2' >= 1.2.0",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'lv2' >= 1.10.0",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'lv2' >= 1.17.2",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'lv2' >= 1.18.6",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'serd-0' >= 0.14.0",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'sord-0' >= 0.8.0",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'sratom-0' >= 0.2.0",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'lilv-0' >= 0.24.2",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'ogg' >= 1.1.2",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'flac' >= 1.2.1",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'fftw3f' >= 3.3.5",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "header sys/vfs.h",
+          "result": "not found",
+          "passed": false,
+          "provider": null,
+          "provider_status": "unresolved"
+        },
+        {
+          "check": "header sys/statvfs.h",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'samplerate' >= 0.1.7",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'sigc++-2.0' >= 2.12.1",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'lv2' >= 1.0.0",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'cairo' >= 1.12.0",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'gthread-2.0' >= 2.10.1",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'x11' >= 1.1",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'pangoft2' >= 1.36.8",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "'fontconfig'",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "header unistd.h",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "Cocoa live resizing constants",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        },
+        {
+          "check": "static libreadline",
+          "result": "not found",
+          "passed": false,
+          "provider": null,
+          "provider_status": "unresolved"
+        },
+        {
+          "check": "libreadline",
+          "result": "yes",
+          "passed": true,
+          "provider": null,
+          "provider_status": "not_needed"
+        }
+      ],
+      "environment": {
+        "BOOST_ROOT": "/opt/homebrew/opt/boost",
+        "PKG_CONFIG_PATH": "/opt/homebrew/opt/libarchive/lib/pkgconfig:/opt/homebrew/opt/jpeg-turbo/lib/pkgconfig:/opt/homebrew/opt/jack/lib/pkgconfig:/opt/homebrew/opt/cppunit/lib/pkgconfig:/opt/homebrew/opt/libwebsockets/lib/pkgconfig",
+        "CPPFLAGS": "-I/opt/homebrew/opt/boost/include -I/opt/homebrew/opt/libarchive/include -I/opt/homebrew/opt/jpeg-turbo/include -I/opt/homebrew/opt/jack/include -I/opt/homebrew/opt/cppunit/include -I/opt/homebrew/opt/libwebsockets/include",
+        "CXXFLAGS": "-I/opt/homebrew/opt/boost/include -I/opt/homebrew/opt/libarchive/include -I/opt/homebrew/opt/jpeg-turbo/include -I/opt/homebrew/opt/jack/include -I/opt/homebrew/opt/cppunit/include -I/opt/homebrew/opt/libwebsockets/include",
+        "LDFLAGS": "-L/opt/homebrew/opt/boost/lib -L/opt/homebrew/opt/libarchive/lib -L/opt/homebrew/opt/jpeg-turbo/lib -L/opt/homebrew/opt/jack/lib -L/opt/homebrew/opt/cppunit/lib -L/opt/homebrew/opt/libwebsockets/lib"
+      },
+      "errors": [],
+      "ready": false,
+      "configured": true,
+      "build_succeeded": false,
+      "libarchive_pkgconfig_version": "3.7.7"
+    }
+  },
+  "source_dependencies": {
+    "schema": "cinterforge.source-dependencies.v1",
+    "required_pkgconfig": [
+      "glib-2.0",
+      "gobject-2.0",
+      "glibmm-2.4",
+      "libarchive",
+      "liblo",
+      "taglib",
+      "sndfile",
+      "samplerate",
+      "fftw3f",
+      "aubio",
+      "rubberband",
+      "libpng",
+      "vamp-sdk",
+      "vamp-hostsdk",
+      "zlib",
+      "pango",
+      "pangocairo",
+      "pangoft2",
+      "cairomm-1.0",
+      "pangomm-1.4",
+      "lv2",
+      "libxml-2.0"
+    ],
+    "recipes": [
+      {
+        "name": "zlib",
+        "upstream_url": "https://github.com/madler/zlib.git",
+        "tag": "v1.3.2",
+        "build_system": "cmake",
+        "configure_args": [],
+        "pkgconfig_modules": [
+          "zlib"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": []
+      },
+      {
+        "name": "libffi",
+        "upstream_url": "https://github.com/libffi/libffi.git",
+        "tag": "v3.5.2",
+        "build_system": "autotools",
+        "configure_args": [],
+        "pkgconfig_modules": [
+          "libffi"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": []
+      },
+      {
+        "name": "libsigc++",
+        "upstream_url": "https://github.com/libsigcplusplus/libsigcplusplus.git",
+        "tag": "2.10.2",
+        "build_system": "autotools",
+        "configure_args": [
+          "--disable-documentation"
+        ],
+        "pkgconfig_modules": [
+          "sigc++-2.0"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": []
+      },
+      {
+        "name": "glib",
+        "upstream_url": "https://github.com/GNOME/glib.git",
+        "tag": "2.56.4",
+        "build_system": "meson",
+        "configure_args": [
+          "-Ddefault_library=shared",
+          "-Diconv=gnu",
+          "-Dc_link_args=-lintl"
+        ],
+        "pkgconfig_modules": [
+          "glib-2.0",
+          "gobject-2.0"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": [
+          "libffi"
+        ]
+      },
+      {
+        "name": "glibmm",
+        "upstream_url": "https://github.com/GNOME/glibmm.git",
+        "tag": "2.56.1",
+        "build_system": "autotools",
+        "configure_args": [
+          "--enable-maintainer-mode"
+        ],
+        "pkgconfig_modules": [
+          "glibmm-2.4"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": [
+          "glib",
+          "libsigc++"
+        ]
+      },
+      {
+        "name": "libarchive",
+        "upstream_url": "https://github.com/libarchive/libarchive.git",
+        "tag": "v3.7.7",
+        "build_system": "cmake",
+        "configure_args": [
+          "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+        ],
+        "pkgconfig_modules": [
+          "libarchive"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": []
+      },
+      {
+        "name": "liblo",
+        "upstream_url": "https://github.com/radarsat1/liblo.git",
+        "tag": "0.32",
+        "build_system": "autotools",
+        "configure_args": [],
+        "pkgconfig_modules": [
+          "liblo"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": []
+      },
+      {
+        "name": "taglib",
+        "upstream_url": "https://github.com/taglib/taglib.git",
+        "tag": "v1.13.1",
+        "build_system": "cmake",
+        "configure_args": [
+          "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+        ],
+        "pkgconfig_modules": [
+          "taglib"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": []
+      },
+      {
+        "name": "libogg",
+        "upstream_url": "https://github.com/xiph/ogg.git",
+        "tag": "v1.3.6",
+        "build_system": "cmake",
+        "configure_args": [
+          "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+        ],
+        "pkgconfig_modules": [
+          "ogg"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": []
+      },
+      {
+        "name": "libvorbis",
+        "upstream_url": "https://github.com/xiph/vorbis.git",
+        "tag": "v1.3.7",
+        "build_system": "cmake",
+        "configure_args": [
+          "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+        ],
+        "pkgconfig_modules": [
+          "vorbis",
+          "vorbisenc"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": [
+          "libogg"
+        ]
+      },
+      {
+        "name": "flac",
+        "upstream_url": "https://github.com/xiph/flac.git",
+        "tag": "1.4.3",
+        "build_system": "cmake",
+        "configure_args": [
+          "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+        ],
+        "pkgconfig_modules": [
+          "flac"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": [
+          "libogg"
+        ]
+      },
+      {
+        "name": "opus",
+        "upstream_url": "https://github.com/xiph/opus.git",
+        "tag": "v1.5.2",
+        "build_system": "cmake",
+        "configure_args": [
+          "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+        ],
+        "pkgconfig_modules": [
+          "opus"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": []
+      },
+      {
+        "name": "libsndfile",
+        "upstream_url": "https://github.com/libsndfile/libsndfile.git",
+        "tag": "1.2.2",
+        "build_system": "cmake",
+        "configure_args": [
+          "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
+          "-DBUILD_SHARED_LIBS=ON",
+          "-DBUILD_TESTING=ON"
+        ],
+        "pkgconfig_modules": [
+          "sndfile"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": [
+          "libogg",
+          "libvorbis",
+          "flac",
+          "opus",
+          "mpg123"
+        ],
+        "pkgconfig_prerequisites": [
+          "flac",
+          "ogg",
+          "vorbis",
+          "vorbisenc",
+          "opus",
+          "libmpg123"
+        ]
+      },
+      {
+        "name": "libsamplerate",
+        "upstream_url": "https://github.com/libsndfile/libsamplerate.git",
+        "tag": "0.2.2",
+        "build_system": "cmake",
+        "configure_args": [
+          "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+        ],
+        "pkgconfig_modules": [
+          "samplerate"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": []
+      },
+      {
+        "name": "libpng",
+        "upstream_url": "https://github.com/pnggroup/libpng.git",
+        "tag": "v1.6.44",
+        "build_system": "cmake",
+        "configure_args": [
+          "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+        ],
+        "pkgconfig_modules": [
+          "libpng"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": [
+          "zlib"
+        ]
+      },
+      {
+        "name": "vamp-plugin-sdk",
+        "build_in_source": true,
+        "upstream_url": "https://github.com/vamp-plugins/vamp-plugin-sdk.git",
+        "tag": "vamp-plugin-sdk-v2.10",
+        "build_system": "autotools",
+        "configure_args": [],
+        "pkgconfig_modules": [
+          "vamp-sdk",
+          "vamp-hostsdk"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": [
+          "libsndfile"
+        ]
+      },
+      {
+        "name": "rubberband",
+        "upstream_url": "https://github.com/breakfastquay/rubberband.git",
+        "tag": "v3.3.0",
+        "build_system": "meson",
+        "configure_args": [],
+        "pkgconfig_modules": [
+          "rubberband"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": [
+          "libsndfile",
+          "libsamplerate",
+          "vamp-plugin-sdk"
+        ]
+      },
+      {
+        "name": "pango",
+        "upstream_url": "https://github.com/GNOME/pango.git",
+        "tag": "1.42.4",
+        "build_system": "meson",
+        "configure_args": [
+          "-Ddefault_library=shared",
+          "-Dgir=false"
+        ],
+        "pkgconfig_modules": [
+          "pango",
+          "pangocairo",
+          "pangoft2"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": [
+          "glib"
+        ],
+        "source_rewrites": [
+          {
+            "path": "meson.build",
+            "old": "common_ldflags += [ '-compatibility_version 1', '-current_version 1.0', ]",
+            "new": "common_ldflags += [ '-compatibility_version', '1', '-current_version', '1.0', ]"
+          },
+          {
+            "path": "meson.build",
+            "old": "if host_system == 'darwin'\n  has_core_text =",
+            "new": "if host_system == 'darwin'\n  # libpango uses CFLocale/CFString directly on macOS.\n  # Link CoreFoundation for the library, not just the CoreText feature probe.\n  common_ldflags += [ '-framework', 'CoreFoundation' ]\n  has_core_text ="
+          }
+        ]
+      },
+      {
+        "name": "cairomm",
+        "upstream_url": "https://gitlab.freedesktop.org/cairo/cairomm.git",
+        "tag": "1.14.5",
+        "build_system": "meson",
+        "configure_args": [
+          "-Dmaintainer-mode=true",
+          "-Dbuild-documentation=true",
+          "-Dbuild-examples=true",
+          "-Dbuild-tests=true",
+          "-Dboost-shared=true"
+        ],
+        "pkgconfig_modules": [
+          "cairomm-1.0"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": [
+          "libsigc++"
+        ]
+      },
+      {
+        "name": "pangomm",
+        "upstream_url": "https://github.com/GNOME/pangomm.git",
+        "tag": "2.42.0",
+        "build_system": "autotools",
+        "configure_args": [
+          "--enable-maintainer-mode"
+        ],
+        "pkgconfig_modules": [
+          "pangomm-1.4"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": [
+          "pango",
+          "glibmm",
+          "cairomm"
+        ]
+      },
+      {
+        "name": "lv2",
+        "upstream_url": "https://github.com/lv2/lv2.git",
+        "tag": "v1.18.10",
+        "build_system": "meson",
+        "configure_args": [],
+        "pkgconfig_modules": [
+          "lv2"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": [
+          "libsndfile",
+          "libsamplerate"
+        ]
+      },
+      {
+        "name": "libxml2",
+        "upstream_url": "https://github.com/GNOME/libxml2.git",
+        "tag": "v2.12.10",
+        "build_system": "autotools",
+        "configure_args": [],
+        "pkgconfig_modules": [
+          "libxml-2.0"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": [
+          "zlib"
+        ]
+      }
+    ],
+    "unresolved": [],
+    "archives": [
+      {
+        "name": "boost",
+        "url": "https://archives.boost.io/release/1.86.0/source/boost_1_86_0.tar.gz",
+        "sha256": "2575e74ffc3ef1cd0babac2c1ee8bdb5782a0ee672b1912da40e5b4b591ca01f",
+        "build_system": "boost",
+        "pkgconfig_modules": [],
+        "configure_args": [],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": []
+      },
+      {
+        "name": "mpg123",
+        "url": "https://ftp.fau.de/macports/distfiles/mpg123/mpg123-1.33.6.tar.bz2",
+        "sha256": "929a7c18ba662b8927aed4de229ad9ae8ab2b4806dd0f30b90113eb1b4e2195a",
+        "build_system": "autotools",
+        "pkgconfig_modules": [
+          "libmpg123"
+        ],
+        "configure_args": [],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": []
+      },
+      {
+        "name": "fftw",
+        "url": "https://fftw.org/pub/fftw/fftw-3.3.10.tar.gz",
+        "sha256": "56c932549852cddcfafdab3820b0200c7742675be92179e59e6215b340e26467",
+        "build_system": "autotools",
+        "pkgconfig_modules": [
+          "fftw3f"
+        ],
+        "configure_args": [
+          "--enable-float"
+        ],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": []
+      },
+      {
+        "name": "aubio",
+        "url": "https://aubio.org/pub/aubio-0.4.9.tar.bz2",
+        "sha256": "d48282ae4dab83b3dc94c16cf011bcb63835c1c02b515490e1883049c3d1f3da",
+        "build_system": "waf",
+        "pkgconfig_modules": [
+          "aubio"
+        ],
+        "configure_args": [],
+        "build_args": [],
+        "install_args": [],
+        "depends_on": [
+          "libsndfile",
+          "libsamplerate"
+        ]
+      }
+    ]
+  },
+  "published_patch_exclusions": [
+    {
+      "dependency": "libvorbis",
+      "kind": "inline",
+      "target": "configure",
+      "expected_count": 1
+    }
+  ],
+  "host_build_tools": {
+    "mac": [
+      {
+        "executable": "pandoc",
+        "package": "pandoc"
+      },
+      {
+        "executable": "dot",
+        "package": "graphviz"
+      },
+      {
+        "executable": "doxygen",
+        "package": "doxygen"
+      },
+      {
+        "executable": "makeinfo",
+        "package": "texinfo"
+      },
+      {
+        "executable": "mm-common-prepare",
+        "package": "mm-common"
+      },
+      {
+        "executable": "tar",
+        "package": "libarchive",
+        "provider": "macos_system",
+        "purpose": "Upstream osx_build requires bsdtar; /usr/bin/tar is macOS libarchive bsdtar and is linked into generated HostTools."
+      }
+    ]
+  },
+  "binary_dependencies": [
+    {
+      "name": "fftw",
+      "provider": "homebrew",
+      "package": "fftw",
+      "module": "fftw3f",
+      "minimum_version": "3.3.5",
+      "libraries": [
+        "libfftw3f*.dylib",
+        "libfftw3f_threads*.dylib"
+      ],
+      "header_files": [
+        "fftw3.h"
+      ]
+    },
+    {
+      "name": "rtmpdump",
+      "provider": "homebrew",
+      "package": "rtmpdump",
+      "module": "librtmp",
+      "minimum_version": "2.0",
+      "libraries": [
+        "librtmp*.dylib"
+      ],
+      "headers": "librtmp"
+    },
+    {
+      "name": "libcurl",
+      "provider": "homebrew",
+      "package": "curl",
+      "module": "libcurl",
+      "minimum_version": "7.55.0",
+      "libraries": [
+        "libcurl*.dylib"
+      ],
+      "headers": "curl"
+    },
+    {
+      "name": "jpeg-turbo",
+      "provider": "homebrew",
+      "package": "jpeg-turbo",
+      "module": "libjpeg",
+      "minimum_version": "2.0.0",
+      "libraries": [
+        "libjpeg*.dylib"
+      ],
+      "header_files": [
+        "jpeglib.h",
+        "jconfig.h",
+        "jmorecfg.h",
+        "jerror.h"
+      ]
+    },
+    {
+      "name": "fribidi",
+      "provider": "homebrew",
+      "package": "fribidi",
+      "module": "fribidi",
+      "minimum_version": "0.19.7",
+      "libraries": [
+        "libfribidi*.dylib"
+      ],
+      "headers": "fribidi"
+    },
+    {
+      "name": "bzip2",
+      "provider": "macos-sdk",
+      "module": "bzip2",
+      "version": "1.0.8",
+      "header_files": [
+        "bzlib.h"
+      ],
+      "link_libraries": [
+        "bz2"
+      ],
+      "probe_symbol": "BZ2_bzlibVersion"
+    },
+    {
+      "name": "freetype2",
+      "provider": "homebrew",
+      "package": "freetype",
+      "module": "freetype2",
+      "minimum_version": "2.1.5",
+      "libraries": [
+        "libfreetype*.dylib"
+      ],
+      "headers": "freetype2"
+    },
+    {
+      "name": "expat",
+      "provider": "homebrew",
+      "package": "expat",
+      "module": "expat",
+      "minimum_version": "2.0.0",
+      "libraries": [
+        "libexpat*.dylib"
+      ],
+      "header_files": [
+        "expat.h",
+        "expat_external.h"
+      ]
+    },
+    {
+      "name": "fontconfig",
+      "provider": "homebrew",
+      "package": "fontconfig",
+      "module": "fontconfig",
+      "minimum_version": "2.11.91",
+      "libraries": [
+        "libfontconfig*.dylib"
+      ],
+      "headers": "fontconfig"
+    },
+    {
+      "name": "harfbuzz",
+      "provider": "homebrew",
+      "package": "harfbuzz",
+      "module": "harfbuzz",
+      "minimum_version": "1.4.2",
+      "libraries": [
+        "libharfbuzz*.dylib"
+      ],
+      "headers": "harfbuzz"
+    },
+    {
+      "name": "cairo",
+      "provider": "homebrew",
+      "package": "cairo",
+      "module": "cairo",
+      "minimum_version": "1.12.10",
+      "libraries": [
+        "libcairo*.dylib"
+      ],
+      "headers": "cairo"
+    },
+    {
+      "name": "cairo-ft",
+      "provider": "homebrew",
+      "package": "cairo",
+      "module": "cairo-ft",
+      "minimum_version": "1.12.10",
+      "libraries": [
+        "libcairo*.dylib"
+      ],
+      "headers": "cairo"
+    },
+    {
+      "name": "cairo-quartz",
+      "provider": "homebrew",
+      "package": "cairo",
+      "module": "cairo-quartz",
+      "minimum_version": "1.12.10",
+      "libraries": [
+        "libcairo*.dylib"
+      ],
+      "headers": "cairo"
+    },
+    {
+      "name": "lv2",
+      "provider": "homebrew",
+      "package": "lv2",
+      "module": "lv2",
+      "minimum_version": "1.16.0",
+      "libraries": [],
+      "headers": "lv2"
+    },
+    {
+      "name": "libxml2",
+      "provider": "homebrew",
+      "package": "libxml2",
+      "module": "libxml-2.0",
+      "minimum_version": "2.0.0",
+      "libraries": [
+        "libxml2*.dylib"
+      ],
+      "headers": "libxml2"
+    },
+    {
+      "name": "libusb",
+      "provider": "homebrew",
+      "package": "libusb",
+      "module": "libusb-1.0",
+      "minimum_version": "1.0.16",
+      "libraries": [
+        "libusb-1.0*.dylib"
+      ],
+      "headers": "libusb-1.0"
+    },
+    {
+      "name": "jack",
+      "provider": "homebrew",
+      "package": "jack",
+      "module": "jack",
+      "minimum_version": "1.9.10",
+      "libraries": [
+        "libjack*.dylib"
+      ],
+      "headers": "jack"
+    },
+    {
+      "name": "cppunit",
+      "provider": "homebrew",
+      "package": "cppunit",
+      "module": "cppunit",
+      "minimum_version": "1.12.0",
+      "libraries": [
+        "libcppunit*.dylib"
+      ],
+      "headers": "cppunit"
+    },
+    {
+      "name": "libwebsockets",
+      "provider": "homebrew",
+      "package": "libwebsockets",
+      "module": "libwebsockets",
+      "minimum_version": "2.0.0",
+      "libraries": [
+        "libwebsockets*.dylib"
+      ],
+      "header_files": [
+        "libwebsockets.h"
+      ]
+    },
+    {
+      "name": "raptor",
+      "provider": "homebrew",
+      "package": "raptor",
+      "module": "raptor2",
+      "minimum_version": "2.0.0",
+      "libraries": [
+        "libraptor2*.dylib"
+      ],
+      "headers": "raptor2",
+      "header_files": [
+        "raptor2/raptor.h",
+        "raptor2/raptor2.h"
+      ],
+      "compiler_include_dirs": [
+        "raptor2"
+      ]
+    },
+    {
+      "name": "lrdf",
+      "provider": "homebrew",
+      "package": "lrdf",
+      "module": "lrdf",
+      "minimum_version": "0.4.0",
+      "libraries": [
+        "liblrdf*.dylib"
+      ],
+      "headers": null,
+      "header_files": [
+        "lrdf.h",
+        "lrdf_types.h"
+      ]
+    },
+    {
+      "name": "serd",
+      "provider": "homebrew",
+      "package": "serd",
+      "module": "serd-0",
+      "minimum_version": "0.14.0",
+      "libraries": [
+        "libserd-0*.dylib"
+      ],
+      "headers": "serd-0"
+    },
+    {
+      "name": "sord",
+      "provider": "homebrew",
+      "package": "sord",
+      "module": "sord-0",
+      "minimum_version": "0.8.0",
+      "libraries": [
+        "libsord-0*.dylib"
+      ],
+      "headers": "sord-0"
+    },
+    {
+      "name": "sratom",
+      "provider": "homebrew",
+      "package": "sratom",
+      "module": "sratom-0",
+      "minimum_version": "0.2.0",
+      "libraries": [
+        "libsratom-0*.dylib"
+      ],
+      "headers": "sratom-0"
+    },
+    {
+      "name": "lilv",
+      "provider": "homebrew",
+      "package": "lilv",
+      "module": "lilv-0",
+      "minimum_version": "0.24.2",
+      "libraries": [
+        "liblilv-0*.dylib"
+      ],
+      "headers": "lilv-0"
+    }
+  ],
+  "dependency_setup": {
+    "executor": "python",
+    "script": "apps/cfaudio/mac/build.py",
+    "args": [
+      "--target",
+      "mac",
+      "--prepare-dependencies"
+    ]
+  },
+  "branding": {
+    "bundle_name": "CinterForge Audio",
+    "bundle_identifier": "io.cinterforge.audio"
+  }
+}

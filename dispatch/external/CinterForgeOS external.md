@@ -72,7 +72,7 @@ The `.sh` extension denotes shell scripts; `.py` denotes Python. Not every file 
 
 ### Dispatcher, source, and installed layout
 
-- **Source:** `CinterForge/CinterForgeServer/cinter/build_cinterforge/creativeSuite/apps/cinterforge-os/external/` (relative to Cinter).
+- **Source:** `CinterForge/CinterForgeOS/build/creativeSuite/apps/cinterforge-os/external/` (relative to Cinter).
 - **Host installation:** `steamapps/common/CinterForge/Applications/Test/Dispatcher/Cinter` and `.../Test/Scripts/{baseline,dispatch,inspect,installl,launch,run,test,wine}/`.
 - **Guest view:** `/run/steamapps/common/CinterForge/Applications/Test/Dispatcher/Cinter` and `/run/steamapps/common/CinterForge/Applications/Test/Scripts/`.
 

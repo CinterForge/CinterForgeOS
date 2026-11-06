@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Prepare the shared Linux runtime from checked-in Linux source.
 
-All outputs under Builds/Linux are generated. Application packages are not
+All LinuxKit outputs are under Builds/CreativeSuite/CFOS/LinuxKit. Application packages are not
 part of this shared runtime and remain owned by their respective consumers.
 """
 from __future__ import annotations
@@ -19,6 +19,57 @@ def cfos_builds_root(repo_root: Path) -> Path:
         raise RuntimeError(f'Expected CinterForgeOS checkout: {repo}')
     return repo.parent / 'Builds'
 
+
+_LINUXKIT_ARTIFACT_NAMES = frozenset({
+    "linuxkit.yml", "CinterBDSVM.swift", "CinterBDSVM",
+    "CinterBDSNetRelay", "bootstrap.json",
+    "cinter-bds-kernel", "cinter-bds-initrd.img", "cinter-bds-cmdline",
+    "built-source-fingerprint.txt", "vm-launcher-source-fingerprint.txt",
+})
+
+
+def linuxkit_bootstrap_root(repo_root: Path, *, migrate: bool = True) -> Path:
+    """Resolve CFOS-owned LinuxKit artifacts, safely relocating old Builds/Linux.
+
+    Move only CFOS-owned LinuxKit outputs. A legacy Builds/Linux directory can
+    contain unrelated applications and disk state: leave those files intact.
+    Reuse existing signed launchers, images and fingerprints without rebuilding.
+    """
+    builds = cfos_builds_root(repo_root)
+    target = builds / "CreativeSuite" / "CFOS" / "LinuxKit"
+    legacy = builds / "Linux"
+    if migrate and legacy.exists():
+        if legacy.is_symlink() or not legacy.is_dir():
+            raise RuntimeError(f"Legacy LinuxKit location is not a regular directory: {legacy}")
+        selected = [p for p in legacy.iterdir() if p.name in _LINUXKIT_ARTIFACT_NAMES]
+        if selected:
+            if target.exists() and (not target.is_dir() or target.is_symlink()):
+                raise RuntimeError(f"Invalid LinuxKit destination: {target}")
+            # Check for conflicts and symlinks before moving any file.
+            for artifact in selected:
+                destination = target / artifact.name
+                if artifact.is_symlink() or not artifact.is_file():
+                    raise RuntimeError(f"Invalid legacy LinuxKit artifact: {artifact}")
+                if destination.exists() or destination.is_symlink():
+                    if destination.is_symlink() or not destination.is_file() or \
+                       artifact.stat().st_size != destination.stat().st_size or \
+                       artifact.read_bytes() != destination.read_bytes():
+                        raise RuntimeError(
+                            f"Conflicting LinuxKit artifacts; preserve both and reconcile: "
+                            f"{artifact} and {destination}")
+            target.mkdir(parents=True, exist_ok=True)
+            for artifact in selected:
+                destination = target / artifact.name
+                if destination.is_file():
+                    artifact.unlink()  # Byte-for-byte identical verified duplicate
+                else:
+                    artifact.rename(destination)
+            if not any(legacy.iterdir()):
+                legacy.rmdir()
+            else:
+                print(f"[CFOS LinuxKit] leaving unrelated legacy files in {legacy}", flush=True)
+            print(f"[CFOS LinuxKit] migrated {len(selected)} artifacts: {legacy} -> {target}", flush=True)
+    return target
 
 
 from launcher_signing import has_virtualization_entitlement, sign_launcher
@@ -83,7 +134,7 @@ def validate_linuxkit_images(source: Path) -> None:
 
 
 def stage_sources(repo_root: Path) -> Path:
-    destination = cfos_builds_root(repo_root) / "Linux"
+    destination = linuxkit_bootstrap_root(repo_root)
     destination.mkdir(parents=True, exist_ok=True)
     for filename in SOURCES:
         source = HERE / filename
@@ -118,7 +169,7 @@ def verify_shared_bootstrap(repo_root: Path, *, require_launcher: bool = False) 
     ARM64 LinuxKit kernel/initrd can be built on a Linux build host. When run
     on macOS the launcher must already be compiled and signed by CFOS.
     """
-    destination = cfos_builds_root(repo_root) / "Linux"
+    destination = linuxkit_bootstrap_root(repo_root)
     kernel = destination / "cinter-bds-kernel"
     required = (
         destination / "cinter-bds-kernel",

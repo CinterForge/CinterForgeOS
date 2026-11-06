@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CinterForge OS — KDE Desktop Visual Reference</title>
+  <title>CinterForge OS — Desktop</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="stage" aria-label="CinterForge KDE desktop visual reference">
+  <main class="stage" aria-label="CinterForge OS desktop">
     <div class="screen" id="screen">
       <!-- Original background artwork: unchanged; all buttons are HTML overlays. -->
       <img class="reference" src="assets/desktop-reference.png" alt="CinterForge scenic desktop wallpaper with an empty dark gradient dock and native-style KDE top bar">
@@ -15,7 +15,8 @@
       <button class="hit" id="windows" style="--x:217;--y:0;--w:185;--h:38" aria-label="Windows Mode" title="Windows Mode"></button>
       <button class="hit" id="system" style="--x:0;--y:0;--w:48;--h:38" aria-label="KDE application menu" title="KDE application menu"></button>
       <button class="hit" id="tray" style="--x:1142;--y:0;--w:530;--h:38" aria-label="KDE system tray and clock" title="KDE system tray and clock"></button>
-      <!-- Native Plasma will provide real launchers; these match the intended layout. -->
+      <!-- Same CFOS-owned dock renders in the browser and in a native WebView.
+           Native Plasma launchers and process execution remain OS responsibilities. -->
       <nav class="dock" aria-label="CinterForge desktop applications">
         <div class="dock-items">
           <button class="app" type="button" data-app="Files" title="Files" aria-label="Files"><img src="assets/icons/files.png" alt="" draggable="false"><span>Files</span></button>
@@ -37,6 +38,14 @@
         </div>
       </nav>
       <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      <div class="desktop-mode" id="desktop-mode" aria-live="polite">CinterForge OS · Web Demo</div>
+      <dialog id="cfos-app-preview" class="cfos-window" aria-labelledby="cfos-window-title">
+        <header class="cfos-window-header">
+          <strong id="cfos-window-title">CinterForge</strong>
+          <button type="button" id="cfos-window-close" aria-label="Close application">×</button>
+        </header>
+        <iframe id="cfos-app-frame" title="CinterForge application preview" loading="lazy"></iframe>
+      </dialog>
     </div>
   </main>
   <script src="app.js"></script>

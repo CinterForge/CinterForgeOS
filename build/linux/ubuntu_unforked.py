@@ -72,14 +72,12 @@ def test(cfos: Path, archive: Path, docker: str, environment: dict[str, str], im
     """Test the actual upstream Linux apps in the installed Ubuntu distro."""
     receipt = cfos.parent / 'Builds/Logs/CFOS/ubuntu-upstream-linux.json'
     receipt.parent.mkdir(parents=True, exist_ok=True)
-    from ubuntu_adapter import steamapps_volume
-    apps = steamapps_volume(archive) / 'common/CinterForge/Applications'
     # Windows publisher builds are not Linux packages. Their separate
     # acquisition/install/GUI execution is pending until actual publisher
     # installer inputs are staged, and must NEVER inherit a Linux PASS.
     windows = {
         'status': 'pending-publisher-install-and-gui-acceptance',
-        'installer_inputs': verify_windows_sources(apps),
+        'installer_inputs': verify_windows_sources(cfos.parent / 'Builds'),
     }
     results = []
     try:
@@ -98,9 +96,9 @@ def test(cfos: Path, archive: Path, docker: str, environment: dict[str, str], im
     print('[CFOS upstream Windows] PENDING: publisher EXE/MSI installation and actual Wine application acceptance are separate gates', flush=True)
 
 
-def verify_windows_sources(applications: Path) -> dict[str, list[str]]:
+def verify_windows_sources(builds: Path) -> dict[str, list[str]]:
     """Inventory pre-approved upstream Windows installers; never download/fake."""
-    install_root = applications / 'UnforkedInstallers/Windows'
+    install_root = builds / 'CreativeSuite/UnforkedInstallers/Windows'
     result: dict[str, list[str]] = {}
     for name, _, _ in UPSTREAM_LINUX:
         if name == 'FFmpeg':

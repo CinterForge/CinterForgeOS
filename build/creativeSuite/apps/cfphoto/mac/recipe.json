@@ -1,0 +1,81 @@
+{
+  "schema": "cinterforge.creative-suite.recipe.v1",
+  "identity": {
+    "application": "cfphoto",
+    "platform": "mac",
+    "target_arch": "arm64",
+    "build_host": "macOS",
+    "acquisition": "source"
+  },
+  "source": {
+    "checkout_name": "CinterForgePhoto",
+    "revision": null,
+    "build_definition": "package-lock.json"
+  },
+  "dependency_setup": {
+    "executor": "python",
+    "script": "apps/cfphoto/mac/setup.py",
+    "args": []
+  },
+  "preparation": {
+    "packages": [],
+    "package_manager": "upstream-lockfiles",
+    "status": "unverified",
+    "toolchain": [
+      "node",
+      "npm",
+      "rustc",
+      "cargo",
+      "xcrun",
+      "xcodebuild"
+    ]
+  },
+  "configure": {
+    "system": "tauri-v2-rust",
+    "observed_result": null,
+    "argv": []
+  },
+  "build": {
+    "system": "npm-ci-tauri-cargo",
+    "verified": false,
+    "last_result": {
+      "success": true,
+      "version": "2026"
+    }
+  },
+  "readiness": {
+    "ready": false,
+    "configured": false,
+    "issues": [
+      "Build has not completed successfully since the latest build attempt",
+      "Native macOS source build and complete application dependency closure not yet verified"
+    ],
+    "setup_result": {
+      "configured": false,
+      "ready": false
+    }
+  },
+  "branding": {
+    "repository": "CinterForgePhoto",
+    "icons": [
+      "src-tauri/icons/icon.icns"
+    ],
+    "splashes": [
+      "public/splash-light.jpg",
+      "public/splash-dark.jpg",
+      "public/splash-grey.jpg"
+    ],
+    "splash_code": {
+      "loader": [
+        "src/utils/themes.ts"
+      ],
+      "renderer": [
+        "src/components/panel/MainLibrary.tsx"
+      ],
+      "startup": [],
+      "manifest": [],
+      "note": "Library welcome screen, NOT confirmed native startup splash"
+    },
+    "product_name": "CinterForge Photo"
+  }
+}

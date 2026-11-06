@@ -1,0 +1,83 @@
+{
+  "schema": "cinterforge.creative-suite.recipe.v1",
+  "identity": {
+    "application": "cfdocument",
+    "platform": "mac",
+    "target_arch": "arm64",
+    "build_host": "macOS",
+    "acquisition": "source"
+  },
+  "source": {
+    "checkout_name": "CinterForgeDocument",
+    "revision": null,
+    "build_definition": "CMakeLists.txt"
+  },
+  "dependency_setup": {
+    "executor": "python",
+    "script": "apps/cfdocument/mac/setup.py",
+    "args": []
+  },
+  "preparation": {
+    "packages": [],
+    "package_manager": "upstream",
+    "status": "unverified",
+    "toolchain": [
+      "cmake",
+      "ninja",
+      "pkg-config",
+      "xcrun",
+      "xcodebuild"
+    ]
+  },
+  "configure": {
+    "system": "cmake",
+    "observed_result": null,
+    "argv": []
+  },
+  "build": {
+    "system": "cmake-ninja",
+    "verified": false,
+    "last_result": {
+      "success": true,
+      "version": "2026"
+    }
+  },
+  "readiness": {
+    "ready": false,
+    "configured": false,
+    "issues": [
+      "Build has not completed successfully since the latest build attempt",
+      "Native macOS source build and complete application dependency closure not yet verified"
+    ],
+    "setup_result": {
+      "configured": false,
+      "ready": false
+    }
+  },
+  "branding": {
+    "repository": "CinterForgeDocument",
+    "icons": [
+      "Scribus.app/Contents/Resources/Scribus.icns"
+    ],
+    "splashes": [
+      "resources/iconsets/1_7_0/images/scribus_splash_light.png",
+      "resources/iconsets/1_7_0/images/scribus_splash_dark.png"
+    ],
+    "splash_code": {
+      "loader": [
+        "scribus/scribuscore.cpp"
+      ],
+      "renderer": [
+        "scribus/ui/splash.cpp"
+      ],
+      "startup": [
+        "scribus/scribuscore.cpp"
+      ],
+      "manifest": [
+        "resources/iconsets/1_7_0/1_7_0.xml"
+      ],
+      "note": "ScribusCore passes icon-manager pixmap to ScSplashScreen; icon manager asset selection needs verification"
+    },
+    "product_name": "CinterForge Document"
+  }
+}

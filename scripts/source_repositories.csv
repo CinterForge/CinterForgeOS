@@ -15,6 +15,7 @@ cfcode,https://github.com/microsoft/vscode,,source
 leveldb,https://github.com/google/leveldb,,source
 CinterForgeServer,https://github.com/CinterForge/CinterForgeServer.git,,source
 CinterForgeWebApp,https://github.com/CinterForge/CinterForgeWebApp.git,,source
+CinterForgeConverter,https://github.com/CinterForge/CinterForgeConverter.git,,source
 CinterForgePlugins,https://github.com/CinterForge/CinterForgePlugins.git,,source
 cinterforge-kosmickrisp-mesa,https://github.com/CinterForge/cinterforge-kosmickrisp-mesa.git,,source
 cinterforge-libkrun,https://github.com/CinterForge/cinterforge-libkrun.git,,source

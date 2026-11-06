@@ -1,9 +1,22 @@
-# CinterForge OS · KDE desktop HTML visualization
+# CinterForgeOS shared KDE-style Desktop presentation
 
-This directory is Kevin's visual reference for the **native SteamOS KDE Plasma desktop**, not a shipped HTML desktop.
+This is the **CFOS-owned HTML Desktop UI**. The original desktop reference
+artwork and dock icons are retained. `index.html` runs unchanged in the browser
+and can be hosted by Swift `WKWebView` under a same-origin mini-server.
 
-Open `index.html` in a browser. The existing `assets/desktop-reference.png` background is preserved byte-for-byte from the supplied archive; the gradient dock remains in the background image. CSS places individually labeled PNG launchers over its empty center.
+- Browser/site mode (`?mode=demo`): launch Code, Voxel and Desktop browser demos
+  in local windows and open product pages for other applications. No native
+  execution, downloads, or installed-application claims are made.
+- Native mode (`?mode=native`): native launch requests go through an **explicit**
+  `window.webkit.messageHandlers.cfosDesktop` bridge supplied by the Swift host.
+  The bridge is not installed in the current Swift launcher; without it the
+  page stays in read-only web-demo mode. The host must allowlist every app ID
+  and enforce authorization; never interpret untrusted commands from the page.
 
-Dock: Files, Terminal, **CinterForge 3D, Image, Paint, Vector, Audio, Video, Document, Code, Voxel, Converter, Photo, Desktop**, Steam, Trash. Top bar remains part of the provided reference image; click regions just simulate Linux/Windows selection and existing KDE controls.
+`build/website_content.py build` includes these authored files under
+`static/cfos/desktop/` in the signed/checksummed CFOS Website content ZIP.
+The Website consumes that ZIP through its existing Hugo static mount; it
+**does not** duplicate the desktop UI or build Ubuntu to obtain it.
 
-Edit `style.css` for icon sizing and dock alignment without touching the background. Real SteamOS will use KDE's built-in panels and `.desktop` files.
+Native KDE Plasma itself remains the actual guest desktop. A `WKWebView`
+frontend is a presentation/launch surface, not an OS emulator or terminal.

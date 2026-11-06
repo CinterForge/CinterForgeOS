@@ -1,0 +1,102 @@
+{
+  "schema": "cinterforge.creative-suite.recipe.v1",
+  "identity": {
+    "application": "cfvector",
+    "platform": "mac",
+    "target_arch": "arm64",
+    "build_host": "macOS",
+    "acquisition": "source"
+  },
+  "source": {
+    "checkout_name": "CinterForgeVector",
+    "revision": null,
+    "build_definition": "CMakeLists.txt",
+    "required_submodules": [
+      {
+        "path": "src/3rdparty/2geom",
+        "required_files": [
+          "CMakeLists.txt"
+        ]
+      },
+      {
+        "path": "src/3rdparty/capypdf",
+        "required_files": [
+          "include/capypdf.h.in",
+          "src/generator.cpp"
+        ]
+      }
+    ]
+  },
+  "dependency_setup": {
+    "executor": "python",
+    "script": "apps/cfvector/mac/setup.py",
+    "args": []
+  },
+  "preparation": {
+    "packages": [],
+    "package_manager": "upstream",
+    "status": "unverified",
+    "toolchain": [
+      "cmake",
+      "ninja",
+      "pkg-config",
+      "xcrun",
+      "xcodebuild"
+    ]
+  },
+  "configure": {
+    "system": "cmake",
+    "observed_result": null,
+    "argv": []
+  },
+  "build": {
+    "system": "cmake-ninja",
+    "verified": false,
+    "last_result": {
+      "success": true,
+      "version": "2026"
+    }
+  },
+  "readiness": {
+    "ready": false,
+    "configured": false,
+    "issues": [
+      "Build has not completed successfully since the latest build attempt",
+      "Native macOS source build and complete application dependency closure not yet verified"
+    ],
+    "setup_result": {
+      "configured": false,
+      "ready": false
+    }
+  },
+  "mac_dependency_closure": {
+    "extra_search_dirs": [
+      "lib/inkscape",
+      "lib64/inkscape",
+      "brew:icu4c@79/lib"
+    ]
+  },
+  "branding": {
+    "repository": "CinterForgeVector",
+    "icons": [
+      "share/branding/inkscape-mac.svg",
+      "share/branding/inkscape.svg",
+      "share/branding/inkscape-logo-icons-sized.svg"
+    ],
+    "splashes": [
+      "share/screens/start-splash.png"
+    ],
+    "splash_code": {
+      "loader": [
+        "src/ui/dialog/startup.cpp"
+      ],
+      "renderer": [
+        "src/ui/dialog/startup.cpp"
+      ],
+      "startup": [],
+      "manifest": [],
+      "note": "Startup dialog; image selection and rendering need full call-chain review"
+    },
+    "product_name": "CinterForge Vector"
+  }
+}

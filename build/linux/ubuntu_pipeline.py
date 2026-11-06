@@ -8,6 +8,7 @@ OCI container userspace, not a SteamOS/libkrun disk image.
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import hashlib
 import json
 import os
@@ -24,6 +25,7 @@ IMAGE = 'cinterforge-ubuntu:24.04-amd64'
 # Bump when the actual cross-build/headless test contract changes.
 HEADLESS_CONTRACT = 'ubuntu24.04-amd64-comprehensive-fork-toolchains-sdl3-plasma-steamapps-products-upstream-v8'
 READY_FILE = 'headless-verified.json'
+BUILD_RECEIPT = 'build-verified.json'
 ARCHIVE = 'Ubuntu-24.04-amd64-rootfs.tar'
 ADAPTER_SOURCE = SOURCE / 'ubuntu_adapter.py'
 
@@ -119,10 +121,141 @@ def verify_prerequisite(repo: Path, configuration: str = 'Release') -> None:
 HEADLESS_SMOKE = (SOURCE / 'headless_contract.sh').read_text()
 
 
+def _cfos_logs(builds: Path) -> Path:
+    destination = builds / 'Logs' / 'CFOS'
+    destination.mkdir(parents=True, exist_ok=True)
+    return destination
+
+
+def run_logged(command: list[str], *, log_path: Path, env: dict[str, str] | None = None) -> None:
+    """Stream a complete Docker phase to console and durable CFOS logs.
+
+    A failing smoke must name the first failed command (the caller runs sh -ex),
+    not dump its entire shell-script argument as a Python exception.
+    """
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with log_path.open('w', encoding='utf-8', errors='replace') as log:
+        header = f'[CFOS Ubuntu] START {log_path.name} at {datetime.now(timezone.utc).isoformat()}\n'
+        print(header, end='', flush=True)
+        log.write(header)
+        log.flush()
+        try:
+            with subprocess.Popen(command, env=env, stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT, text=True,
+                                  errors='replace', bufsize=1) as process:
+                assert process.stdout is not None
+                for line in process.stdout:
+                    print(line, end='', flush=True)
+                    log.write(line)
+                    log.flush()
+                returncode = process.wait()
+        except OSError as error:
+            log.write(f'[CFOS Ubuntu] OS ERROR: {error}\n')
+            raise RuntimeError(f'{log_path.name}: {error}; complete log: {log_path}') from error
+        footer = f'[CFOS Ubuntu] {"PASS" if returncode == 0 else "FAIL"} ' \
+                 f'{log_path.name} exit={returncode}\n'
+        log.write(footer)
+        log.flush()
+        print(footer, end='', flush=True)
+    if returncode != 0:
+        receipt = log_path.parent / 'ubuntu-last-failure.json'
+        receipt.write_text(json.dumps({
+            'schema': 'cinterforge.cfos.ubuntu-failure.v1',
+            'step': log_path.stem, 'returncode': returncode,
+            'log': str(log_path),
+            'timestamp_utc': datetime.now(timezone.utc).isoformat(),
+        }, indent=2, sort_keys=True) + '\n')
+        raise RuntimeError(f'Ubuntu phase {log_path.stem} failed (exit {returncode}); '
+                           f'full trace: {log_path}; receipt: {receipt}')
+
+
 def validate_archive(archive: Path) -> None:
+    """Reject incomplete or obsolete rootfs exports before Stage or Test.
+
+    Docker import does not preserve the original OCI configuration. The rootfs
+    itself MUST contain the non-root account used by the shipping services.
+    An old archive can otherwise pass the apt-get-only check yet fail later at
+    `docker run --user cinterforge` with an unhelpful daemon error.
+    """
+    found_apt = False
+    found_user = False
     with tarfile.open(archive, 'r') as src:
-        if not any(member.name.lstrip('./') == 'usr/bin/apt-get' for member in src):
-            raise RuntimeError(f'Not a complete Ubuntu rootfs: {archive}')
+        for member in src:
+            name = member.name.lstrip('./')
+            if name == 'usr/bin/apt-get' and member.isfile():
+                found_apt = True
+            if name == 'etc/passwd' and member.isfile():
+                stream = src.extractfile(member)
+                if stream is not None:
+                    for line in stream:
+                        if line.startswith(b'cinterforge:'):
+                            columns = line.strip().split(b':')
+                            if len(columns) >= 7 and columns[2].isdigit() and int(columns[2]) >= 1000:
+                                found_user = True
+                            break
+            if found_apt and found_user:
+                break
+    if not found_apt:
+        raise RuntimeError(f'Not a complete Ubuntu rootfs (apt-get missing): {archive}')
+    if not found_user:
+        raise RuntimeError(
+            f'Ubuntu rootfs is missing its non-root cinterforge account: {archive}; '
+            'this archive may predate the current Docker build. Rebuild, then Stage and Test.'
+        )
+
+
+def _build_inputs(repo: Path, built: Path) -> dict[str, str]:
+    """Identity of the tested rootfs AND Server/WebApp products for Stage."""
+    archive = built / ARCHIVE
+    products = ubuntu_products.product_root(repo) / 'manifest.json'
+    if not archive.is_file() or not products.is_file():
+        raise RuntimeError(
+            'Ubuntu Build is incomplete: rootfs or Server/WebApp product manifest missing; '
+            'complete ./CFOS build cinterforge-os linux Release first'
+        )
+    return {
+        'schema': 'cinterforge.cfos.ubuntu-build.v1',
+        'archive_sha256': sha256(archive),
+        'dockerfile_sha256': sha256(SOURCE / 'Dockerfile.ubuntu'),
+        'headless_smoke_sha256': sha256(SOURCE / 'headless_contract.sh'),
+        'desktop_script_sha256': sha256(SOURCE / 'ubuntu_desktop.sh'),
+        'shell_script_sha256': sha256(SOURCE / 'ubuntu_shell.sh'),
+        'service_script_sha256': sha256(SOURCE / 'ubuntu_service.sh'),
+        'products_sha256': sha256(products),
+    }
+
+
+def certify_build(repo: Path, built: Path) -> None:
+    """Commit only after BOTH the OS smoke and product build complete."""
+    validate_archive(built / ARCHIVE)
+    record = _build_inputs(repo, built)
+    receipt = built / BUILD_RECEIPT
+    partial = built / (BUILD_RECEIPT + '.partial')
+    partial.write_text(json.dumps(record, indent=2, sort_keys=True) + '\n')
+    partial.replace(receipt)
+    print(f'[Ubuntu Build] VERIFIED OS and products: {receipt}', flush=True)
+
+
+def verify_build(repo: Path, built: Path) -> None:
+    """Never Stage the last successful archive after a more recent Build failed."""
+    receipt = built / BUILD_RECEIPT
+    if not receipt.is_file():
+        raise RuntimeError(
+            f'Ubuntu Build has not completed successfully ({receipt} missing); '
+            'do not Stage a stale rootfs. Run ./CFOS build cinterforge-os linux Release.'
+        )
+    try:
+        recorded = json.loads(receipt.read_text())
+    except (ValueError, OSError) as error:
+        raise RuntimeError(f'Invalid Ubuntu Build receipt: {receipt}') from error
+    expected = _build_inputs(repo, built)
+    if recorded != expected:
+        changed = [key for key, value in expected.items() if recorded.get(key) != value]
+        raise RuntimeError(
+            f'Ubuntu Build receipt is stale ({", ".join(changed)}); '
+            'rerun Build before Stage so the OS and Server/WebApps stay aligned'
+        )
+    validate_archive(built / ARCHIVE)
 
 
 def require_source_checkouts(repo: Path) -> None:
@@ -169,19 +302,25 @@ def build(built: Path) -> None:
     runner, environment = ensure_backend(source)
     built.mkdir(parents=True, exist_ok=True)
     (built / READY_FILE).unlink(missing_ok=True)
+    (built / BUILD_RECEIPT).unlink(missing_ok=True)
     if Path(runner).name == 'docker':
         ensure_buildx(runner, environment)
         command = [runner, 'buildx', 'build', '--platform', 'linux/amd64', '--load']
     else:
         command = [runner, 'build', '--platform', 'linux/amd64']
-    subprocess.run([*command, '-t', IMAGE, '-f', str(SOURCE / 'Dockerfile.ubuntu'), str(SOURCE)], check=True, env=environment)
+    logs = _cfos_logs(built.parents[5])
+    verbose_environment = dict(environment, BUILDKIT_PROGRESS='plain')
+    run_logged([*command, '-t', IMAGE, '-f', str(SOURCE / 'Dockerfile.ubuntu'), str(SOURCE)],
+               log_path=logs / f'ubuntu-{built.parent.name}-docker-build.log', env=verbose_environment)
     actual = subprocess.check_output([runner, 'image', 'inspect', '--format', '{{.Architecture}}', IMAGE], text=True, env=environment).strip()
     if actual != 'amd64':
         raise RuntimeError(f'Expected Ubuntu AMD64 image, found {actual!r}')
-    subprocess.run([runner, 'run', '--rm', '--platform', 'linux/amd64', '--user', 'cinterforge', IMAGE, '/bin/sh', '-ec', HEADLESS_SMOKE], check=True, env=environment)
-    subprocess.run([runner, 'run', '--rm', '--platform', 'linux/amd64', '--network', 'none',
-                    '--shm-size', '512m', IMAGE, '/usr/local/bin/cfos-ubuntu-desktop', 'test'],
-                   check=True, env=environment)
+    run_logged([runner, 'run', '--rm', '--platform', 'linux/amd64', '--user', 'cinterforge',
+                IMAGE, '/bin/sh', '-exc', HEADLESS_SMOKE],
+               log_path=logs / f'ubuntu-{built.parent.name}-headless-smoke.log', env=environment)
+    run_logged([runner, 'run', '--rm', '--platform', 'linux/amd64', '--network', 'none',
+                '--shm-size', '512m', IMAGE, '/usr/local/bin/cfos-ubuntu-desktop', 'test'],
+               log_path=logs / f'ubuntu-{built.parent.name}-desktop-smoke.log', env=environment)
     cid = subprocess.check_output([runner, 'create', '--platform', 'linux/amd64', IMAGE], text=True, env=environment).strip()
     target = built / ARCHIVE
     partial = built / (ARCHIVE + '.partial')
@@ -252,6 +391,7 @@ def _verify_stage_install(built: Path, staged: Path, installed: Path) -> None:
 
 
 def stage(built: Path, destination: Path, adapter: Path) -> None:
+    verify_build(SOURCE.parents[1], built)
     archive = built / ARCHIVE
     if not archive.is_file():
         raise RuntimeError(f'Ubuntu is not built; run ./CFOS build cinterforge-os linux Release: {archive}')
@@ -373,6 +513,14 @@ def test(destination: Path, adapter: Path, source: Path) -> str:
     if not archive.is_file():
         raise RuntimeError(f'Ubuntu not staged: {archive}; run ./CFOS stage cinterforge-os linux Release')
     validate_archive(archive)
+    configuration = 'Debug' if '2026-Debug' in destination.parts else 'Release'
+    built = built_path(SOURCE.parents[1], configuration)
+    verify_build(SOURCE.parents[1], built)
+    if sha256(archive) != sha256(built / ARCHIVE):
+        raise RuntimeError(
+            'Installed Ubuntu rootfs differs from the completed Build; '
+            'run ./CFOS stage cinterforge-os linux ' + configuration + ' again'
+        )
     runner, environment = ensure_backend(source)
     print(f'[Ubuntu Headless Test] Installed rootfs: {archive}', flush=True)
     # Use the installed archive itself on both hosts. A previously tagged
@@ -390,15 +538,18 @@ def test(destination: Path, adapter: Path, source: Path) -> str:
     if actual != f'{image_id} linux/amd64':
         raise RuntimeError(f'Installed image architecture mismatch: {actual!r}')
     verify = HEADLESS_SMOKE
-    subprocess.run([runner, 'run', '--rm', '--pull=never', '--platform', 'linux/amd64',
-                    '--user', 'cinterforge', image_id, '/bin/sh', '-ec', verify], env=environment, check=True)
+    logs = _cfos_logs(source.parents[4])
+    version = '2026-Debug' if '2026-Debug' in destination.parts else '2026'
+    run_logged([runner, 'run', '--rm', '--pull=never', '--platform', 'linux/amd64',
+                '--user', 'cinterforge', image_id, '/bin/sh', '-exc', verify],
+               log_path=logs / f'ubuntu-{version}-installed-headless-smoke.log', env=environment)
     # Test KDE from the STAGED/INSTALLED archive too, not merely the Docker
     # build tag. A headless pass alone cannot certify a shipping desktop.
-    subprocess.run([runner, 'run', '--rm', '--pull=never', '--platform', 'linux/amd64',
-                    '--network', 'none', '--shm-size', '512m',
-                    *steamapps_mount_args(archive),
-                    image_id, '/usr/local/bin/cfos-ubuntu-desktop', 'test'],
-                   env=environment, check=True)
+    run_logged([runner, 'run', '--rm', '--pull=never', '--platform', 'linux/amd64',
+                '--network', 'none', '--shm-size', '512m',
+                *steamapps_mount_args(archive),
+                image_id, '/usr/local/bin/cfos-ubuntu-desktop', 'test'],
+               log_path=logs / f'ubuntu-{version}-installed-desktop-smoke.log', env=environment)
     # Verify the shipping Ubuntu volume, not a read-only view of SteamOS's
     # installed applications. Prove identity, writable access as the desktop
     # user, and that guest writes land in the host's persistent Ubuntu volume.
@@ -533,6 +684,17 @@ def main() -> int:
         return 0
     if args.operation in ('setup', 'all'):
         setup(repo)
+        # A clean build machine may receive the documentation package from
+        # the internal CDN through existing Setup/publish tooling. Install it
+        # locally when present, but never require a website source checkout.
+        website_archive = repo.parent / 'Builds/CreativeSuite/Zipped/CinterForgeOS-WebSite-Content-2026.zip'
+        if website_archive.is_file():
+            subprocess.run([
+                sys.executable, '-u', str(repo / 'build/website_content.py'),
+                'install', '--repo-root', str(repo),
+                '--archive', str(website_archive),
+                '--builds-root', str(repo.parent / 'Builds'),
+            ], check=True)
     if args.operation == 'setup':
         return 0
     for configuration in configurations:
@@ -550,7 +712,41 @@ def main() -> int:
                             '--repo-root', str(repo)], check=True)
             build(built)
             runner, environment = ensure_backend(source_directory(repo))
-            ubuntu_products.build(repo, runner, environment, IMAGE)
+            products_log = _cfos_logs(repo.parent / 'Builds') / f'ubuntu-{version}-products-build.log'
+            products_log.write_text('[CFOS Ubuntu] START Server + integrated WebApp Build\n', encoding='utf-8')
+            try:
+                ubuntu_products.build(repo, runner, environment, IMAGE, log_path=products_log)
+                # CFOS is the documentation source authority. Produce a
+                # self-contained, versioned Hugo-content ZIP for the website
+                # before this Linux build can be certified. The website may
+                # consume the unpacked files without a CFOS source checkout.
+                with products_log.open('a', encoding='utf-8') as content_log:
+                    subprocess.run([
+                        sys.executable, '-u', str(repo / 'build/website_content.py'),
+                        'build', '--repo-root', str(repo),
+                        '--builds-root', str(repo.parent / 'Builds'),
+                    ], stdout=content_log, stderr=subprocess.STDOUT, check=True)
+                certify_build(repo, built)
+            except (OSError, RuntimeError, subprocess.CalledProcessError) as error:
+                with products_log.open('a') as stream:
+                    stream.write(f'[CFOS Ubuntu] FAIL products Build: {error}\n')
+                (products_log.parent / 'ubuntu-last-failure.json').write_text(json.dumps({
+                    'schema': 'cinterforge.cfos.ubuntu-failure.v1',
+                    'step': products_log.stem, 'returncode': getattr(error, 'returncode', 1),
+                    'log': str(products_log),
+                }, indent=2) + '\n')
+                raise
+            else:
+                with products_log.open('a') as stream:
+                    stream.write('[CFOS Ubuntu] PASS products Build and receipt\n')
+                failed = products_log.parent / 'ubuntu-last-failure.json'
+                if failed.is_file():
+                    try:
+                        old = json.loads(failed.read_text())
+                        if old.get('step') == products_log.stem:
+                            failed.unlink()
+                    except (OSError, ValueError):
+                        pass
         if args.operation == 'build':
             continue
         installed_built, installed, adapter = paths(repo, configuration=configuration)
@@ -567,6 +763,10 @@ def main() -> int:
             ubuntu_products.test(repo, installed / ARCHIVE, runner, environment, installed_image)
             ubuntu_unforked.test(repo, installed / ARCHIVE, runner, environment, installed_image)
             certify_tested_install(repo, installed, source_directory(repo))
+            # Publishable full Server closure is eligible only after its real
+            # requirements and installed-image smoke PASS. WebApp ZIPs are
+            # produced independently during Cinter build web.
+            ubuntu_products.package_verified_server(repo, installed / ARCHIVE)
     return 0
 
 

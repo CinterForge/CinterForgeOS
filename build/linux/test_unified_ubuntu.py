@@ -7,6 +7,8 @@ additionally pass the real installed-product CFOS Test on supported hardware.
 from __future__ import annotations
 
 import json
+import io
+import tarfile
 import os
 import subprocess
 from pathlib import Path
@@ -30,6 +32,145 @@ class UnifiedUbuntuTests(unittest.TestCase):
         (self.repo / 'CFOS').touch()
         self.build = pipeline.built_path(self.repo)
         self.build.mkdir(parents=True)
+
+    def test_guest_service_controller_is_readable_before_export_and_smoke(self):
+        """The host may supply ubuntu_service.sh with root-only mode (0600)."""
+        dockerfile = (pipeline.SOURCE / 'Dockerfile.ubuntu').read_text()
+        smoke = (pipeline.SOURCE / 'headless_contract.sh').read_text()
+        self.assertIn('COPY ubuntu_service.sh /usr/local/lib/cfos-ubuntu-service.sh', dockerfile)
+        self.assertIn('chmod 0644 /usr/local/lib/cfos-ubuntu-service.sh', dockerfile)
+        self.assertIn('runuser -u cinterforge -- test -r /usr/local/lib/cfos-ubuntu-service.sh', dockerfile)
+        self.assertIn('runuser -u cinterforge -- /bin/bash -n /usr/local/lib/cfos-ubuntu-service.sh', dockerfile)
+        self.assertIn('Guest-local service controller not readable by cinterforge', smoke)
+        self.assertIn('/bin/bash -n /usr/local/lib/cfos-ubuntu-service.sh', smoke)
+        self.assertIn('source /usr/local/lib/cfos-ubuntu-service.sh',
+                      (pipeline.SOURCE / 'ubuntu_shell.sh').read_text())
+        self.assertIn('source /usr/local/lib/cfos-ubuntu-service.sh',
+                      (pipeline.SOURCE / 'ubuntu_desktop.sh').read_text())
+
+    def test_wine_smoke_waits_for_its_isolated_server_before_cleanup(self):
+        """No false failure from wineserver writing into a deleted scratch prefix."""
+        source = (pipeline.SOURCE / 'headless_contract.sh').read_text()
+        cleanup = source.split('# CFOS_WINE_CLEANUP_BEGIN', 1)[1].split(
+            '# CFOS_WINE_CLEANUP_END', 1)[0]
+        self.assertIn('timeout 60 wineserver -w', source)
+        self.assertIn('wineserver -k', cleanup)
+        self.assertNotIn('trap \'rm -rf', source)
+        fake_bin = self.workspace / 'mock-wine-bin'
+        fake_bin.mkdir()
+        fake_wineserver = fake_bin / 'wineserver'
+        fake_wineserver.write_text('''#!/bin/sh
+printf '%s\n' "$1" >> "$CFOS_WINE_EVENTS"
+case "$1" in
+    -w) if [ -f "$WINEPREFIX/stuck" ]; then exit 1; fi
+        while [ -f "$WINEPREFIX/running" ]; do sleep 0.02; done ;;
+    -k) rm -f "$WINEPREFIX/running" "$WINEPREFIX/stuck" ;;
+    *) exit 3 ;;
+esac
+''')
+        fake_wineserver.chmod(0o755)
+        for expected_rc in (0, 1):
+            scratch = self.workspace / f'smoke-{expected_rc}'
+            events = self.workspace / f'wine-events-{expected_rc}.txt'
+            script = f"""#!/bin/sh
+set -eu
+tmp={str(scratch)!r}
+mkdir -p "$tmp/wine-prefix"
+export WINEPREFIX="$tmp/wine-prefix"
+{cleanup}
+: > "$WINEPREFIX/running"
+(sleep 0.15; rm -f "$WINEPREFIX/running") &
+{'false' if expected_rc else 'true'}
+"""
+            completed = subprocess.run(
+                ['/bin/sh', '-ec', script], capture_output=True, text=True,
+                env={**os.environ, 'PATH': f'{fake_bin}:' + os.environ['PATH'],
+                     'CFOS_WINE_EVENTS': str(events)}, timeout=10)
+            self.assertEqual(completed.returncode, expected_rc, completed.stderr)
+            self.assertFalse(scratch.exists(), completed.stderr)
+            self.assertIn('-w', events.read_text())
+            self.assertNotIn('-k', events.read_text())
+        # When an orphaned Wine service does not quiesce, the trap must stop
+        # ONLY this scratch prefix, then still preserve the original error.
+        scratch = self.workspace / 'smoke-stuck'
+        events = self.workspace / 'wine-events-stuck.txt'
+        script = f"""#!/bin/sh
+set -eu
+tmp={str(scratch)!r}
+mkdir -p "$tmp/wine-prefix"
+export WINEPREFIX="$tmp/wine-prefix"
+{cleanup}
+: > "$WINEPREFIX/stuck"
+false
+"""
+        completed = subprocess.run(
+            ['/bin/sh', '-ec', script], capture_output=True, text=True,
+            env={**os.environ, 'PATH': f'{fake_bin}:' + os.environ['PATH'],
+                 'CFOS_WINE_EVENTS': str(events)}, timeout=10)
+        self.assertEqual(completed.returncode, 1, completed.stderr)
+        self.assertFalse(scratch.exists())
+        self.assertEqual(events.read_text().splitlines(), ['-w', '-k', '-w'])
+        self.assertIn('stopping isolated smoke prefix', completed.stderr)
+
+    def test_rejects_legacy_rootfs_without_cinterforge_account(self):
+        archive = self.build / pipeline.ARCHIVE
+        def make_archive(passwd: bytes):
+            with tarfile.open(archive, 'w') as tar:
+                for name, payload in (
+                    ('./usr/bin/apt-get', b'#!/bin/sh\n'),
+                    ('./etc/passwd', passwd),
+                ):
+                    member = tarfile.TarInfo(name)
+                    member.size = len(payload)
+                    tar.addfile(member, io.BytesIO(payload))
+        make_archive(b'root:x:0:0:root:/root:/bin/bash\n')
+        with self.assertRaisesRegex(RuntimeError, 'missing its non-root cinterforge account'):
+            pipeline.validate_archive(archive)
+        make_archive(b'root:x:0:0:root:/root:/bin/bash\n'
+                     b'cinterforge:x:1001:1001::/home/cinterforge:/bin/bash\n')
+        pipeline.validate_archive(archive)
+
+    def test_stage_cannot_reuse_archive_after_failed_or_changed_build(self):
+        archive = self.build / pipeline.ARCHIVE
+        archive.write_bytes(b'fixture rootfs')
+        product = ubuntu_products.product_root(self.repo) / 'manifest.json'
+        product.parent.mkdir(parents=True)
+        product.write_text('{"schema":"cinterforge.cfos.ubuntu-products.v1"}')
+        with self.assertRaisesRegex(RuntimeError, 'Build has not completed successfully'):
+            pipeline.verify_build(self.repo, self.build)
+        with mock.patch.object(pipeline, 'validate_archive'):
+            pipeline.certify_build(self.repo, self.build)
+            pipeline.verify_build(self.repo, self.build)
+            archive.write_bytes(b'changed rootfs after verified build')
+            with self.assertRaisesRegex(RuntimeError, 'receipt is stale'):
+                pipeline.verify_build(self.repo, self.build)
+            archive.write_bytes(b'fixture rootfs')
+            product.write_text('{"schema":"changed"}')
+            with self.assertRaisesRegex(RuntimeError, 'products_sha256'):
+                pipeline.verify_build(self.repo, self.build)
+        (self.build / pipeline.BUILD_RECEIPT).unlink()
+        with self.assertRaisesRegex(RuntimeError, 'Build has not completed successfully'):
+            pipeline.stage(self.build, self.workspace / 'install', self.workspace / 'adapter')
+
+    def test_durable_ubuntu_smoke_log_identifies_failed_command(self):
+        log = self.workspace / 'Builds/Logs/CFOS/ubuntu-2026-headless-smoke.log'
+        with self.assertRaisesRegex(RuntimeError, 'full trace'):
+            pipeline.run_logged(
+                ['/bin/sh', '-exc', 'printf "CFOS-MARKER\\n"; false'], log_path=log)
+        recorded = log.read_text()
+        self.assertIn('CFOS-MARKER', recorded)
+        self.assertIn('+ false', recorded)
+        self.assertIn('exit=1', recorded)
+        receipt = json.loads((log.parent / 'ubuntu-last-failure.json').read_text())
+        self.assertEqual(receipt['returncode'], 1)
+        self.assertEqual(receipt['log'], str(log))
+
+    def test_durable_ubuntu_smoke_log_pass_has_no_failure_receipt(self):
+        log = self.workspace / 'Builds/Logs/CFOS/ubuntu-2026-desktop-smoke.log'
+        pipeline.run_logged(['/bin/sh', '-ec', 'echo CFOS-DESKTOP-OK'], log_path=log)
+        self.assertIn('CFOS-DESKTOP-OK', log.read_text())
+        self.assertIn('exit=0', log.read_text())
+        self.assertFalse((log.parent / 'ubuntu-last-failure.json').exists())
 
     def _test_receipt(self):
         archive = self.build / pipeline.ARCHIVE
@@ -225,12 +366,50 @@ class UnifiedUbuntuTests(unittest.TestCase):
             self.assertIn(required, dockerfile)
         for required in ('linux-cxx-check', 'windows-cxx-check.exe',
                          'windows-x86-check.exe', 'wine "$tmp/windows-check.exe"',
-                         'pkg-config --exists gtk+-3.0 libcurl vulkan'):
-            # The expanded workstation also validates GTK4, Qt6 and GStreamer.
-            if required.startswith('pkg-config --exists'):
-                self.assertIn('pkg-config --exists gtk+-3.0 gtk4 libcurl vulkan', smoke)
-            else:
-                self.assertIn(required, smoke)
+                         'gtk+-3.0:libgtk-3-dev', 'gtk4:libgtk-4-dev',
+                         'Qt6Core:qt6-base-dev', 'gstreamer-1.0:libgstreamer1.0-dev'):
+            self.assertIn(required, smoke)
+
+    def test_gstreamer_unwind_sdk_isolated_from_llvm_and_link_smoked(self):
+        dockerfile = (pipeline.SOURCE / 'Dockerfile.ubuntu').read_text()
+        smoke = (pipeline.SOURCE / 'headless_contract.sh').read_text()
+        # Ubuntu's LLVM dev package virtually provides libunwind-dev without
+        # GNU libunwind.pc. Keep LLVM while adding genuine GNU SDK metadata.
+        for token in ('apt-get install -y --no-install-recommends libunwind8',
+                      'apt-get download libunwind-dev libunwind8',
+                      'dpkg-deb -x "$1" "$sdk"',
+                      '/opt/cinterforge/SDKs/GNUlibunwind',
+                      'pkg-config --exists libunwind gstreamer-1.0',
+                      'libc++-dev libc++abi-dev', 'GNUlibunwind/SDK-Receipt.txt'):
+            self.assertIn(token, dockerfile)
+        self.assertNotIn('apt-get install -y libunwind-dev', dockerfile)
+        for token in ('pkg-config --exists libunwind',
+                      'pkg-config --cflags --libs gstreamer-1.0',
+                      'CFOS-UNWIND-OK', 'CFOS-GSTREAMER-OK'):
+            self.assertIn(token, smoke)
+        self.assertIn('libunwind.pc', dockerfile)
+
+    def test_pkg_config_failure_identifies_missing_sdk_and_never_silently_passes(self):
+        smoke = (pipeline.SOURCE / 'headless_contract.sh').read_text()
+        script = smoke.split('# CFOS_PKG_CONFIG_BEGIN', 1)[1].split('# CFOS_PKG_CONFIG_END', 1)[0]
+        fake_bin = self.workspace / 'fake-bin'
+        fake_bin.mkdir()
+        mock_pkg_config = fake_bin / 'pkg-config'
+        mock_pkg_config.write_text("""#!/bin/sh
+if [ "$1" = --exists ] && [ "$2" = gtk4 ]; then exit 1; fi
+if [ "$1" = --print-errors ] && [ "$3" = gtk4 ]; then
+    echo 'Package gtk4 was not found' >&2
+    exit 1
+fi
+exit 0
+""")
+        mock_pkg_config.chmod(0o755)
+        result = subprocess.run(['/bin/sh', '-ec', script], capture_output=True, text=True,
+                                env={**os.environ, 'PATH': f'{fake_bin}:' + os.environ['PATH']})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('missing pkg-config module: gtk4', result.stderr)
+        self.assertIn('libgtk-4-dev', result.stderr)
+        self.assertIn('Package gtk4 was not found', result.stderr)
 
     def test_workstation_compilers_sdks_are_present_and_version_verified(self):
         dockerfile = (pipeline.SOURCE / 'Dockerfile.ubuntu').read_text()
@@ -250,6 +429,82 @@ class UnifiedUbuntuTests(unittest.TestCase):
         self.assertIn('cargo install xwin --version 0.10.0 --locked', dockerfile)
         self.assertIn('CFOS_NODE_SHA256=', dockerfile)
         self.assertNotIn('xwin --accept-license', dockerfile)
+
+    def test_superpowered_workstation_toolchains_are_os_level(self):
+        dockerfile = (pipeline.SOURCE / 'Dockerfile.ubuntu').read_text()
+        for fragment in (
+            'gcc-11 g++-11 gcc-12 g++-12 gcc-14 g++-14',
+            'clang-17 clang-19 clang-tools-19',
+            'flang-18', 'mold binutils-gold gdb-multiarch',
+            'gcc-aarch64-linux-gnu g++-aarch64-linux-gnu',
+            'gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf',
+            'gcc-mingw-w64-x86-64-win32 g++-mingw-w64-x86-64-win32',
+            'gcc-mingw-w64-i686-win32 g++-mingw-w64-i686-win32',
+            'musl-tools emscripten binaryen wabt',
+            'openjdk-17-jdk-headless openjdk-21-jdk-headless maven ant gradle',
+            'cython3 pybind11-dev python3-pybind11 pipx',
+            'libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1-dev',
+            'qt6-websockets-dev qt6-wayland-dev qt6-shadertools-dev',
+        ):
+            self.assertIn(fragment, dockerfile)
+        self.assertIn('rustup component add rustfmt clippy rust-analyzer', dockerfile)
+        for target in ('aarch64-unknown-linux-gnu', 'x86_64-unknown-linux-musl',
+                       'x86_64-pc-windows-gnu', 'i686-pc-windows-gnu',
+                       'x86_64-pc-windows-msvc', 'wasm32-unknown-unknown'):
+            self.assertIn(target, dockerfile)
+        for pin in ('typescript@5.9.3', 'node-gyp@11.4.2',
+                    'pnpm@10.16.1', 'yarn@1.22.22', 'esbuild@0.25.12'):
+            self.assertIn(pin, dockerfile)
+        self.assertIn('Ubuntu-Toolchain-Packages.tsv', dockerfile)
+        self.assertIn('Ubuntu-NonAPT-Toolchains.txt', dockerfile)
+        self.assertIn('ENV PATH="/opt/node/bin:${PATH}"', dockerfile)
+        self.assertIn('CFOS_GRADLE8_VERSION=8.14.6', dockerfile)
+        self.assertIn('CFOS_GRADLE9_VERSION=9.8.2', dockerfile)
+        self.assertIn('sha256sum --check --status', dockerfile)
+
+    def test_installed_superpowered_workstation_smokes_real_compiles(self):
+        smoke = (pipeline.SOURCE / 'headless_contract.sh').read_text()
+        for token in ('"$tmp/mold-cxx-check"', '"$tmp/gold-cxx-check"',
+                      '"$tmp/clang19-cxx-check"', 'arm64-cxx-check.o',
+                      'armhf-cxx-check.o', 'wat2wasm', 'wasm-opt',
+                      'rustup target list --installed', 'cargo build --quiet --offline',
+                      'x86_64-pc-windows-gnu/debug/cargo-check.exe',
+                      '"$tmp/check.js"', 'CFOS-TS-OK', 'CFOS-JAVA-OK',
+                      'CFOS-GO-OK', 'go-windows-check.exe',
+                      'Ubuntu-Toolchain-Packages.tsv'):
+            self.assertIn(token, smoke)
+        self.assertNotIn('apt-get install', smoke)
+        self.assertNotIn('rustup target add', smoke)
+        self.assertNotRegex(smoke, r'(?m)^\s*npm install\b')
+
+    def test_microsoft_linux_tooling_is_pinned_and_smoked(self):
+        dockerfile = (pipeline.SOURCE / 'Dockerfile.ubuntu').read_text()
+        smoke = (pipeline.SOURCE / 'headless_contract.sh').read_text()
+        for token in ('dotnet-sdk-8.0 dotnet-sdk-10.0',
+                      'CFOS_POWERSHELL_VERSION=7.6.6',
+                      'CFOS_POWERSHELL_SHA256=9585f38ab5a026c3fc0995486e26e12050777960fef47a22dca98b577c5d27a7',
+                      'sha256sum --check --status', 'dotnet msbuild -version',
+                      'dotnet nuget --help'):
+            self.assertIn(token, dockerfile)
+        for token in ('pwsh -NoLogo -NoProfile -NonInteractive',
+                      'CFOS-POWERSHELL-OK', "dotnet --list-sdks",
+                      'dotnet nuget --help', 'dotnet msbuild',
+                      '<TargetFramework>net10.0</TargetFramework>',
+                      'CFOS-DOTNET-OK'):
+            self.assertIn(token, smoke)
+        self.assertNotIn('packages-microsoft-prod.deb', dockerfile)
+        self.assertNotIn('apt-get install -y msbuild', dockerfile)
+
+    def test_initial_ardour_inspection_dependencies_are_in_os(self):
+        dockerfile = (pipeline.SOURCE / 'Dockerfile.ubuntu').read_text()
+        smoke = (pipeline.SOURCE / 'headless_contract.sh').read_text()
+        # Earlier generic layers already provide the remaining packages.
+        for package in ('libwebsockets-dev', 'libcppunit-dev',
+                        'libgtkmm-2.4-dev', 'vamp-plugin-sdk',
+                        'lv2-dev', 'libsratom-dev', 'intltool', 'itstool',
+                        'libboost-system-dev'):
+            self.assertIn(package, dockerfile)
+        self.assertIn('Missing inspected Ardour build prerequisite', smoke)
 
     def test_shipping_steam_sdk_supports_both_gl_platforms(self):
         dockerfile = (pipeline.SOURCE / 'Dockerfile.ubuntu').read_text()
@@ -553,7 +808,7 @@ cfos_stage_guest_commands
             result = ubuntu_unforked.verify_windows_sources(base)
             self.assertIn('Kdenlive', result)
             self.assertEqual(result['Kdenlive'], [])
-            installer = base / 'UnforkedInstallers/Windows/Kdenlive'
+            installer = base / 'CreativeSuite/UnforkedInstallers/Windows/Kdenlive'
             installer.mkdir(parents=True)
             (installer / 'Kdenlive.exe').write_bytes(b'MZ not an installed executable')
             self.assertEqual(ubuntu_unforked.verify_windows_sources(base)['Kdenlive'], ['Kdenlive.exe'])

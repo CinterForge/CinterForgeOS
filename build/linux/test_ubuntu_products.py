@@ -24,23 +24,34 @@ class UbuntuProductsTests(unittest.TestCase):
         self.cfos = self.workspace / 'CinterForgeOS'
         self.cfos.mkdir()
         (self.cfos / 'CFOS').write_text('')
-        for name in ('CinterForgeDesktop', 'CinterForgeServer', 'CinterForgeWebApp',
-                     'CinterForgePlugins'):
+        for name in ('CinterForgeServer', 'CinterForgeWebApp',
+                     'CinterForgePlugins', 'cinterforge_website'):
             (self.workspace / name).mkdir()
-        (self.workspace / 'CinterForgeDesktop/Cinter').write_text('')
-        (self.workspace / 'CinterForgeServer/cinter/io').mkdir(parents=True)
-        (self.workspace / 'CinterForgeServer/cinter/io/CinterIO.py').write_text('')
+        (self.workspace / 'cinterforge_website/Cinter').write_text('')
+        (self.workspace / 'CinterForgeServer/cf/io').mkdir(parents=True)
+        (self.workspace / 'CinterForgeServer/cf/io/CinterIO.py').write_text('')
         (self.workspace / 'CinterForgeWebApp/runtime').mkdir()
         (self.workspace / 'CinterForgeWebApp/runtime/package.py').write_text('')
         self.built = products.expected_artifacts(self.cfos)
-        (self.built['server'] / 'cinter/io').mkdir(parents=True)
-        (self.built['server'] / 'cinter/io/CinterIO.py').write_text('server-code')
+        (self.built['server'] / 'cf/io').mkdir(parents=True)
+        (self.built['server'] / 'cf/io/CinterIO.py').write_text('server-code')
         self.built['webapp'].mkdir(parents=True)
         (self.built['webapp'] / 'index.html').write_text('<html>CinterForge</html>')
         (self.built['webapp'] / 'site.css').write_text('body {}')
+        for marker in ('blockbench/index.html',
+                       'codeoss/out/vs/code/browser/workbench/workbench.html'):
+            target = self.built['webapp'] / marker
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text('<html>integrated</html>')
         self.built['runtime'].mkdir(parents=True)
         (self.built['runtime'] / 'CinterRuntime.py').write_text('runtime-code')
         (self.built['runtime'] / 'manifest.json').write_text('{}')
+        self.built['website'].mkdir(parents=True)
+        for route in ('index.html', 'technology/index.html', 'technology/cinterforgeos/index.html',
+                      'products/cinterforge-desktop/index.html'):
+            page = self.built['website'] / route
+            page.parent.mkdir(parents=True, exist_ok=True)
+            page.write_text('<html>corporate</html>')
         manifest = products._manifest_path(self.cfos)
         manifest.parent.mkdir(parents=True, exist_ok=True)
         manifest.write_text(json.dumps({
@@ -53,8 +64,8 @@ class UbuntuProductsTests(unittest.TestCase):
 
     def test_requires_real_sibling_repos(self):
         self.assertEqual(set(products.repos(self.cfos)),
-                         {'CinterForgeOS', 'CinterForgeDesktop', 'CinterForgeServer',
-                          'CinterForgeWebApp', 'CinterForgePlugins'})
+                         {'CinterForgeOS', 'CinterForgeServer',
+                          'CinterForgeWebApp', 'cinterforge_website', 'CinterForgePlugins'})
         (self.workspace / 'CinterForgeWebApp/runtime/package.py').unlink()
         with self.assertRaisesRegex(RuntimeError, 'packager'):
             products.repos(self.cfos)
@@ -63,11 +74,12 @@ class UbuntuProductsTests(unittest.TestCase):
         products.install(self.cfos, self.archive)
         volume = ubuntu_adapter.steamapps_volume(self.archive)
         apps = volume / 'common/CinterForge/Applications'
-        self.assertEqual((apps / 'Server/CinterForgeServer/2026/Source/cinter/io/CinterIO.py').read_text(),
+        self.assertEqual((apps / 'Server/CinterForgeServer/2026/Source/cf/io/CinterIO.py').read_text(),
                          'server-code')
         self.assertEqual((apps / 'WebApps/CinterForgeWebApp/2026/websites/dev/index.html').read_text(),
                          '<html>CinterForge</html>')
-        self.assertTrue((apps / 'WebApps/CinterForgeWebApp/2026/Server/CinterRuntime.py').is_file())
+        self.assertTrue((apps / 'WebApps/CinterForgeWebApp/2026/runtime/CinterRuntime.py').is_file())
+        self.assertTrue((apps / 'WebApps/CinterForgeWebApp/2026/websites/site/technology/cinterforgeos/index.html').is_file())
         self.assertFalse((apps / 'WebApps/CinterForgeWebApp/2026/cinter').exists())
         self.assertTrue((apps / 'CFOS-Ubuntu-Products.json').is_file())
         products.verify_installed(self.cfos, self.archive)
@@ -122,10 +134,12 @@ class UbuntuProductsTests(unittest.TestCase):
             products.build(self.cfos, 'docker', {}, 'cinterforge-ubuntu:24.04-amd64')
         command = calls[-1] if calls[-1][0] == 'docker' else calls[1]
         self.assertIn('linux/amd64', command)
-        self.assertIn('/workspace/CinterForgeDesktop/Cinter', command)
-        self.assertEqual(command[-2:], ['build', 'web'])
+        self.assertIn('/workspace/cinterforge_website/Cinter build web', ' '.join(command))
+        self.assertNotIn('CinterForgeConverter', ' '.join(command))
+        self.assertIn('/workspace/cinterforge_website/Cinter setup web', ' '.join(command))
         self.assertIn('/workspace/Builds,rw', ' '.join(command))
         self.assertIn('/workspace/CinterForgeServer,ro', ' '.join(command))
+        self.assertFalse((self.workspace / 'CinterForgeConverter').exists())
         products.verify_build(self.cfos)
 
     def test_guest_test_isolation_and_runtime_20380(self):
@@ -136,8 +150,8 @@ class UbuntuProductsTests(unittest.TestCase):
         self.assertEqual(run.call_count, 2)
         provision, test = [call.args[0] for call in run.call_args_list]
         self.assertIn('python3 -m venv', ' '.join(provision))
-        self.assertIn('--network', provision)
-        self.assertIn('none', provision)
+        self.assertIn('--requirement', ' '.join(provision))
+        self.assertIn('pip check', ' '.join(provision))
         self.assertIn('installed-image-id', test)
         self.assertIn('--network', test)
         self.assertIn('20380', ' '.join(test))

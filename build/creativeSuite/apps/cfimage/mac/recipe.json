@@ -1,0 +1,60 @@
+{
+  "schema": "cinterforge.creative-suite.recipe.v1",
+  "identity": {
+    "application": "cfimage",
+    "platform": "mac",
+    "target_arch": "arm64",
+    "build_host": "macOS",
+    "acquisition": "source"
+  },
+  "source": {
+    "checkout_name": "CinterForgeImage",
+    "revision": null,
+    "build_definition": "meson.build"
+  },
+  "dependency_setup": {
+    "executor": "python",
+    "script": "apps/cfimage/mac/setup.py",
+    "args": []
+  },
+  "preparation": {
+    "packages": [],
+    "package_manager": "upstream",
+    "status": "unverified",
+    "toolchain": [
+      "meson",
+      "ninja",
+      "pkg-config",
+      "xcrun",
+      "xcodebuild"
+    ]
+  },
+  "configure": {
+    "system": "meson",
+    "observed_result": null,
+    "argv": []
+  },
+  "build": {
+    "system": "meson-ninja",
+    "verified": false,
+    "last_result": {
+      "success": true,
+      "version": "2026"
+    }
+  },
+  "readiness": {
+    "ready": false,
+    "configured": false,
+    "issues": [
+      "Build has not completed successfully since the latest build attempt",
+      "Native macOS source build and complete application dependency closure not yet verified"
+    ],
+    "setup_result": {
+      "configured": false,
+      "ready": false
+    }
+  },
+  "branding": {
+    "product_name": "CinterForge Image"
+  }
+}

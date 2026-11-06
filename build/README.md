@@ -88,7 +88,7 @@ Build creates `Builds/CreativeSuite/Built/cinterforge-os/linux/<version>/Ubuntu/
 
 The Ubuntu Release lifecycle now includes the independently owned sibling
 `CinterForgeServer` and `CinterForgeWebApp` products. **Build** uses Ubuntu's
-own AMD64 toolchain to invoke the existing `CinterForgeDesktop/Cinter build web`
+own AMD64 toolchain to invoke the existing `cinterforge_website/Cinter build web`
 command (Hugo and the WebApp-owned minimal `CinterRuntime.py` packager); it does
 not implement another Hugo builder. CFOS packages the full authored Server
 source separately, without host Python environments or Git metadata. The
@@ -99,7 +99,7 @@ resulting product fingerprint is recorded under
 `Ubuntu/steamapps/common/CinterForge/Applications/Server/CinterForgeServer/2026/Source/`,
 and the WebApp under
 `.../Applications/WebApps/CinterForgeWebApp/2026/`, using the normal
-`websites/dev/` and `Server/CinterRuntime.py` layout. Ubuntu's rootfs is
+`WebApps/CinterForgeWebApp/2026/websites/dev/` and `runtime/CinterRuntime.py` layout. Ubuntu's rootfs is
 replaceable; these application products are retained in the separate Ubuntu
 `steamapps` volume. The Server's Python environment is created *inside the
 Ubuntu AMD64 image* at `.../CinterForgeServer/2026/Python/`—never copied from
@@ -125,6 +125,25 @@ those incomplete Inspect recipes as executable or claim their Setup, Build,
 Stage, and Test are already passing. Their subsequent Stage operations must
 install into the *same* Ubuntu `/run/steamapps` and their own receipts must be
 verified independently.
+
+### Downloadable release layout
+
+The user-facing entry point is the stable [**Latest OS Build — macOS Apple Silicon**](https://cinterforge.ucreg.io/CreativeSuite/Zipped/CinterForgeOS-mac-latest.zip). After a successful macOS Release packaging step, CFOS retains the versioned `CinterForgeOS-mac-2026.zip` **and** produces `CinterForgeOS-mac-latest.zip` in `Builds/CreativeSuite/Zipped/` so the Cloudflare publisher can promote the stable object name without rewriting the README. The versioned package includes the validated staged macOS `.app`, guest-command distribution and its embedded SHA-256 release manifest. The stable alias must be published only after its corresponding versioned release passes acceptance. An alias existing locally is not evidence that it has been uploaded or is ready for end users.
+
+A complete installation is **not one giant disk**. Its independently updatable release units are:
+
+| Release unit | What is downloaded | Persistent state / guest applications |
+| --- | --- | --- |
+| **macOS host** | Signed/notarized `CinterForge OS.app`, bundled host adapters, launchers, installation UX and guest release catalog; packaged as `CinterForgeOS-mac-<version>.zip` plus a stable latest alias. | macOS system apps remain on the host. The host app does not contain writable guest disks or publisher installer archives. |
+| **Ubuntu 24.04 AMD64** | Immutable Docker-exported `Ubuntu-24.04-amd64-rootfs.tar` and validated build/test metadata, packaged as `CinterForgeOS-linux-amd64-<version>.zip`. The Ubuntu rootfs is **not** a raw VM `.img` in the current implementation. | A **distinct Ubuntu-owned** `steamapps` directory is mounted at `/run/steamapps`. A distributable *seed* of tested Server, WebApps, original apps and Packs can be installed there on first run. Never overwrite a user's persisted volume with an update. |
+| **SteamOS ARM64** | Versioned, bootable SteamOS image and integration/runtime payload; package name reserved as `CinterForgeOS-steamos-arm64-<version>.zip`. | SteamOS owns its **own** persistent Steam library, installed original/fork apps, Server/WebApps and Packs. It does not share Ubuntu's writable volume. |
+| **LinuxKit / Bedrock** | ARM64 LinuxKit kernel, initrd, boot cmdline and CFOS-built/signed host VM launcher; package name reserved as `CinterForgeOS-linuxkit-arm64-<version>.zip`. | Bedrock server binaries (subject to publisher terms), configurations and saved worlds are supplied or downloaded separately and kept persistent. LinuxKit is an appliance, not a full desktop or third Creative Suite build OS. |
+
+The SteamOS and LinuxKit ZIP names describe the **target release contracts**; their complete publication and first-run installation flows are separate from the macOS/Ubuntu archives currently assembled by `build/publish.sh`. Do not publish placeholder ZIPs or claim a guest is available before its real Build → Stage → Test has succeeded.
+
+The release catalog used by the installer must identify the exact platform/architecture, version, object key, byte size, SHA-256 and required companion/seed products. Only first-party or explicitly redistributable packages may be placed on the public `cinterforge.ucreg.io` bucket. The `cdn-dev.ucreg.io` bucket is for approved internal/development packages (subject to its access controls and third-party licensing); original publisher installers are sourced from `Builds/CreativeSuite/UnforkedInstallers` or an explicitly authorized CDN object, **never** from another user's installed `steamapps` tree.
+
+The launcher should download **only** the selected OS/server and its missing prerequisites, verify hashes, install the immutable system artifact, create or retain a separate writable data volume, and offer Install/Launch in the unified desktop. Updating a system archive cannot delete applications, games, Packs or Bedrock worlds. A first-time macOS user should not need Git, source checkouts, `./CFOS` or a manually mounted guest image; any remaining required host service (such as Docker/Colima for the present Ubuntu adapter) must be provisioned by the supported turnkey installer before this is considered a fulfilled release.
 
 ### Publishing
 
@@ -163,7 +182,16 @@ CFOS produces three distinct Linux execution artifacts. **LinuxKit** is the mini
 The Ubuntu AMD64 rootfs includes native GCC 10 and modern GCC/Clang, LLVM's
 `clang-cl`/`lld-link`/resource tools, the distro's MinGW-w64 i686 and x86-64
 cross-compilers, Wine, GCC/Clang debugging tools, Rust 1.98/Cargo, `xwin`,
-Node.js 22, Go, Java, Mono, Qt, GTK, KDE and broad audio/video/graphics SDKs.
+Node.js 22, Go, Java, Mono, **PowerShell 7.6.6**, the Ubuntu-packaged
+**.NET 8 and .NET 10 SDKs** (including `dotnet msbuild` and `dotnet nuget`),
+Qt, GTK, KDE and broad audio/video/graphics SDKs. PowerShell is installed
+from the exact Microsoft release `.deb` with its published SHA-256; no rolling
+Microsoft APT feed is added. The installed rootfs Test runs PowerShell,
+restores and builds a C# `net10.0` console application without a remote NuGet
+feed, and executes the resulting assembly as the non-root guest user. These
+cross-platform tools supplement Clang-CL, `xwin` and MinGW; they do **not**
+replace Windows-only Visual Studio, MSVC `cl.exe` or Windows-specific MSBuild
+tasks.
 Linux Test must compile and execute GCC 10 C/C++ and Rust code, run Node, and
 compile Windows PE binaries and launch one under Wine; installed tools are
 checked rather than merely assumed from Dockerfile declarations. The same
@@ -172,6 +200,12 @@ Linux AMD64 and Windows x64 (MinGW POSIX). Linux Test compiles and runs a
 SDL3-linked Linux executable and a Windows PE linked to the matching SDL3.dll
 under Wine. This is the shared OpenGL/SDL3 foundation for CinterForgeSteam;
 Steamworks SDK/app sources and their own ABI/package tests remain app-owned.
+
+The first Inspector-derived Ubuntu dependency pass also includes Ardour's
+previously missing Linux development packages (GTKmm 2 headers, LV2, Vamp,
+WebSockets, CppUnit and the required Boost components). The rootfs contract
+checks their installed package status. This is an initial closure, not proof
+that all application recipes have complete build dependencies.
 
 Docker `export` produces a portable rootfs tar but does not retain `ENV`,
 `WORKDIR` or `CMD`. Both CFOS Test and the installed Mac adapter restore the
@@ -248,3 +282,69 @@ The operating-system socket limit cannot be removed by renaming the project.
 For exceptionally deep physical mount paths that exceed the limit even with
 the compact layout, CFOS reports the specific socket path before creating
 VM state. Linux-native hosts use their preconfigured Docker daemon instead.
+
+### cinterforge_website documentation content package
+
+The **CFOS Linux Build** produces a standalone Hugo-content package from the
+current CinterForgeOS source checkout. The private corporate website's build
+consumes the extracted package from `Builds`; it must **not** read a sibling
+CFOS Git checkout or maintain independent copies of the documentation.
+
+| Public website URL | CFOS source authority |
+|---|---|
+| `/technology/` | `docs/technical/CinterForge OS Technology Stack.md` |
+| `/technology/cinterforgeos/` | `README.md` |
+
+Producer command (also invoked from `./CFOS build cinterforge-os linux Release`
+after the Server/WebApp products build):
+
+```bash
+python3 build/website_content.py build
+```
+
+Outputs, resolved relative to the sibling shared Builds root:
+
+```text
+Builds/
+├── CreativeSuite/Zipped/
+│   └── CinterForgeOS-WebSite-Content-2026.zip
+└── websites/content/CinterForgeOS/
+    ├── content/technology/_index.md
+    ├── content/technology/cinterforgeos/_index.md
+    ├── static/technology/cinterforgeos/assets/docs/dev-environment/
+    │   ├── Hero Shot.png
+    │   ├── Screen 1 - XCode and macOS.png
+    │   ├── Screen 2 - VS Code.png
+    │   └── Screen 3 - SteamOS.png
+    └── release-manifest.json
+```
+
+The ZIP includes SHA-256 and byte counts for every page and asset. The
+`install` operation validates all entries and installs them in the same
+Builds location **without requiring CFOS source or Git access**:
+
+```bash
+python3 build/website_content.py install \
+  --archive ../Builds/CreativeSuite/Zipped/CinterForgeOS-WebSite-Content-2026.zip
+```
+
+CFOS Setup also installs an already-present ZIP (for example one previously
+retrieved from the internal development CDN). The dedicated extracted tree is
+replaced without disturbing other website builds or WebApps.
+
+**Corporate website consumer contract:** `cinterforge_website` Setup acquires
+this ZIP if absent and validates/unpacks it into
+`Builds/websites/content/CinterForgeOS`. Its Hugo Build mounts or overlays
+that tree's `content/` and `static/` into the website build source, replacing
+only the two technology routes. The Namecheap website output remains outside
+Cloudflare buckets. The generated Hugo pages retain their URLs; relative
+CFOS image links are rewritten to site-local `/technology/cinterforgeos/assets/`
+paths and other CFOS repository-document links lead to the upstream GitHub
+repository. The source Markdown includes inline HTML logos: the website's
+Goldmark configuration must allow intended trusted inline HTML while its
+content inputs remain restricted to the verified release package. Do not edit
+generated content under Builds; edit the two CFOS Markdown files instead.
+
+A ZIP in `Zipped` is not evidence of a Cloudflare upload. Publishing it to
+`cdn-dev.ucreg.io` remains an explicit developer-CDN operation and should not
+mirror the corporate Hugo website into Cloudflare.

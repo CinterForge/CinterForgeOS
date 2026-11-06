@@ -70,6 +70,14 @@ if [[ "${1:-}" == clone || "${1:-}" == fork ]]; then
   exec python3 -u "$CFOS_ROOT/scripts/fork.py" "$source_action" "$@"
 fi
 
+# CFOS owns the complete Creative Suite recipe lifecycle across all platforms.
+# Only the OS itself continues through the specialized native CFOS image flow.
+if [[ $# -ge 3 && "${2:-}" != 'cinterforge-os' ]]; then
+  case "${1:-}" in setup|build|stage|test|publish|inspect|all)
+    exec python3 -u "$CFOS_ROOT/build/creativeSuite/command.py" "$@" ;;
+  esac
+fi
+
 [[ $# -ge 4 ]] || usage
 CFOS_ACTION="$1"
 CFOS_APPLICATION="$2"
@@ -162,7 +170,7 @@ cfos_validate_app() {
 # never recompile the bootstrap through CraftMaster or the Creative Suite.
 cfos_linuxkit() {
   local op="$1"
-  local bootstrap="$CFOS_WORKSPACE/Builds/Linux"
+  local bootstrap="$CFOS_WORKSPACE/Builds/CreativeSuite/CFOS/LinuxKit"
   if [[ "$op" == build ]]; then
     cfos_run python3 -u "$CFOS_ROOT/build/linux/build_linux.py" --repo-root "$CFOS_ROOT"
     return

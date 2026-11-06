@@ -1,0 +1,90 @@
+{
+  "schema": "cinterforge.creative-suite.recipe.v1",
+  "identity": {
+    "application": "cfpaint",
+    "platform": "mac",
+    "target_arch": "arm64",
+    "build_host": "macOS",
+    "acquisition": "source"
+  },
+  "source": {
+    "checkout_name": "CinterForgePaint",
+    "revision": null,
+    "build_definition": "CMakeLists.txt"
+  },
+  "dependency_setup": {
+    "executor": "python",
+    "script": "apps/cfpaint/mac/setup.py",
+    "args": []
+  },
+  "preparation": {
+    "packages": [],
+    "package_manager": "upstream",
+    "status": "unverified",
+    "toolchain": [
+      "cmake",
+      "ninja",
+      "pkg-config",
+      "xcrun",
+      "xcodebuild"
+    ]
+  },
+  "configure": {
+    "system": "cmake",
+    "observed_result": null,
+    "argv": []
+  },
+  "build": {
+    "system": "cmake-ninja",
+    "verified": false,
+    "last_result": {
+      "success": true,
+      "version": "2026"
+    }
+  },
+  "readiness": {
+    "ready": false,
+    "configured": false,
+    "issues": [
+      "Build has not completed successfully since the latest build attempt",
+      "Native macOS source build and complete application dependency closure not yet verified"
+    ],
+    "setup_result": {
+      "configured": false,
+      "ready": false
+    }
+  },
+  "qca_qt5": {
+    "version": "2.3.12",
+    "url": "https://download.kde.org/stable/qca/2.3.12/qca-2.3.12.tar.xz",
+    "sha256": "d4a2b3aa0272d73ea0c4cd2140960177fa34ddc2030e59a48ecfb80c757572c3"
+  },
+  "branding": {
+    "repository": "CinterForgePaint",
+    "icons": [
+      "packaging/macos/KritaIcon.icns"
+    ],
+    "splashes": [
+      "krita/data/splash/electrichearts_20250824A_kiki_4K.png",
+      "krita/data/splash/banner.svg",
+      "krita/data/splash/splash_holidays_dummy.png"
+    ],
+    "splash_code": {
+      "loader": [
+        "libs/ui/kis_splash_screen.cpp"
+      ],
+      "renderer": [
+        "libs/ui/kis_splash_screen.cpp"
+      ],
+      "startup": [
+        "krita/main.cc",
+        "libs/ui/KisApplication.cpp"
+      ],
+      "manifest": [
+        "krita/data/splash/splash.qrc"
+      ],
+      "note": "KisSplashScreen selects and draws image; resource manifest is separate"
+    },
+    "product_name": "CinterForge Paint"
+  }
+}

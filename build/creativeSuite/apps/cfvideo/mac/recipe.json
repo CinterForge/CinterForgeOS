@@ -1,0 +1,91 @@
+{
+  "schema": "cinterforge.creative-suite.recipe.v1",
+  "identity": {
+    "application": "cfvideo",
+    "platform": "mac",
+    "target_arch": "arm64",
+    "build_host": "macOS",
+    "acquisition": "source"
+  },
+  "source": {
+    "checkout_name": "CinterForgeVideo",
+    "revision": null,
+    "build_definition": "CMakeLists.txt"
+  },
+  "dependency_setup": {
+    "executor": "python",
+    "script": "apps/cfvideo/mac/setup.py",
+    "args": []
+  },
+  "preparation": {
+    "packages": [],
+    "package_manager": "upstream",
+    "status": "unverified",
+    "toolchain": [
+      "cmake",
+      "ninja",
+      "pkg-config",
+      "xcrun",
+      "xcodebuild"
+    ],
+    "craft": {
+      "setup_args": [
+        "--option",
+        "kdenlive.version=master",
+        "--install-deps",
+        "kdenlive"
+      ],
+      "source_package": "kdenlive",
+      "dependency_state": "KDE Craft installed-package database",
+      "setup_scope": "build and runtime dependencies; application is built by Build"
+    }
+  },
+  "configure": {
+    "system": "cmake",
+    "observed_result": null,
+    "argv": []
+  },
+  "build": {
+    "system": "cmake-ninja",
+    "verified": false,
+    "last_result": {
+      "success": true,
+      "version": "2026"
+    }
+  },
+  "readiness": {
+    "ready": false,
+    "configured": false,
+    "issues": [
+      "Build has not completed successfully since the latest build attempt",
+      "Native macOS source build and complete application dependency closure not yet verified"
+    ],
+    "setup_result": {
+      "configured": false,
+      "ready": false
+    }
+  },
+  "branding": {
+    "repository": "CinterForgeVideo",
+    "icons": [
+      "data/icons/sc-apps-kdenlive.svg",
+      "data/pics/kdenlive-logo.png"
+    ],
+    "splashes": [
+      "data/pics/splash-background.webp"
+    ],
+    "splash_code": {
+      "loader": [
+        "src/dialogs/splash.cpp"
+      ],
+      "renderer": [
+        "src/dialogs/Splash.qml",
+        "src/dialogs/Simplesplash.qml"
+      ],
+      "startup": [],
+      "manifest": [],
+      "note": "QML splash; image and overlaid branding may differ"
+    },
+    "product_name": "CinterForge Video"
+  }
+}
